@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://cxuhym1b6tr5m"]
+
+[ext_resource type="Script" uid="uid://p50tq7d2kul6" path="res://Scripts/room_generator.gd" id="1_a7321"]
+[ext_resource type="PackedScene" uid="uid://bgysbj2623d8d" path="res://Scenes/Characters/player_cat.tscn" id="3_fuk2s"]
+[ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Scenes/hud.tscn" id="3_vertu"]
+
+[node name="Room_generator" type="Node2D"]
+script = ExtResource("1_a7321")
+_walkers = 25
+_path_min = 5
+
+[node name="Player" parent="." instance=ExtResource("3_fuk2s")]
+z_index = 1
+position = Vector2(8, 0)
+
+[node name="Hud" parent="Player" instance=ExtResource("3_vertu")]

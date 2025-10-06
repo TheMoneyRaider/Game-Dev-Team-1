@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://f7ntvy2e7amo"]
+
+[ext_resource type="Script" uid="uid://dlqf78nyynl8x" path="res://Scripts/explosion.gd" id="1_fe38x"]
+
+[sub_resource type="Curve" id="Curve_wtn4h"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.995736, 0.0453452), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_fhawg"]
+curve = SubResource("Curve_wtn4h")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_h3kbt"]
+lifetime_randomness = 0.2
+particle_flag_disable_z = true
+spread = 180.0
+initial_velocity_min = 25.0
+initial_velocity_max = 100.0
+gravity = Vector3(0, 0, 0)
+scale_min = 2.0
+scale_max = 4.0
+scale_curve = SubResource("CurveTexture_fhawg")
+collision_mode = 1
+collision_friction = 0.25
+collision_bounce = 0.0
+
+[node name="Explosion" type="Node2D"]
+script = ExtResource("1_fe38x")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 60
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_h3kbt")
+
+[connection signal="finished" from="GPUParticles2D" to="." method="_on_gpu_particles_2d_finished"]
