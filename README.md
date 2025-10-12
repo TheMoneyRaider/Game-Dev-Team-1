@@ -8,6 +8,6 @@ Kabir Vidyarthi - Coding Help
 
 Contacts:
 Ryan - sheparry@oregonstate.edu - @Ryerye059 on discord
-Kabir - 
+Kabir - vidyartk@oregonstate.edu - @grimmeaper on discord
 Zak - ettersoz@oregonstate.edu - @zonkerz6916 on discord 
-Griffin - 
+Griffin - stoberr@oregonstate.edu - @thefedora on discord
