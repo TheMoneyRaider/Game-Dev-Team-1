@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=4 uid="uid://c7nh23uplsorv"]
+[gd_scene load_steps=33 format=4 uid="uid://c7nh23uplsorv"]
 
 [ext_resource type="PackedScene" uid="uid://bgysbj2623d8d" path="res://Scenes/Characters/player_cat.tscn" id="1_fhlu0"]
 [ext_resource type="PackedScene" uid="uid://f7ntvy2e7amo" path="res://particle_effects/explosion.tscn" id="2_bktio"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://brxp6ue2sjp8b" path="res://art/limbo.png" id="11_ifohm"]
 [ext_resource type="Texture2D" uid="uid://dp5birfl53o6f" path="res://art/limbo2.png" id="12_17mqb"]
 [ext_resource type="PackedScene" uid="uid://dqpm38ufxo4lw" path="res://Scenes/Characters/slime.tscn" id="13_nwvxw"]
+[ext_resource type="PackedScene" uid="uid://o7jaiybdcito" path="res://Scenes/Characters/duck.tscn" id="14_bktio"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_f8l1f"]
 polygon = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
@@ -430,6 +431,7 @@ sources/9 = SubResource("TileSetAtlasSource_6dhlr")
 
 [node name="GameLevel" type="Node2D"]
 y_sort_enabled = true
+position = Vector2(1, -1)
 
 [node name="PlayerCat" parent="." instance=ExtResource("1_fhlu0")]
 position = Vector2(157, 20)
@@ -446,5 +448,8 @@ metadata/_edit_lock_ = true
 [node name="Slime" parent="." node_paths=PackedStringArray("player") instance=ExtResource("13_nwvxw")]
 position = Vector2(82, 48)
 player = NodePath("../PlayerCat")
+
+[node name="Duck" parent="." instance=ExtResource("14_bktio")]
+position = Vector2(209, -4)
 
 [connection signal="input_event" from="Slime" to="Slime" method="_on_input_event"]
