@@ -7,8 +7,8 @@ var crosshair_direction = Vector2(1,0)
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 
-func _process(delta: float) -> void:
-	var input_direction = Input.get_vector("Look_Left", "Look_Right", "Look_Up", "Look_Down").normalized()
+func _process(_delta: float) -> void:
+	var input_direction = Input.get_vector("look_Left", "look_Right", "look_Up", "look_Down").normalized()
 	if(input_direction != Vector2(0,0)):
 		crosshair_direction = input_direction		
 	var camera = get_viewport().get_camera_2d()
