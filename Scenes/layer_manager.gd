@@ -129,35 +129,32 @@ func _place_enemy_spawners() -> void:
 func _floor_noise() -> void:
 	#If there's no noise fillings, don't do the work
 	if(current_room.num_fillings==0):
-		pass
-	room_instance.noise.seed = randi()
-	var noise_val : float
-	var cells : Array[Vector2i] = room_instance.get_node("Ground").get_used_cells()
-	var cell_count = cells.size()+1
-	#Create the output terrain arrays
-	var terrains = []
-	terrains.resize(cell_count*current_room.num_fillings);
-	for i in range(current_room.num_fillings):
-		terrains[i]=Array()
-		terrains[i].resize(cell_count)
-		for j in range(cell_count):
-			terrains[i][j]=Vector2i(-1,-1)
-	var itr : int = 1
-	#For each cell of the floor, check which terrain it should display and update the appropriate element in the appropriate terrain array
-	for cell in cells:
-		noise_val = (room_instance.noise.get_noise_2d((cell.x)*current_room.noise_scale.x,(cell.y)*current_room.noise_scale.y)+1)/2
-		for i in range(current_room.num_fillings):
-			if i == 0:
-				if noise_val < current_room.fillings_terrain_threshold[i]:
-					terrains[i][itr]=Vector2i(cell.x,cell.y)
-			elif noise_val < current_room.fillings_terrain_threshold[i] and noise_val >= current_room.fillings_terrain_threshold[i-1]:
-					terrains[i][itr]=Vector2i(cell.x,cell.y)
-		itr+=1
-	#update the tilemaplayer with all the terrain layers
-	for i in range(current_room.num_fillings):
-		terrains[i].filter(func(vector) : return vector != Vector2i(-1,-1))
-		room_instance.get_node("Ground").set_cells_terrain_connect(terrains[i], current_room.fillings_terrain_set[i], current_room.fillings_terrain_id[i], true)
+		return
+	var ground = room_instance.get_node("Ground")
+	var noise = room_instance.noise
+	noise.seed = randi()
+	#Initialize variables
+	var scale_x = current_room.noise_scale.x
+	var scale_y = current_room.noise_scale.y
+	var thresholds = current_room.fillings_terrain_threshold
+	var num_fillings = current_room.num_fillings
+	#Create the output terrain array
+	var terrains := []
+	terrains.resize(num_fillings)
+	for i in range(num_fillings):
+		terrains[i] = []
 
+	var cells = ground.get_used_cells()
+	#Create Noise
+	for cell in cells:
+		var noise_val = (noise.get_noise_2d(cell.x * scale_x, cell.y * scale_y) + 1.0) * 0.5
+		for i in range(num_fillings):
+			if noise_val < thresholds[i]:
+				terrains[i].append(cell)
+				break
+	#Connect tiles			
+	for i in range(num_fillings):
+		ground.set_cells_terrain_connect(terrains[i],current_room.fillings_terrain_set[i],current_room.fillings_terrain_id[i],true)
 
 
 #Helper Functions
