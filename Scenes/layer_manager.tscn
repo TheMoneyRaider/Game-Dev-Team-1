@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=5 format=3 uid="uid://bjlqt0ad4do23"]
 
-[ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://scenes/layer_manager.gd" id="1_t30qu"]
+[ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Scenes/layer_manager.gd" id="1_t30qu"]
 [ext_resource type="PackedScene" uid="uid://dhidnnukydkmw" path="res://Scenes/crosshair.tscn" id="2_73yy2"]
 [ext_resource type="PackedScene" uid="uid://bgysbj2623d8d" path="res://Scenes/Characters/player_cat.tscn" id="2_e5lrv"]
+[ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Scenes/attack.tscn" id="4_xpwjc"]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_t30qu")
@@ -11,3 +12,6 @@ script = ExtResource("1_t30qu")
 
 [node name="PlayerCat" parent="." instance=ExtResource("2_e5lrv")]
 z_index = 1
+
+[node name="Attack" parent="PlayerCat" instance=ExtResource("4_xpwjc")]
+position = Vector2(0, -16)

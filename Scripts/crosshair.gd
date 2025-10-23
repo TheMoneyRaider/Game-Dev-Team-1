@@ -1,7 +1,7 @@
 extends Node2D
 
 const DEFAULT_SPEED = 20.0
-@onready var Player = $"../PlayerCat"
+@onready var player = $"../PlayerCat"
 var crosshair_direction = Vector2(1,0)
 
 func _ready():
@@ -13,10 +13,10 @@ func _process(_delta: float) -> void:
 		crosshair_direction = input_direction		
 	var camera = get_viewport().get_camera_2d()
 	var mouse_coords = camera.get_global_mouse_position()
-	var direction = (mouse_coords - Player.position).normalized()
+	var direction = (mouse_coords - player.position).normalized()
 	
-	if((mouse_coords - Player.position).length() < 50):
+	if((mouse_coords - player.position).length() < 50):
 		position = mouse_coords
 	else:
-		position = direction * 50 + Player.position
+		position = direction * 50 + player.position
 	#position = (crosshair_direction * 50) + Player.position
