@@ -35,6 +35,8 @@ var exit_direction : Array[Direction] = []
 var exit_type : Array[Exit] = []
 #enemy spawnpoints. Node to be labeled Enemy#
 var num_enemy_spawnpoints : int
+#enemy goal number.
+var num_enemy_goal : int
 #NPC spawnpoints. Node to be labeled NPC#
 var num_npc_spawnpoints : int
 #Shop spawnpoint. Node to be labeled Shop
@@ -44,7 +46,7 @@ static func Create_Room(t_scene_location : String, t_num_liquid : int, t_liquid_
 						t_num_fillings : int, t_fillings_terrain_set : Array[int], t_fillings_terrain_id : Array[int], 
 						t_fillings_terrain_threshold : Array[float], t_noise_scale : Vector2i, t_num_trap : int, t_trap_chances : Array[float], 
 						t_num_exits : int, t_exit_direction : Array[Direction], t_exit_type : Array[Exit], t_num_enemy_spawnpoints : int, 
-						t_num_npc_spawnpoints : int, t_can_spawn_shop : bool
+						t_num_enemy_goal : int, t_num_npc_spawnpoints : int, t_can_spawn_shop : bool
 ) -> Room:
 	var new_room = Room.new()
 	new_room.scene_location = t_scene_location
@@ -62,6 +64,7 @@ static func Create_Room(t_scene_location : String, t_num_liquid : int, t_liquid_
 	new_room.exit_direction = t_exit_direction
 	new_room.exit_type = t_exit_type
 	new_room.num_enemy_spawnpoints = t_num_enemy_spawnpoints
+	new_room.num_enemy_goal = t_num_enemy_goal
 	new_room.num_npc_spawnpoints = t_num_npc_spawnpoints
 	new_room.can_spawn_shop = t_can_spawn_shop
 	return new_room
