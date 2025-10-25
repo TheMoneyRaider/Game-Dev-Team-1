@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dhidnnukydkmw"]
 
 [ext_resource type="Texture2D" uid="uid://ctv7cis0jidca" path="res://art/purple_crosshair.png" id="1_2y53i"]
-[ext_resource type="Script" uid="uid://b27dumqjc6pgl" path="res://scripts/crosshair.gd" id="1_audnv"]
+[ext_resource type="Script" uid="uid://b27dumqjc6pgl" path="res://Scripts/crosshair.gd" id="1_audnv"]
 
 [node name="Crosshair" type="Node2D"]
 z_index = 5

@@ -1,4 +1,5 @@
 extends CharacterBody2D
+const attack = preload("res://Scripts/attack.gd")
 
 @export var move_speed: float = 100
 @export var max_health: float = 100
@@ -8,6 +9,10 @@ extends CharacterBody2D
 
 @onready var animation_tree = $AnimationTree
 @onready var state_machine = animation_tree.get("parameters/playback")
+
+@export var attack_scene = PackedScene
+
+signal attack_requested(new_attack : Attack)
 
 func _ready():
 	update_animation_parameters(starting_direction)
@@ -23,7 +28,10 @@ func _physics_process(_delta):
 	
 	update_animation_parameters(input_direction)
 	# Update velocity
-	velocity = input_direction * move_speed
+	velocity = input_direction * move_speed		
+	
+	if Input.is_action_just_pressed("attack"):
+		request_attack(200,1,.5)
 	
 	#move and slide function
 	move_and_slide()
@@ -42,3 +50,11 @@ func pick_new_state():
 		state_machine.travel("Walk")
 	else:
 		state_machine.travel("Idle")
+
+func request_attack(attack_speed : float, damage : int, lifespan : float):
+	var camera = get_viewport().get_camera_2d()
+	var mouse_coords = camera.get_global_mouse_position()
+	var attack_direction = (mouse_coords - position).normalized()
+	var attack_position = attack_direction * 10 + global_position
+	var new_attack = attack.create_attack(attack_direction,attack_speed,damage,attack_position, lifespan)
+	emit_signal("attack_requested",new_attack)

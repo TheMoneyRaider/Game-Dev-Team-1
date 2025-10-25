@@ -1,30 +1,21 @@
-extends Sprite2D
+class_name Attack
 
-@onready var player = $"../PlayerCat"
-@onready var hitbox = $Area2D
-@onready var cooldown = $Timer
+var direction := Vector2(0,0)
+#The direction the attack goes
+var speed : float = 0.0
+#How fast the attack is moving
+var damage : int = 0
+#How much damage the attack will do
+var position := Vector2(0,0)
+#Where the attack will originate from
+var lifespan : float = 0
+#How long attack lasts in seconds before despawning
 
-func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("attack") and not is_visible():
-		print("pressed attack")
-		var camera = get_viewport().get_camera_2d()
-		var mouse_coords = camera.get_global_mouse_position()
-		var direction = (mouse_coords - player.position).normalized()
-		position = direction * 10
-		rotation = direction.angle()
-		visible = true
-		cooldown.start()
-		hitbox.set_collision_mask_value(1, true)
-
-
-func _on_timer_timeout() -> void:
-	visible = false
-	print("attacked")
-	hitbox.set_collision_mask_value(1, false)
-	#Hitbox.disabled = true
-	pass # Replace with function body.
-
-
-func _on_area_2d_area_entered(area: Area2D) -> void:
-	print(area)
-	pass # Replace with function body.
+static func create_attack(t_direction : Vector2, t_speed : float, t_damage : int, t_position : Vector2, t_lifespan) -> Attack:
+	var new_attack = Attack.new()
+	new_attack.direction = t_direction
+	new_attack.speed = t_speed
+	new_attack.damage = t_damage
+	new_attack.position = t_position
+	new_attack.lifespan = t_lifespan
+	return new_attack
