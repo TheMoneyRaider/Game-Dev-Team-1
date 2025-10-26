@@ -1,9 +1,9 @@
 extends Node2D
 const room = preload("res://Scripts/room.gd")
 #the root node of each room MUST BE NAMED Root
-#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Exits            Exit Directions                                                                                      Exit Types                                                                Enemy Spawnpoints     Enemy Num Goal         NPC Spawnpoints    Can Shop
-@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/test_room1.tscn",                        4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                3,                   [room.Direction.Left,room.Direction.Up,room.Direction.Up],                                           [room.Exit.Cave,room.Exit.Cave,room.Exit.Cave],                                          7,    5,                               0,   false),
-										 room.Create_Room("res://Scenes/test_room2.tscn",                        2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    2,                   [room.Direction.Up,room.Direction.Up],                                                               [room.Exit.Cave,room.Exit.Cave],                                                         11,    8,                               0,   false)
+#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Exits            Exit Directions                             Num Entrances            Entrance Directions                                                                                                  Exit Types                                                                Enemy Spawnpoints     Enemy Num Goal         NPC Spawnpoints    Can Shop
+@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/test_room1.tscn",                        4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                2,                   [room.Direction.Up,room.Direction.Up],     4,                   [room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],                                     [room.Exit.Cave,room.Exit.Cave,room.Exit.Cave],                                          7,    5,                               0,   false),
+										 room.Create_Room("res://Scenes/test_room2.tscn",                        2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    2,                   [room.Direction.Up,room.Direction.Up],      3,                   [room.Direction.Left,room.Direction.Down,room.Direction.Right],                                                         [room.Exit.Cave,room.Exit.Cave],                                                         11,    8,                               0,   false)
 										]
 @onready var player = $PlayerCat
 var current_room : Room
@@ -23,23 +23,56 @@ func _ready() -> void:
 	#cull NPC spawners
 	#cull shop spawners
 	_floor_noise()
+	player.position = room_instance.get_node("PlayerSpawn").position
 	
 func _process(_delta: float) -> void:
 	if(Input.is_action_just_pressed("Activate")):
-		room_instance.queue_free()
-		second_layer = []
-		while find_child("Root") != null:
-			pass
-		_choose_room()
-		_place_exits()
-		_place_liquids()
-		_place_traps()
-		_place_enemy_spawners()
-		#cull NPC spawners
-		#cull shop spawners
-		_floor_noise()
+		var direction = check_exits()
+		if direction != -1:
+			room_instance.queue_free()
+			second_layer = []
+			while find_child("Root") != null:
+				pass
+			_choose_room()
+			_place_exits()
+			_place_liquids()
+			_place_traps()
+			_place_enemy_spawners()
+			#cull NPC spawners
+			#cull shop spawners
+			_floor_noise()
+			#randomize exit #TODO
+			match direction:
+				room.Direction.Left:
+					room_instance.get_node("EntranceR1").queue_free()
+					player.position = room_instance.get_node("EntranceR1_Detect").position
+				room.Direction.Right:
+					room_instance.get_node("EntranceL1").queue_free()
+					player.position = room_instance.get_node("EntranceL1_Detect").position
+				room.Direction.Up:
+					room_instance.get_node("EntranceD1").queue_free()
+					player.position = room_instance.get_node("EntranceD1_Detect").position
+					
+				
 	
+func check_exits() -> int:
+	var targets_extents: Array = []
+	var targets_position: Array = []
+	for idx in range(1,current_room.num_exits+1):
+		targets_extents.append(room_instance.get_node("Exit"+str(idx)+"_Detect/CollisionShape2D").shape.extents)
+		targets_position.append(room_instance.get_node("Exit"+str(idx)+"_Detect/CollisionShape2D").global_position)
+		
+	var player_shape = player.get_node("CollisionShape2D").shape
+	var player_position = player.global_position
+	var player_rect = player_shape.extents
 	
+	for idx in range(0,current_room.num_exits):
+		var area_rect = targets_extents[idx]
+
+		if abs(player_position.x -  targets_position[idx].x) <= player_rect.x + area_rect.x \
+			and abs(player_position.y - targets_position[idx].y) <= player_rect.y + area_rect.y:
+			return current_room.exit_direction[idx]
+	return -1
 	
 func _choose_room() -> void:
 	#Shuffle rooms and load one
@@ -49,8 +82,6 @@ func _choose_room() -> void:
 	room_location = load(current_room.scene_location)
 	room_instance = room_location.instantiate()
 	add_child(room_instance)
-	#temporary remove this when you dynamically choose the player's entrance #TODO
-	player.position = room_instance.get_node("PlayerSpawn").position
 
 func _place_exits() -> void:
 	#Choose which exits to keep
