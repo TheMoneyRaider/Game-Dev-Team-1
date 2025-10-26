@@ -1,9 +1,9 @@
 extends Node2D
 const room = preload("res://Scripts/room.gd")
-#the root node MUST BE NAMED Root
-#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Exits            Exit Directions                                                                                      Exit Types                                                                Enemy Spawnpoints  NPC Spawnpoints    Can Shop
-@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/medival_cave_room_test.tscn",           4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                3,                   [room.Direction.Left,room.Direction.Up,room.Direction.Up],                                           [room.Exit.Cave,room.Exit.Cave,room.Exit.Cave],                                          0,              0,   false),
-										 room.Create_Room("res://Scenes/medival_cave_room_test2.tscn",           2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    2,                   [room.Direction.Up,room.Direction.Up],                                                               [room.Exit.Cave,room.Exit.Cave],                                                         0,              0,   false)
+#the root node of each room MUST BE NAMED Root
+#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Exits            Exit Directions                                                                                      Exit Types                                                                Enemy Spawnpoints     Enemy Num Goal         NPC Spawnpoints    Can Shop
+@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/test_room1.tscn",                        4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                3,                   [room.Direction.Left,room.Direction.Up,room.Direction.Up],                                           [room.Exit.Cave,room.Exit.Cave,room.Exit.Cave],                                          7,    5,                               0,   false),
+										 room.Create_Room("res://Scenes/test_room2.tscn",                        2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    2,                   [room.Direction.Up,room.Direction.Up],                                                               [room.Exit.Cave,room.Exit.Cave],                                                         11,    8,                               0,   false)
 										]
 @onready var player = $PlayerCat
 var current_room : Room
@@ -19,7 +19,7 @@ func _ready() -> void:
 	_place_exits()
 	_place_liquids()
 	_place_traps()
-	#cull enemy spawners
+	_place_enemy_spawners()
 	#cull NPC spawners
 	#cull shop spawners
 	_floor_noise()
@@ -34,7 +34,7 @@ func _process(_delta: float) -> void:
 		_place_exits()
 		_place_liquids()
 		_place_traps()
-		#cull enemy spawners
+		_place_enemy_spawners()
 		#cull NPC spawners
 		#cull shop spawners
 		_floor_noise()
@@ -55,13 +55,18 @@ func _choose_room() -> void:
 func _place_exits() -> void:
 	#Choose which exits to keep
 	var exit_num = 0
+	#Open at least one exit
+	var curr_exit = int(randf()*current_room.num_exits)+1
+	room_instance.get_node("Exit"+str(curr_exit)).queue_free()
+	print("Opened ",curr_exit)
 	while exit_num < current_room.num_exits:
 		exit_num+=1
 		#Add intellgient exit choosing later. Also remember removing the node is OPENING the exit. #TODO
-		if randf() > .5:
-			room_instance.get_node("Exit"+str(exit_num)).queue_free()
-		else:
-			second_layer+=room_instance.get_node("Exit"+str(exit_num)).get_used_cells()
+		if room_instance.get_node("Exit"+str(exit_num)):
+			if randf() > .5:
+				room_instance.get_node("Exit"+str(exit_num)).queue_free()
+			else:
+				second_layer+=room_instance.get_node("Exit"+str(exit_num)).get_used_cells()
 
 func _place_liquids() -> void:
 	#For each liquid check if you should place it and then check if there's room
@@ -101,40 +106,55 @@ func _place_traps() -> void:
 				print("DEBUG: Layer collision removed")
 			else:
 				second_layer+=cells
-				
+
+func _place_enemy_spawners() -> void:
+	#For each enemy check if there's room
+	var enemy_num = 0
+	while enemy_num < current_room.num_enemy_spawnpoints:
+		enemy_num+=1
+		var cell =  Vector2i(floor(room_instance.get_node("Enemy"+str(enemy_num)).position.x / 16), floor(room_instance.get_node("Enemy"+str(enemy_num)).position.y / 16))
+		if cell in second_layer:
+			room_instance.get_node("Enemy"+str(enemy_num)).queue_free()
+			#DEBUG
+			print("DEBUG: Layer collision removed")
+	while enemy_num > current_room.num_enemy_goal:
+		var curr_en = int(randf()*current_room.num_enemy_spawnpoints)+1
+		if room_instance.get_node("Enemy"+str(curr_en)):
+			room_instance.get_node("Enemy"+str(curr_en)).queue_free()
+			print("DEBUG: Deleted enemy")
+			enemy_num-=1
+			
+		
 				
 func _floor_noise() -> void:
 	#If there's no noise fillings, don't do the work
 	if(current_room.num_fillings==0):
-		pass
-	room_instance.noise.seed = randi()
-	var noise_val : float
-	var cells : Array[Vector2i] = room_instance.get_node("Ground").get_used_cells()
-	var cell_count = cells.size()+1
-	#Create the output terrain arrays
-	var terrains = []
-	terrains.resize(cell_count*current_room.num_fillings);
-	for i in range(current_room.num_fillings):
-		terrains[i]=Array()
-		terrains[i].resize(cell_count)
-		for j in range(cell_count):
-			terrains[i][j]=Vector2i(-1,-1)
-	var itr : int = 1
-	#For each cell of the floor, check which terrain it should display and update the appropriate element in the appropriate terrain array
-	for cell in cells:
-		noise_val = (room_instance.noise.get_noise_2d((cell.x)*current_room.noise_scale.x,(cell.y)*current_room.noise_scale.y)+1)/2
-		for i in range(current_room.num_fillings):
-			if i == 0:
-				if noise_val < current_room.fillings_terrain_threshold[i]:
-					terrains[i][itr]=Vector2i(cell.x,cell.y)
-			elif noise_val < current_room.fillings_terrain_threshold[i] and noise_val >= current_room.fillings_terrain_threshold[i-1]:
-					terrains[i][itr]=Vector2i(cell.x,cell.y)
-		itr+=1
-	#update the tilemaplayer with all the terrain layers
-	for i in range(current_room.num_fillings):
-		terrains[i].filter(func(vector) : return vector != Vector2i(-1,-1))
-		room_instance.get_node("Ground").set_cells_terrain_connect(terrains[i], current_room.fillings_terrain_set[i], current_room.fillings_terrain_id[i], true)
+		return
+	var ground = room_instance.get_node("Ground")
+	var noise = room_instance.noise
+	noise.seed = randi()
+	#Initialize variables
+	var scale_x = current_room.noise_scale.x
+	var scale_y = current_room.noise_scale.y
+	var thresholds = current_room.fillings_terrain_threshold
+	var num_fillings = current_room.num_fillings
+	#Create the output terrain array
+	var terrains := []
+	terrains.resize(num_fillings)
+	for i in range(num_fillings):
+		terrains[i] = []
 
+	var cells = ground.get_used_cells()
+	#Create Noise
+	for cell in cells:
+		var noise_val = (noise.get_noise_2d(cell.x * scale_x, cell.y * scale_y) + 1.0) * 0.5
+		for i in range(num_fillings):
+			if noise_val < thresholds[i]:
+				terrains[i].append(cell)
+				break
+	#Connect tiles			
+	for i in range(num_fillings):
+		ground.set_cells_terrain_connect(terrains[i],current_room.fillings_terrain_set[i],current_room.fillings_terrain_id[i],true)
 
 
 #Helper Functions

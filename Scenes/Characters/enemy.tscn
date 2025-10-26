@@ -1,7 +1,6 @@
-[gd_scene load_steps=24 format=3 uid="uid://dqpm38ufxo4lw"]
+[gd_scene load_steps=23 format=3 uid="uid://b2lyldgavuns4"]
 
-[ext_resource type="Script" uid="uid://i4p0svc4kdan" path="res://Scripts/slime.gd" id="1_o34qh"]
-[ext_resource type="Texture2D" uid="uid://bphdjjbq1efwl" path="res://art/limbo_slime.png" id="2_ndaoh"]
+[ext_resource type="Texture2D" uid="uid://bphdjjbq1efwl" path="res://art/limbo_slime.png" id="2_u56tr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o34qh"]
 size = Vector2(20, 6)
@@ -140,12 +139,9 @@ states/slime_move/position = Vector2(486, 196)
 transitions = ["slime_hit", "slime_die", SubResource("AnimationNodeStateMachineTransition_hlcj7"), "slime_die", "End", SubResource("AnimationNodeStateMachineTransition_3n180"), "slime_hit", "slime_move", SubResource("AnimationNodeStateMachineTransition_agke8"), "slime_idle", "slime_hit", SubResource("AnimationNodeStateMachineTransition_8l57e"), "slime_move", "slime_idle", SubResource("AnimationNodeStateMachineTransition_g4pye"), "slime_idle", "slime_move", SubResource("AnimationNodeStateMachineTransition_xehkb"), "slime_hit", "slime_idle", SubResource("AnimationNodeStateMachineTransition_sigoy"), "slime_move", "slime_hit", SubResource("AnimationNodeStateMachineTransition_k8n3b"), "Start", "slime_idle", SubResource("AnimationNodeStateMachineTransition_apkt6")]
 
 [node name="CharacterBody2D" type="CharacterBody2D"]
-script = ExtResource("1_o34qh")
-move_speed = null
-health = null
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("2_ndaoh")
+texture = ExtResource("2_u56tr")
 hframes = 8
 vframes = 4
 
