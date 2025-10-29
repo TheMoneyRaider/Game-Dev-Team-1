@@ -11,6 +11,10 @@ var current_room : Room
 @onready var second_layer : Array[Vector2i] = []
 var room_location : Resource 
 var room_instance
+@export var water_cells := []
+@export var lava_cells := []
+@export var acid_cells := []
+@export var blocked_cells := []
 
 
 func _ready() -> void:
@@ -23,6 +27,7 @@ func _ready() -> void:
 	#cull NPC spawners
 	#cull shop spawners
 	_floor_noise()
+	_calculate_cell_arrays()
 	
 func _process(_delta: float) -> void:
 	if(Input.is_action_just_pressed("Activate")):
@@ -41,6 +46,7 @@ func _process(_delta: float) -> void:
 			#cull NPC spawners
 			#cull shop spawners
 			_floor_noise()
+			_calculate_cell_arrays()
 				
 					
 				
@@ -263,7 +269,23 @@ func _floor_noise() -> void:
 	#Connect tiles			
 	for i in range(num_fillings):
 		ground.set_cells_terrain_connect(terrains[i],current_room.fillings_terrain_set[i],current_room.fillings_terrain_id[i],true)
-
+func _calculate_cell_arrays() -> void:
+	blocked_cells = []
+	water_cells = []
+	lava_cells = []
+	acid_cells = []
+	blocked_cells.append(room_instance.get_node("Walls").get_used_cells())
+	blocked_cells.append(room_instance.get_node("Filling").get_used_cells())
+	var types = [0,0,0,0,0]
+	for liquid in current_room.liquid_types:
+		types[liquid] +=1
+		match liquid:
+			room.Liquid.Water:
+				water_cells +=room_instance.get_node("Water"+str(types[liquid])).get_used_cells()
+			room.Liquid.Lava:
+				water_cells +=room_instance.get_node("Lava"+str(types[liquid])).get_used_cells()
+			room.Liquid.Acid:
+				water_cells +=room_instance.get_node("Acid"+str(types[liquid])).get_used_cells()
 
 #Helper Functions
 
