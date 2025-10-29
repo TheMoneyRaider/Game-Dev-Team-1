@@ -34,36 +34,47 @@ func _process(_delta: float) -> void:
 			while find_child("Root") != null:
 				pass
 			_choose_room()
-			#randomize exit #TODO
+			# Randomize the entrance
+			var L = 0
+			var R = 0
+			var D = 0
+			for direct in current_room.entrance_direction:
+				if direct == room.Direction.Down:
+					D+=1
+				if direct == room.Direction.Right:
+					R+=1
+				if direct == room.Direction.Left:
+					L+=1
+			var entrance
 			match direction:
 				room.Direction.Left:
-					room_instance.get_node("EntranceR1").queue_free()
-					player.position = room_instance.get_node("EntranceR1_Detect").position
+					entrance = int(randf()*R)+1
+					room_instance.get_node("EntranceR"+str(entrance)).queue_free()
+					player.position = room_instance.get_node("EntranceR"+str(entrance)+"_Detect").position
 				room.Direction.Right:
-					room_instance.get_node("EntranceL1").queue_free()
-					player.position = room_instance.get_node("EntranceL1_Detect").position
+					entrance = int(randf()*L)+1
+					room_instance.get_node("EntranceL"+str(entrance)).queue_free()
+					player.position = room_instance.get_node("EntranceL"+str(entrance)+"_Detect").position
 				room.Direction.Up:
-					room_instance.get_node("EntranceD1").queue_free()
-					player.position = room_instance.get_node("EntranceD1_Detect").position
-			var L= 0
-			var R =0
-			var D=0
+					entrance = int(randf()*D)+1
+					room_instance.get_node("EntranceD"+str(entrance)).queue_free()
+					player.position = room_instance.get_node("EntranceD"+str(entrance)+"_Detect").position
+			L = 0
+			R = 0
+			D = 0
 			for j in current_room.entrance_direction:
 				match j:
 					room.Direction.Left:
 						L+=1
 						if room_instance.get_node("EntranceL"+str(L)):
-							print("addL")
 							second_layer+=room_instance.get_node("EntranceL"+str(L)).get_used_cells()
 					room.Direction.Right:
 						R+=1
 						if room_instance.get_node("EntranceR"+str(R)):
-							print("addR")
 							second_layer+=room_instance.get_node("EntranceR"+str(R)).get_used_cells()
 					room.Direction.Down:
 						D+=1
 						if room_instance.get_node("EntranceD"+str(D)):
-							print("addD")
 							second_layer+=room_instance.get_node("EntranceD"+str(D)).get_used_cells()
 			_place_exits()
 			_place_liquids()
@@ -113,7 +124,7 @@ func _place_exits() -> void:
 	print("Opened ",curr_exit)
 	while exit_num < current_room.num_exits:
 		exit_num+=1
-		#Add intellgient exit choosing later. Also remember removing the node is OPENING the exit. #TODO
+		#Add intelligent exit choosing later. Also remember removing the node is OPENING the exit. #TODO
 		if room_instance.get_node("Exit"+str(exit_num)):
 			if randf() > .5:
 				room_instance.get_node("Exit"+str(exit_num)).queue_free()
@@ -165,11 +176,8 @@ func _place_enemy_spawners() -> void:
 	while enemy_num < current_room.num_enemy_spawnpoints:
 		enemy_num+=1
 		var cell =  Vector2i(floor(room_instance.get_node("Enemy"+str(enemy_num)).position.x / 16), floor(room_instance.get_node("Enemy"+str(enemy_num)).position.y / 16))
-		if enemy_num == 3:
-			print(cell,"\n",second_layer)
+
 		if cell in second_layer:
-			if enemy_num == 3:
-				print("DELETED")
 			room_instance.get_node("Enemy"+str(enemy_num)).queue_free()
 			#DEBUG
 			print("DEBUG: Layer collision removed")
