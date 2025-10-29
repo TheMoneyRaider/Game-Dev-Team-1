@@ -34,13 +34,6 @@ func _process(_delta: float) -> void:
 			while find_child("Root") != null:
 				pass
 			_choose_room()
-			_place_exits()
-			_place_liquids()
-			_place_traps()
-			_place_enemy_spawners()
-			#cull NPC spawners
-			#cull shop spawners
-			_floor_noise()
 			#randomize exit #TODO
 			match direction:
 				room.Direction.Left:
@@ -52,6 +45,34 @@ func _process(_delta: float) -> void:
 				room.Direction.Up:
 					room_instance.get_node("EntranceD1").queue_free()
 					player.position = room_instance.get_node("EntranceD1_Detect").position
+			var L= 0
+			var R =0
+			var D=0
+			for j in current_room.entrance_direction:
+				match j:
+					room.Direction.Left:
+						L+=1
+						if room_instance.get_node("EntranceL"+str(L)):
+							print("addL")
+							second_layer+=room_instance.get_node("EntranceL"+str(L)).get_used_cells()
+					room.Direction.Right:
+						R+=1
+						if room_instance.get_node("EntranceR"+str(R)):
+							print("addR")
+							second_layer+=room_instance.get_node("EntranceR"+str(R)).get_used_cells()
+					room.Direction.Down:
+						D+=1
+						if room_instance.get_node("EntranceD"+str(D)):
+							print("addD")
+							second_layer+=room_instance.get_node("EntranceD"+str(D)).get_used_cells()
+			_place_exits()
+			_place_liquids()
+			_place_traps()
+			_place_enemy_spawners()
+			#cull NPC spawners
+			#cull shop spawners
+			_floor_noise()
+				
 					
 				
 	
@@ -76,7 +97,7 @@ func check_exits() -> int:
 	
 func _choose_room() -> void:
 	#Shuffle rooms and load one
-	cave_stage.shuffle()
+	#cave_stage.shuffle()       Undo comment #TODO
 	current_room=cave_stage[0]
 	
 	room_location = load(current_room.scene_location)
@@ -144,7 +165,11 @@ func _place_enemy_spawners() -> void:
 	while enemy_num < current_room.num_enemy_spawnpoints:
 		enemy_num+=1
 		var cell =  Vector2i(floor(room_instance.get_node("Enemy"+str(enemy_num)).position.x / 16), floor(room_instance.get_node("Enemy"+str(enemy_num)).position.y / 16))
+		if enemy_num == 3:
+			print(cell,"\n",second_layer)
 		if cell in second_layer:
+			if enemy_num == 3:
+				print("DELETED")
 			room_instance.get_node("Enemy"+str(enemy_num)).queue_free()
 			#DEBUG
 			print("DEBUG: Layer collision removed")
