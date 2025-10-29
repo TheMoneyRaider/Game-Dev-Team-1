@@ -2,7 +2,7 @@ class_name Room
 
 enum Liquid {Water, Lava, Acid}
 enum Direction {Up, Right, Left, Down}
-enum Exit {Cave, Forest_Path, Castle, Sewer_Manhole, Basement_Door, Mansion_Door, Western_Door, Desert_Path, Arid_Archway, Factory_Door, Vent, Hallway_Door, Limbo_Gate}
+#enum Exit {Cave, Forest_Path, Castle, Sewer_Manhole, Basement_Door, Mansion_Door, Western_Door, Desert_Path, Arid_Archway, Factory_Door, Vent, Hallway_Door, Limbo_Gate}
 #Trap variety will be hardcoded into layers and stages
 
 var scene_location : String = ""
@@ -26,18 +26,11 @@ var noise_scale := Vector2i(10,10)
 var num_trap : int = 0
 #An array of the corresponding generation chance of the trap creation.
 var trap_chances : Array[float] = []
-#how many exits this room has
-#exit patches should be named Exit#
-var num_exits : int = 0
-#direction for each exit/exit patch
-var exit_direction : Array[Direction] = []
-#how many entrances this room has(should be at least 1 Left, 1 Down, and 1 Right entrance)
-#etrance patches should be named EntranceL#, EntranceD#, EntranceR#,
-var num_entrances : int = 0
-#direction for each entrance/entrance patch
-var entrance_direction : Array[Direction] = []
-#type of exit it is.
-var exit_type : Array[Exit] = []
+#how many pathways this room has(should be at least 1 Left, 1 Down, 1 Right, and 1 Up Pathway)
+#pathway patches should be named PathwayL#, PathwayD#, PathwayR#, and PathwayU#
+var num_pathways : int = 0
+#direction for each pathway/pathway patch
+var pathway_direction : Array[Direction] = []
 #enemy spawnpoints. Node to be labeled Enemy#
 var num_enemy_spawnpoints : int
 #enemy goal number.
@@ -50,7 +43,7 @@ var can_spawn_shop : bool
 static func Create_Room(t_scene_location : String, t_num_liquid : int, t_liquid_types : Array[Liquid], t_liquid_chances : Array[float], 
 						t_num_fillings : int, t_fillings_terrain_set : Array[int], t_fillings_terrain_id : Array[int], 
 						t_fillings_terrain_threshold : Array[float], t_noise_scale : Vector2i, t_num_trap : int, t_trap_chances : Array[float], 
-						t_num_exits : int, t_exit_direction : Array[Direction], t_num_entrances : int, t_entrance_direction : Array[Direction],t_exit_type : Array[Exit], t_num_enemy_spawnpoints : int, 
+						t_num_pathways : int, t_pathway_direction : Array[Direction], t_num_enemy_spawnpoints : int, 
 						t_num_enemy_goal : int, t_num_npc_spawnpoints : int, t_can_spawn_shop : bool
 ) -> Room:
 	var new_room = Room.new()
@@ -65,11 +58,8 @@ static func Create_Room(t_scene_location : String, t_num_liquid : int, t_liquid_
 	new_room.noise_scale = t_noise_scale
 	new_room.num_trap = t_num_trap
 	new_room.trap_chances = t_trap_chances
-	new_room.num_exits = t_num_exits
-	new_room.exit_direction = t_exit_direction
-	new_room.num_entrances = t_num_entrances
-	new_room.entrance_direction = t_entrance_direction
-	new_room.exit_type = t_exit_type
+	new_room.num_pathways = t_num_pathways
+	new_room.pathway_direction = t_pathway_direction
 	new_room.num_enemy_spawnpoints = t_num_enemy_spawnpoints
 	new_room.num_enemy_goal = t_num_enemy_goal
 	new_room.num_npc_spawnpoints = t_num_npc_spawnpoints

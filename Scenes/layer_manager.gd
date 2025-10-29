@@ -1,9 +1,9 @@
 extends Node2D
 const room = preload("res://Scripts/room.gd")
 #the root node of each room MUST BE NAMED Root
-#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Exits            Exit Directions                             Num Entrances            Entrance Directions                                                                                                  Exit Types                                                                Enemy Spawnpoints     Enemy Num Goal         NPC Spawnpoints    Can Shop
-@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/test_room1.tscn",                        4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                2,                   [room.Direction.Up,room.Direction.Up],     4,                   [room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],                                     [room.Exit.Cave,room.Exit.Cave,room.Exit.Cave],                                          7,    5,                               0,   false),
-										 room.Create_Room("res://Scenes/test_room2.tscn",                        2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    2,                   [room.Direction.Up,room.Direction.Up],      3,                   [room.Direction.Left,room.Direction.Down,room.Direction.Right],                                                         [room.Exit.Cave,room.Exit.Cave],                                                         11,    8,                               0,   false)
+#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Pathways          Pathway Directions                                                                                                                                           Enemy Spawnpoints     Enemy Num Goal         NPC Spawnpoints    Can Shop
+@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/test_room1.tscn",                        4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                6,                   [room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],                                       7,                     5,                               0,   false),
+										 room.Create_Room("res://Scenes/test_room2.tscn",                        2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    5,                   [room.Direction.Up,room.Direction.Up,room.Direction.Left,room.Direction.Down,room.Direction.Right],                                                               11,                    8,                               0,   false)
 										]
 @onready var player = $PlayerCat
 var current_room : Room
@@ -16,67 +16,25 @@ var room_instance
 func _ready() -> void:
 	randomize()
 	_choose_room()
-	_place_exits()
+	_choose_pathways(room.Direction.Up)
 	_place_liquids()
 	_place_traps()
 	_place_enemy_spawners()
 	#cull NPC spawners
 	#cull shop spawners
 	_floor_noise()
-	player.position = room_instance.get_node("PlayerSpawn").position
 	
 func _process(_delta: float) -> void:
 	if(Input.is_action_just_pressed("Activate")):
-		var direction = check_exits()
+		var direction = check_pathways()
 		if direction != -1:
 			room_instance.queue_free()
 			second_layer = []
 			while find_child("Root") != null:
 				pass
 			_choose_room()
-			# Randomize the entrance
-			var L = 0
-			var R = 0
-			var D = 0
-			for direct in current_room.entrance_direction:
-				if direct == room.Direction.Down:
-					D+=1
-				if direct == room.Direction.Right:
-					R+=1
-				if direct == room.Direction.Left:
-					L+=1
-			var entrance
-			match direction:
-				room.Direction.Left:
-					entrance = int(randf()*R)+1
-					room_instance.get_node("EntranceR"+str(entrance)).queue_free()
-					player.position = room_instance.get_node("EntranceR"+str(entrance)+"_Detect").position
-				room.Direction.Right:
-					entrance = int(randf()*L)+1
-					room_instance.get_node("EntranceL"+str(entrance)).queue_free()
-					player.position = room_instance.get_node("EntranceL"+str(entrance)+"_Detect").position
-				room.Direction.Up:
-					entrance = int(randf()*D)+1
-					room_instance.get_node("EntranceD"+str(entrance)).queue_free()
-					player.position = room_instance.get_node("EntranceD"+str(entrance)+"_Detect").position
-			L = 0
-			R = 0
-			D = 0
-			for j in current_room.entrance_direction:
-				match j:
-					room.Direction.Left:
-						L+=1
-						if room_instance.get_node("EntranceL"+str(L)):
-							second_layer+=room_instance.get_node("EntranceL"+str(L)).get_used_cells()
-					room.Direction.Right:
-						R+=1
-						if room_instance.get_node("EntranceR"+str(R)):
-							second_layer+=room_instance.get_node("EntranceR"+str(R)).get_used_cells()
-					room.Direction.Down:
-						D+=1
-						if room_instance.get_node("EntranceD"+str(D)):
-							second_layer+=room_instance.get_node("EntranceD"+str(D)).get_used_cells()
-			_place_exits()
+			# Randomize the pathway
+			_choose_pathways(direction)
 			_place_liquids()
 			_place_traps()
 			_place_enemy_spawners()
@@ -86,50 +44,136 @@ func _process(_delta: float) -> void:
 				
 					
 				
-	
-func check_exits() -> int:
+				
+func check_pathways() -> int:
 	var targets_extents: Array = []
 	var targets_position: Array = []
-	for idx in range(1,current_room.num_exits+1):
-		targets_extents.append(room_instance.get_node("Exit"+str(idx)+"_Detect/CollisionShape2D").shape.extents)
-		targets_position.append(room_instance.get_node("Exit"+str(idx)+"_Detect/CollisionShape2D").global_position)
-		
+	var targets_id: Array = []
+	var L = 0
+	var R = 0
+	var D = 0
+	var U = 0
+	for p_direct in current_room.pathway_direction:
+		match p_direct:
+			room.Direction.Left:
+				L+=1
+				if room_instance.get_node("PathwayL"+str(L)+"_Detect"):
+					targets_extents.append(room_instance.get_node("PathwayL"+str(L)+"_Detect/Area2D/CollisionShape2D").shape.extents)
+					targets_position.append(room_instance.get_node("PathwayL"+str(L)+"_Detect/Area2D/CollisionShape2D").global_position)
+					targets_id.append("PathwayL"+str(L)+"_Detect")
+			room.Direction.Right:
+				R+=1
+				if room_instance.get_node("PathwayR"+str(R)+"_Detect"):
+					targets_extents.append(room_instance.get_node("PathwayR"+str(R)+"_Detect/Area2D/CollisionShape2D").shape.extents)
+					targets_position.append(room_instance.get_node("PathwayR"+str(R)+"_Detect/Area2D/CollisionShape2D").global_position)
+					targets_id.append("PathwayR"+str(R)+"_Detect")
+			room.Direction.Down:
+				D+=1
+				if room_instance.get_node("PathwayD"+str(D)+"_Detect"):
+					targets_extents.append(room_instance.get_node("PathwayD"+str(D)+"_Detect/Area2D/CollisionShape2D").shape.extents)
+					targets_position.append(room_instance.get_node("PathwayD"+str(D)+"_Detect/Area2D/CollisionShape2D").global_position)
+					targets_id.append("PathwayD"+str(D)+"_Detect")
+			room.Direction.Up:
+				U+=1
+				if room_instance.get_node("PathwayU"+str(U)+"_Detect"):
+					targets_extents.append(room_instance.get_node("PathwayU"+str(U)+"_Detect/Area2D/CollisionShape2D").shape.extents)
+					targets_position.append(room_instance.get_node("PathwayU"+str(U)+"_Detect/Area2D/CollisionShape2D").global_position)
+					targets_id.append("PathwayU"+str(U)+"_Detect")
+
 	var player_shape = player.get_node("CollisionShape2D").shape
 	var player_position = player.global_position
 	var player_rect = player_shape.extents
 	
-	for idx in range(0,current_room.num_exits):
+	for idx in range(0,len(targets_extents)):
 		var area_rect = targets_extents[idx]
-
 		if abs(player_position.x -  targets_position[idx].x) <= player_rect.x + area_rect.x \
 			and abs(player_position.y - targets_position[idx].y) <= player_rect.y + area_rect.y:
-			return current_room.exit_direction[idx]
+			if !room_instance.get_node(targets_id[idx]).used:
+				return current_room.pathway_direction[idx]
 	return -1
 	
 func _choose_room() -> void:
 	#Shuffle rooms and load one
-	#cave_stage.shuffle()       Undo comment #TODO
+	cave_stage.shuffle()
 	current_room=cave_stage[0]
 	
 	room_location = load(current_room.scene_location)
 	room_instance = room_location.instantiate()
 	add_child(room_instance)
 
-func _place_exits() -> void:
-	#Choose which exits to keep
-	var exit_num = 0
-	#Open at least one exit
-	var curr_exit = int(randf()*current_room.num_exits)+1
-	room_instance.get_node("Exit"+str(curr_exit)).queue_free()
-	print("Opened ",curr_exit)
-	while exit_num < current_room.num_exits:
-		exit_num+=1
-		#Add intelligent exit choosing later. Also remember removing the node is OPENING the exit. #TODO
-		if room_instance.get_node("Exit"+str(exit_num)):
-			if randf() > .5:
-				room_instance.get_node("Exit"+str(exit_num)).queue_free()
-			else:
-				second_layer+=room_instance.get_node("Exit"+str(exit_num)).get_used_cells()
+func _choose_pathways(direction) -> void:
+	# Place required pathway(where the player(s) is entering		
+	var L = 0
+	var R = 0
+	var D = 0
+	var U = 0
+	for direct in current_room.pathway_direction:
+		if direct == room.Direction.Down:
+			D+=1
+		if direct == room.Direction.Right:
+			R+=1
+		if direct == room.Direction.Left:
+			L+=1
+		if direct == room.Direction.Up:
+			U+=1
+	var pathway
+	match direction:
+		room.Direction.Left:
+			pathway = int(randf()*R)+1
+			room_instance.get_node("PathwayR"+str(pathway)).queue_free()
+			player.position = room_instance.get_node("PathwayR"+str(pathway)+"_Detect").position
+			room_instance.get_node("PathwayR"+str(pathway)+"_Detect").used = true
+		room.Direction.Right:
+			pathway = int(randf()*L)+1
+			room_instance.get_node("PathwayL"+str(pathway)).queue_free()
+			player.position = room_instance.get_node("PathwayL"+str(pathway)+"_Detect").position
+			room_instance.get_node("PathwayL"+str(pathway)+"_Detect").used = true
+		room.Direction.Up:
+			pathway = int(randf()*D)+1
+			room_instance.get_node("PathwayD"+str(pathway)).queue_free()
+			player.position = room_instance.get_node("PathwayD"+str(pathway)+"_Detect").position
+			room_instance.get_node("PathwayD"+str(pathway)+"_Detect").used = true
+		room.Direction.Down:
+			pathway = int(randf()*U)+1
+			room_instance.get_node("PathwayU"+str(pathway)).queue_free()
+			player.position = room_instance.get_node("PathwayU"+str(pathway)+"_Detect").position
+			room_instance.get_node("PathwayU"+str(pathway)+"_Detect").used = true
+	
+	#Choose which pathways to keep      #add intelligent pathway choosing #TODO
+	L = 0
+	R = 0
+	D = 0
+	U = 0
+	for p_direct in current_room.pathway_direction:
+		match p_direct:
+			room.Direction.Left:
+				L+=1
+				if room_instance.get_node("PathwayL"+str(L)):
+					if randf() > .5:
+						room_instance.get_node("PathwayL"+str(L)).queue_free()
+					else:
+						second_layer+=room_instance.get_node("PathwayL"+str(L)).get_used_cells()
+			room.Direction.Right:
+				R+=1
+				if room_instance.get_node("PathwayR"+str(R)):
+					if randf() > .5:
+						room_instance.get_node("PathwayR"+str(R)).queue_free()
+					else:
+						second_layer+=room_instance.get_node("PathwayR"+str(R)).get_used_cells()
+			room.Direction.Down:
+				D+=1
+				if room_instance.get_node("PathwayD"+str(D)):
+					if randf() > .5:
+						room_instance.get_node("PathwayD"+str(D)).queue_free()
+					else:
+						second_layer+=room_instance.get_node("PathwayD"+str(D)).get_used_cells()
+			room.Direction.Up:
+				U+=1
+				if room_instance.get_node("PathwayU"+str(U)):
+					if randf() > .5:
+						room_instance.get_node("PathwayU"+str(U)).queue_free()
+					else:
+						second_layer+=room_instance.get_node("PathwayU"+str(U)).get_used_cells()
 
 func _place_liquids() -> void:
 	#For each liquid check if you should place it and then check if there's room
