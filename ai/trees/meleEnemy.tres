@@ -1,0 +1,53 @@
+[gd_resource type="BehaviorTree" load_steps=14 format=3 uid="uid://clbkhmh1c8a68"]
+
+[ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
+[ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_ua8f2"]
+var/state/name = &"state"
+var/state/type = 4
+var/state/value = ""
+var/state/hint = 0
+var/state/hint_string = ""
+
+[sub_resource type="BBVariant" id="BBVariant_3c6mk"]
+type = 4
+saved_value = "agro"
+resource_name = "agro"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_nufqr"]
+variable = &"state"
+value = SubResource("BBVariant_3c6mk")
+
+[sub_resource type="BBNode" id="BBNode_ecge8"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_tqs8k"]
+animation_player = SubResource("BBNode_ecge8")
+
+[sub_resource type="BTSequence" id="BTSequence_ecge8"]
+custom_name = "Attack"
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTPlayAnimation_tqs8k")]
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_3c6mk"]
+min_duration = 2.0
+max_duration = 5.0
+
+[sub_resource type="BTAction" id="BTAction_nufqr"]
+script = ExtResource("1_3c6mk")
+
+[sub_resource type="BTAction" id="BTAction_hnqba"]
+custom_name = "moveToPos"
+script = ExtResource("1_hnqba")
+
+[sub_resource type="BTSequence" id="BTSequence_3c6mk"]
+custom_name = "Patrol"
+children = [SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_hnqba")]
+
+[sub_resource type="BTSelector" id="BTSelector_m8x3l"]
+children = [SubResource("BTSequence_ecge8"), SubResource("BTSequence_3c6mk")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_ua8f2")
+root_task = SubResource("BTSelector_m8x3l")
