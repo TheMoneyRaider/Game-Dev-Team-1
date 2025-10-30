@@ -1,10 +1,7 @@
 extends Node2D
 const room = preload("res://Scripts/room.gd")
-#the root node of each room MUST BE NAMED Root
-#                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Pathways          Pathway Directions                                                                                                                                           Enemy Spawnpoints     Enemy Num Goal         NPC Spawnpoints    Has Shop
-@onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/test_room1.tscn",                        4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                6,                   [room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],                                       7,                     5,                               0,   false),
-										 room.Create_Room("res://Scenes/test_room2.tscn",                        2,            [room.Liquid.Water,room.Liquid.Water],                                    [.5,.5],                               2,              [0,0],                                      [4,3],                       [.6,1.0],            Vector2i(20,20),                              2,              [.75,.25],                                    5,                   [room.Direction.Up,room.Direction.Up,room.Direction.Left,room.Direction.Down,room.Direction.Right],                                                               11,                    8,                               0,   false)
-										]
+const room_data = preload("res://Scripts/room_data.gd")
+@onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var player = $PlayerCat
 var current_room : Room
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
