@@ -11,6 +11,7 @@ var current_room : Room
 @onready var second_layer : Array[Vector2i] = []
 var room_location : Resource 
 var room_instance
+#The total time of this run
 var time_passed := 0.0
 @export var water_cells := []
 @export var lava_cells := []
