@@ -21,7 +21,7 @@ var time_passed := 0.0
 	0,#Combat rooms cleared
 	0,#Time spent in last room
 	0,#Time spent in game
-	0,#Time spent in combat   		#TODO
+	0,#Time spent in combat
 	0,#Damage dealt   				#TODO
 	0,#Attacks made
 	0,#Enemies defeated   			#TODO
@@ -82,6 +82,8 @@ func _update_ai_array() -> void:
 	layer_ai[3] = time_passed
 	if current_room.has_shop:
 		layer_ai[7] += 1
+	else:
+		layer_ai[4] += layer_ai[2]   #Change to actually only check time when enemies were active   TODO
 	if current_room.num_liquid > 0:
 		var liquid_num = 0
 		var liquid_type : String
