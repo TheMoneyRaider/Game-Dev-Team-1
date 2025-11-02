@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://nb76n4rdxccq"]
 
 [ext_resource type="Texture2D" uid="uid://1pft32hlrdpu" path="res://art/Sprout Lands - Sprites - Basic pack/Objects/Egg_item.png" id="1_r3qd3"]
-[ext_resource type="Script" uid="uid://pq28u7kfjgr4" path="res://Scripts/smash.gd" id="1_tujfn"]
+[ext_resource type="Script" uid="uid://pq28u7kfjgr4" path="res://Scripts/Attacks/smash.gd" id="1_tujfn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e1io4"]
 

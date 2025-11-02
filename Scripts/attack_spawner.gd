@@ -6,7 +6,7 @@ func _ready():
 
 func _on_attack_requested(requested_attack : Attack):
 	var character = get_parent()
-	var scene: PackedScene = character.attack_scene
+	var scene = load(requested_attack.scene_location)
 	if scene:
 		var new_attack = scene.instantiate()
 		new_attack.global_position = requested_attack.position

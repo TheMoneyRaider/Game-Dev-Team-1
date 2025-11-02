@@ -10,7 +10,9 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var animation_tree = $AnimationTree
 @onready var state_machine = animation_tree.get("parameters/playback")
 
-@export var attack_scene = PackedScene
+var attack_scene : String = "res://Scenes/Attacks/smash.tscn"
+var is_purple = true
+
 
 signal attack_requested(new_attack : Attack)
 
@@ -29,9 +31,19 @@ func _physics_process(_delta):
 	update_animation_parameters(input_direction)
 	# Update velocity
 	velocity = input_direction * move_speed		
+	if Input.is_action_just_pressed("swap"):
+		if(is_purple):
+			is_purple = false
+			attack_scene = "res://Scenes/Attacks/bolt.tscn"
+		else:
+			is_purple = true
+			attack_scene = "res://Scenes/Attacks/smash.tscn"
 	
 	if Input.is_action_just_pressed("attack"):
-		request_attack(200,1,.5)
+		if(is_purple):
+			request_attack(0,1,.5,attack_scene)
+		else:
+			request_attack(300,1,1,attack_scene)
 	
 	#move and slide function
 	move_and_slide()
@@ -51,10 +63,12 @@ func pick_new_state():
 	else:
 		state_machine.travel("Idle")
 
-func request_attack(attack_speed : float, damage : int, lifespan : float):
+#Attack_speed, damage, lifespan
+func request_attack(attack_speed : float, damage : int, lifespan : float, t_attack_scene : String):
 	var camera = get_viewport().get_camera_2d()
 	var mouse_coords = camera.get_global_mouse_position()
 	var attack_direction = (mouse_coords - position).normalized()
 	var attack_position = attack_direction * 10 + global_position
-	var new_attack = attack.create_attack(attack_direction,attack_speed,damage,attack_position, lifespan)
+	print(t_attack_scene)
+	var new_attack = attack.create_attack(attack_direction,attack_speed,damage,attack_position,lifespan, t_attack_scene)
 	emit_signal("attack_requested",new_attack)
