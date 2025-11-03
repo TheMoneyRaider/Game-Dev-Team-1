@@ -58,7 +58,7 @@ func _ready() -> void:
 	place_liquids(room_instance, room_instance_data)
 	place_traps(room_instance, room_instance_data)
 	place_enemy_spawners(room_instance, room_instance_data)
-	floor_noise(room_instance, room_instance_data)
+	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	water_cells = room_instance.water_cells
 	lava_cells = room_instance.lava_cells
@@ -265,8 +265,8 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room) -
 			generated_room.get_node("Enemy"+str(curr_en)).queue_free()
 			_debug_message("Deleted enemy")
 			enemy_num-=1
-	
-func floor_noise(generated_room : Node2D, generated_room_data : Room) -> void:
+
+func floor_noise_sync(generated_room : Node2D, generated_room_data : Room) -> void:
 	#If there's no noise fillings, don't do the work
 	if(generated_room_data.num_fillings==0):
 		return
@@ -292,6 +292,41 @@ func floor_noise(generated_room : Node2D, generated_room_data : Room) -> void:
 	#Connect tiles			
 	for i in range(num_fillings):
 		ground.set_cells_terrain_connect(terrains[i],generated_room_data.fillings_terrain_set[i],generated_room_data.fillings_terrain_id[i],true)
+
+func floor_noise_threaded(generated_room: Node2D, generated_room_data: Room) -> void:
+	if generated_room_data.num_fillings == 0:
+		return
+
+	var ground = generated_room.get_node("Ground")
+	var cells = ground.get_used_cells()
+
+	# Start thread
+	var result_thread = Thread.new()
+	var noise_result: Dictionary
+	var thread_finished := false
+
+	result_thread.start(
+		func() -> Dictionary:
+			var result = _compute_floor_noise_threaded(generated_room_data, cells)
+			thread_finished = true
+			return result
+	)
+
+	# Wait for the thread to finish
+	while not thread_finished:
+		OS.delay_msec(1)
+
+	noise_result = result_thread.wait_to_finish()
+	result_thread = null
+
+	# Assign terrains in batch (single TileMap API call per terrain)
+	for i in range(generated_room_data.num_fillings):
+		ground.set_cells_terrain_connect(
+			noise_result["terrains"][i],
+			generated_room_data.fillings_terrain_set[i],
+			generated_room_data.fillings_terrain_id[i],
+			true
+	)
 
 func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) -> void:
 	generated_room.blocked_cells += generated_room.get_node("Walls").get_used_cells()
@@ -331,6 +366,7 @@ func preload_rooms() -> void:
 			cached_scenes[room_data_item.scene_location] = packed
 
 #Thread functions
+
 func _thread_generate_rooms(room_data_array: Array, room_instance_data_sent: Room) -> Dictionary:
 	var result := {}
 	var direction_count = [0,0,0,0]
@@ -390,6 +426,42 @@ func _exit_tree() -> void:
 	if thread_running and room_gen_thread.is_alive():
 		room_gen_thread.wait_to_finish()
 
+func _compute_floor_noise_threaded(generated_room_data: Room, cells: Array) -> Dictionary:
+	#Initialize variables
+	var noise = generated_room_data.noise
+	var thresholds = generated_room_data.fillings_terrain_threshold
+	var num_fillings = generated_room_data.num_fillings
+	
+	#Create the output terrain array
+	var terrains := []
+	terrains.resize(num_fillings)
+	for i in range(num_fillings):
+		terrains[i] = []
+
+	#Create Noise
+	for cell in cells:
+		var noise_val = (noise.get_noise_2d(int(cell.x),int(cell.y)) + 1.0) * 0.5
+		for i in range(num_fillings):
+			if noise_val < thresholds[i]:
+				terrains[i].append(cell)
+				break
+	return {"terrains": terrains}
+
+func _apply_floor_noise(generated_room: Node2D, generated_room_data: Room, terrains_dict: Dictionary) -> void:
+	var ground = generated_room.get_node("Ground")
+	for i in range(generated_room_data.num_fillings):
+		ground.set_cells_terrain_connect(
+			terrains_dict["terrains"][i],
+			generated_room_data.fillings_terrain_set[i],
+			generated_room_data.fillings_terrain_id[i],
+			true
+		)
+	
+func _apply_floor_noise_async(next_room_instance: Node2D, next_room_data: Room, thread: Thread) -> void:
+	var terrains_dict = thread.wait_to_finish()
+	thread = null
+	_apply_floor_noise(next_room_instance, next_room_data, terrains_dict)
+
 #Helper Functions
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
@@ -397,7 +469,20 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	place_liquids(next_room_instance, next_room_data)
 	place_traps(next_room_instance, next_room_data)
 	place_enemy_spawners(next_room_instance, next_room_data)
-	floor_noise(next_room_instance, next_room_data)
+	
+	# --- Async floor noise ---
+	var ground = next_room_instance.get_node("Ground")
+	var cells = ground.get_used_cells()
+
+	var thread := Thread.new()
+	thread.start(
+		func() -> Dictionary:
+			return _compute_floor_noise_threaded(next_room_data, cells)
+	)
+
+	# Defer the TileMap assignment to avoid blocking
+	call_deferred("_apply_floor_noise_async", next_room_instance, next_room_data, thread)
+	
 	calculate_cell_arrays(next_room_instance, next_room_data)
 	_set_tilemaplayer_collisions(next_room_instance, false)
 
