@@ -33,8 +33,8 @@ var fillings_terrain_set : Array[int] = [0]
 var fillings_terrain_id : Array[int] = [0]
 #The threshold is at what percent should the noise function stop placing that tile. the first terrain goes from 0 to this number, then this number to the 2nd terrains number.
 var fillings_terrain_threshold : Array[float] = [1.0]
-#noise scale determines how detailed the noise is. Higher numbers here represent more detail
-var noise_scale := Vector2i(10,10)
+#noise function, higher frequency is higher detail
+var noise := FastNoiseLite.new()
 #trap layers should be called TRAPNAME# where # is the order from the first of the traps
 var num_trap : int = 0
 #An array of the corresponding generation chance of the trap creation.
@@ -53,11 +53,25 @@ var num_npc_spawnpoints : int
 #Shop spawnpoint. Node to be labeled Shop
 var has_shop : bool
 
-static func Create_Room(t_scene_location : String, t_num_liquid : int, t_liquid_types : Array[Liquid], t_liquid_chances : Array[float], 
-						t_num_fillings : int, t_fillings_terrain_set : Array[int], t_fillings_terrain_id : Array[int], 
-						t_fillings_terrain_threshold : Array[float], t_noise_scale : Vector2i, t_num_trap : int, t_trap_chances : Array[float], 
-						t_num_pathways : int, t_pathway_direction : Array[Direction], t_num_enemy_spawnpoints : int, 
-						t_num_enemy_goal : int, t_num_npc_spawnpoints : int, t_has_shop : bool
+static func Create_Room(t_scene_location : String, 
+t_num_liquid : int, 
+t_liquid_types : Array[Liquid], 
+t_liquid_chances : Array[float], 
+t_num_fillings : int, 
+t_fillings_terrain_set : Array[int], 
+t_fillings_terrain_id : Array[int], 
+t_fillings_terrain_threshold : Array[float], 
+t_noise_seed : int,
+t_noise_type : int,
+t_noise_frequency : float,
+t_num_trap : int, 
+t_trap_chances : Array[float], 
+t_num_pathways : int, 
+t_pathway_direction : Array[Direction], 
+t_num_enemy_spawnpoints : int, 
+t_num_enemy_goal : int, 
+t_num_npc_spawnpoints : int, 
+t_has_shop : bool
 ) -> Room:
 	var new_room = Room.new()
 	new_room.scene_location = t_scene_location
@@ -68,7 +82,12 @@ static func Create_Room(t_scene_location : String, t_num_liquid : int, t_liquid_
 	new_room.fillings_terrain_set = t_fillings_terrain_set
 	new_room.fillings_terrain_id = t_fillings_terrain_id
 	new_room.fillings_terrain_threshold = t_fillings_terrain_threshold
-	new_room.noise_scale = t_noise_scale
+	
+	new_room.noise = FastNoiseLite.new()
+	new_room.noise.noise_type = t_noise_type
+	new_room.noise.seed = t_noise_seed
+	new_room.noise.frequency = t_noise_frequency
+	
 	new_room.num_trap = t_num_trap
 	new_room.trap_chances = t_trap_chances
 	new_room.num_pathways = t_num_pathways

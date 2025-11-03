@@ -12,7 +12,9 @@ var rooms : Array[Room] = [room.Create_Room(
 [0,0],																															#Terrain Set                                      
 [3,4],																															#Terrain ID                       
 [.6,1.0],																														#Threshold            
-Vector2i(10,10),																												#Noise Scale                              
+randi(),																														#Noise Seed           
+FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+.1,																																#Noise Frequency                        
 3,																																#Num Traps              
 [.65,.65,.65],																													#Trap Chances                                
 6,																																#Num Pathways                   
@@ -28,9 +30,11 @@ false),																															#Has Shop
 [.5,.5],																														#Liquid Chances                     
 2,																																#Num Fillings              
 [0,0],																															#Terrain Set                                      
-[4,3],																															#Terrain ID                       
-[.6,1.0],																														#Threshold            
-Vector2i(20,20),																												#Noise Scale                              
+[3,4],																															#Terrain ID                       
+[.6,1.0],																														#Threshold          
+randi(),																														#Noise Seed           
+FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+.1,																																#Noise Frequency                       
 2,																																#Num Traps              
 [.75,.25],																														#Trap Chances                                
 5,																																#Num Pathways                   

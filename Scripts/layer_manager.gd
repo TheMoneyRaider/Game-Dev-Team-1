@@ -7,6 +7,7 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
+var pending_room_creations: Array = []
 #Thread Stuff
 var room_gen_thread: Thread
 var thread_result: Dictionary
@@ -87,8 +88,7 @@ func _process(delta: float) -> void:
 
 func create_new_rooms() -> void:
 	if thread_running:
-		return # don't overlap threads
-
+		return
 	# Free previous background rooms
 	for gen_room in generated_rooms.values():
 		if is_instance_valid(gen_room):
@@ -100,7 +100,6 @@ func create_new_rooms() -> void:
 	thread_running = true
 	room_gen_thread = Thread.new()
 	room_gen_thread.start(_thread_generate_rooms.bind(cave_stage, room_instance_data))
-	print("🧵 Starting background generation...")
 
 func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> void:
 	#Rooms cleared
@@ -165,7 +164,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room) -> int:
 				_move_to_pathway_room(targets_id[idx])
 				return targets_direction[idx]
 	return -1
-	
+
 func choose_room() -> void:
 	#Shuffle rooms and load one
 	room_instance_data = cave_stage[randi() % cave_stage.size()]
@@ -266,17 +265,14 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room) -
 			generated_room.get_node("Enemy"+str(curr_en)).queue_free()
 			_debug_message("Deleted enemy")
 			enemy_num-=1
-
+	
 func floor_noise(generated_room : Node2D, generated_room_data : Room) -> void:
 	#If there's no noise fillings, don't do the work
 	if(generated_room_data.num_fillings==0):
 		return
 	var ground = generated_room.get_node("Ground")
-	var noise = generated_room.noise
-	noise.seed = randi()
+	var noise = generated_room_data.noise
 	#Initialize variables
-	var scale_x = generated_room_data.noise_scale.x
-	var scale_y = generated_room_data.noise_scale.y
 	var thresholds = generated_room_data.fillings_terrain_threshold
 	var num_fillings = generated_room_data.num_fillings
 	#Create the output terrain array
@@ -288,7 +284,7 @@ func floor_noise(generated_room : Node2D, generated_room_data : Room) -> void:
 	var cells = ground.get_used_cells()
 	#Create Noise
 	for cell in cells:
-		var noise_val = (noise.get_noise_2d(cell.x * scale_x, cell.y * scale_y) + 1.0) * 0.5
+		var noise_val = (noise.get_noise_2d(cell.x,cell.y) + 1.0) * 0.5
 		for i in range(num_fillings):
 			if noise_val < thresholds[i]:
 				terrains[i].append(cell)
@@ -334,7 +330,6 @@ func preload_rooms() -> void:
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
 
-
 #Thread functions
 func _thread_generate_rooms(room_data_array: Array, room_instance_data_sent: Room) -> Dictionary:
 	var result := {}
@@ -355,19 +350,16 @@ func _thread_generate_rooms(room_data_array: Array, room_instance_data_sent: Roo
 		}
 	return result
 
-var pending_room_creations: Array = []
-
 func _on_thread_finished(data: Dictionary) -> void:
 	for pathway_name in data.keys():
 		pending_room_creations.append(data[pathway_name])
-	print("✅ Thread finished; queuing room creation.")
 
 func _create_room_step() -> void:
 	if pending_room_creations.is_empty():
 		return
 	
 	var info = pending_room_creations.pop_front()
-
+	
 	var pathway_name = info["pathway"]
 	var direction = info["direction"]
 	var next_room_data = info["room_data"]
@@ -381,16 +373,16 @@ func _create_room_step() -> void:
 	var pathway_detect = room_instance.get_node(pathway_name + "_Detect")
 	if pathway_detect.used:
 		return
-
-	# ✅ Use preloaded scene, not load()
+	
+	# use a preloaded scene
 	var packed_scene: PackedScene = cached_scenes[scene_path]
 	var next_room_instance = packed_scene.instantiate()
 	next_room_instance.name = pathway_name
 	next_room_instance.visible = false
 	next_room_instance.process_mode = Node.PROCESS_MODE_DISABLED
 	add_child(next_room_instance)
-
-	# ✅ Run heavy procedural stuff next frame (deferred)
+	
+	# defer the more computationally heavy code
 	call_deferred("_finalize_room_creation", next_room_instance, next_room_data, direction, pathway_detect)
 	await get_tree().process_frame
 
@@ -411,7 +403,7 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 
 	generated_room_metadata[pathway_detect.name] = next_room_data
 	generated_rooms[pathway_detect.name] = next_room_instance
-
+	
 func _move_to_pathway_room(pathway_id: String) -> void:
 	if not generated_rooms.has(pathway_id):
 		push_warning("No linked room for pathway " + pathway_id)

@@ -1,5 +1,4 @@
 extends Node2D
-@export var noise : Noise
 
 
 @export var water_cells := []
