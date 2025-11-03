@@ -4,7 +4,7 @@ const room_data = preload("res://Scripts/room_data.gd")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var player = $PlayerCat
 var current_room : Room
-var generated_rooms : Array[Room]
+var generated_rooms : = {}
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var second_layer : Array[Vector2i] = []
 var room_location : Resource 
@@ -49,7 +49,7 @@ func _ready() -> void:
 	#cull shop spawners
 	floor_noise()
 	calculate_cell_arrays()
-	create_new_rooms()
+	#create_new_rooms()
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -71,7 +71,7 @@ func _process(delta: float) -> void:
 			#cull shop spawners
 			floor_noise()
 			calculate_cell_arrays()
-			create_new_rooms()
+			#create_new_rooms()
 				
 func update_ai_array() -> void:
 	#Rooms cleared
@@ -111,49 +111,27 @@ func check_pathways() -> int:
 	var targets_position: Array = []
 	var targets_id: Array = []
 	var targets_direction: Array = []
-	var L = 0
-	var R = 0
-	var D = 0
-	var U = 0
+	var pathway_name= ""
+	var direction_count = [0,0,0,0]
 	for p_direct in current_room.pathway_direction:
-		match p_direct:
-			room.Direction.Left:
-				L+=1
-				if if_node_exists("PathwayL"+str(L)+"_Detect"):
-					targets_extents.append(room_instance.get_node("PathwayL"+str(L)+"_Detect/Area2D/CollisionShape2D").shape.extents)
-					targets_position.append(room_instance.get_node("PathwayL"+str(L)+"_Detect/Area2D/CollisionShape2D").global_position)
-					targets_id.append("PathwayL"+str(L)+"_Detect")
-					targets_direction.append(p_direct)
-			room.Direction.Right:
-				R+=1
-				if if_node_exists("PathwayR"+str(R)+"_Detect"):
-					targets_extents.append(room_instance.get_node("PathwayR"+str(R)+"_Detect/Area2D/CollisionShape2D").shape.extents)
-					targets_position.append(room_instance.get_node("PathwayR"+str(R)+"_Detect/Area2D/CollisionShape2D").global_position)
-					targets_id.append("PathwayR"+str(R)+"_Detect")
-					targets_direction.append(p_direct)
-			room.Direction.Down:
-				D+=1
-				if if_node_exists("PathwayD"+str(D)+"_Detect"):
-					targets_extents.append(room_instance.get_node("PathwayD"+str(D)+"_Detect/Area2D/CollisionShape2D").shape.extents)
-					targets_position.append(room_instance.get_node("PathwayD"+str(D)+"_Detect/Area2D/CollisionShape2D").global_position)
-					targets_id.append("PathwayD"+str(D)+"_Detect")
-					targets_direction.append(p_direct)
-			room.Direction.Up:
-				U+=1
-				if if_node_exists("PathwayU"+str(U)+"_Detect"):
-					targets_extents.append(room_instance.get_node("PathwayU"+str(U)+"_Detect/Area2D/CollisionShape2D").shape.extents)
-					targets_position.append(room_instance.get_node("PathwayU"+str(U)+"_Detect/Area2D/CollisionShape2D").global_position)
-					targets_id.append("PathwayU"+str(U)+"_Detect")
-					targets_direction.append(p_direct)
+		direction_count[p_direct]+=1
+		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
+		if if_node_exists(pathway_name+"_Detect"):
+			targets_extents.append(room_instance.get_node(pathway_name+"_Detect/Area2D/CollisionShape2D").shape.extents)
+			targets_position.append(room_instance.get_node(pathway_name+"_Detect/Area2D/CollisionShape2D").global_position)
+			targets_id.append(pathway_name+"_Detect")
+			targets_direction.append(p_direct)
 
 	var player_shape = player.get_node("CollisionShape2D").shape
 	var player_position = player.global_position
 	var player_rect = player_shape.extents
 	for idx in range(0,len(targets_extents)):
 		var area_rect = targets_extents[idx]
-		if abs(player_position.x -  targets_position[idx].x) <= player_rect.x + area_rect.x \
+		if abs(player_position.x - targets_position[idx].x) <= player_rect.x + area_rect.x \
 			and abs(player_position.y - targets_position[idx].y) <= player_rect.y + area_rect.y:
-			if !room_instance.get_node(targets_id[idx]).used:
+			var target_id = targets_id[idx]
+			if !room_instance.get_node(target_id).used:
+				#_teleport_to_pathway_room(targets_id[idx], targets_direction[idx])
 				return targets_direction[idx]
 	return -1
 	
@@ -168,89 +146,36 @@ func choose_room() -> void:
 
 func choose_pathways(direction) -> void:
 	# Place required pathway(where the player(s) is entering		
-	var L = 0
-	var R = 0
-	var D = 0
-	var U = 0
-	for direct in current_room.pathway_direction:
-		if direct == room.Direction.Down:
-			D+=1
-		if direct == room.Direction.Right:
-			R+=1
-		if direct == room.Direction.Left:
-			L+=1
-		if direct == room.Direction.Up:
-			U+=1
-	var pathway
-	match direction:
-		room.Direction.Left:
-			pathway = int(randf()*R)+1
-			_open_pathway("PathwayR"+str(pathway))
-			#print("Player is leaving PathwayR"+str(pathway))
-			player.position = room_instance.get_node("PathwayR"+str(pathway)+"_Detect").position
-			room_instance.get_node("PathwayR"+str(pathway)+"_Detect").used = true
-		room.Direction.Right:
-			pathway = int(randf()*L)+1
-			_open_pathway("PathwayL"+str(pathway))
-			#print("Player is leaving PathwayL"+str(pathway))
-			player.position = room_instance.get_node("PathwayL"+str(pathway)+"_Detect").position
-			room_instance.get_node("PathwayL"+str(pathway)+"_Detect").used = true
-		room.Direction.Up:
-			pathway = int(randf()*D)+1
-			_open_pathway("PathwayD"+str(pathway))
-			#print("Player is leaving PathwayD"+str(pathway))
-			player.position = room_instance.get_node("PathwayD"+str(pathway)+"_Detect").position
-			room_instance.get_node("PathwayD"+str(pathway)+"_Detect").used = true
-		room.Direction.Down:
-			pathway = int(randf()*U)+1
-			_open_pathway("PathwayU"+str(pathway))
-			#print("Player is leaving PathwayU"+str(pathway))
-			player.position = room_instance.get_node("PathwayU"+str(pathway)+"_Detect").position
-			room_instance.get_node("PathwayU"+str(pathway)+"_Detect").used = true
+	var direction_count = [0,0,0,0]
+	for p_direct in current_room.pathway_direction:
+		direction_count[p_direct]+=1
+	var pathway_name
+	#Invert player direction so they come out the opposite side of a pathway
+	direction = current_room.invert_direction(direction)
+	
+	pathway_name = _get_pathway_name(direction,int(randf()*direction_count[direction])+1)
+	_open_pathway(pathway_name)
+	player.position = room_instance.get_node(pathway_name+"_Detect").position
+	room_instance.get_node(pathway_name+"_Detect").used = true
 	#Open a random pathway
 	var dir = current_room.pathway_direction[int(randf()*current_room.num_pathways)]
 	var offset = 0
-	if dir == current_room.invert_direction(direction):
-		match direction:
-			room.Direction.Left:
-				if L > 1:
-					while true:
-						if if_node_exists("PathwayL"+str(offset+1)):
-							_open_pathway("PathwayL"+str(offset+1))
-							break
-						offset+=1
-				else:
-					_open_random_pathway_in_direction(room.Direction.Right, L, R, D, U)
-			room.Direction.Right:
-				if R > 1:
-					while true:
-						if if_node_exists("PathwayR"+str(offset+1)):
-							_open_pathway("PathwayR"+str(offset+1))
-							break
-						offset+=1
-				else:
-					_open_random_pathway_in_direction(room.Direction.Down, L, R, D, U)
-			room.Direction.Down:
-				if D > 1:
-					while true:
-						if if_node_exists("PathwayD"+str(offset+1)):
-							_open_pathway("PathwayD"+str(offset+1))
-							break
-						offset+=1
-				else:
-					_open_random_pathway_in_direction(room.Direction.Up, L, R, D, U)
-			room.Direction.Up:
-				if U > 1:
-					while true:
-						if if_node_exists("PathwayU"+str(offset+1)):
-							_open_pathway("PathwayU"+str(offset+1))
-							break
-						offset+=1
-				else:
-					_open_random_pathway_in_direction(room.Direction.Left, L, R, D, U)
+	if dir == direction:
+		if direction_count[direction] > 1:
+			while true:
+				pathway_name = _get_pathway_name(direction,offset+1)
+				if if_node_exists(pathway_name):
+					_open_pathway(pathway_name)
+					break
+				offset+=1
+		else:
+			if direction == 3:
+				_open_random_pathway_in_direction(Room.Direction.Up,direction_count)
+			else:
+				_open_random_pathway_in_direction(direction+1,direction_count)
 	else:
 		#Open at least one pathway in the given direction
-		_open_random_pathway_in_direction(dir, L, R, D, U)
+		_open_random_pathway_in_direction(dir, direction_count)
 	#Choose which pathways to keep      #add intelligent pathway choosing #TODO
 	_open_random_pathways()
 
@@ -367,55 +292,29 @@ func calculate_cell_arrays() -> void:
 		if if_node_exists("Trap"+str(curr_trap)):
 			trap_cells += room_instance.get_node("Trap"+str(curr_trap)).get_used_cells()
 	#Add blocked cells for an covers still existing
-	var L = 0
-	var R = 0
-	var D = 0
-	var U = 0
+	var direction_count = [0,0,0,0]
+	var pathway_name = ""
 	for p_direct in current_room.pathway_direction:
-		match p_direct:
-			room.Direction.Left:
-				L+=1
-				if if_node_exists("PathwayL"+str(L)):
-					blocked_cells += room_instance.get_node("PathwayL"+str(L)).get_used_cells()
-			room.Direction.Right:
-				R+=1
-				if if_node_exists("PathwayR"+str(R)):
-					blocked_cells += room_instance.get_node("PathwayR"+str(R)).get_used_cells()
-			room.Direction.Down:
-				D+=1
-				if if_node_exists("PathwayD"+str(D)):
-					blocked_cells += room_instance.get_node("PathwayD"+str(D)).get_used_cells()
-			room.Direction.Up:
-				U+=1
-				if if_node_exists("PathwayU"+str(U)):
-					blocked_cells += room_instance.get_node("PathwayU"+str(U)).get_used_cells()
+		direction_count[p_direct]+=1
+		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
+		if if_node_exists(pathway_name):
+			blocked_cells += room_instance.get_node(pathway_name).get_used_cells()
 	blocked_cells= _remove_duplicates(blocked_cells) #remove duplicates
 
-func create_new_rooms() -> void:
-	var _L = 0
-	#var R = 0
-	#var D = 0
-	#var U = 0
-	#for p_direct in current_room.pathway_direction:
-		#match p_direct:
-			#room.Direction.Left:
-				#L+=1
-				#if if_node_exists("PathwayL"+str(L)):
-					#
-			#room.Direction.Right:
-				#R+=1
-				#if if_node_exists("PathwayR"+str(R)):
-					#
-			#room.Direction.Down:
-				#D+=1
-				#if if_node_exists("PathwayD"+str(D)):
-					#
-			#room.Direction.Up:
-				#U+=1
-				#if if_node_exists("PathwayU"+str(U)):
-					
-
 #Helper Functions
+
+func _get_pathway_name(direction: int, index: int) -> String:
+	match direction:
+		room.Direction.Up: 
+			return "PathwayU" + str(index)
+		room.Direction.Down: 
+			return "PathwayD" + str(index)
+		room.Direction.Left: 
+			return "PathwayL" + str(index)
+		room.Direction.Right: 
+			return "PathwayR" + str(index)
+	return ""
+
 func _remove_duplicates(arr: Array) -> Array:
 	var unique_elements_dict = {}
 	for element in arr:
@@ -451,56 +350,22 @@ func if_node_exists(input : String) -> bool:
 	else:
 		return false
 
-func _open_random_pathway_in_direction(dir : room.Direction, L : int, R : int, D : int, U : int) -> void:
-	match dir:
-		room.Direction.Left:
-			_open_pathway("PathwayL"+str(int(randf()*L)+1))
-		room.Direction.Right:
-			_open_pathway("PathwayR"+str(int(randf()*R)+1))
-		room.Direction.Down:
-			_open_pathway("PathwayD"+str(int(randf()*D)+1))
-		room.Direction.Up:
-			_open_pathway("PathwayU"+str(int(randf()*U)+1))
+func _open_random_pathway_in_direction(dir : room.Direction, direction_count : Array) -> void:
+	_open_pathway(_get_pathway_name(dir,int(randf()*direction_count[dir])+1))
 
 func _open_random_pathways() -> void:
-	var L = 0
-	var R = 0
-	var D = 0
-	var U = 0
+	var direction_count = [0,0,0,0]
+	var pathway_name = ""
 	for p_direct in current_room.pathway_direction:
-		match p_direct:
-			room.Direction.Left:
-				L+=1
-				if if_node_exists("PathwayL"+str(L)):
-					if randf() > .5:
-						_open_pathway("PathwayL"+str(L))
-					else:
-						_open_pathway("PathwayL"+str(L)+"_Detect")
-						second_layer+=room_instance.get_node("PathwayL"+str(L)).get_used_cells()
-			room.Direction.Right:
-				R+=1
-				if if_node_exists("PathwayR"+str(R)):
-					if randf() > .5:
-						_open_pathway("PathwayR"+str(R))
-					else:
-						_open_pathway("PathwayR"+str(R)+"_Detect")
-						second_layer+=room_instance.get_node("PathwayR"+str(R)).get_used_cells()
-			room.Direction.Down:
-				D+=1
-				if if_node_exists("PathwayD"+str(D)):
-					if randf() > .5:
-						_open_pathway("PathwayD"+str(D))
-					else:
-						_open_pathway("PathwayD"+str(D)+"_Detect")
-						second_layer+=room_instance.get_node("PathwayD"+str(D)).get_used_cells()
-			room.Direction.Up:
-				U+=1
-				if if_node_exists("PathwayU"+str(U)):
-					if randf() > .5:
-						_open_pathway("PathwayU"+str(U))
-					else:
-						_open_pathway("PathwayU"+str(U)+"_Detect")
-						second_layer+=room_instance.get_node("PathwayU"+str(U)).get_used_cells()
+		direction_count[p_direct]+=1
+		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
+		if if_node_exists(pathway_name):
+			if randf() > .5:
+				_open_pathway(pathway_name)
+			else:
+				_open_pathway(pathway_name+"_Detect")
+				second_layer+=room_instance.get_node(pathway_name).get_used_cells()
+			
 
 func _on_player_attack(_new_attack : Attack) -> void:
 	layer_ai[6]+=1
