@@ -1,8 +1,7 @@
-[gd_scene load_steps=31 format=3 uid="uid://bgysbj2623d8d"]
+[gd_scene load_steps=30 format=3 uid="uid://bgysbj2623d8d"]
 
 [ext_resource type="Texture2D" uid="uid://ctmti2lidil2r" path="res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Charakter Spritesheet.png" id="1_k8dsg"]
 [ext_resource type="Script" uid="uid://dpumkeekpn38k" path="res://Scripts/player_cat.gd" id="1_u0lhy"]
-[ext_resource type="PackedScene" uid="uid://nb76n4rdxccq" path="res://Scenes/Attacks/smash.tscn" id="2_qmbn4"]
 [ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Scenes/attack.tscn" id="3_up8sf"]
 [ext_resource type="PackedScene" uid="uid://dhidnnukydkmw" path="res://Scenes/crosshair.tscn" id="5_q2fti"]
 
@@ -239,7 +238,6 @@ _data = {
 
 [node name="PlayerCat" type="CharacterBody2D"]
 script = ExtResource("1_u0lhy")
-attack_scene = ExtResource("2_qmbn4")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_k8dsg")

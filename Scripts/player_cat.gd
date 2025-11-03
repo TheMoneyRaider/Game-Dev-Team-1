@@ -9,6 +9,7 @@ const attack = preload("res://Scripts/attack.gd")
 
 @onready var animation_tree = $AnimationTree
 @onready var state_machine = animation_tree.get("parameters/playback")
+@onready var crosshair = $Crosshair
 
 var attack_scene : String = "res://Scenes/Attacks/smash.tscn"
 var is_purple = true
@@ -65,10 +66,7 @@ func pick_new_state():
 
 #Attack_speed, damage, lifespan
 func request_attack(attack_speed : float, damage : int, lifespan : float, t_attack_scene : String):
-	var camera = get_viewport().get_camera_2d()
-	var mouse_coords = camera.get_global_mouse_position()
-	var attack_direction = (mouse_coords - position).normalized()
+	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 10 + global_position
-	print(t_attack_scene)
 	var new_attack = attack.create_attack(attack_direction,attack_speed,damage,attack_position,lifespan, t_attack_scene)
 	emit_signal("attack_requested",new_attack)
