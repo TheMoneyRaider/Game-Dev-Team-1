@@ -5,10 +5,18 @@ const room_data = preload("res://Scripts/room_data.gd")
 @onready var player = $PlayerCat
 var room_instance_data : Room
 var generated_rooms : = {}
-var generated_room_indices : = {}
+var generated_room_metadata : = {}
 var generated_room_entrance : = {}
+#Thread Stuff
+var room_gen_thread: Thread
+var thread_result: Dictionary
+var thread_running := false
+
+
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var second_layer : Array[Vector2i] = []
+#Cached scenes to speed up room loading at runtime
+@onready var cached_scenes := {}
 var room_location : Resource 
 var room_instance
 #The total time of this run
@@ -40,11 +48,12 @@ var time_passed := 0.0
 
 
 func _ready() -> void:
+	preload_rooms()
 	player.attack_requested.connect(_on_player_attack)
 	randomize()
 	choose_room()
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data)
-	player.global_position =  generated_room_entrance[room_instance]
+	player.global_position =  generated_room_entrance[room_instance.name]
 	place_liquids(room_instance, room_instance_data)
 	place_traps(room_instance, room_instance_data)
 	place_enemy_spawners(room_instance, room_instance_data)
@@ -59,58 +68,39 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	time_passed += delta
-	if(Input.is_action_just_pressed("Activate")):
+	#Pathway Travel Check
+	if Input.is_action_just_pressed("Activate") and room_instance:
 		var direction = check_pathways(room_instance, room_instance_data)
 		if direction != -1:
 			create_new_rooms()
+	# Thread check
+	if thread_running and not room_gen_thread.is_alive():
+		thread_result = room_gen_thread.wait_to_finish()
+		room_gen_thread = null
+		thread_running = false
+		_on_thread_finished(thread_result)
+
+	# Process pending room creation gradually
+	if !(pending_room_creations.size() == 0):
+		_create_room_step()
 				
 
 func create_new_rooms() -> void:
-	 # Clear previously generated rooms
-	for key in generated_rooms.keys():
-		if is_instance_valid(generated_rooms[key]):
-			generated_rooms[key].queue_free()
-	
-	generated_rooms.clear()
-	generated_room_indices.clear()
-	var direction_count = [0,0,0,0]
-	for direction in room_instance_data.pathway_direction:
-		direction_count[direction] += 1
-		var pathway_name = _get_pathway_name(direction, direction_count[direction])
-		if if_node_exists(pathway_name, room_instance):
-			continue
-		if room_instance.get_node(pathway_name + "_Detect").used:
-			continue
-		var pathway_detect = room_instance.get_node(pathway_name + "_Detect")
-		print("Making a room connected to: "+ pathway_name)
-		# Choose a random room index and save it
-		var chosen_index = randi() % cave_stage.size()
-		generated_room_indices[pathway_detect.name] = chosen_index
-		
-		# Create a new room
-		var next_room_data = cave_stage[chosen_index]
-		var next_room_scene = load(next_room_data.scene_location)
-		var next_room_instance = next_room_scene.instantiate()
-		
-		#Give name
-		next_room_instance.name = pathway_name
-		# Hide and disable until the player enters this pathway
-		next_room_instance.visible = false
-		next_room_instance.process_mode = Node.PROCESS_MODE_DISABLED
-		add_child(next_room_instance)
-		
-		# Add randomness to the room
-		choose_pathways(direction, next_room_instance, next_room_data)
-		place_liquids(next_room_instance, next_room_data)
-		place_traps(next_room_instance, next_room_data)
-		place_enemy_spawners(next_room_instance, next_room_data)
-		floor_noise(next_room_instance, next_room_data)
-		calculate_cell_arrays(next_room_instance, next_room_data)
+	if thread_running:
+		return # don't overlap threads
 
-		# Disable Collisions
-		_set_tilemaplayer_collisions(next_room_instance, false)
-		# Store the link between this pathway and its hidden room
-		generated_rooms[pathway_detect.name] = next_room_instance
+	# Free previous background rooms
+	for gen_room in generated_rooms.values():
+		if is_instance_valid(gen_room):
+			gen_room.queue_free()
+	generated_rooms.clear()
+	generated_room_metadata.clear()
+
+	# Start async generation thread
+	thread_running = true
+	room_gen_thread = Thread.new()
+	room_gen_thread.start(_thread_generate_rooms.bind(cave_stage, room_instance_data))
+	print("🧵 Starting background generation...")
 
 func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> void:
 	#Rooms cleared
@@ -123,7 +113,7 @@ func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> voi
 	#Total time
 	layer_ai[3] = time_passed
 	if generated_room_data.has_shop:
-		layer_ai[7] += 1
+		layer_ai[8] += 1
 	else:
 		layer_ai[4] += layer_ai[2]   #Change to actually only check time when enemies were active   TODO
 	if generated_room_data.num_liquid > 0:
@@ -156,10 +146,12 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room) -> int:
 		direction_count[p_direct]+=1
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if not if_node_exists(pathway_name,generated_room):
-			targets_extents.append(generated_room.get_node(pathway_name+"_Detect/Area2D/CollisionShape2D").shape.extents)
-			targets_position.append(generated_room.get_node(pathway_name+"_Detect/Area2D/CollisionShape2D").global_position)
-			targets_id.append(pathway_name+"_Detect")
-			targets_direction.append(p_direct)
+			var pathway_detect = generated_room.get_node_or_null(pathway_name+"_Detect/Area2D/CollisionShape2D")
+			if pathway_detect:
+				targets_extents.append(pathway_detect.shape.extents)
+				targets_position.append(pathway_detect.global_position)
+				targets_id.append(pathway_name+"_Detect")
+				targets_direction.append(p_direct)
 
 	var player_shape = player.get_node("CollisionShape2D").shape
 	var player_position = player.global_position
@@ -194,7 +186,7 @@ func choose_pathways(direction : int, generated_room : Node2D, generated_room_da
 	pathway_name = _get_pathway_name(direction,int(randf()*direction_count[direction])+1)
 	_open_pathway(pathway_name, generated_room)
 	#Save the new player spawn to an array
-	generated_room_entrance[generated_room] =  generated_room.get_node(pathway_name+"_Detect").global_position
+	generated_room_entrance[generated_room.name] = generated_room.get_node(pathway_name+"_Detect").global_position
 	generated_room.get_node(pathway_name+"_Detect").used = true
 	#Open a random pathway
 	var dir = generated_room_data.pathway_direction[int(randf()*generated_room_data.num_pathways)]
@@ -317,10 +309,10 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 					generated_room.water_cells += generated_room.get_node("Water"+str(types[liquid])).get_used_cells()
 			room.Liquid.Lava:
 				if if_node_exists("Lava"+str(types[liquid]),generated_room):
-					generated_room.water_cells += generated_room.get_node("Lava"+str(types[liquid])).get_used_cells()
+					generated_room.lava_cells += generated_room.get_node("Lava"+str(types[liquid])).get_used_cells()
 			room.Liquid.Acid:
 				if if_node_exists("Acid"+str(types[liquid]),generated_room):
-					generated_room.water_cells += generated_room.get_node("Acid"+str(types[liquid])).get_used_cells()
+					generated_room.acid_cells += generated_room.get_node("Acid"+str(types[liquid])).get_used_cells()
 	var curr_trap = 0
 	while curr_trap < generated_room_data.num_trap:
 		curr_trap+=1
@@ -336,27 +328,109 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
 	generated_room.blocked_cells= _remove_duplicates(generated_room.blocked_cells) #remove duplicates
 
+func preload_rooms() -> void:
+	for room_data_item in cave_stage:
+		if not cached_scenes.has(room_data_item.scene_location):
+			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
+			cached_scenes[room_data_item.scene_location] = packed
+
+
+#Thread functions
+func _thread_generate_rooms(room_data_array: Array, room_instance_data_sent: Room) -> Dictionary:
+	var result := {}
+	var direction_count = [0,0,0,0]
+	
+	for direction in room_instance_data_sent.pathway_direction:
+		direction_count[direction] += 1
+		var pathway_name = _get_pathway_name(direction, direction_count[direction])
+		# Only precompute data. No scene calls
+		var chosen_index = randi() % room_data_array.size()
+		var next_room_data = room_data_array[chosen_index]
+		result[pathway_name] = {
+			"pathway": pathway_name,
+			"direction": direction,
+			"chosen_index": chosen_index,
+			"scene_path": next_room_data.scene_location,
+			"room_data": next_room_data
+		}
+	return result
+
+var pending_room_creations: Array = []
+
+func _on_thread_finished(data: Dictionary) -> void:
+	for pathway_name in data.keys():
+		pending_room_creations.append(data[pathway_name])
+	print("✅ Thread finished; queuing room creation.")
+
+func _create_room_step() -> void:
+	if pending_room_creations.is_empty():
+		return
+	
+	var info = pending_room_creations.pop_front()
+
+	var pathway_name = info["pathway"]
+	var direction = info["direction"]
+	var next_room_data = info["room_data"]
+	var scene_path = info["scene_path"]
+	
+	if if_node_exists(pathway_name, room_instance):
+		return
+	if not room_instance.has_node(pathway_name + "_Detect"):
+		return
+
+	var pathway_detect = room_instance.get_node(pathway_name + "_Detect")
+	if pathway_detect.used:
+		return
+
+	# ✅ Use preloaded scene, not load()
+	var packed_scene: PackedScene = cached_scenes[scene_path]
+	var next_room_instance = packed_scene.instantiate()
+	next_room_instance.name = pathway_name
+	next_room_instance.visible = false
+	next_room_instance.process_mode = Node.PROCESS_MODE_DISABLED
+	add_child(next_room_instance)
+
+	# ✅ Run heavy procedural stuff next frame (deferred)
+	call_deferred("_finalize_room_creation", next_room_instance, next_room_data, direction, pathway_detect)
+	await get_tree().process_frame
+
+func _exit_tree() -> void:
+	if thread_running and room_gen_thread.is_alive():
+		room_gen_thread.wait_to_finish()
+
 #Helper Functions
+
+func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
+	choose_pathways(direction, next_room_instance, next_room_data)
+	place_liquids(next_room_instance, next_room_data)
+	place_traps(next_room_instance, next_room_data)
+	place_enemy_spawners(next_room_instance, next_room_data)
+	floor_noise(next_room_instance, next_room_data)
+	calculate_cell_arrays(next_room_instance, next_room_data)
+	_set_tilemaplayer_collisions(next_room_instance, false)
+
+	generated_room_metadata[pathway_detect.name] = next_room_data
+	generated_rooms[pathway_detect.name] = next_room_instance
+
 func _move_to_pathway_room(pathway_id: String) -> void:
 	if not generated_rooms.has(pathway_id):
 		push_warning("No linked room for pathway " + pathway_id)
 		return
-	var chosen_index = generated_room_indices[pathway_id]
-	var next_room_data = cave_stage[chosen_index]
+	var next_room_data = generated_room_metadata[pathway_id]
 	var next_room = generated_rooms[pathway_id]
 	if not is_instance_valid(next_room):
 		push_warning("Linked room instance invalid for " + pathway_id)
 		return
 	
 	# Teleport player to the entrance of the next room
-	player.global_position =  generated_room_entrance[next_room]
+	player.global_position =  generated_room_entrance[next_room.name]
 	
 	# Delete all other generated rooms
 	for key in generated_rooms.keys():
 		if key != pathway_id and is_instance_valid(generated_rooms[key]):
 			generated_rooms[key].queue_free()
 	generated_rooms.clear()
-	generated_room_indices.clear()
+	generated_room_metadata.clear()
 	
 	# Delete the current room
 	if is_instance_valid(room_instance):
@@ -400,13 +474,14 @@ func _get_pathway_name(direction: int, index: int) -> String:
 			return "PathwayL" + str(index)
 		room.Direction.Right: 
 			return "PathwayR" + str(index)
+	push_warning("Invalid pathway direction: " + str(direction))
 	return ""
 
 func _remove_duplicates(arr: Array) -> Array:
-	var unique_elements_dict = {}
+	var s := {}
 	for element in arr:
-		unique_elements_dict[element] = true
-	return unique_elements_dict.keys()
+		s[element] = true
+	return s.keys()
 
 func _arrays_intersect(array1 : Array[Vector2i], array2 : Array[Vector2i]) -> bool:
 	var array2_dictionary = {}
@@ -432,7 +507,7 @@ func _open_pathway(input : String,generated_room : Node2D) -> void:
 	generated_room.get_node(input).queue_free()
 	
 func if_node_exists(input : String,generated_room : Node2D) -> bool:
-	if generated_room .get_node_or_null(input):
+	if generated_room.get_node_or_null(input):
 		return !generated_room.get_node(input).is_queued_for_deletion()
 	else:
 		return false
