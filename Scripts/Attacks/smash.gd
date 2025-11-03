@@ -19,3 +19,7 @@ func _on_body_entered(body):
 	else:
 		print("hit!")
 	queue_free()
+
+func _on_area_entered(area: Area2D) -> void:
+	if area.has_method("deflect"):
+		area.deflect(direction, 100)

@@ -44,7 +44,7 @@ func _physics_process(_delta):
 		if(is_purple):
 			request_attack(0,1,.5,attack_scene)
 		else:
-			request_attack(300,1,1,attack_scene)
+			request_attack(50,1,10,attack_scene)
 	
 	#move and slide function
 	move_and_slide()
@@ -67,6 +67,6 @@ func pick_new_state():
 #Attack_speed, damage, lifespan
 func request_attack(attack_speed : float, damage : int, lifespan : float, t_attack_scene : String):
 	var attack_direction = (crosshair.position).normalized()
-	var attack_position = attack_direction * 10 + global_position
+	var attack_position = attack_direction * 20 + global_position
 	var new_attack = attack.create_attack(attack_direction,attack_speed,damage,attack_position,lifespan, t_attack_scene)
 	emit_signal("attack_requested",new_attack)
