@@ -4,7 +4,7 @@ const room_data = preload("res://Scripts/room_data.gd")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var player = $PlayerCat
 var current_room : Room
-var new_rooms : Array[Room]
+var generated_rooms : Array[Room]
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var second_layer : Array[Vector2i] = []
 var room_location : Resource 
@@ -14,6 +14,7 @@ var time_passed := 0.0
 @export var water_cells := []
 @export var lava_cells := []
 @export var acid_cells := []
+@export var trap_cells := []
 @export var blocked_cells := []
 
 #
@@ -71,8 +72,6 @@ func _process(delta: float) -> void:
 			floor_noise()
 			calculate_cell_arrays()
 			create_new_rooms()
-				
-					
 				
 func update_ai_array() -> void:
 	#Rooms cleared
@@ -346,18 +345,27 @@ func calculate_cell_arrays() -> void:
 	water_cells = []
 	lava_cells = []
 	acid_cells = []
-	blocked_cells.append(room_instance.get_node("Walls").get_used_cells())
-	blocked_cells.append(room_instance.get_node("Filling").get_used_cells())
+	trap_cells = []
+	blocked_cells += room_instance.get_node("Walls").get_used_cells()
+	blocked_cells += room_instance.get_node("Filling").get_used_cells()
 	var types = [0,0,0,0,0]
 	for liquid in current_room.liquid_types:
 		types[liquid] +=1
 		match liquid:
 			room.Liquid.Water:
-				water_cells +=room_instance.get_node("Water"+str(types[liquid])).get_used_cells()
+				if if_node_exists("Water"+str(types[liquid])):
+					water_cells += room_instance.get_node("Water"+str(types[liquid])).get_used_cells()
 			room.Liquid.Lava:
-				water_cells +=room_instance.get_node("Lava"+str(types[liquid])).get_used_cells()
+				if if_node_exists("Lava"+str(types[liquid])):
+					water_cells += room_instance.get_node("Lava"+str(types[liquid])).get_used_cells()
 			room.Liquid.Acid:
-				water_cells +=room_instance.get_node("Acid"+str(types[liquid])).get_used_cells()
+				if if_node_exists("Acid"+str(types[liquid])):
+					water_cells += room_instance.get_node("Acid"+str(types[liquid])).get_used_cells()
+	var curr_trap = 0
+	while curr_trap < current_room.num_trap:
+		curr_trap+=1
+		if if_node_exists("Trap"+str(curr_trap)):
+			trap_cells += room_instance.get_node("Trap"+str(curr_trap)).get_used_cells()
 	#Add blocked cells for an covers still existing
 	var L = 0
 	var R = 0
@@ -368,26 +376,26 @@ func calculate_cell_arrays() -> void:
 			room.Direction.Left:
 				L+=1
 				if if_node_exists("PathwayL"+str(L)):
-					blocked_cells+=room_instance.get_node("PathwayL"+str(L)).get_used_cells()
+					blocked_cells += room_instance.get_node("PathwayL"+str(L)).get_used_cells()
 			room.Direction.Right:
 				R+=1
 				if if_node_exists("PathwayR"+str(R)):
-					blocked_cells+=room_instance.get_node("PathwayR"+str(R)).get_used_cells()
+					blocked_cells += room_instance.get_node("PathwayR"+str(R)).get_used_cells()
 			room.Direction.Down:
 				D+=1
 				if if_node_exists("PathwayD"+str(D)):
-					blocked_cells+=room_instance.get_node("PathwayD"+str(D)).get_used_cells()
+					blocked_cells += room_instance.get_node("PathwayD"+str(D)).get_used_cells()
 			room.Direction.Up:
 				U+=1
 				if if_node_exists("PathwayU"+str(U)):
-					blocked_cells+=room_instance.get_node("PathwayU"+str(U)).get_used_cells()
+					blocked_cells += room_instance.get_node("PathwayU"+str(U)).get_used_cells()
 	blocked_cells= _remove_duplicates(blocked_cells) #remove duplicates
 
 func create_new_rooms() -> void:
-	var L = 0
-	var R = 0
-	var D = 0
-	var U = 0
+	var _L = 0
+	#var R = 0
+	#var D = 0
+	#var U = 0
 	#for p_direct in current_room.pathway_direction:
 		#match p_direct:
 			#room.Direction.Left:
