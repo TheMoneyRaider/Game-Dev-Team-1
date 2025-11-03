@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=4 uid="uid://4lxf8ki5yws5"]
 
-[ext_resource type="Script" uid="uid://cp72iyoo0rnbs" path="res://Scripts/room_script.gd" id="1_wj84b"]
+[ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Scripts/room_script.gd" id="1_wj84b"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://tilesets/medival_tileset.tres" id="2_xymcx"]
 [ext_resource type="PackedScene" uid="uid://b2lyldgavuns4" path="res://Scenes/Characters/enemy.tscn" id="3_3ionl"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Scenes/Objects/pathway.tscn" id="4_xymcx"]
