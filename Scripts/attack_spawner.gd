@@ -7,13 +7,19 @@ func _ready():
 func _on_attack_requested(requested_attack : Attack):
 	var character = get_parent()
 	var scene = load(requested_attack.scene_location)
-	if scene:
+	if scene and not requested_attack.use_scene_defaults:
 		var new_attack = scene.instantiate()
 		new_attack.global_position = requested_attack.position
 		new_attack.direction = requested_attack.direction
 		new_attack.speed = requested_attack.speed
 		new_attack.damage = requested_attack.damage
 		new_attack.lifespan = requested_attack.lifespan
+		new_attack.hit_force = requested_attack.hit_force
 		new_attack.c_owner = character
 		get_tree().current_scene.add_child(new_attack)
-		
+	elif scene:
+		var new_attack = scene.instantiate()
+		new_attack.global_position = requested_attack.position
+		new_attack.direction = requested_attack.direction
+		new_attack.c_owner = character
+		get_tree().current_scene.add_child(new_attack)

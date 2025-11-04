@@ -2,8 +2,9 @@ extends Area2D
 
 var direction = Vector2.RIGHT
 var speed = 0
-var damage = 0
+var damage = 3
 var lifespan = 1
+var hit_force = 100
 var c_owner: Node = null
 
 func _ready():
@@ -22,4 +23,4 @@ func _on_body_entered(body):
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.has_method("deflect"):
-		area.deflect(direction, 100)
+		area.deflect(direction, hit_force)

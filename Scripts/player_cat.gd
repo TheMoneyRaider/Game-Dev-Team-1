@@ -20,7 +20,6 @@ signal attack_requested(new_attack : Attack)
 func _ready():
 	update_animation_parameters(starting_direction)
 
-
 func _physics_process(_delta):
 	#Cat input detection
 	var input_direction = Vector2(
@@ -42,9 +41,9 @@ func _physics_process(_delta):
 	
 	if Input.is_action_just_pressed("attack"):
 		if(is_purple):
-			request_attack(0,1,.5,attack_scene)
+			request_attack(attack_scene)
 		else:
-			request_attack(50,1,10,attack_scene)
+			request_attack(attack_scene,false,50,2,10)
 	
 	#move and slide function
 	move_and_slide()
@@ -64,9 +63,12 @@ func pick_new_state():
 	else:
 		state_machine.travel("Idle")
 
-#Attack_speed, damage, lifespan
-func request_attack(attack_speed : float, damage : int, lifespan : float, t_attack_scene : String):
+func request_attack(t_attack_scene : String, use_defaults = true,attack_speed : float = 0, damage : int = 0, lifespan : float = 0):
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
-	var new_attack = attack.create_attack(attack_direction,attack_speed,damage,attack_position,lifespan, t_attack_scene)
+	var new_attack
+	if use_defaults == true:
+		new_attack = attack.create_attack(t_attack_scene,attack_direction,attack_position)
+	else:
+		new_attack = attack.create_attack(t_attack_scene,attack_direction,attack_position,false,attack_speed,damage,lifespan)
 	emit_signal("attack_requested",new_attack)
