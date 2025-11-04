@@ -8,6 +8,7 @@ var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
 var pending_room_creations: Array = []
+var terrain_update_queue: Array = []
 #Thread Stuff
 var room_gen_thread: Thread
 var thread_result: Dictionary
@@ -84,6 +85,10 @@ func _process(delta: float) -> void:
 	# Process pending room creation gradually
 	if !(pending_room_creations.size() == 0):
 		_create_room_step()
+		
+	# Process queued terrain updates (spread across frames)
+	if terrain_update_queue.size() > 0:
+		_process_terrain_batch()
 				
 
 func create_new_rooms() -> void:
@@ -307,9 +312,7 @@ func floor_noise_threaded(generated_room: Node2D, generated_room_data: Room) -> 
 
 	result_thread.start(
 		func() -> Dictionary:
-			var result = _compute_floor_noise_threaded(generated_room_data, cells)
-			thread_finished = true
-			return result
+			return _compute_floor_noise_threaded(generated_room_data, cells)
 	)
 
 	# Wait for the thread to finish
@@ -447,20 +450,40 @@ func _compute_floor_noise_threaded(generated_room_data: Room, cells: Array) -> D
 				break
 	return {"terrains": terrains}
 
-func _apply_floor_noise(generated_room: Node2D, generated_room_data: Room, terrains_dict: Dictionary) -> void:
-	var ground = generated_room.get_node("Ground")
-	for i in range(generated_room_data.num_fillings):
-		ground.set_cells_terrain_connect(
-			terrains_dict["terrains"][i],
-			generated_room_data.fillings_terrain_set[i],
-			generated_room_data.fillings_terrain_id[i],
-			true
-		)
-	
 func _apply_floor_noise_async(next_room_instance: Node2D, next_room_data: Room, thread: Thread) -> void:
 	var terrains_dict = thread.wait_to_finish()
 	thread = null
-	_apply_floor_noise(next_room_instance, next_room_data, terrains_dict)
+	_start_apply_floor_noise_batched(next_room_instance, next_room_data, terrains_dict)
+
+func _start_apply_floor_noise_batched(generated_room: Node2D, generated_room_data: Room, terrains_dict: Dictionary, batch_size: int = 100) -> void:
+	var ground = generated_room.get_node("Ground")
+	for i in range(generated_room_data.num_fillings):
+		var terrain_cells = terrains_dict["terrains"][i]
+		if terrain_cells.is_empty():
+			continue
+		# Split into sub-batches
+		for j in range(0, terrain_cells.size(), batch_size):
+			var sub_array = terrain_cells.slice(j, j + batch_size)
+			terrain_update_queue.append({
+				"ground": ground,
+				"cells": sub_array,
+				"terrain_set": generated_room_data.fillings_terrain_set[i],
+				"terrain_id": generated_room_data.fillings_terrain_id[i],
+			})
+
+func _process_terrain_batch() -> void:
+	if terrain_update_queue.is_empty():
+		return
+	
+	# Apply one sub-batch per frame
+	var entry = terrain_update_queue.pop_front()
+	if is_instance_valid(entry["ground"]):
+		entry["ground"].set_cells_terrain_connect(
+			entry["cells"],
+			entry["terrain_set"],
+			entry["terrain_id"],
+			true
+		)
 
 #Helper Functions
 
