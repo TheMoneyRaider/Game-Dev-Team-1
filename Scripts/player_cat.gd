@@ -11,11 +11,11 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var state_machine = animation_tree.get("parameters/playback")
 @onready var crosshair = $Crosshair
 
-var attack_scene : String = "res://Scenes/Attacks/smash.tscn"
+var attacks = [attack.create_from_scene("res://Scenes/Attacks/smash.tscn"),attack.create_from_scene("res://Scenes/Attacks/bolt.tscn")]
 var is_purple = true
 
 
-signal attack_requested(new_attack : Attack)
+signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
 
 func _ready():
 	update_animation_parameters(starting_direction)
@@ -34,16 +34,14 @@ func _physics_process(_delta):
 	if Input.is_action_just_pressed("swap"):
 		if(is_purple):
 			is_purple = false
-			attack_scene = "res://Scenes/Attacks/bolt.tscn"
 		else:
 			is_purple = true
-			attack_scene = "res://Scenes/Attacks/smash.tscn"
 	
 	if Input.is_action_just_pressed("attack"):
 		if(is_purple):
-			request_attack(attack_scene)
+			request_attack(attacks[0])
 		else:
-			request_attack(attack_scene,false,50,2,10)
+			request_attack(attacks[1])
 	
 	#move and slide function
 	move_and_slide()
@@ -63,12 +61,7 @@ func pick_new_state():
 	else:
 		state_machine.travel("Idle")
 
-func request_attack(t_attack_scene : String, use_defaults = true,attack_speed : float = 0, damage : int = 0, lifespan : float = 0):
+func request_attack(t_attack : Attack):
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
-	var new_attack
-	if use_defaults == true:
-		new_attack = attack.create_attack(t_attack_scene,attack_direction,attack_position)
-	else:
-		new_attack = attack.create_attack(t_attack_scene,attack_direction,attack_position,false,attack_speed,damage,lifespan)
-	emit_signal("attack_requested",new_attack)
+	emit_signal("attack_requested",t_attack, attack_position, attack_direction)

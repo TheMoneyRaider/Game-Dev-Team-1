@@ -1,10 +1,10 @@
 extends Area2D
 
 var direction = Vector2.RIGHT
-var speed = 0
-var damage = 3
-var lifespan = 1
-var hit_force = 100
+@export var speed = 0
+@export var damage = 3
+@export var lifespan = .5
+@export var hit_force = 100
 var c_owner: Node = null
 
 func _ready():

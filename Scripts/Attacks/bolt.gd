@@ -1,11 +1,11 @@
 extends Area2D
 
 var direction = Vector2.RIGHT
-var speed = 300
-var damage = 2
-var lifespan = 1
+@export var speed = 300
+@export var damage = 2
+@export var lifespan = 1
 var c_owner: Node = null
-var hit_force = 0
+@export var hit_force = 0
 
 func _ready():
 	rotation = direction.angle() + PI/2
