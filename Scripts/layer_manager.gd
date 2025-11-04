@@ -6,7 +6,6 @@ const room_data = preload("res://Scripts/room_data.gd")
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
-var generated_room_terrain_data : = {}
 var generated_room_entrance : = {}
 var pending_room_creations: Array = []
 var terrain_update_queue: Array = []
@@ -101,7 +100,6 @@ func create_new_rooms() -> void:
 			gen_room.queue_free()
 	generated_rooms.clear()
 	generated_room_metadata.clear()
-	generated_room_terrain_data.clear()
 
 	# Start async generation thread
 	thread_running = true
@@ -431,10 +429,7 @@ func _exit_tree() -> void:
 	if thread_running and room_gen_thread.is_alive():
 		room_gen_thread.wait_to_finish()
 
-
-#Helper Functions
-
-func _compute_floor_noise(generated_room_data: Room, cells: Array) -> Dictionary:
+func _compute_floor_noise_threaded(generated_room_data: Room, cells: Array) -> Dictionary:
 	#Initialize variables
 	var noise = generated_room_data.noise
 	var thresholds = generated_room_data.fillings_terrain_threshold
@@ -466,7 +461,7 @@ func _start_apply_floor_noise_batched(generated_room: Node2D, generated_room_dat
 		var terrain_cells = terrains_dict["terrains"][i]
 		if terrain_cells.is_empty():
 			continue
-		# Split into sub-batches
+		# Split into segments
 		for j in range(0, terrain_cells.size(), batch_size):
 			var sub_array = terrain_cells.slice(j, j + batch_size)
 			terrain_update_queue.append({
@@ -480,7 +475,7 @@ func _process_terrain_batch() -> void:
 	if terrain_update_queue.is_empty():
 		return
 	
-	# Apply one sub-batch per frame
+	# Apply one segment per frame
 	var entry = terrain_update_queue.pop_front()
 	if is_instance_valid(entry["ground"]):
 		entry["ground"].set_cells_terrain_connect(
@@ -498,8 +493,19 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	place_traps(next_room_instance, next_room_data)
 	place_enemy_spawners(next_room_instance, next_room_data)
 	
-	#_apply_floor_noise(next_room_instance, next_room_data, terrains_dict)
-	generated_room_terrain_data[pathway_detect.name] = _compute_floor_noise(next_room_data, next_room_instance.get_node("Ground").get_used_cells())
+	# Async floor noise
+	var ground = next_room_instance.get_node("Ground")
+	var cells = ground.get_used_cells()
+
+	var thread := Thread.new()
+	thread.start(
+		func() -> Dictionary:
+			return _compute_floor_noise_threaded(next_room_data, cells)
+	)
+
+	# Defer the TileMap assignment to avoid blocking
+	call_deferred("_apply_floor_noise_async", next_room_instance, next_room_data, thread)
+	
 	calculate_cell_arrays(next_room_instance, next_room_data)
 	_set_tilemaplayer_collisions(next_room_instance, false)
 
@@ -512,8 +518,6 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 		return
 	var next_room_data = generated_room_metadata[pathway_id]
 	var next_room = generated_rooms[pathway_id]
-	#Apply floor noise
-	_apply_floor_noise(next_room, next_room_data, generated_room_terrain_data[pathway_id])
 	if not is_instance_valid(next_room):
 		push_warning("Linked room instance invalid for " + pathway_id)
 		return
@@ -527,7 +531,6 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 			generated_rooms[key].queue_free()
 	generated_rooms.clear()
 	generated_room_metadata.clear()
-	generated_room_terrain_data.clear()
 	
 	# Delete the current room
 	if is_instance_valid(room_instance):
