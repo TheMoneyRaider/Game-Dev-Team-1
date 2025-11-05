@@ -1,10 +1,61 @@
-[gd_scene load_steps=4 format=3 uid="uid://ccwiql3bybf2p"]
+[gd_scene load_steps=16 format=3 uid="uid://ccwiql3bybf2p"]
 
 [ext_resource type="Script" uid="uid://ddvtpbrhc2iw1" path="res://pathway.gd" id="1_0mqoo"]
-[ext_resource type="Texture2D" uid="uid://ckny8mww4gbve" path="res://art/entrance_exit.png" id="1_s4n4j"]
+[ext_resource type="Texture2D" uid="uid://dyg7thp4m8so5" path="res://art/base_icon.png" id="2_dp20r"]
+[ext_resource type="Shader" uid="uid://bylr7hbsry4y7" path="res://Shaders/icon_glow.gdshader" id="2_x3etk"]
+[ext_resource type="Script" uid="uid://c76nmnuf36fnq" path="res://Scripts/rift_core_icon.gd" id="4_rjdqg"]
+[ext_resource type="Shader" uid="uid://c7aprdgds5kpc" path="res://Shaders/chromatic_abberation.gdshader" id="6_x3etk"]
+[ext_resource type="Texture2D" uid="uid://dsg1hqhbidk6m" path="res://art/gradiant_dot.png" id="8_hgkmx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wj84b"]
 size = Vector2(50, 50)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rjdqg"]
+shader = ExtResource("2_x3etk")
+shader_parameter/u_time = 0.0
+shader_parameter/base_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Gradient" id="Gradient_hgkmx"]
+offsets = PackedFloat32Array(0.2647059, 0.5392157, 1)
+colors = PackedColorArray(0.94686705, 0.4836762, 0.99999994, 1, 0.87058824, 0, 0.98039216, 0.81960785, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_5ec6i"]
+gradient = SubResource("Gradient_hgkmx")
+
+[sub_resource type="Curve" id="Curve_1vvwv"]
+_data = [Vector2(0, 0.28089893), 0.0, 5.0165224, 0, 0, Vector2(0.13043478, 0.9550562), 0.0, 0.0, 0, 0, Vector2(0.9826088, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ccisr"]
+curve = SubResource("Curve_1vvwv")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_f0d0v"]
+particle_flag_disable_z = true
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 1.0
+emission_ring_radius = 18.0
+emission_ring_inner_radius = 0.0
+emission_ring_cone_angle = 90.0
+spread = 180.0
+initial_velocity_min = 25.0
+initial_velocity_max = 25.0
+gravity = Vector3(0, 0, 0)
+radial_accel_min = -20.000002
+radial_accel_max = -20.000002
+tangential_accel_min = 39.999996
+tangential_accel_max = 39.999996
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_ccisr")
+color_ramp = SubResource("GradientTexture1D_5ec6i")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hgkmx"]
+shader = ExtResource("6_x3etk")
+shader_parameter/aberration_strength = 0.002
+shader_parameter/mask_intensity = 1.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_dp20r"]
+viewport_path = NodePath("MaskViewport")
 
 [node name="Root" type="Node2D"]
 script = ExtResource("1_0mqoo")
@@ -14,6 +65,26 @@ script = ExtResource("1_0mqoo")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("RectangleShape2D_wj84b")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.79, 0.79)
-texture = ExtResource("1_s4n4j")
+[node name="RiftCoreIcon" type="Sprite2D" parent="."]
+z_index = 1
+material = SubResource("ShaderMaterial_rjdqg")
+scale = Vector2(0.048, 0.048)
+texture = ExtResource("2_dp20r")
+script = ExtResource("4_rjdqg")
+
+[node name="MaskViewport" type="SubViewport" parent="."]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(128, 128)
+render_target_update_mode = 4
+
+[node name="RiftWisps" type="GPUParticles2D" parent="MaskViewport"]
+position = Vector2(64, 64)
+amount = 100
+texture = ExtResource("8_hgkmx")
+lifetime = 2.0
+process_material = SubResource("ParticleProcessMaterial_f0d0v")
+
+[node name="ShaderSprite" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_hgkmx")
+texture = SubResource("ViewportTexture_dp20r")
