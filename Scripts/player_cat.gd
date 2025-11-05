@@ -10,6 +10,12 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var animation_tree = $AnimationTree
 @onready var state_machine = animation_tree.get("parameters/playback")
 @onready var crosshair = $Crosshair
+@onready var crosshair_sprite = $Crosshair/Sprite2D
+@onready var sprite = $Sprite2D
+@onready var purple_crosshair = preload("res://art/purple_crosshair.png")
+@onready var orange_crosshair = preload("res://art/orange_crosshair.png")
+@onready var purple_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png")
+@onready var orange_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Orange Spritesheet-export.png")
 
 var attacks = [attack.create_from_scene("res://Scenes/Attacks/smash.tscn"),attack.create_from_scene("res://Scenes/Attacks/bolt.tscn")]
 var is_purple = true
@@ -34,8 +40,12 @@ func _physics_process(_delta):
 	if Input.is_action_just_pressed("swap"):
 		if(is_purple):
 			is_purple = false
+			sprite.texture = orange_texture
+			crosshair_sprite.texture = orange_crosshair
 		else:
 			is_purple = true
+			sprite.texture = purple_texture
+			crosshair_sprite.texture = purple_crosshair
 	
 	if Input.is_action_just_pressed("attack"):
 		if(is_purple):
