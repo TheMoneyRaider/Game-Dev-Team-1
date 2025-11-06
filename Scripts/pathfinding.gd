@@ -21,5 +21,14 @@ func id_to_pos(id: int) -> Vector2i:
 	var y = id / grid_bounds.size.x
 	return Vector2i(x,y)
 
-
+# orgonises all the data from the layer_manager, 
+func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array[Vector2i]):
+	clear()
+	
+	# no used cells, return, nothing to do
+	var used_cells = ground_layer.get_used_cells()
+	if used_cells.is_empty():
+		return
+	
+	
  
