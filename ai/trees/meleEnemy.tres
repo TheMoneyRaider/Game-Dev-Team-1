@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=14 format=3 uid="uid://clbkhmh1c8a68"]
+[gd_resource type="BehaviorTree" load_steps=15 format=3 uid="uid://clbkhmh1c8a68"]
 
 [ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
@@ -9,6 +9,8 @@ var/state/type = 4
 var/state/value = ""
 var/state/hint = 0
 var/state/hint_string = ""
+
+[sub_resource type="BTAlwaysFail" id="BTAlwaysFail_3c6mk"]
 
 [sub_resource type="BBVariant" id="BBVariant_3c6mk"]
 type = 4
@@ -28,7 +30,7 @@ animation_player = SubResource("BBNode_ecge8")
 
 [sub_resource type="BTSequence" id="BTSequence_ecge8"]
 custom_name = "Attack"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTPlayAnimation_tqs8k")]
+children = [SubResource("BTAlwaysFail_3c6mk"), SubResource("BTCheckVar_nufqr"), SubResource("BTPlayAnimation_tqs8k")]
 
 [sub_resource type="BTRandomWait" id="BTRandomWait_3c6mk"]
 min_duration = 2.0

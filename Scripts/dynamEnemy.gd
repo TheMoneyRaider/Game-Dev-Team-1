@@ -22,3 +22,19 @@ func move(target_pos: Vector2, _delta: float):
 	move_and_slide()
 	
 	
+func _draw(): 
+	if has_node("BTPlayer"):
+		var bt = get_node("BTPlayer")
+		var path = bt.blackboard.get_var("path", [])
+		
+		if path.size() > 1: 
+			for i in range(path.size() - 1):
+				var start = to_local(path[i])
+				var end = to_local(path[i + 1])
+				draw_line(start, end, Color.YELLOW, 2.0)
+			
+			for waypoint in path:
+				draw_circle(to_local(waypoint), 4, Color.RED)
+			
+func _process(_delta):
+	queue_redraw()

@@ -1,5 +1,6 @@
 extends Node2D
 const room = preload("res://Scripts/room.gd")
+const Pathfinding = preload("res://Scripts/pathfinding.gd")
 #the root node MUST BE NAMED Root
 #                                           scene_location                                            num_liquids    Liquid Types											                            Liquid Chances                     Num Fillings   Terrain Set                                       Terrain ID					 Threshold			  Noise Scale									Num_traps      Trap Chances                                   Num Exits            Exit Directions                                                                                      Exit Types                                                                Enemy Spawnpoints  NPC Spawnpoints    Can Shop
 @onready var cave_stage : Array[Room] = [room.Create_Room("res://Scenes/medival_cave_room_test.tscn",           4,            [room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water], [.75,.25,.75,.25],                     2,              [0,0],                                      [3,4],                       [.6,1.0],            Vector2i(10,10),                              3,              [.65,.65,.65],                                3,                   [room.Direction.Left,room.Direction.Up,room.Direction.Up],                                           [room.Exit.Cave,room.Exit.Cave,room.Exit.Cave],                                          0,              0,   false),
@@ -11,9 +12,13 @@ var current_room : Room
 @onready var second_layer : Array[Vector2i] = []
 var room_location : Resource 
 var room_instance
-
+var pathfinding: Pathfinding
 
 func _ready() -> void:
+	add_to_group("layer_manager")
+	pathfinding = Pathfinding.new()
+	add_child(pathfinding)
+	
 	randomize()
 	_choose_room()
 	_place_exits()

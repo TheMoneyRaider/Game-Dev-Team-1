@@ -9,6 +9,7 @@ in our case the characterbody2d
 """
 
 func _tick(_delta: float) -> Status: 
+	# takes the random pos determined b4 in "chooseRadnomPos, and moves to it, simple as 
 	var target_pos: Vector2 = blackboard.get_var("pos")
 	var current_pos: Vector2 = agent.global_position
 	
