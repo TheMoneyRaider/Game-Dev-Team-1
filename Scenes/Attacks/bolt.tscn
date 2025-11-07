@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://xvgc7jxjo4ip"]
+
+[ext_resource type="Script" uid="uid://cyq73hc1kn6vi" path="res://Scripts/Attacks/bolt.gd" id="1_wvak2"]
+[ext_resource type="Texture2D" uid="uid://cws3x8eprmqf1" path="res://art/bolt.png" id="2_wvak2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e1io4"]
+
+[node name="Bolt" type="Area2D"]
+script = ExtResource("1_wvak2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_e1io4")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, 4.7683716e-07)
+scale = Vector2(1, 1.25)
+texture = ExtResource("2_wvak2")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
