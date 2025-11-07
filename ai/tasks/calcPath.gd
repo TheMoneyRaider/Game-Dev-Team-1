@@ -13,6 +13,7 @@ func _tick(_detla: float) -> Status:
 	if target_pos == Vector2.ZERO: 
 		return FAILURE
 	
+	# learn what the hell this means 
 	var layer_man = agent.get_tree().get_first_node_in_group("layer_manager")
 	if not layer_man or not layer_man.pathfinding:
 		push_error("No pathfinding system found")
