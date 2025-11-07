@@ -276,7 +276,16 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room) -
 			generated_room.get_node("Enemy"+str(curr_en)).queue_free()
 			_debug_message("Deleted enemy")
 			enemy_num-=1
-
+	# Temporary Enemey creation   UPDATE TODO
+	enemy_num = 0
+	while enemy_num < generated_room_data.num_enemy_spawnpoints:
+		enemy_num+=1
+		if if_node_exists("Enemy"+str(enemy_num),generated_room):
+			var enemy = load("res://Scenes/Characters/dynamEnemy.tscn").instantiate()
+			enemy.position = generated_room.get_node("Enemy"+str(enemy_num)).position
+			generated_room.get_node("Enemy"+str(enemy_num)).queue_free()
+			generated_room.add_child(enemy)
+			
 func floor_noise_sync(generated_room : Node2D, generated_room_data : Room) -> void:
 	#If there's no noise fillings, don't do the work
 	if(generated_room_data.num_fillings==0):
@@ -366,7 +375,7 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
-	generated_room.blocked_cells= _remove_duplicates(generated_room.blocked_cells) #remove duplicates
+	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells) #remove duplicates
 
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
@@ -635,7 +644,7 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room) 
 				_open_pathway(pathway_name+"_Detect", generated_room)
 				second_layer+=generated_room.get_node(pathway_name).get_used_cells()
 			
-func _on_player_attack(_new_attack : Attack, attack_position : Vector2, attack_direction : Vector2) -> void:
+func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
 
 func _debug_message(msg : String) -> void:
