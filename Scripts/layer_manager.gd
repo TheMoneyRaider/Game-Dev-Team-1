@@ -280,7 +280,6 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room) -
 	enemy_num = 0
 	while enemy_num < generated_room_data.num_enemy_spawnpoints:
 		enemy_num+=1
-		print(str(enemy_num)+" "+str(generated_room_data.num_enemy_spawnpoints))
 		if if_node_exists("Enemy"+str(enemy_num),generated_room):
 			var enemy = load("res://Scenes/Characters/dynamEnemy.tscn").instantiate()
 			enemy.position = generated_room.get_node("Enemy"+str(enemy_num)).position
@@ -376,7 +375,7 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
-	generated_room.blocked_cells= _remove_duplicates(generated_room.blocked_cells) #remove duplicates
+	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells) #remove duplicates
 
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
