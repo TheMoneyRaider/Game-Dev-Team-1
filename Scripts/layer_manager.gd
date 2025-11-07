@@ -628,7 +628,7 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room) 
 				_open_pathway(pathway_name+"_Detect", generated_room)
 				second_layer+=generated_room.get_node(pathway_name).get_used_cells()
 			
-func _on_player_attack(_new_attack : Attack) -> void:
+func _on_player_attack(_new_attack : Attack, attack_position : Vector2, attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
 
 func _debug_message(msg : String) -> void:
