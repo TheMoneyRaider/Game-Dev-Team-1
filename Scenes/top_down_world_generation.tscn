@@ -25,8 +25,6 @@ image = SubResource("Image_dfmvc")
 [sub_resource type="Resource" id="Resource_y7nji"]
 script = ExtResource("2_isblp")
 texture = SubResource("ImageTexture_pu182")
-falloff_start = 0.5
-falloff_end = 1.0
 metadata/_custom_type_script = "uid://cop33y5j5re5p"
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_ehgy5"]
@@ -35,13 +33,6 @@ seed = 284880631
 
 [sub_resource type="Resource" id="Resource_w7g1i"]
 script = ExtResource("6_xfkik")
-type = 0
-tilemap_layer = 0
-source_id = 0
-atlas_coord = Vector2i(0, 0)
-alternative_tile = 0
-id = ""
-layer = 0
 metadata/_custom_type_script = "uid://baf72kouukwmu"
 
 [sub_resource type="Resource" id="Resource_hglh3"]
@@ -50,17 +41,10 @@ script = ExtResource("5_5yh5t")
 title = "Dark Grass"
 tile = SubResource("Resource_w7g1i")
 min = 0.3
-max = 1.0
 
 [sub_resource type="Resource" id="Resource_axupq"]
 script = ExtResource("6_xfkik")
-type = 0
-tilemap_layer = 0
-source_id = 0
 atlas_coord = Vector2i(1, 0)
-alternative_tile = 0
-id = ""
-layer = 0
 metadata/_custom_type_script = "uid://baf72kouukwmu"
 
 [sub_resource type="Resource" id="Resource_vh8up"]
@@ -73,13 +57,7 @@ max = 0.3
 
 [sub_resource type="Resource" id="Resource_r6tc8"]
 script = ExtResource("6_xfkik")
-type = 0
-tilemap_layer = 0
-source_id = 0
 atlas_coord = Vector2i(2, 0)
-alternative_tile = 0
-id = ""
-layer = 0
 metadata/_custom_type_script = "uid://baf72kouukwmu"
 
 [sub_resource type="Resource" id="Resource_dxckn"]
@@ -92,13 +70,7 @@ max = -0.1
 
 [sub_resource type="Resource" id="Resource_xbkac"]
 script = ExtResource("6_xfkik")
-type = 0
-tilemap_layer = 0
-source_id = 0
 atlas_coord = Vector2i(3, 0)
-alternative_tile = 0
-id = ""
-layer = 0
 metadata/_custom_type_script = "uid://baf72kouukwmu"
 
 [sub_resource type="Resource" id="Resource_q2d0i"]
@@ -111,13 +83,7 @@ max = -0.4
 
 [sub_resource type="Resource" id="Resource_r0dqf"]
 script = ExtResource("6_xfkik")
-type = 0
-tilemap_layer = 0
-source_id = 0
 atlas_coord = Vector2i(4, 0)
-alternative_tile = 0
-id = ""
-layer = 0
 metadata/_custom_type_script = "uid://baf72kouukwmu"
 
 [sub_resource type="Resource" id="Resource_2oapx"]
@@ -125,7 +91,6 @@ resource_name = "Water"
 script = ExtResource("5_5yh5t")
 title = "Water"
 tile = SubResource("Resource_r0dqf")
-min = -1.0
 max = -0.5
 
 [sub_resource type="Resource" id="Resource_5rvl8"]
@@ -133,11 +98,8 @@ resource_name = "Settings"
 script = ExtResource("4_52lx2")
 tiles = Array[ExtResource("5_5yh5t")]([SubResource("Resource_hglh3"), SubResource("Resource_vh8up"), SubResource("Resource_dxckn"), SubResource("Resource_q2d0i"), SubResource("Resource_2oapx")])
 noise = SubResource("FastNoiseLite_ehgy5")
-infinite = false
-world_size = Vector2i(256, 256)
 falloff_enabled = true
 falloff_map = SubResource("Resource_y7nji")
-modifiers = Array[ExtResource("3_8ue2e")]([])
 metadata/_custom_type_script = "uid://blsrly207kadn"
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_w32a5"]
