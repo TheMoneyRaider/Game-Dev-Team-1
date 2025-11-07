@@ -4,6 +4,8 @@ var direction = Vector2.RIGHT
 @export var speed = 300
 @export var damage = 2
 @export var lifespan = 1
+@export var start_lag = 0
+@export var cooldown = .5
 var c_owner: Node = null
 @export var hit_force = 0
 

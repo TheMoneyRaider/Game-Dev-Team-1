@@ -25,6 +25,8 @@ signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction :
 
 func _ready():
 	update_animation_parameters(starting_direction)
+	attacks[1].speed = 50
+	attacks[1].lifespan = 10
 
 func _physics_process(_delta):
 	#Cat input detection
