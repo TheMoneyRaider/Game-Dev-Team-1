@@ -17,7 +17,9 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var purple_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png")
 @onready var orange_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Orange Spritesheet-export.png")
 
-var attacks = [attack.create_from_scene("res://Scenes/Attacks/smash.tscn"),attack.create_from_scene("res://Scenes/Attacks/bolt.tscn")]
+var smash = preload("res://Scripts/Attacks/smash.gd")
+var bolt = preload("res://Scripts/Attacks/bolt.gd")
+var attacks = [attack.create_from_resource("res://Scenes/Attacks/smash.tscn",smash),attack.create_from_resource("res://Scenes/Attacks/bolt.tscn",bolt)]
 var is_purple = true
 
 
