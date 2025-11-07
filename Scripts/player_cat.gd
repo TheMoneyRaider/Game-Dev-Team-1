@@ -26,6 +26,8 @@ signal player_took_damage(damage : int, c_health : int, c_node : Node)
 
 func _ready():
 	update_animation_parameters(starting_direction)
+	add_to_group("player")
+
 	attacks[1].speed = 50
 	attacks[1].lifespan = 10
 
