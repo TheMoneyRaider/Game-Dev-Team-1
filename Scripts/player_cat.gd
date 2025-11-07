@@ -2,8 +2,8 @@ extends CharacterBody2D
 const attack = preload("res://Scripts/attack.gd")
 
 @export var move_speed: float = 100
-@export var max_health: float = 100
-@export var current_health: float = 100
+@export var max_health: float = 10
+@export var current_health: float = 10
 
 @export var starting_direction : Vector2 =  Vector2(0,1)
 
@@ -22,6 +22,7 @@ var is_purple = true
 
 
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
+signal player_took_damage(damage : int, c_health : int, c_node : Node)
 
 func _ready():
 	update_animation_parameters(starting_direction)
@@ -77,3 +78,7 @@ func request_attack(t_attack : Attack):
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
+
+func take_damage(damage_amount : int):
+	current_health = current_health - damage_amount
+	emit_signal("player_took_damage",damage_amount,current_health,self)
