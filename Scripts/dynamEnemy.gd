@@ -1,7 +1,11 @@
 extends CharacterBody2D
+const is_elite: bool = false
+var enemy_health: int = 10
+var current_health: int = 10 
 
 const SPEED: float = 15
 @onready var sprite_2d: Sprite2D = $Sprite2D
+
 
 func update_flip(dir: float): 
 	sprite_2d.flip_h = dir < 0 
@@ -38,3 +42,11 @@ func _draw():
 			
 func _process(_delta):
 	queue_redraw()
+	
+
+signal takes_damage(damage_taken : int, e_health : int)
+
+func take_damage(damage : int):
+	enemy_health = current_health - damage
+	emit_signal("takes_damage", damage_taken, current_health)
+	
