@@ -26,6 +26,10 @@ func _ready() -> void:
 	player.position = room_instance.get_node("PlayerSpawn").position
 	
 func _process(_delta: float) -> void:
+	# I have a feeling it'll be a while before we actually make a pause menu, but heres this in the meanwhile
+	if(Input.is_action_just_pressed("ui_cancel")):
+		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+		pass # I have a feeling that changing the scene will anyways interupt whatever's going on, but I have done half a brainpowers worth of work here
 	if(Input.is_action_just_pressed("Activate")):
 		var direction = check_exits()
 		if direction != -1:
