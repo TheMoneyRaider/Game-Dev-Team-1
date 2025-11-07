@@ -6,6 +6,13 @@ var grid_bounds: Rect2i
 var walkable_cells: Array[Vector2i] = []
 var cell_size: int = 16
 
+
+#The pathfinding system 
+#1. Takes all the cells from the "Ground" layer
+#2. Removes any that overlap with `blocked_cells`
+#3. Builds an A* grid from the remaining walkable cells
+#4. Connects neighboring walkable cells
+
 # reset function for changing rooms
 func clear():
 	astar.clear() # remove all points and connections from Astar
@@ -13,13 +20,15 @@ func clear():
 	
 # Astar uses ID numbers rather than vectors to track points
 func pos_to_id(pos: Vector2i) -> int: 
-	return pos.x + pos.y * grid_bounds.size.x
+	var local_x = pos.x - grid_bounds.position.x
+	var local_y = pos.y - grid_bounds.position.y
+	return local_x + local_y * grid_bounds.size.x
 	
 # converts the id back into grid position 
 func id_to_pos(id: int) -> Vector2i:
-	var x = id % grid_bounds.size.x
-	var y = id / grid_bounds.size.x
-	return Vector2i(x,y)
+	var local_x = id % grid_bounds.size.x
+	var local_y = id / grid_bounds.size.x
+	return Vector2i(local_x + grid_bounds.position.x, local_y + grid_bounds.position.y)
 
 # orgonises all the data from the layer_manager, 
 func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array[Vector2i]):
@@ -67,6 +76,21 @@ func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array[Vector2i])
 				var neighbor_id = pos_to_id(neighbor)
 				if not astar.are_points_connected(id, neighbor_id): 
 					astar.connected_points(id,neighbor_id)
-	
 
- 
+	# derive path from world pos to world pos 
+func find_path(from_world: Vector2, to_world: Vector2) -> Array: 
+	
+	var from_cell = Vector2i(floor(from_world.x / cell_size), floor(from_world.y / cell_size))
+	var to_cell = Vector2i(floor(to_world.x / cell_size), floor(to_world.y / cell_size))
+	
+	# check if start and end pos are walkable
+	if not from_cell in walkable_cells or not to_cell in walkable_cells:
+		return []
+	
+	var from_id = pos_to_id(from_cell)
+	var to_id = pos_to_id(to_cell)
+	
+	# Get path from A* (returns Vector2 array in world space)
+	var path = astar.get_point_path(from_id, to_id)
+	
+	return path

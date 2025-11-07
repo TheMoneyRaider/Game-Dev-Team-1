@@ -17,6 +17,7 @@ var thread_running := false
 
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var second_layer : Array[Vector2i] = []
+@onready var pathfinding = Pathfinding.new()
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
 var room_location : Resource 
@@ -50,6 +51,7 @@ var time_passed := 0.0
 
 
 func _ready() -> void:
+	add_child(pathfinding)
 	preload_rooms()
 	player.attack_requested.connect(_on_player_attack)
 	randomize()
@@ -67,6 +69,7 @@ func _ready() -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	create_new_rooms()
+	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -558,6 +561,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
+	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():
