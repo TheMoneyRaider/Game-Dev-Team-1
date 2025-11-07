@@ -26,18 +26,17 @@ static func create_attack(t_scene_location : String, t_speed : float = 0, t_dama
 	new_attack.cooldown = t_cooldown
 	return new_attack
 	
-static func create_from_scene(t_scene_location):
-	var scene = load(t_scene_location)
-	var defaults = scene.instantiate()
+static func create_from_resource(t_scene_location : String, t_script : Resource):
 	var new_attack = Attack.new()
+	var temp_instance = t_script.new()
 	new_attack.scene_location = t_scene_location
-	new_attack.speed = defaults.speed
-	new_attack.lifespan = defaults.lifespan
-	new_attack.hit_force = defaults.hit_force
-	new_attack.damage = defaults.damage
-	new_attack.start_lag = defaults.start_lag
-	new_attack.cooldown = defaults.cooldown
-	defaults.free()
+	new_attack.speed = temp_instance.speed
+	new_attack.lifespan = temp_instance.lifespan
+	new_attack.hit_force = temp_instance.hit_force
+	new_attack.damage = temp_instance.damage
+	new_attack.start_lag = temp_instance.start_lag
+	new_attack.cooldown = temp_instance.cooldown
+	temp_instance.queue_free()
 	return new_attack
 
 #Multiplies the Speed, Damage, Lifespan adn Hit_Force of attack by given values
