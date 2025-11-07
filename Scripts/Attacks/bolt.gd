@@ -20,6 +20,8 @@ func _process(delta):
 func _on_body_entered(body):
 	if body == c_owner:
 		return
+	elif body.has_method("take_damage"):
+		body.take_damage(damage)
 	else:
 		print("hit!")
 	queue_free()
