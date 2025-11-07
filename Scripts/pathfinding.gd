@@ -31,7 +31,7 @@ func id_to_pos(id: int) -> Vector2i:
 	return Vector2i(local_x + grid_bounds.position.x, local_y + grid_bounds.position.y)
 
 # orgonises all the data from the layer_manager, 
-func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array[Vector2i]):
+func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array):
 	clear()
 	
 	# no used cells, return, nothing to do
@@ -75,7 +75,7 @@ func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array[Vector2i])
 			if neighbor in walkable_cells: 
 				var neighbor_id = pos_to_id(neighbor)
 				if not astar.are_points_connected(id, neighbor_id): 
-					astar.connected_points(id,neighbor_id)
+					astar.connect_points(id,neighbor_id)
 
 	# derive path from world pos to world pos 
 func find_path(from_world: Vector2, to_world: Vector2) -> Array: 

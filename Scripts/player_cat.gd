@@ -16,6 +16,7 @@ signal attack_requested(new_attack : Attack)
 
 func _ready():
 	update_animation_parameters(starting_direction)
+	add_to_group("player")
 
 
 func _physics_process(_delta):
