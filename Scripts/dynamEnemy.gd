@@ -48,5 +48,5 @@ signal takes_damage(damage_taken : int, e_health : int)
 
 func take_damage(damage : int):
 	enemy_health = current_health - damage
-	emit_signal("takes_damage", damage_taken, current_health)
+	emit_signal("takes_damage", damage, current_health)
 	
