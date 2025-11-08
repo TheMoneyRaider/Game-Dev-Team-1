@@ -32,7 +32,7 @@ script = ExtResource("1_hnqba")
 custom_name = "Attack"
 children = [SubResource("BTAction_llk5e"), SubResource("BTAction_xsft4"), SubResource("BTPlayAnimation_tqs8k"), SubResource("BTAction_1kwu6")]
 
-[sub_resource type="BTAlwaysFail" id="BTAlwaysFail_3c6mk"]
+[sub_resource type="BTFail" id="BTFail_ecge8"]
 
 [sub_resource type="BBVariant" id="BBVariant_3c6mk"]
 type = 4
@@ -56,7 +56,7 @@ script = ExtResource("1_hnqba")
 
 [sub_resource type="BTSequence" id="BTSequence_3c6mk"]
 custom_name = "Patrol"
-children = [SubResource("BTAlwaysFail_3c6mk"), SubResource("BTCheckVar_nufqr"), SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_hnqba")]
+children = [SubResource("BTFail_ecge8"), SubResource("BTCheckVar_nufqr"), SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_hnqba")]
 
 [sub_resource type="BTSelector" id="BTSelector_m8x3l"]
 children = [SubResource("BTSequence_ecge8"), SubResource("BTSequence_3c6mk")]

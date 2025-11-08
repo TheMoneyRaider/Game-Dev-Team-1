@@ -3,7 +3,7 @@ const is_elite: bool = false
 var enemy_health: int = 10
 var current_health: int = 10 
 
-const SPEED: float = 15
+const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
 
 
