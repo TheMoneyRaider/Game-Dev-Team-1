@@ -1,4 +1,5 @@
 extends BTAction
+const layer_manager_script = preload("res://Scripts/layer_manager.gd")
 
 @export var target_position_var: String = "target_pos"
 @export var path_output_var: String = "path"
@@ -14,12 +15,17 @@ func _tick(_detla: float) -> Status:
 		return FAILURE
 	
 	# learn what the hell this means 
-	var layer_man = agent.get_tree().get_first_node_in_group("layer_manager")
-	if not layer_man or not layer_man.pathfinding:
-		push_error("No pathfinding system found")
+	var layer_manager = null
+	for node in agent.get_tree().root.get_children():
+		if node.get_script() == layer_manager_script:
+			layer_manager = node
+			break
+	
+	if not layer_manager:
+		push_error("Could not find LayerManager")
 		return FAILURE
 	
-	var path = layer_man.find_path(agent.global_position, target_pos)
+	var path = layer_manager.pathfinding.find_path(agent.global_position, target_pos)
 	
 	if path.is_empty():
 		print("No path found")
