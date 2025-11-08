@@ -1,9 +1,13 @@
-[gd_scene load_steps=30 format=3 uid="uid://bgysbj2623d8d"]
+[gd_scene load_steps=34 format=3 uid="uid://bgysbj2623d8d"]
 
 [ext_resource type="Script" uid="uid://dpumkeekpn38k" path="res://Scripts/player_cat.gd" id="1_u0lhy"]
 [ext_resource type="Texture2D" uid="uid://bse7gaxbkiksd" path="res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png" id="2_qmbn4"]
 [ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Scenes/attack.tscn" id="3_up8sf"]
+[ext_resource type="Script" uid="uid://dcpvhpj3f8luc" path="res://Scripts/States/idle.gd" id="5_gr630"]
 [ext_resource type="PackedScene" uid="uid://dhidnnukydkmw" path="res://Scenes/crosshair.tscn" id="5_q2fti"]
+[ext_resource type="Script" uid="uid://dwkcar82gxuft" path="res://Scripts/States/move.gd" id="6_ylelj"]
+[ext_resource type="Script" uid="uid://btup6tc7rnbka" path="res://Scripts/States/attack.gd" id="7_4qt1i"]
+[ext_resource type="Script" uid="uid://cb8pnerh8ctk3" path="res://Scripts/States/swap.gd" id="8_5huac"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k8dsg"]
 size = Vector2(10, 15)
@@ -71,6 +75,7 @@ states/Start/position = Vector2(419, 197)
 states/Walk/node = SubResource("AnimationNodeBlendSpace2D_qwdhh")
 states/Walk/position = Vector2(761, 186)
 transitions = ["Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_x8276"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_ah076"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_kxu0n")]
+graph_offset = Vector2(-153.6828, 98.4045)
 
 [sub_resource type="Animation" id="Animation_5yx10"]
 length = 0.001
@@ -236,8 +241,9 @@ _data = {
 &"walk_up": SubResource("Animation_tnolk")
 }
 
-[node name="PlayerCat" type="CharacterBody2D"]
+[node name="PlayerCat" type="CharacterBody2D" node_paths=PackedStringArray("state_machine")]
 script = ExtResource("1_u0lhy")
+state_machine = NodePath("LimboHSM")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_qmbn4")
@@ -249,9 +255,10 @@ position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_k8dsg")
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
+active = false
 tree_root = SubResource("AnimationNodeStateMachine_yyfx3")
 anim_player = NodePath("../AnimationPlayer")
-parameters/Idle/blend_position = Vector2(0, 0.1)
+parameters/Idle/blend_position = Vector2(0.0095694065, -0.16708863)
 parameters/Walk/blend_position = Vector2(0, 0.1)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -265,3 +272,20 @@ zoom = Vector2(4, 4)
 [node name="Attack" parent="." instance=ExtResource("3_up8sf")]
 
 [node name="Crosshair" parent="." instance=ExtResource("5_q2fti")]
+
+[node name="LimboHSM" type="LimboHSM" parent="."]
+
+[node name="Idle" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+script = ExtResource("5_gr630")
+animation_player = NodePath("../../AnimationPlayer")
+
+[node name="Move" type="LimboState" parent="LimboHSM" node_paths=PackedStringArray("animation_player")]
+script = ExtResource("6_ylelj")
+animation_player = NodePath("../../AnimationPlayer")
+animation = &"walk_up"
+
+[node name="Attack" type="LimboState" parent="LimboHSM"]
+script = ExtResource("7_4qt1i")
+
+[node name="Swap" type="LimboState" parent="LimboHSM"]
+script = ExtResource("8_5huac")
