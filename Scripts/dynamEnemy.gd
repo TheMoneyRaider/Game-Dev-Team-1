@@ -3,9 +3,8 @@ const is_elite: bool = false
 var enemy_health: int = 10
 var current_health: int = 10 
 
-const SPEED: float = 15
+const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
-
 
 func update_flip(dir: float): 
 	sprite_2d.flip_h = dir < 0 
@@ -24,7 +23,6 @@ func move(target_pos: Vector2, _delta: float):
 	update_flip(direction.x)
 	
 	move_and_slide()
-	
 	
 func _draw(): 
 	if has_node("BTPlayer"):

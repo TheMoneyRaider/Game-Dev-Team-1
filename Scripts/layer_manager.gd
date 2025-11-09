@@ -70,7 +70,8 @@ func _ready() -> void:
 	blocked_cells = room_instance.blocked_cells
 	create_new_rooms()
 	print("Room children: ")
-	for child in room_instance.get_children():
+	var root = get_tree().root
+	for child in root.get_children():
 		print("  - ", child.name, " (", child.get_class(), ")")
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
 
