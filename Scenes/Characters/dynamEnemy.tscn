@@ -5,7 +5,7 @@
 [ext_resource type="BehaviorTree" uid="uid://clbkhmh1c8a68" path="res://ai/trees/meleEnemy.tres" id="2_ffkh2"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
-radius = 6.0
+radius = 3.0
 
 [sub_resource type="Animation" id="Animation_j4hvv"]
 length = 0.001
