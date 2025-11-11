@@ -510,6 +510,14 @@ func _process_terrain_batch() -> void:
 
 #Helper Functions
 
+func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
+	for trap_num in range(1,room_instance_data.num_trap+1):
+		if if_node_exists(("Trap"+str(trap_num)), room_instance):
+			if tile_pos in room_instance.get_node("Trap"+str(trap_num)).get_used_cells():
+				return room_instance.get_node("Trap"+str(trap_num))
+	return null
+	
+
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
 	
 	var conflict_cells : Array[Vector2i]

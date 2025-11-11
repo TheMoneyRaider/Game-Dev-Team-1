@@ -4,6 +4,8 @@ const attack = preload("res://Scripts/attack.gd")
 @export var move_speed: float = 100
 @export var max_health: float = 10
 @export var current_health: float = 10
+@export var current_dmg_time: float = 0.0
+@export var in_instant_trap: bool = false
 
 @export var starting_direction : Vector2 =  Vector2(0,1)
 
@@ -36,6 +38,35 @@ func _ready():
 	attacks[1].lifespan = 10
 
 func _physics_process(_delta):
+	#Trap stuff
+	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
+	if tile_pos in get_parent().trap_cells:
+		var tile_data = get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+		if tile_data:
+			var dmg = tile_data.get_custom_data("trap_instant")
+			#Instant trap
+			if dmg and !in_instant_trap:
+				take_damage(dmg)
+				in_instant_trap = true
+			if !dmg:
+				in_instant_trap = false
+			#Ongoing trap
+			if tile_data.get_custom_data("trap_ongoing"):
+				current_dmg_time += _delta
+				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
+					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+			else:
+				current_dmg_time = 0
+		else:
+			current_dmg_time = 0
+			in_instant_trap = false
+	else:
+		current_dmg_time = 0
+		in_instant_trap = false
+		
+	
+	
 	#Cat input detection
 	var input_direction = Vector2(
 		Input.get_action_strength("right") - Input.get_action_strength("left"),
