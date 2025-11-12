@@ -265,6 +265,8 @@ func place_traps(generated_room : Node2D, generated_room_data : Room, conflict_c
 			else:
 				conflict_cells+=cells
 				_debug_message("Added Trap")
+				if(generated_room_data.trap_types[trap_num-1]!=room.Trap.Tile):
+					_add_trap(generated_room, generated_room_data, trap_num)
 	return conflict_cells
 
 func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:
@@ -510,13 +512,23 @@ func _process_terrain_batch() -> void:
 
 #Helper Functions
 
+func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int) -> void:
+	var cells = generated_room.get_node("Trap"+str(trap_num)).get_used_cells()
+	var type = generated_room_data.trap_types[trap_num-1]
+	for cell in cells:
+		match type:
+			room.Trap.Spike:
+				var spike = load("res://Scenes/Objects/spike_trap.tscn").instantiate()
+				spike.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
+				generated_room.add_child(spike)
+				
+				
 func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 	for trap_num in range(1,room_instance_data.num_trap+1):
 		if if_node_exists(("Trap"+str(trap_num)), room_instance):
 			if tile_pos in room_instance.get_node("Trap"+str(trap_num)).get_used_cells():
 				return room_instance.get_node("Trap"+str(trap_num))
 	return null
-	
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
 	

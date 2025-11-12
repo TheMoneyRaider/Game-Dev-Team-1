@@ -2,6 +2,7 @@ class_name Room
 
 enum Liquid {Water, Lava, Acid}
 enum Direction {Up, Right, Left, Down, Error}
+enum Trap {Tile, Spike}
 #enum Exit {Cave, Forest_Path, Castle, Sewer_Manhole, Basement_Door, Mansion_Door, Western_Door, Desert_Path, Arid_Archway, Factory_Door, Vent, Hallway_Door, Limbo_Gate}
 #Trap variety will be hardcoded into layers and stages
 
@@ -39,6 +40,8 @@ var noise := FastNoiseLite.new()
 var num_trap : int = 0
 #An array of the corresponding generation chance of the trap creation.
 var trap_chances : Array[float] = []
+#An array of the corresponding trap types
+var trap_types : Array[Trap] = []
 #how many pathways this room has(should be at least 1 Left, 1 Down, 1 Right, and 1 Up Pathway)
 #pathway patches should be named PathwayL#, PathwayD#, PathwayR#, and PathwayU#
 var num_pathways : int = 0
@@ -66,6 +69,7 @@ t_noise_type : int,
 t_noise_frequency : float,
 t_num_trap : int, 
 t_trap_chances : Array[float], 
+t_trap_types : Array[Trap], 
 t_num_pathways : int, 
 t_pathway_direction : Array[Direction], 
 t_num_enemy_spawnpoints : int, 
@@ -90,6 +94,7 @@ t_has_shop : bool
 	
 	new_room.num_trap = t_num_trap
 	new_room.trap_chances = t_trap_chances
+	new_room.trap_types = t_trap_types
 	new_room.num_pathways = t_num_pathways
 	new_room.pathway_direction = t_pathway_direction
 	new_room.num_enemy_spawnpoints = t_num_enemy_spawnpoints
