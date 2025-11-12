@@ -179,10 +179,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room) -> int:
 
 func choose_room() -> void:
 	#Shuffle rooms and load one
-	#Uncomment this line #TODO #DEBUG #TESTING
-	#room_instance_data = cave_stage[randi() % cave_stage.size()]
-	#Delete this line #TODO #DEBUG #TESTING
-	room_instance_data = cave_stage[0]
+	room_instance_data = cave_stage[randi() % cave_stage.size()]
 	
 	room_location = load(room_instance_data.scene_location)
 	room_instance = room_location.instantiate()
@@ -404,7 +401,7 @@ func _thread_generate_rooms(room_data_array: Array, room_instance_data_sent: Roo
 		var pathway_name = _get_pathway_name(direction, direction_count[direction])
 		# Only precompute data. No scene calls
 		var chosen_index = randi() % room_data_array.size()
-		var next_room_data = room_data_array[0] #TESTING #REMOVE #DEBUG #TODO
+		var next_room_data = room_data_array[chosen_index]
 		result[pathway_name] = {
 			"pathway": pathway_name,
 			"direction": direction,
