@@ -4,6 +4,7 @@ const layer_manager_script = preload("res://Scripts/layer_manager.gd")
 @export var target_position_var: String = "target_pos"
 @export var path_output_var: String = "path"
 @export var current_waypoint_var: String = "waypoint_index"
+@export var recalculated_bool: String = "path_recalculated"
 
 func _tick(_detla: float) -> Status:
 	#retrieves the target pos and defaults it to zero vector if not found
@@ -32,9 +33,8 @@ func _tick(_detla: float) -> Status:
 	
 	blackboard.set_var(path_output_var, path)
 	blackboard.set_var(current_waypoint_var, 0)
-	
-	print("Path calculated with ", path.size(), " waypoints")
-	
+	blackboard.set_var(recalculated_bool, true)
+
 	return SUCCESS
 	
 	

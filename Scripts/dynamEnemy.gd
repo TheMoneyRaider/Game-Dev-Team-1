@@ -11,14 +11,11 @@ func update_flip(dir: float):
 
 
 func move(target_pos: Vector2, _delta: float): 
-	print("Move Called!")
-	var direction = Vector2(
-		target_pos.x - global_transform.origin.x,
-		target_pos.y - global_transform.origin.y
-	).normalized()
 	
-	velocity.x = direction.x * SPEED
-	velocity.y = direction.y * SPEED
+	var direction = (target_pos - global_position).normalized()
+	
+	var target_velocity = direction * SPEED
+	velocity = velocity.lerp(target_velocity, 0.05)
 	
 	update_flip(direction.x)
 	
