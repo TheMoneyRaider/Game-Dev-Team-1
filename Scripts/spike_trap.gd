@@ -13,7 +13,13 @@ func activate():
 	anim.play("activate")
 	await anim.animation_finished
 	active = true
-	while get_overlapping_bodies().size() > 0:
+	var num_damage_bodies = 0
+	while num_damage_bodies != 0:
+		num_damage_bodies = 0
+		for body in get_overlapping_bodies():
+			if body.has_method("take_damage"):
+				num_damage_bodies+=1
+				break
 		await get_tree().process_frame
 	anim.play("deactivate")
 	await anim.animation_finished
@@ -21,8 +27,8 @@ func activate():
 
 func _on_body_entered(body):
 	if !active:
-		if !running:
+		if !running and body.has_method("take_damage"):
 			activate()
 			return
-	if active and body.has_method("take_damage"):
+	elif body.has_method("take_damage"):
 		body.take_damage(3)
