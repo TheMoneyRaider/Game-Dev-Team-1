@@ -10,7 +10,6 @@ func _enter() -> void:
 	animation_player.play(animation)
 
 func _update(delta) -> void:
-	print(move_direction)
 	animation_update()
 	agent.apply_movement(delta)
 	if agent.input_direction == Vector2.ZERO:
