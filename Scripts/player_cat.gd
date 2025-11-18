@@ -25,8 +25,8 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var purple_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png")
 @onready var orange_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Orange Spritesheet-export.png")
 
-
-var input_device = "0"
+var is_multiplayer = false
+var input_device = "key"
 var input_direction : Vector2 = Vector2.ZERO
 
 #The scripts for loading default values into the attack
@@ -68,15 +68,9 @@ func _physics_process(_delta):
 	update_animation_parameters(input_direction)
 	# Update velocity
 	#velocity = input_direction * move_speed		
-	if Input.is_action_just_pressed("swap_" + input_device):
-		if(is_purple):
-			is_purple = false
-			sprite.texture = orange_texture
-			crosshair_sprite.texture = orange_crosshair
-		else:
-			is_purple = true
-			sprite.texture = purple_texture
-			crosshair_sprite.texture = purple_crosshair
+	if !is_multiplayer:
+		if Input.is_action_just_pressed("swap_" + input_device):
+			swap_color()
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if(is_purple):
@@ -102,3 +96,13 @@ func request_attack(t_attack : Attack):
 func take_damage(damage_amount : int):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
+	
+func swap_color():
+	if(is_purple):
+		is_purple = false
+		sprite.texture = orange_texture
+		crosshair_sprite.texture = orange_crosshair
+	else:
+		is_purple = true
+		sprite.texture = purple_texture
+		crosshair_sprite.texture = purple_crosshair

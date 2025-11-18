@@ -2,7 +2,10 @@ extends Node2D
 const room = preload("res://Scripts/room.gd")
 const room_data = preload("res://Scripts/room_data.gd")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
-@onready var player = $PlayerCat
+### Temp Multiplayer Fix
+var player
+###
+
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
@@ -29,7 +32,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
-
+@export var is_multiplayer = true
 #
 @export var layer_ai := [
 	0,#Rooms cleared
@@ -51,6 +54,26 @@ var time_passed := 0.0
 
 
 func _ready() -> void:
+	var player_scene = load("res://Scenes/Characters/player_cat.tscn")
+	if(is_multiplayer):
+		var player1 = player_scene.instantiate()
+		player1.is_multiplayer = true
+		player1.input_device = "key"
+		add_child(player1)
+		var player2 = player_scene.instantiate()
+		player2.is_multiplayer = true
+		player2.input_device = "0"
+		add_child(player2)
+		player2.swap_color()
+		#Temp Multiplayer Fix
+		player = player1
+	else:
+		var player1 = player_scene.instantiate()
+		player1.is_multiplayer = false
+		player1.input_device = "key"
+		add_child(player1)
+		player = player1
+	
 	add_child(pathfinding)
 	preload_rooms()
 	player.attack_requested.connect(_on_player_attack)
@@ -77,7 +100,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time_passed += delta
 	#Pathway Travel Check
-	if Input.is_action_just_pressed("Activate") and room_instance:
+	#Temp Multiplayer Fix (It only gets activate from keyboard player)
+	if Input.is_action_just_pressed("activate_0") and room_instance:
 		var direction = check_pathways(room_instance, room_instance_data)
 		if direction != -1:
 			create_new_rooms()
