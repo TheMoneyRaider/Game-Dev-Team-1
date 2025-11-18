@@ -12,7 +12,6 @@ func update_flip(dir: float):
 
 
 func move(target_pos: Vector2, _delta: float): 
-	print("Move Called!")
 	var direction = Vector2(
 		target_pos.x - global_transform.origin.x,
 		target_pos.y - global_transform.origin.y
