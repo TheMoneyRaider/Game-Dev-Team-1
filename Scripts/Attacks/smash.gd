@@ -17,12 +17,20 @@ func _process(delta):
 	position += direction * speed * delta
 
 func _on_body_entered(body):
-	if body == c_owner:
-		return
-	elif body.has_method("take_damage"):
-		body.take_damage(damage)
+	if c_owner.has_method("swap_color"):
+		if body.has_method("swap_color"):
+			return
+		elif body.has_method("take_damage"):
+			body.take_damage(damage)
+		else:
+			print("plonk!")
 	else:
-		print("plonk")
+		if !body.has_method("swap_color"):
+			return
+		elif body.has_method("take_damage"):
+			body.take_damage(damage)
+		else:
+			print("plonk!")
 	queue_free()
 
 func _on_area_entered(area: Area2D) -> void:

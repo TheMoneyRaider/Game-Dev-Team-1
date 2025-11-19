@@ -101,7 +101,7 @@ func _process(delta: float) -> void:
 	time_passed += delta
 	#Pathway Travel Check
 	#Temp Multiplayer Fix (It only gets activate from keyboard player)
-	if Input.is_action_just_pressed("activate_0") and room_instance:
+	if Input.is_action_just_pressed("activate_key") and room_instance:
 		var direction = check_pathways(room_instance, room_instance_data)
 		if direction != -1:
 			create_new_rooms()

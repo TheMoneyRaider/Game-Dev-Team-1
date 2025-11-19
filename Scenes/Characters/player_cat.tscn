@@ -178,6 +178,7 @@ _data = {
 
 [node name="PlayerCat" type="CharacterBody2D" node_paths=PackedStringArray("state_machine")]
 z_index = 1
+collision_layer = 2
 script = ExtResource("1_u0lhy")
 state_machine = NodePath("LimboHSM")
 
