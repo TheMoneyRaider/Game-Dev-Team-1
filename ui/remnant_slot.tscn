@@ -1,7 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://bsnhxne2rojuk"]
+[gd_scene load_steps=11 format=3 uid="uid://bsnhxne2rojuk"]
 
 [ext_resource type="Script" uid="uid://cnu4t3y0q3ad1" path="res://remnants/remnant_slot.gd" id="1_blhod"]
 [ext_resource type="Texture2D" uid="uid://buubskqgdc4jf" path="res://art/remnants/hunter.png" id="2_o7i6x"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_o7i6x"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_65u0l"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7cik6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4i1at"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8nt63"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_o7i6x"]
 font_size = 28
@@ -9,6 +19,9 @@ font_color = Color(8.663535e-07, 0.610116, 0.5786793, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_65u0l"]
 font_size = 20
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_7cik6"]
+viewport_path = NodePath("btn_select/SubViewportContainer/SubViewport")
 
 [node name="RemnantSlot" type="Control"]
 custom_minimum_size = Vector2(256, 900)
@@ -24,18 +37,34 @@ script = ExtResource("1_blhod")
 layout_mode = 0
 offset_right = 256.0
 offset_bottom = 900.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_o7i6x")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_65u0l")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_7cik6")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_4i1at")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_8nt63")
 
-[node name="container" type="VBoxContainer" parent="btn_select"]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="btn_select"]
 layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SubViewport" type="SubViewport" parent="btn_select/SubViewportContainer"]
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(256, 900)
+render_target_update_mode = 4
+
+[node name="container" type="VBoxContainer" parent="btn_select/SubViewportContainer/SubViewport"]
 offset_right = 256.0
 offset_bottom = 900.0
 
-[node name="art" type="TextureRect" parent="btn_select/container"]
+[node name="art" type="TextureRect" parent="btn_select/SubViewportContainer/SubViewport/container"]
 layout_mode = 2
 texture = ExtResource("2_o7i6x")
 expand_mode = 5
 
-[node name="name_label" type="Label" parent="btn_select/container"]
+[node name="name_label" type="Label" parent="btn_select/SubViewportContainer/SubViewport/container"]
 layout_mode = 2
 text = "Remnant of The Hunter"
 label_settings = SubResource("LabelSettings_o7i6x")
@@ -43,10 +72,18 @@ horizontal_alignment = 1
 autowrap_mode = 2
 uppercase = true
 
-[node name="description_label" type="Label" parent="btn_select/container"]
+[node name="description_label" type="Label" parent="btn_select/SubViewportContainer/SubViewport/container"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 10
 text = "Ranged attacks do X% more damage if there are no enemies within Y meters."
 label_settings = SubResource("LabelSettings_65u0l")
 horizontal_alignment = 1
 autowrap_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="btn_select"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 255.0
+offset_bottom = 899.0
+texture = SubResource("ViewportTexture_7cik6")
