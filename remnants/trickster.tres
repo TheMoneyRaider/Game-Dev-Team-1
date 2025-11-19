@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Remnant" load_steps=3 format=3 uid="uid://m25olfj8mv2i"]
+
+[ext_resource type="Script" uid="uid://45mgcogqdr4c" path="res://remnants/remnant.gd" id="1_361eo"]
+[ext_resource type="Texture2D" uid="uid://bosgbhenk4iks" path="res://art/remnants/trickster.png" id="1_igbyo"]
+
+[resource]
+script = ExtResource("1_361eo")
+remnant_name = "Remnant of the Trickster"
+description = "Reroll a room reward for X Time Fabric."
+art = ExtResource("1_igbyo")
+metadata/_custom_type_script = "uid://45mgcogqdr4c"

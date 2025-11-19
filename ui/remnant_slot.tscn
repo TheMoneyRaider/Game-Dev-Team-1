@@ -1,0 +1,52 @@
+[gd_scene load_steps=5 format=3 uid="uid://bsnhxne2rojuk"]
+
+[ext_resource type="Script" uid="uid://cnu4t3y0q3ad1" path="res://remnants/remnant_slot.gd" id="1_blhod"]
+[ext_resource type="Texture2D" uid="uid://buubskqgdc4jf" path="res://art/remnants/hunter.png" id="2_o7i6x"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_o7i6x"]
+font_size = 28
+font_color = Color(8.663535e-07, 0.610116, 0.5786793, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_65u0l"]
+font_size = 20
+
+[node name="RemnantSlot" type="Control"]
+custom_minimum_size = Vector2(256, 900)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 256.0
+offset_bottom = 900.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_blhod")
+
+[node name="btn_select" type="Button" parent="."]
+layout_mode = 0
+offset_right = 256.0
+offset_bottom = 900.0
+
+[node name="container" type="VBoxContainer" parent="btn_select"]
+layout_mode = 0
+offset_right = 256.0
+offset_bottom = 900.0
+
+[node name="art" type="TextureRect" parent="btn_select/container"]
+layout_mode = 2
+texture = ExtResource("2_o7i6x")
+expand_mode = 5
+
+[node name="name_label" type="Label" parent="btn_select/container"]
+layout_mode = 2
+text = "Remnant of The Hunter"
+label_settings = SubResource("LabelSettings_o7i6x")
+horizontal_alignment = 1
+autowrap_mode = 2
+uppercase = true
+
+[node name="description_label" type="Label" parent="btn_select/container"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "Ranged attacks do X% more damage if there are no enemies within Y meters."
+label_settings = SubResource("LabelSettings_65u0l")
+horizontal_alignment = 1
+autowrap_mode = 2

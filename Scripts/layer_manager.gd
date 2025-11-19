@@ -14,13 +14,13 @@ var room_gen_thread: Thread
 var thread_result: Dictionary
 var thread_running := false
 
-
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var pathfinding = Pathfinding.new()
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
 var room_location : Resource 
 var room_instance
+var remnant_offer_popup
 #The total time of this run
 var time_passed := 0.0
 @export var water_cells := []
@@ -97,6 +97,14 @@ func _process(delta: float) -> void:
 	if terrain_update_queue.size() > 0:
 		_process_terrain_batch()
 				
+		
+	if Input.is_action_just_pressed("get_remnant") and room_instance and !remnant_offer_popup:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		var offer_scene = load("res://ui/remnant_offer.tscn")
+		remnant_offer_popup = offer_scene.instantiate()
+		$CanvasLayer.add_child(remnant_offer_popup)
+		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
+		remnant_offer_popup.popup_offer()
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -677,6 +685,12 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 			
 func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
+
+func _on_remnant_chosen(remnant : Resource):
+	player.add_remnant(remnant)
+	remnant_offer_popup.queue_free()
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)

@@ -8,3 +8,5 @@ script = ExtResource("1_t30qu")
 
 [node name="PlayerCat" parent="." instance=ExtResource("2_e5lrv")]
 z_index = 1
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]

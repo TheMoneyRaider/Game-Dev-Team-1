@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Remnant" load_steps=3 format=3 uid="uid://bxx3lfr671h7r"]
+
+[ext_resource type="Texture2D" uid="uid://yl1i5de1nfrw" path="res://art/remnants/winters_embrace.png" id="1_okrky"]
+[ext_resource type="Script" uid="uid://45mgcogqdr4c" path="res://remnants/remnant.gd" id="2_24lu2"]
+
+[resource]
+script = ExtResource("2_24lu2")
+remnant_name = "Remnant of Winters Embrace"
+description = "Whenever you hit an enemy they are slowed down by X% for Y seconds."
+art = ExtResource("1_okrky")
+metadata/_custom_type_script = "uid://45mgcogqdr4c"

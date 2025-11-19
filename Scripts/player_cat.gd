@@ -19,6 +19,15 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var purple_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png")
 @onready var orange_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Orange Spritesheet-export.png")
 
+@onready var chosen_remnants: Array[Resource] = []
+
+func add_remnant(remnant: Resource) -> void:
+	chosen_remnants.append(remnant)
+
+func has_remnant(remnant: Resource) -> bool:
+	return remnant in chosen_remnants
+
+
 #The scripts for loading default values into the attack
 var smash = preload("res://Scripts/Attacks/smash.gd")
 var bolt = preload("res://Scripts/Attacks/bolt.gd")
