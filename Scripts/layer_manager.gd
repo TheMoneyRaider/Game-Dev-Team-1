@@ -4,6 +4,7 @@ const room_data = preload("res://Scripts/room_data.gd")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 ### Temp Multiplayer Fix
 var player
+var player_2
 ###
 
 var room_instance_data : Room
@@ -67,6 +68,7 @@ func _ready() -> void:
 		player2.swap_color()
 		#Temp Multiplayer Fix
 		player = player1
+		player_2 = player2
 	else:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
@@ -81,6 +83,8 @@ func _ready() -> void:
 	choose_room()
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data)
 	player.global_position =  generated_room_entrance[room_instance.name]
+	if(is_multiplayer):
+		player_2.global_position =  generated_room_entrance[room_instance.name]
 	place_liquids(room_instance, room_instance_data)
 	place_traps(room_instance, room_instance_data)
 	place_enemy_spawners(room_instance, room_instance_data)
@@ -554,6 +558,9 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	
 	# Teleport player to the entrance of the next room
 	player.global_position =  generated_room_entrance[next_room.name]
+	#Temp Multiplayer Fix
+	if(is_multiplayer):
+		player_2.global_position = generated_room_entrance[next_room.name]
 	
 	# Delete all other generated rooms
 	for key in generated_rooms.keys():
