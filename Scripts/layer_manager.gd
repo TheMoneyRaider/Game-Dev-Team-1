@@ -22,6 +22,9 @@ var thread_running := false
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var second_layer : Array[Vector2i] = []
 @onready var pathfinding = Pathfinding.new()
+
+@onready var camera = $Camera2D
+
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
 var room_location : Resource 
@@ -111,6 +114,12 @@ func _process(delta: float) -> void:
 		var direction = check_pathways(room_instance, room_instance_data)
 		if direction != -1:
 			create_new_rooms()
+	
+	if is_multiplayer:
+		camera.global_position = (player.global_position + player_2.global_position) / 2
+	else:
+		camera.position = player.global_position
+	
 	# Thread check
 	if thread_running and not room_gen_thread.is_alive():
 		thread_result = room_gen_thread.wait_to_finish()

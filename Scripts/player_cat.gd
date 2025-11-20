@@ -16,7 +16,6 @@ const attack = preload("res://Scripts/attack.gd")
 @export var starting_direction : Vector2 =  Vector2(0,1)
 
 @onready var tether_line = $Line2D
-@onready var camera = $Camera2D
 @onready var crosshair = $Crosshair
 @onready var crosshair_sprite = $Crosshair/Sprite2D
 @onready var sprite = $Sprite2D
@@ -37,8 +36,10 @@ var input_direction : Vector2 = Vector2.ZERO
 #The scripts for loading default values into the attack
 var smash = preload("res://Scripts/Attacks/smash.gd")
 var bolt = preload("res://Scripts/Attacks/bolt.gd")
+var death_mark = preload("res://Scripts/Attacks/death_mark.gd")
 #The list of attacks for playercharacter
 var attacks = [attack.create_from_resource("res://Scenes/Attacks/smash.tscn",smash),attack.create_from_resource("res://Scenes/Attacks/bolt.tscn",bolt)]
+var revive = attack.create_from_resource("res://Scenes/Attacks/death_mark.tscn",death_mark)
 var is_purple = true
 
 
@@ -77,8 +78,6 @@ func _physics_process(_delta):
 	update_animation_parameters(input_direction)
 	# Update velocity
 	#velocity = input_direction * move_speed		
-	if is_multiplayer:
-		camera.global_position = (global_position + other_player.global_position) / 2
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
@@ -94,7 +93,8 @@ func _physics_process(_delta):
 			request_attack(attacks[1])
 	
 	#move and slide function
-	move_and_slide()
+	if(self.process_mode != PROCESS_MODE_DISABLED):
+		move_and_slide()
 	
 
 func update_animation_parameters(move_input : Vector2):
@@ -111,6 +111,9 @@ func request_attack(t_attack : Attack):
 func take_damage(damage_amount : int):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
+	if(current_health <= 0):
+		if(die(true)):
+			emit_signal("attack_requested",revive, position, Vector2.ZERO)
 	
 func swap_color():
 	if(is_purple):
@@ -154,3 +157,25 @@ func tether():
 			tether_momentum = Vector2.ZERO
 		else:
 			tether_momentum *= .92
+
+func die(death : bool) -> bool:
+	if !is_multiplayer:
+		#Change to signal something
+		self.process_mode = PROCESS_MODE_DISABLED
+		visible = false
+		print("GAME OVER")
+		return false
+	else:
+		if death:
+			max_health = max_health - 2
+			current_health = round(max_health / 2)
+			self.process_mode = PROCESS_MODE_DISABLED
+			visible = false
+			if(max_health <= 0):
+				#Change to signal something
+				print("GAME OVER")
+				return false
+		else:
+			self.process_mode = PROCESS_MODE_INHERIT
+			visible = true
+	return true

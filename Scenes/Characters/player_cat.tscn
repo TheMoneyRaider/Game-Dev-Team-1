@@ -200,9 +200,6 @@ libraries = {
 &"": SubResource("AnimationLibrary_428uj")
 }
 
-[node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(4, 4)
-
 [node name="Attack" parent="." instance=ExtResource("3_up8sf")]
 
 [node name="Crosshair" parent="." instance=ExtResource("5_q2fti")]
