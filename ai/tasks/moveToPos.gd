@@ -20,21 +20,20 @@ func _tick(_delta: float) -> Status:
 	var player = agent.get_tree().get_first_node_in_group("player")
 	var current_player_pos: Vector2 = player.global_position if player else Vector2.ZERO
 
-	if blackboard.get_var("path_recalculated", false):
-		waypoint_index = skip_waypoints_behind(path, waypoint_index)
+	if blackboard.get_var("path_recalculated", false):	
+		waypoint_index = skip_waypoints_behind(path, 0)
 		blackboard.set_var("waypoint_index", waypoint_index)
 		blackboard.set_var("path_recalculated", false)
-		print("Path recalculated - last_calc_player_pos is: ", path_target_pos)
-		
+			
 	if current_player_pos != Vector2.ZERO and path_target_pos != Vector2.ZERO:
 		var player_moved_distance = path_target_pos.distance_to(current_player_pos)
 		
 		if player_moved_distance > recalc_distance_threshold:
-			print("Player moved", player_moved_distance)
+			#print("Player moved", player_moved_distance)
 			return SUCCESS
 			
-		if int(Time.get_ticks_msec()) % 1000 < 16:  # Print roughly once per second
-			print("Player moved ", player_moved_distance, "px (threshold: ", recalc_distance_threshold, ")")
+		#if int(Time.get_ticks_msec()) % 1000 < 16:  # Print roughly once per second
+			#print("Player moved ", player_moved_distance, "px (threshold: ", recalc_distance_threshold, ")")
 	
 	#if not path.is_empty() and target_pos_player != Vector2.ZERO:
 		#var last_waypoint: Vector2 = path[path.size() - 1]
@@ -45,23 +44,25 @@ func _tick(_delta: float) -> Status:
 			#return SUCCESS
 	
 	if path.is_empty():
-		agent.velocity = Vector2.ZERO
+		
+		print("FAILED")
 		return FAILURE
 	
 	if waypoint_index >= path.size():
-		agent.velocity = Vector2.ZERO
+
+		print("FAILED")
 		return SUCCESS # failure forces tree to recalculate
 		
 	var target_pos: Vector2 = path[waypoint_index]
 	var current_pos: Vector2 = agent.global_position
 	
-	if current_pos.distance_to(target_pos) <= 16.0:  
+	if current_pos.distance_to(target_pos) <= 32.0:  
 		waypoint_index += 1
 		blackboard.set_var("waypoint_index", waypoint_index)
 	
 		#last waypoint reached
 		if waypoint_index >= path.size():
-			agent.velocity = Vector2.ZERO
+
 			return SUCCESS
 		return RUNNING
 	
@@ -91,8 +92,7 @@ func skip_waypoints_behind(path: Array, start_index: int) -> int:
 			return index
 		
 		# Waypoint is behind, skip it
-		print("Skipping waypoint ", index, " (behind enemy)")
 		index += 1
 	
 	# All waypoints behind? Start from the last one
-	return path.size() - 1
+	return max(0, path.size() - 1)
