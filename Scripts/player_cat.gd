@@ -158,7 +158,7 @@ func tether():
 		else:
 			tether_momentum *= .92
 
-func die(death : bool) -> bool:
+func die(death : bool , insta_die : bool = false) -> bool:
 	if !is_multiplayer:
 		#Change to signal something
 		self.process_mode = PROCESS_MODE_DISABLED
@@ -166,6 +166,9 @@ func die(death : bool) -> bool:
 		print("GAME OVER")
 		return false
 	else:
+		if insta_die:
+			print("GAME OVER")
+			return false
 		if death:
 			max_health = max_health - 2
 			current_health = round(max_health / 2)

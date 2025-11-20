@@ -11,6 +11,7 @@ var c_owner: Node = null
 
 func _ready():
 	await get_tree().create_timer(lifespan).timeout
+	c_owner.die(true,true)
 	queue_free()
 
 func _process(delta):
