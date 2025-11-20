@@ -24,6 +24,9 @@ const attack = preload("res://Scripts/attack.gd")
 @onready var orange_crosshair = preload("res://art/orange_crosshair.png")
 @onready var purple_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png")
 @onready var orange_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Orange Spritesheet-export.png")
+var other_player
+
+var tether_momentum = Vector2.ZERO
 
 var is_multiplayer = false
 var input_device = "key"
@@ -44,6 +47,7 @@ func _ready():
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
+
 
 func _initialize_state_machine():
 	#Define State transitions
@@ -71,6 +75,24 @@ func _physics_process(_delta):
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
 			swap_color()
+	else:
+		if Input.is_action_just_pressed("swap_" + input_device):
+			tether_momentum += (other_player.position - position) / 1
+			move_speed = 50
+		if Input.is_action_pressed("swap_" + input_device):
+			if ((other_player.position - position) / 25).length() > 8:
+				tether_momentum += (other_player.position - position).normalized() * 8 + (((other_player.position - position) - ((other_player.position - position).normalized() * 8)) / 100)
+			else:
+				tether_momentum += (other_player.position - position) / 25
+			tether_momentum *= .995
+		else:
+			if Input.is_action_just_released("swap_" + input_device):
+				move_speed = 100
+			if(abs(tether_momentum.length_squared()) <  .1):
+				tether_momentum = Vector2.ZERO
+			else:
+				tether_momentum *= .92
+	input_direction += (tether_momentum / move_speed)
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if(is_purple):

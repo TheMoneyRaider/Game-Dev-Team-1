@@ -60,10 +60,12 @@ func _ready() -> void:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = true
 		player1.input_device = "key"
-		add_child(player1)
 		var player2 = player_scene.instantiate()
 		player2.is_multiplayer = true
 		player2.input_device = "0"
+		player1.other_player = player2
+		player2.other_player = player1
+		add_child(player1)
 		add_child(player2)
 		player2.swap_color()
 		#Temp Multiplayer Fix
