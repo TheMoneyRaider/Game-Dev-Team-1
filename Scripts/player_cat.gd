@@ -15,8 +15,8 @@ const attack = preload("res://Scripts/attack.gd")
 
 @export var starting_direction : Vector2 =  Vector2(0,1)
 
-#@onready var animation_tree = $AnimationTree
-#@onready var state_machine = animation_tree.get("parameters/playback")
+@onready var tether_line = $Line2D
+@onready var camera = $Camera2D
 @onready var crosshair = $Crosshair
 @onready var crosshair_sprite = $Crosshair/Sprite2D
 @onready var sprite = $Sprite2D
@@ -27,6 +27,8 @@ const attack = preload("res://Scripts/attack.gd")
 var other_player
 
 var tether_momentum = Vector2.ZERO
+var is_tethered = false
+var tether_gradient
 
 var is_multiplayer = false
 var input_device = "key"
@@ -47,6 +49,9 @@ func _ready():
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
+	if is_multiplayer:
+		tether_gradient = tether_line.gradient
+		tether_line.gradient = null			
 
 
 func _initialize_state_machine():
@@ -72,26 +77,14 @@ func _physics_process(_delta):
 	update_animation_parameters(input_direction)
 	# Update velocity
 	#velocity = input_direction * move_speed		
+	if is_multiplayer:
+		camera.global_position = (global_position + other_player.global_position) / 2
+	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
 			swap_color()
 	else:
-		if Input.is_action_just_pressed("swap_" + input_device):
-			tether_momentum += (other_player.position - position) / 1
-			move_speed = 50
-		if Input.is_action_pressed("swap_" + input_device):
-			if ((other_player.position - position) / 25).length() > 8:
-				tether_momentum += (other_player.position - position).normalized() * 8 + (((other_player.position - position) - ((other_player.position - position).normalized() * 8)) / 100)
-			else:
-				tether_momentum += (other_player.position - position) / 25
-			tether_momentum *= .995
-		else:
-			if Input.is_action_just_released("swap_" + input_device):
-				move_speed = 100
-			if(abs(tether_momentum.length_squared()) <  .1):
-				tether_momentum = Vector2.ZERO
-			else:
-				tether_momentum *= .92
+		tether()
 	input_direction += (tether_momentum / move_speed)
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
@@ -124,7 +117,40 @@ func swap_color():
 		is_purple = false
 		sprite.texture = orange_texture
 		crosshair_sprite.texture = orange_crosshair
+		tether_line.default_color = Color("Orange")
 	else:
 		is_purple = true
 		sprite.texture = purple_texture
 		crosshair_sprite.texture = purple_crosshair
+		tether_line.default_color = Color("Purple")
+
+func tether():
+	if Input.is_action_just_pressed("swap_" + input_device):
+		tether_momentum += (other_player.position - position) / 1
+		move_speed = 50
+		is_tethered = true
+	if Input.is_action_pressed("swap_" + input_device):
+		tether_line.visible = true
+		if other_player.is_tethered:
+			if is_purple:
+				tether_line.gradient = tether_gradient
+			else:
+				tether_line.visible = false
+		else:
+			tether_line.gradient = null
+		tether_line.points[0] = position + (other_player.position - position).normalized() * 8
+		tether_line.points[1] = other_player.position + (position - other_player.position).normalized() * 8
+		if ((other_player.position - position) / 25).length() > 8:
+			tether_momentum += (other_player.position - position).normalized() * 8 + (((other_player.position - position) - ((other_player.position - position).normalized() * 8)) / 100)
+		else:
+			tether_momentum += (other_player.position - position) / 25
+		tether_momentum *= .995
+	else:
+		if Input.is_action_just_released("swap_" + input_device):
+			tether_line.visible = false
+			move_speed = 100
+			is_tethered = false
+		if(abs(tether_momentum.length_squared()) <  .1):
+			tether_momentum = Vector2.ZERO
+		else:
+			tether_momentum *= .92
