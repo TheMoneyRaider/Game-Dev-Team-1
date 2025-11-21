@@ -2,13 +2,8 @@
 
 [ext_resource type="Script" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
-<<<<<<< Updated upstream
-[ext_resource type="Script" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
-[ext_resource type="Script" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
-=======
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
 [ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
->>>>>>> Stashed changes
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ua8f2"]
 var/state/name = &"state"
