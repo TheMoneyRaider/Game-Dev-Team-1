@@ -6,6 +6,8 @@
 [resource]
 script = ExtResource("1_e1pt5")
 remnant_name = "Remnant of the Crafter"
-description = "Traps have a X% chance to not deal damage to you."
+description = "Traps have a $X% chance to not deal damage to you."
 art = ExtResource("1_fmtod")
+variable_names = Array[String](["$X"])
+variable_1_values = [20, 40, 60, 80, 100]
 metadata/_custom_type_script = "uid://45mgcogqdr4c"

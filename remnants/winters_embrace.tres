@@ -6,6 +6,9 @@
 [resource]
 script = ExtResource("2_24lu2")
 remnant_name = "Remnant of Winters Embrace"
-description = "Whenever you hit an enemy they are slowed down by X% for Y seconds."
+description = "Whenever you hit an enemy they are slowed down by $X% for $Y seconds."
 art = ExtResource("1_okrky")
+variable_names = Array[String](["$X", "$Y"])
+variable_1_values = Array[int]([20, 40, 60, 80, 100])
+variable_2_values = [0.5, 1.0, 1.5, 2.0, 2.5]
 metadata/_custom_type_script = "uid://45mgcogqdr4c"

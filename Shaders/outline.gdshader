@@ -21,7 +21,5 @@ void fragment() {
 	    if (alpha > 0.0) {
 	        COLOR = outline_color;
 	    }
-	}else{
-	COLOR = outline_color;
 	}
 }

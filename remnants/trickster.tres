@@ -6,6 +6,8 @@
 [resource]
 script = ExtResource("1_361eo")
 remnant_name = "Remnant of the Trickster"
-description = "Reroll a room reward for X Time Fabric."
+description = "Reroll a room reward for $X Time Fabric."
 art = ExtResource("1_igbyo")
+variable_names = Array[String](["$X"])
+variable_1_values = Array[int]([600, 500, 400, 300, 200])
 metadata/_custom_type_script = "uid://45mgcogqdr4c"

@@ -6,6 +6,9 @@
 [resource]
 script = ExtResource("1_58hmu")
 remnant_name = "Remnant of The Hunter"
-description = "Ranged attacks do X% more damage if there are no enemies within Y meters."
+description = "Ranged attacks do $X% more damage if there are no enemies within $Y meters."
 art = ExtResource("1_uvif7")
+variable_names = Array[String](["$X", "$Y"])
+variable_1_values = [20, 40, 60, 80, 100]
+variable_2_values = Array[int]([6, 5, 4, 3, 2])
 metadata/_custom_type_script = "uid://45mgcogqdr4c"
