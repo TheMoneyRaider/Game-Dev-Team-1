@@ -40,6 +40,7 @@ var death_mark = preload("res://Scripts/Attacks/death_mark.gd")
 #The list of attacks for playercharacter
 var attacks = [attack.create_from_resource("res://Scenes/Attacks/smash.tscn",smash),attack.create_from_resource("res://Scenes/Attacks/bolt.tscn",bolt)]
 var revive = attack.create_from_resource("res://Scenes/Attacks/death_mark.tscn",death_mark)
+var cooldowns = [0,0]
 var is_purple = true
 
 
@@ -67,7 +68,7 @@ func _initialize_state_machine():
 func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	#Cat input detection
 	input_direction = Vector2(
 		Input.get_action_strength("right_" + input_device) - Input.get_action_strength("left_" + input_device),
@@ -88,10 +89,17 @@ func _physics_process(_delta):
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if(is_purple):
-			request_attack(attacks[0])
+			if cooldowns[0] <= 0:
+				await get_tree().create_timer(attacks[0].start_lag).timeout
+				request_attack(attacks[0])
+				cooldowns[0] = attacks[0].cooldown
 		else:
-			request_attack(attacks[1])
+			if cooldowns[1] <= 0:
+				await get_tree().create_timer(attacks[1].start_lag).timeout
+				request_attack(attacks[1])
+				cooldowns[1] = attacks[1].cooldown
 	
+	adjust_cooldowns(delta)
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED):
 		move_and_slide()
@@ -182,3 +190,11 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			self.process_mode = PROCESS_MODE_INHERIT
 			visible = true
 	return true
+
+func adjust_cooldowns(time_elapsed : float):
+	if is_purple:
+		if cooldowns[0] > 0:
+			cooldowns[0] -= time_elapsed
+	else:
+		if cooldowns[1] > 0:
+			cooldowns[1] -= time_elapsed

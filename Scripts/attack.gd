@@ -11,9 +11,9 @@ var scene_location : String = ""
 var hit_force : float = 100
 #How much speed it adds to deflected objects
 var start_lag : float = 0
-#How much time after pressing attack does the attack start
+#How much time after pressing attack does the attack start in seconds
 var cooldown : float = 0
-#How much time after pressing attack can you attack again
+#How much time after pressing attack can you attack again in seconds
 
 static func create_attack(t_scene_location : String, t_speed : float = 0, t_damage : int = 0,t_lifespan : float = 0, t_hit_force : float = 100, t_start_lag : float = 0, t_cooldown : float = 0) -> Attack:
 	var new_attack = Attack.new()
