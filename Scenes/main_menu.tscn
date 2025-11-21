@@ -17,14 +17,14 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="StartButton" type="Button" parent="Control/VBoxContainer"]
+[node name="StartSinglePlayer" type="Button" parent="Control/VBoxContainer"]
 layout_mode = 2
-text = "Start New Run"
+text = "Start Singleplayer Run"
 script = ExtResource("1_28flt")
 
-[node name="ResumeButton" type="Button" parent="Control/VBoxContainer"]
+[node name="StartMPlayer" type="Button" parent="Control/VBoxContainer"]
 layout_mode = 2
-text = "Resume Previous Run"
+text = "Start 2-Player Run"
 
 [node name="SettingsButton" type="Button" parent="Control/VBoxContainer"]
 layout_mode = 2
@@ -36,8 +36,7 @@ layout_mode = 2
 text = "Quit Game"
 script = ExtResource("1_28flt")
 
-[connection signal="pressed" from="Control/VBoxContainer/StartButton" to="Control" method="_on_start_button_pressed"]
-[connection signal="pressed" from="Control/VBoxContainer/ResumeButton" to="Control" method="_on_resume_button_pressed"]
-[connection signal="ready" from="Control/VBoxContainer/ResumeButton" to="Control" method="_on_resume_button_ready"]
+[connection signal="pressed" from="Control/VBoxContainer/StartSinglePlayer" to="Control" method="_on_start_button_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/StartMPlayer" to="Control" method="_on_resume_button_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/SettingsButton" to="Control" method="_on_settings_button_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/QuitButton" to="Control" method="_on_quit_button_pressed"]

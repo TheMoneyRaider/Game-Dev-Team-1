@@ -60,15 +60,7 @@ func _on_quit_button_pressed() -> void:
 	get_tree().quit()
 
 
-func _on_resume_button_ready() -> void:
-	if !FileAccess.file_exists("user://run/run_state.json"):
-		var res_but = $VBoxContainer/ResumeButton
-		res_but.disabled = true
-		
-		#grey it out
-	pass # Replace with function body.
-
 
 func _on_resume_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/layer_manager.tscn")
+	get_tree().change_scene_to_file("res://Scenes/control_sorting.tscn")
 	pass # Replace with function body.
