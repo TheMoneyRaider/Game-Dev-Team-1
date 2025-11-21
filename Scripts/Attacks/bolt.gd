@@ -18,10 +18,20 @@ func _process(delta):
 	position += direction * speed * delta
 
 func _on_body_entered(body):
-	if body == c_owner:
-		return
+	if c_owner.has_method("swap_color"):
+		if body.has_method("swap_color"):
+			return
+		elif body.has_method("take_damage"):
+			body.take_damage(damage)
+		else:
+			print("hit!")
 	else:
-		print("hit!")
+		if !body.has_method("swap_color"):
+			return
+		elif body.has_method("take_damage"):
+			body.take_damage(damage)
+		else:
+			print("hit!")
 	queue_free()
 
 func deflect(hit_direction, hit_speed):

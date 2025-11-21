@@ -16,4 +16,4 @@ func _on_attack_requested(requested_attack : Attack, t_position : Vector2, t_dir
 		new_attack.lifespan = requested_attack.lifespan
 		new_attack.hit_force = requested_attack.hit_force
 		new_attack.c_owner = character
-		get_tree().current_scene.add_child(new_attack)
+		get_tree().current_scene.room_instance.add_child(new_attack)
