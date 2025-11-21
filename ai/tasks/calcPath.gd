@@ -33,9 +33,7 @@ func _tick(_detla: float) -> Status:
 	
 	blackboard.set_var(path_output_var, path)
 	blackboard.set_var(current_waypoint_var, 0)
-	
-	print("Path calculated with ", path.size(), " waypoints")
-	
+		
 	return SUCCESS
 	
 	
