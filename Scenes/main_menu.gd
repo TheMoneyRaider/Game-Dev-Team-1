@@ -44,9 +44,17 @@ func _input(event):
 			
 
 
+func _ready() -> void:
+	#check if there's a settings file, if there isn't create it and put in "volume", if there is, check if "volume" is there
+	var config := ConfigFile.new()
+	var err = config.load("user://settings.cfg")
+	
+	if err == OK:
+		var volume = config.get_value("audio", "master")
+		var bus_index = AudioServer.get_bus_index("Master")
+		AudioServer.set_bus_volume_db(bus_index, volume)
+
 func _on_start_button_pressed() -> void:
-	if FileAccess.file_exists("user://run/run_state.json"):
-		DirAccess.remove_absolute("user://run/run_state.json")
 	
 	get_tree().change_scene_to_file("res://Scenes/layer_manager.tscn")
 

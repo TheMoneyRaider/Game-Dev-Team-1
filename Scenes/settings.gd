@@ -3,12 +3,20 @@ extends Control
 
 
 func _on_back_pressed() -> void:
+	#first save config, then return to main menu
+	var volslider = $Volume
+	
+	var config := ConfigFile.new()
+	config.set_value("audio", "master", volslider.value)
+	config.save("user://settings.cfg")
+	
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 	pass # Replace with function body.
 
 
 @onready var label := $Volume/VolVal
 @export var bus_name: String = "Master"
+
 
 func _ready() -> void:
 	var bus_index = AudioServer.get_bus_index(bus_name)
