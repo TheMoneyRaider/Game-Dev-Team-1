@@ -3,26 +3,24 @@ extends Node2D
 const DEFAULT_SPEED = 20.0
 @onready var player = $".."
 var crosshair_direction = Vector2(1,0)
-var last_input_device = "keyboard"
+var player_input_device = "key"
+
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-
-func _input(event):
-	if event is InputEventKey or event is InputEventMouse:
-		last_input_device = "keyboard"
-	else:
-		last_input_device = "controller"
+	player_input_device = player.input_device
 
 func _process(_delta: float) -> void:
-	var input_direction = Input.get_vector("look_Left", "look_Right", "look_Up", "look_Down").normalized()
-	if(input_direction != Vector2(0,0)):
-		crosshair_direction = input_direction		
+	var input_direction = Vector2.ZERO
+	if(player_input_device != "key"):
+		input_direction = Input.get_vector("look_left_" + player_input_device, "look_right_" + player_input_device, "look_up_" + player_input_device, "look_down_" + player_input_device).normalized()
+		if(input_direction != Vector2(0,0)):
+			crosshair_direction = input_direction		
 	var camera = get_viewport().get_camera_2d()
 	var mouse_coords = camera.get_local_mouse_position()
 	var direction = mouse_coords.normalized()
 	
-	if last_input_device == "keyboard":
+	if player_input_device == "key":
 		if(mouse_coords.length() < 70):
 			position = mouse_coords
 		else:

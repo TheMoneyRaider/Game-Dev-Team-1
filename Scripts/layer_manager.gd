@@ -2,7 +2,11 @@ extends Node2D
 const room = preload("res://Scripts/room.gd")
 const room_data = preload("res://Scripts/room_data.gd")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
-@onready var player = $PlayerCat
+### Temp Multiplayer Fix
+var player
+var player_2
+###
+
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
@@ -16,6 +20,9 @@ var thread_running := false
 
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var pathfinding = Pathfinding.new()
+
+@onready var camera = $Camera2D
+
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
 var room_location : Resource 
@@ -28,7 +35,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
-
+@export var is_multiplayer = false
 #
 @export var layer_ai := [
 	0,#Rooms cleared
@@ -51,6 +58,30 @@ var time_passed := 0.0
 
 func _ready() -> void:
 	var conflict_cells : Array[Vector2i]
+	var player_scene = load("res://Scenes/Characters/player_cat.tscn")
+	#Needs integration with main_menu
+	if(is_multiplayer):
+		var player1 = player_scene.instantiate()
+		player1.is_multiplayer = true
+		player1.input_device = "key"
+		var player2 = player_scene.instantiate()
+		player2.is_multiplayer = true
+		player2.input_device = "0"
+		player1.other_player = player2
+		player2.other_player = player1
+		add_child(player1)
+		add_child(player2)
+		player2.swap_color()
+		#Temp Multiplayer Fix
+		player = player1
+		player_2 = player2
+	else:
+		var player1 = player_scene.instantiate()
+		player1.is_multiplayer = false
+		player1.input_device = "key"
+		add_child(player1)
+		player = player1
+	
 	add_child(pathfinding)
 	preload_rooms()
 	player.attack_requested.connect(_on_player_attack)
@@ -58,9 +89,11 @@ func _ready() -> void:
 	choose_room()
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player.global_position =  generated_room_entrance[room_instance.name]
-	place_liquids(room_instance, room_instance_data, conflict_cells)
-	place_traps(room_instance, room_instance_data, conflict_cells)
-	place_enemy_spawners(room_instance, room_instance_data, conflict_cells)
+	if(is_multiplayer):
+		player_2.global_position =  generated_room_entrance[room_instance.name]
+	place_liquids(room_instance, room_instance_data)
+	place_traps(room_instance, room_instance_data)
+	place_enemy_spawners(room_instance, room_instance_data)
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	water_cells = room_instance.water_cells
@@ -78,10 +111,17 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time_passed += delta
 	#Pathway Travel Check
-	if Input.is_action_just_pressed("Activate") and room_instance:
+	#Temp Multiplayer Fix (It only gets activate from keyboard player)
+	if Input.is_action_just_pressed("activate_key") and room_instance:
 		var direction = check_pathways(room_instance, room_instance_data)
 		if direction != -1:
 			create_new_rooms()
+	
+	if is_multiplayer:
+		camera.global_position = (player.global_position + player_2.global_position) / 2
+	else:
+		camera.position = player.global_position
+	
 	# Thread check
 	if thread_running and not room_gen_thread.is_alive():
 		thread_result = room_gen_thread.wait_to_finish()
@@ -574,6 +614,9 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	
 	# Teleport player to the entrance of the next room
 	player.global_position =  generated_room_entrance[next_room.name]
+	#Temp Multiplayer Fix
+	if(is_multiplayer):
+		player_2.global_position = generated_room_entrance[next_room.name]
 	
 	# Delete all other generated rooms
 	for key in generated_rooms.keys():
