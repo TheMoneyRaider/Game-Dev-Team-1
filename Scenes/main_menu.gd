@@ -45,14 +45,30 @@ func _input(event):
 
 
 func _on_start_button_pressed() -> void:
-	print("detected")
+	if FileAccess.file_exists("user://run/run_state.json"):
+		DirAccess.remove_absolute("user://run/run_state.json")
+	
 	get_tree().change_scene_to_file("res://Scenes/layer_manager.tscn")
 
 
 func _on_settings_button_pressed() -> void:
-	print("detected settings")
+	get_tree().change_scene_to_file("res://Scenes/settings.tscn")
 	pass # Replace with function body.
 
 
 func _on_quit_button_pressed() -> void:
 	get_tree().quit()
+
+
+func _on_resume_button_ready() -> void:
+	if !FileAccess.file_exists("user://run/run_state.json"):
+		var res_but = $VBoxContainer/ResumeButton
+		res_but.disabled = true
+		
+		#grey it out
+	pass # Replace with function body.
+
+
+func _on_resume_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://Scenes/layer_manager.tscn")
+	pass # Replace with function body.
