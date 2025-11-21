@@ -88,16 +88,7 @@ func _physics_process(delta):
 	input_direction += (tether_momentum / move_speed)
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
-		if(is_purple):
-			if cooldowns[0] <= 0:
-				await get_tree().create_timer(attacks[0].start_lag).timeout
-				request_attack(attacks[0])
-				cooldowns[0] = attacks[0].cooldown
-		else:
-			if cooldowns[1] <= 0:
-				await get_tree().create_timer(attacks[1].start_lag).timeout
-				request_attack(attacks[1])
-				cooldowns[1] = attacks[1].cooldown
+		handle_attack()
 	
 	adjust_cooldowns(delta)
 	#move and slide function
@@ -198,3 +189,16 @@ func adjust_cooldowns(time_elapsed : float):
 	else:
 		if cooldowns[1] > 0:
 			cooldowns[1] -= time_elapsed
+
+func handle_attack():
+	if(is_purple):
+		if cooldowns[0] <= 0:
+			await get_tree().create_timer(attacks[0].start_lag).timeout
+			request_attack(attacks[0])
+			cooldowns[0] = attacks[0].cooldown
+	else:
+		if cooldowns[1] <= 0:
+			await get_tree().create_timer(attacks[1].start_lag).timeout
+			request_attack(attacks[1])
+			cooldowns[1] = attacks[1].cooldown
+	

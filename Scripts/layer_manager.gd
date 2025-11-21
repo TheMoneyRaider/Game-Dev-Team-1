@@ -36,7 +36,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
-@export var is_multiplayer = true
+@export var is_multiplayer = false
 #
 @export var layer_ai := [
 	0,#Rooms cleared
@@ -59,6 +59,7 @@ var time_passed := 0.0
 
 func _ready() -> void:
 	var player_scene = load("res://Scenes/Characters/player_cat.tscn")
+	#Needs integration with main_menu
 	if(is_multiplayer):
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = true
