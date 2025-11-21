@@ -126,7 +126,7 @@ func _physics_process(_delta):
 	if Input.is_action_just_pressed("attack_" + input_device):
 		handle_attack()
 	
-	adjust_cooldowns(delta)
+	adjust_cooldowns(_delta)
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED):
 		move_and_slide()

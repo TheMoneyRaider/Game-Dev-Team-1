@@ -35,7 +35,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
-@export var is_multiplayer = false
+@export var is_multiplayer = true
 #
 @export var layer_ai := [
 	0,#Rooms cleared
@@ -91,9 +91,9 @@ func _ready() -> void:
 	player.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
 		player_2.global_position =  generated_room_entrance[room_instance.name]
-	place_liquids(room_instance, room_instance_data)
-	place_traps(room_instance, room_instance_data)
-	place_enemy_spawners(room_instance, room_instance_data)
+	place_liquids(room_instance, room_instance_data,conflict_cells)
+	place_traps(room_instance, room_instance_data,conflict_cells)
+	place_enemy_spawners(room_instance, room_instance_data,conflict_cells)
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	water_cells = room_instance.water_cells
