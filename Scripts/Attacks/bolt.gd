@@ -22,6 +22,7 @@ func _on_body_entered(body):
 		if body.has_method("swap_color"):
 			return
 		elif body.has_method("take_damage"):
+			print("hit enemy?")
 			body.take_damage(damage)
 		else:
 			print("hit!")
@@ -29,6 +30,7 @@ func _on_body_entered(body):
 		if !body.has_method("swap_color"):
 			return
 		elif body.has_method("take_damage"):
+			print("hit enemy?")
 			body.take_damage(damage)
 		else:
 			print("hit!")

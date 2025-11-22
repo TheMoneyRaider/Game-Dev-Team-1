@@ -17,10 +17,13 @@ func _process(delta):
 	position += direction * speed * delta
 
 func _on_body_entered(body):
+	print("hit type is ", body)
+	
 	if c_owner.has_method("swap_color"):
 		if body.has_method("swap_color"):
 			return
 		elif body.has_method("take_damage"):
+			print("hit enemy?")
 			body.take_damage(damage)
 		else:
 			print("plonk!")
@@ -28,6 +31,7 @@ func _on_body_entered(body):
 		if !body.has_method("swap_color"):
 			return
 		elif body.has_method("take_damage"):
+			print("hit enemy?")
 			body.take_damage(damage)
 		else:
 			print("plonk!")

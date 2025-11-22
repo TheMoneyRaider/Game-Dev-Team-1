@@ -1,6 +1,7 @@
 extends BTAction
 
 @export var player_position_var: String = "target_pos"
+@export var player_positions: String = "player_positions"
 
 func _tick(_delta: float) -> Status:
 	# Find the player in the scene
@@ -13,7 +14,11 @@ func _tick(_delta: float) -> Status:
 	# Store the player's position in the blackboard
 	blackboard.set_var(player_position_var, players[0].global_position)
 	
-	if players.size() != 1:
-		print("Multiplayer")
+	var positions_array = []
+	
+	for player in players: 
+		positions_array.append(player.global_position)
+		
+	blackboard.set_var(player_positions, positions_array)
 	
 	return FAILURE

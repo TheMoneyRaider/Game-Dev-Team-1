@@ -1,9 +1,9 @@
 extends BTAction
 @export var player_position_var: String = "target_pos"
 
-var agro_distance = 150
+var deagro_distance = 150
 
-func _tick(delta: float) -> Status:
+func _tick(_delta: float) -> Status:
 	agent = get_agent()
 	
 	var player_pos = get_blackboard().get_var(player_position_var)
@@ -13,8 +13,8 @@ func _tick(delta: float) -> Status:
 	if not player_pos:
 		return FAILURE
 	
-	if distance_squared <= agro_distance * agro_distance:
-		return SUCCESS
+	if distance_squared <= deagro_distance * deagro_distance:
 		blackboard.set_var("state", "idle")
+		return SUCCESS
 		
 	return FAILURE
