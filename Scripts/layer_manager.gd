@@ -35,7 +35,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
-@export var is_multiplayer = true
+@export var is_multiplayer = false
 #
 @export var layer_ai := [
 	0,#Rooms cleared
