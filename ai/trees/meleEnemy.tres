@@ -1,8 +1,9 @@
-[gd_resource type="BehaviorTree" load_steps=23 format=3 uid="uid://clbkhmh1c8a68"]
+[gd_resource type="BehaviorTree" load_steps=25 format=3 uid="uid://clbkhmh1c8a68"]
 
 [ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
+[ext_resource type="Script" uid="uid://dkrmjd0p1oufy" path="res://ai/tasks/checkDeagro.gd" id="2_llk5e"]
 [ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
 [ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="4_tqs8k"]
 
@@ -25,6 +26,9 @@ resource_name = "agro"
 variable = &"state"
 value = SubResource("BBVariant_3c6mk")
 
+[sub_resource type="BTAction" id="BTAction_6xbjc"]
+script = ExtResource("2_llk5e")
+
 [sub_resource type="BTAction" id="BTAction_xsft4"]
 script = ExtResource("2_tqs8k")
 
@@ -33,7 +37,7 @@ script = ExtResource("1_hnqba")
 
 [sub_resource type="BTSequence" id="BTSequence_ecge8"]
 custom_name = "Attack"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6")]
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6")]
 
 [sub_resource type="BTAction" id="BTAction_3ccgm"]
 script = ExtResource("4_tqs8k")

@@ -78,6 +78,8 @@ _data = {
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_4lifg"]
 
 [node name="dynamEnemy" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 2
 script = ExtResource("1_ffkh2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
