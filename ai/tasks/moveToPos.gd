@@ -8,7 +8,7 @@ this is like declaring/setting a global variable named "pos"
 in our case the characterbody2d
 """
 const recalc_distance_threshold: float = 48.0
- 
+@export var player_idx: String = "player_idx"
 
 func _tick(_delta: float) -> Status: 
 	# takes the random pos determined b4 in "chooseRadnomPos, and moves to it, simple as 
@@ -17,8 +17,9 @@ func _tick(_delta: float) -> Status:
 	var waypoint_index: int = blackboard.get_var("waypoint_index", 0)
 	var path_target_pos: Vector2 = blackboard.get_var("target_pos", Vector2.ZERO)
 
-	var player = agent.get_tree().get_first_node_in_group("player")
-	var current_player_pos: Vector2 = player.global_position if player else Vector2.ZERO
+	var p_index = blackboard.get_var(player_idx)
+	var players = agent.get_tree().get_nodes_in_group("player")
+	var current_player_pos: Vector2 = players[p_index].global_position if players else Vector2.ZERO
 
 	if blackboard.get_var("path_recalculated", false):	
 		waypoint_index = skip_waypoints_behind(path, 0)
