@@ -17,6 +17,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 .1,																																#Noise Frequency                        
 3,																																#Num Traps              
 [.65,.65,.65],																													#Trap Chances                                
+[room.Trap.Spike, room.Trap.Tile, room.Trap.Tile],																				#Trap Types                         
 6,																																#Num Pathways                   
 [room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],		#Pathway Directions                                       
 7,																																#Enemy Spawnpoints                     
@@ -36,7 +37,8 @@ randi(),																														#Noise Seed
 FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
 .1,																																#Noise Frequency                       
 2,																																#Num Traps              
-[.75,.25],																														#Trap Chances                                
+[.75,.25],																														#Trap Chances                          
+[room.Trap.Tile, room.Trap.Spike],																				#Trap Types                                        
 5,																																#Num Pathways                   
 [room.Direction.Up,room.Direction.Up,room.Direction.Left,room.Direction.Down,room.Direction.Right],								#Pathway Directions                                       
 11,																																#Enemy Spawnpoints                     

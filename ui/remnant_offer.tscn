@@ -1,0 +1,65 @@
+[gd_scene load_steps=4 format=3 uid="uid://cys7wosqyyfkf"]
+
+[ext_resource type="Script" uid="uid://b8v4o056n160f" path="res://remnants/remnant_offer.gd" id="1_vtfuc"]
+[ext_resource type="PackedScene" uid="uid://bsnhxne2rojuk" path="res://ui/remnant_slot.tscn" id="2_vtfuc"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_vtfuc"]
+font_size = 100
+
+[node name="RemnantOffer" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_vtfuc")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="container" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/container"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+text = "Pick a Remnant"
+label_settings = SubResource("LabelSettings_vtfuc")
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="slots_hbox" type="HBoxContainer" parent="MarginContainer/container"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="slot0" parent="MarginContainer/container/slots_hbox" instance=ExtResource("2_vtfuc")]
+custom_minimum_size = Vector2(413, 995)
+layout_mode = 2
+
+[node name="slot1" parent="MarginContainer/container/slots_hbox" instance=ExtResource("2_vtfuc")]
+custom_minimum_size = Vector2(413, 995)
+layout_mode = 2
+
+[node name="slot2" parent="MarginContainer/container/slots_hbox" instance=ExtResource("2_vtfuc")]
+custom_minimum_size = Vector2(413, 995)
+layout_mode = 2
+
+[node name="btn_confirm" type="Button" parent="MarginContainer/container"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 50
+text = "Confirm"

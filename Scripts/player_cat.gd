@@ -4,6 +4,8 @@ const attack = preload("res://Scripts/attack.gd")
 @export var move_speed: float = 100
 @export var max_health: float = 10
 @export var current_health: float = 10
+@export var current_dmg_time: float = 0.0
+@export var in_instant_trap: bool = false
 
 @export var state_machine : LimboHSM
 
@@ -33,6 +35,15 @@ var is_multiplayer = false
 var input_device = "key"
 var input_direction : Vector2 = Vector2.ZERO
 
+@onready var chosen_remnants: Array[Resource] = []
+
+func add_remnant(remnant: Resource) -> void:
+	chosen_remnants.append(remnant)
+
+func has_remnant(remnant: Resource) -> bool:
+	return remnant in chosen_remnants
+
+
 #The scripts for loading default values into the attack
 var smash = preload("res://Scripts/Attacks/smash.gd")
 var bolt = preload("res://Scripts/Attacks/bolt.gd")
@@ -55,7 +66,6 @@ func _ready():
 		tether_gradient = tether_line.gradient
 		tether_line.gradient = null			
 
-
 func _initialize_state_machine():
 	#Define State transitions
 	state_machine.add_transition(idle_state,move_state, "to_move")
@@ -68,7 +78,33 @@ func _initialize_state_machine():
 func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
-func _physics_process(delta):
+func _physics_process(_delta):
+	#Trap stuff
+	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
+	if tile_pos in get_parent().trap_cells:
+		var tile_data = get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+		if tile_data:
+			var dmg = tile_data.get_custom_data("trap_instant")
+			#Instant trap
+			if dmg and !in_instant_trap:
+				take_damage(dmg)
+				in_instant_trap = true
+			if !dmg:
+				in_instant_trap = false
+			#Ongoing trap
+			if tile_data.get_custom_data("trap_ongoing"):
+				current_dmg_time += _delta
+				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
+					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+			else:
+				current_dmg_time = 0
+		else:
+			current_dmg_time = 0
+			in_instant_trap = false
+	else:
+		current_dmg_time = 0
+		in_instant_trap = false
 	#Cat input detection
 	input_direction = Vector2(
 		Input.get_action_strength("right_" + input_device) - Input.get_action_strength("left_" + input_device),
@@ -90,7 +126,7 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("attack_" + input_device):
 		handle_attack()
 	
-	adjust_cooldowns(delta)
+	adjust_cooldowns(_delta)
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED):
 		move_and_slide()
