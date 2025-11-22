@@ -31,7 +31,7 @@ func _tick(_delta: float) -> Status:
 		
 		if player_moved_distance > recalc_distance_threshold:
 			#print("Player moved", player_moved_distance)
-			return SUCCESS
+			return FAILURE
 			
 		#if int(Time.get_ticks_msec()) % 1000 < 16:  # Print roughly once per second
 			#print("Player moved ", player_moved_distance, "px (threshold: ", recalc_distance_threshold, ")")
@@ -52,7 +52,7 @@ func _tick(_delta: float) -> Status:
 	if waypoint_index >= path.size():
 
 		print("FAILED")
-		return SUCCESS # failure forces tree to recalculate
+		return FAILURE # failure forces tree to recalculate
 		
 	var target_pos: Vector2 = path[waypoint_index]
 	var current_pos: Vector2 = agent.global_position

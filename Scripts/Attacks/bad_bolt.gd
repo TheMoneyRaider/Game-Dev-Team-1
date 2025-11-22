@@ -2,7 +2,7 @@ extends Area2D
 
 var direction = Vector2.RIGHT
 @export var speed = 300
-@export var damage = 10
+@export var damage = 0
 @export var lifespan = 1
 @export var start_lag = 0
 @export var cooldown = .5
@@ -18,6 +18,11 @@ func _process(delta):
 	position += direction * speed * delta
 
 func _on_body_entered(body):
+	
+	if not is_instance_valid(c_owner):
+		queue_free()
+		return
+	
 	if c_owner.has_method("swap_color"):
 		if body.has_method("swap_color"):
 			return
