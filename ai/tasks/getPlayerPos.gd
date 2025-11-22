@@ -4,13 +4,13 @@ extends BTAction
 
 func _tick(_delta: float) -> Status:
 	# Find the player in the scene
-	var player = agent.get_tree().get_first_node_in_group("player")
+	var players = agent.get_tree().get_nodes_in_group("player")
 	
-	if not player:
-		push_error("No player found in 'player' group")
+	if not players:
+		push_error("No players found in 'player' group")
 		return FAILURE
 	
 	# Store the player's position in the blackboard
-	blackboard.set_var(player_position_var, player.global_position)
+	blackboard.set_var(player_position_var, players[0].global_position)
 	
-	return SUCCESS
+	return FAILURE

@@ -10,7 +10,6 @@ const SPEED: float = 100
 
 func on_ready():
 	current_health = max_health
-	
 
 func update_flip(dir: float): 
 	sprite_2d.flip_h = dir < 0 

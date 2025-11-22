@@ -7,7 +7,6 @@ const layer_manager_script = preload("res://Scripts/layer_manager.gd")
 @export var recalculated_bool: String = "path_recalculated"
 
 func _tick(_detla: float) -> Status:
-	var start_time = Time.get_ticks_usec() 
 	#retrieves the target pos and defaults it to zero vector if not found
 	var target_pos: Vector2 = blackboard.get_var(target_position_var, Vector2.ZERO) 
 	
@@ -36,13 +35,9 @@ func _tick(_detla: float) -> Status:
 	blackboard.set_var(path_output_var, path)
 	blackboard.set_var(current_waypoint_var, 0)
 	blackboard.set_var(recalculated_bool, true)
-	
-	var end_time = Time.get_ticks_usec()
-	var duration_ms = (end_time - start_time) / 1000.0
 
 	return SUCCESS
 	
-
 func path_smoothing(path: Array) -> Array:
 	if path.size() <= 2:
 		return path
