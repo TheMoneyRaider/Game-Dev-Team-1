@@ -63,6 +63,16 @@ func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array):
 			var id = pos_to_id(cell)
 			astar.add_point(id, Vector2(cell.x * cell_size, cell.y * cell_size))
 			
+	var is_near_wall = func(cell: Vector2i) -> bool:
+		var check_dirs = [
+			Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+			Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)  # Diagonals too
+		]
+		for dir in check_dirs:
+			if blocked_dict.has(cell + dir):
+				return true 
+		return false
+	
 	# find neighboring walkable cells
 	var directions = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 	
@@ -75,8 +85,13 @@ func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array):
 			if neighbor in walkable_cells: 
 				var neighbor_id = pos_to_id(neighbor)
 				if not astar.are_points_connected(id, neighbor_id): 
+					var weight = 1.0
+					
+					if is_near_wall.call(cell) or is_near_wall.call(neighbor):
+						weight = 3.0
 					astar.connect_points(id,neighbor_id)
-
+					astar.set_point_weight_scale(id, weight)
+					
 	# derive path from world pos to world pos 
 func find_path(from_world: Vector2, to_world: Vector2) -> Array: 
 	

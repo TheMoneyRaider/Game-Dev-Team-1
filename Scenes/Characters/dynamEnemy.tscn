@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://d4fye58prgexu"]
+[gd_scene load_steps=12 format=3 uid="uid://d4fye58prgexu"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Scripts/dynamEnemy.gd" id="1_ffkh2"]
 [ext_resource type="Texture2D" uid="uid://du7jbaqpib4u" path="res://art/characters/enemyPlaceHolder.png" id="1_xh4cr"]
 [ext_resource type="BehaviorTree" uid="uid://clbkhmh1c8a68" path="res://ai/trees/meleEnemy.tres" id="2_ffkh2"]
+[ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Scenes/attack.tscn" id="4_vbfai"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
 radius = 3.0
@@ -78,6 +79,7 @@ _data = {
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_4lifg"]
 
 [node name="dynamEnemy" type="CharacterBody2D"]
+collision_layer = 5
 script = ExtResource("1_ffkh2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -95,3 +97,5 @@ libraries = {
 [node name="BTPlayer" type="BTPlayer" parent="."]
 behavior_tree = ExtResource("2_ffkh2")
 blackboard_plan = SubResource("BlackboardPlan_4lifg")
+
+[node name="Attack" parent="." instance=ExtResource("4_vbfai")]

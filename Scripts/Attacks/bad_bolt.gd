@@ -1,15 +1,16 @@
 extends Area2D
 
 var direction = Vector2.RIGHT
-@export var speed = 0
-@export var damage = 3
-@export var lifespan = .5
-@export var hit_force = 100
-@export var start_lag = 0.05
+@export var speed = 300
+@export var damage = 0
+@export var lifespan = 1
+@export var start_lag = 0
 @export var cooldown = .5
 var c_owner: Node = null
+@export var hit_force = 0
 
 func _ready():
+	rotation = direction.angle() + PI/2
 	await get_tree().create_timer(lifespan).timeout
 	queue_free()
 
@@ -17,7 +18,10 @@ func _process(delta):
 	position += direction * speed * delta
 
 func _on_body_entered(body):
-	print("hit type is ", body)
+	
+	if not is_instance_valid(c_owner):
+		queue_free()
+		return
 	
 	if c_owner.has_method("swap_color"):
 		if body.has_method("swap_color"):
@@ -26,18 +30,19 @@ func _on_body_entered(body):
 			print("hit enemy?")
 			body.take_damage(damage)
 		else:
-			print("plonk!")
+			print("hit!")
 	else:
 		if !body.has_method("swap_color"):
 			return
 		elif body.has_method("take_damage"):
-			print("hit enemy?")
+			print("hit enemy")
 			body.take_damage(damage)
 		else:
-			print("plonk!")
+			print("hit!")
 	queue_free()
 
-func _on_area_entered(area: Area2D) -> void:
-	if area.has_method("deflect"):
-		area.deflect(direction, hit_force)
-		area.c_owner = c_owner
+func deflect(hit_direction, hit_speed):
+	direction = hit_direction
+	rotation = direction.angle() + PI/2
+	damage = round(damage * ((hit_speed + speed) / speed))
+	speed = speed + hit_speed

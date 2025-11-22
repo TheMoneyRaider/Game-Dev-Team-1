@@ -8,7 +8,7 @@ this is like declaring/setting a global variable named "pos"
 in our case the characterbody2d
 """
 const recalc_distance_threshold: float = 48.0
- 
+@export var player_idx: String = "player_idx"
 
 func _tick(_delta: float) -> Status: 
 	# takes the random pos determined b4 in "chooseRadnomPos, and moves to it, simple as 
@@ -17,8 +17,9 @@ func _tick(_delta: float) -> Status:
 	var waypoint_index: int = blackboard.get_var("waypoint_index", 0)
 	var path_target_pos: Vector2 = blackboard.get_var("target_pos", Vector2.ZERO)
 
-	var player = agent.get_tree().get_first_node_in_group("player")
-	var current_player_pos: Vector2 = player.global_position if player else Vector2.ZERO
+	var p_index = blackboard.get_var(player_idx)
+	var players = agent.get_tree().get_nodes_in_group("player")
+	var current_player_pos: Vector2 = players[p_index].global_position if players else Vector2.ZERO
 
 	if blackboard.get_var("path_recalculated", false):	
 		waypoint_index = skip_waypoints_behind(path, 0)
@@ -30,7 +31,7 @@ func _tick(_delta: float) -> Status:
 		
 		if player_moved_distance > recalc_distance_threshold:
 			#print("Player moved", player_moved_distance)
-			return SUCCESS
+			return FAILURE
 			
 		#if int(Time.get_ticks_msec()) % 1000 < 16:  # Print roughly once per second
 			#print("Player moved ", player_moved_distance, "px (threshold: ", recalc_distance_threshold, ")")
@@ -51,7 +52,7 @@ func _tick(_delta: float) -> Status:
 	if waypoint_index >= path.size():
 
 		print("FAILED")
-		return SUCCESS # failure forces tree to recalculate
+		return FAILURE # failure forces tree to recalculate
 		
 	var target_pos: Vector2 = path[waypoint_index]
 	var current_pos: Vector2 = agent.global_position

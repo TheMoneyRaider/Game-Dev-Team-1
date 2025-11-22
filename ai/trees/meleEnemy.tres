@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
+[ext_resource type="Script" uid="uid://dkrmjd0p1oufy" path="res://ai/tasks/checkDeagro.gd" id="2_llk5e"]
 [ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ua8f2"]
@@ -12,18 +13,8 @@ var/state/value = ""
 var/state/hint = 0
 var/state/hint_string = ""
 
-[sub_resource type="BTAction" id="BTAction_llk5e"]
+[sub_resource type="BTAction" id="BTAction_tqs8k"]
 script = ExtResource("1_ecge8")
-
-[sub_resource type="BTAction" id="BTAction_xsft4"]
-script = ExtResource("2_tqs8k")
-
-[sub_resource type="BTAction" id="BTAction_1kwu6"]
-script = ExtResource("1_hnqba")
-
-[sub_resource type="BTSequence" id="BTSequence_ecge8"]
-custom_name = "Attack"
-children = [SubResource("BTAction_llk5e"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6")]
 
 [sub_resource type="BBVariant" id="BBVariant_3c6mk"]
 type = 4
@@ -33,6 +24,41 @@ resource_name = "agro"
 [sub_resource type="BTCheckVar" id="BTCheckVar_nufqr"]
 variable = &"state"
 value = SubResource("BBVariant_3c6mk")
+
+[sub_resource type="BTAction" id="BTAction_6xbjc"]
+script = ExtResource("2_llk5e")
+
+[sub_resource type="BTAction" id="BTAction_xsft4"]
+script = ExtResource("2_tqs8k")
+
+[sub_resource type="BTAction" id="BTAction_1kwu6"]
+script = ExtResource("1_hnqba")
+
+[sub_resource type="BTWait" id="BTWait_xsft4"]
+duration = 0.5
+
+[sub_resource type="BTAction" id="BTAction_4evon"]
+script = ExtResource("5_xsft4")
+
+[sub_resource type="BTSequence" id="BTSequence_ecge8"]
+custom_name = "Attack"
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTWait_xsft4"), SubResource("BTAction_4evon")]
+
+[sub_resource type="BTAction" id="BTAction_3ccgm"]
+script = ExtResource("4_tqs8k")
+
+[sub_resource type="BBVariant" id="BBVariant_tqs8k"]
+type = 4
+saved_value = "agro"
+resource_name = "agro"
+
+[sub_resource type="BTSetVar" id="BTSetVar_llk5e"]
+variable = &"state"
+value = SubResource("BBVariant_tqs8k")
+
+[sub_resource type="BTSequence" id="BTSequence_tqs8k"]
+custom_name = "Set Agro"
+children = [SubResource("BTAction_3ccgm"), SubResource("BTSetVar_llk5e")]
 
 [sub_resource type="BTFail" id="BTFail_ecge8"]
 
@@ -49,10 +75,10 @@ script = ExtResource("1_hnqba")
 
 [sub_resource type="BTSequence" id="BTSequence_3c6mk"]
 custom_name = "Patrol"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTFail_ecge8"), SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_hnqba")]
+children = [SubResource("BTFail_ecge8"), SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_hnqba")]
 
 [sub_resource type="BTSelector" id="BTSelector_m8x3l"]
-children = [SubResource("BTSequence_ecge8"), SubResource("BTSequence_3c6mk")]
+children = [SubResource("BTAction_tqs8k"), SubResource("BTSequence_ecge8"), SubResource("BTSequence_tqs8k"), SubResource("BTSequence_3c6mk")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_ua8f2")
