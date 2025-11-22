@@ -1,14 +1,19 @@
 extends CharacterBody2D
 const is_elite: bool = false
-var enemy_health: int = 10
+@export var max_health: int = 10
 var current_health: int = 10 
 
 const SPEED: float = 100
 @onready var sprite_2d: Sprite2D = $Sprite2D
 
+# import like, takes damage or something like that
+
+func on_ready():
+	current_health = max_health
+	
+
 func update_flip(dir: float): 
 	sprite_2d.flip_h = dir < 0 
-
 
 func move(target_pos: Vector2, _delta: float): 
 	
@@ -23,11 +28,12 @@ func move(target_pos: Vector2, _delta: float):
 	
 func _process(_delta):
 	queue_redraw()
-	
 
-signal takes_damage(damage_taken : int, e_health : int)
+func die():
+	queue_free()
 
 func take_damage(damage : int):
-	enemy_health = current_health - damage
-	emit_signal("takes_damage", damage, current_health)
-	
+	current_health = current_health - damage
+	if current_health <= 0:
+		die()
+		
