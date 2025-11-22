@@ -15,5 +15,6 @@ func _tick(delta: float) -> Status:
 	
 	if distance_squared <= agro_distance * agro_distance:
 		return SUCCESS
-
+		blackboard.set_var("state", "idle")
+		
 	return FAILURE

@@ -3,7 +3,7 @@ const is_elite: bool = false
 @export var max_health: int = 10
 var current_health: int = 10 
 
-const SPEED: float = 100
+const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
 
 # import like, takes damage or something like that
