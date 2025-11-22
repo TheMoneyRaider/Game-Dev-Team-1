@@ -13,4 +13,7 @@ func _tick(_delta: float) -> Status:
 	# Store the player's position in the blackboard
 	blackboard.set_var(player_position_var, players[0].global_position)
 	
+	if players.size() != 1:
+		print("Multiplayer")
+	
 	return FAILURE
