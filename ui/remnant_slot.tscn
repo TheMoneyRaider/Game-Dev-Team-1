@@ -48,8 +48,8 @@ script = ExtResource("1_blhod")
 
 [node name="btn_select" type="Button" parent="."]
 layout_mode = 0
-offset_right = 256.0
-offset_bottom = 900.0
+offset_right = 413.0
+offset_bottom = 995.0
 theme_override_styles/normal = SubResource("StyleBoxEmpty_o7i6x")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_65u0l")
 theme_override_styles/hover = SubResource("StyleBoxEmpty_7cik6")
