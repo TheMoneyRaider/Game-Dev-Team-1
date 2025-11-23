@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://ngbu4gjpiili"]
+
+[node name="ControlSorting" type="Node2D"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Player who wants to be purple, hit start"

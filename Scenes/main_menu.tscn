@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://dfus7yvwe8o0w"]
+
+[ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Scenes/main_menu.gd" id="1_28flt"]
+
+[node name="MainMenu" type="Node2D"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_28flt")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_direction = 1
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="StartSinglePlayer" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+text = "Start Singleplayer Run"
+script = ExtResource("1_28flt")
+
+[node name="StartMPlayer" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+text = "Start 2-Player Run"
+
+[node name="SettingsButton" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+text = "Settings"
+script = ExtResource("1_28flt")
+
+[node name="QuitButton" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+text = "Quit Game"
+script = ExtResource("1_28flt")
+
+[connection signal="pressed" from="Control/VBoxContainer/StartSinglePlayer" to="Control" method="_on_start_button_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/StartMPlayer" to="Control" method="_on_resume_button_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/SettingsButton" to="Control" method="_on_settings_button_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/QuitButton" to="Control" method="_on_quit_button_pressed"]
