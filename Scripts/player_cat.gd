@@ -165,7 +165,7 @@ func swap_color():
 func tether():
 	if Input.is_action_just_pressed("swap_" + input_device):
 		tether_momentum += (other_player.position - position) / 1
-		move_speed = 50
+		move_speed /= 2
 		is_tethered = true
 	if Input.is_action_pressed("swap_" + input_device):
 		tether_line.visible = true
@@ -186,7 +186,7 @@ func tether():
 	else:
 		if Input.is_action_just_released("swap_" + input_device):
 			tether_line.visible = false
-			move_speed = 100
+			move_speed *= 2
 			is_tethered = false
 		if(abs(tether_momentum.length_squared()) <  .1):
 			tether_momentum = Vector2.ZERO
