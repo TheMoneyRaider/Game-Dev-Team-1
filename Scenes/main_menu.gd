@@ -55,7 +55,7 @@ func _ready() -> void:
 		AudioServer.set_bus_volume_db(bus_index, volume)
 
 func _on_start_button_pressed() -> void:
-	
+	Globals.is_multiplayer = false
 	get_tree().change_scene_to_file("res://Scenes/layer_manager.tscn")
 
 
@@ -70,5 +70,7 @@ func _on_quit_button_pressed() -> void:
 
 
 func _on_resume_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/control_sorting.tscn")
+	Globals.is_multiplayer = true
+	get_tree().change_scene_to_file("res://Scenes/layer_manager.tscn")
+	#get_tree().change_scene_to_file("res://Scenes/control_sorting.tscn")
 	pass # Replace with function body.
