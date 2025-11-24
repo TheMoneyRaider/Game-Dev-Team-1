@@ -147,6 +147,7 @@ func take_damage(damage_amount : int):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):
+		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 		if(die(true)):
 			emit_signal("attack_requested",revive, position, Vector2.ZERO)
 	
