@@ -147,7 +147,6 @@ func take_damage(damage_amount : int):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):
-		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 		if(die(true)):
 			emit_signal("attack_requested",revive, position, Vector2.ZERO)
 	
@@ -199,11 +198,11 @@ func die(death : bool , insta_die : bool = false) -> bool:
 		#Change to signal something
 		self.process_mode = PROCESS_MODE_DISABLED
 		visible = false
-		print("GAME OVER")
+		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 		return false
 	else:
 		if insta_die:
-			print("GAME OVER")
+			get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 			return false
 		if death:
 			max_health = max_health - 2
@@ -212,7 +211,7 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			visible = false
 			if(max_health <= 0):
 				#Change to signal something
-				print("GAME OVER")
+				get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 				return false
 		else:
 			self.process_mode = PROCESS_MODE_INHERIT

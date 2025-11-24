@@ -2,7 +2,7 @@ extends Area2D
 
 var direction = Vector2.RIGHT
 @export var speed = 300
-@export var damage = 0
+@export var damage = 2
 @export var lifespan = 1
 @export var start_lag = 0
 @export var cooldown = .5
@@ -32,7 +32,8 @@ func _on_body_entered(body):
 		else:
 			print("hit!")
 	else:
-		if !body.has_method("swap_color"):
+		if !(body.has_method("swap_color")):
+			print("not player")
 			return
 		elif body.has_method("take_damage"):
 			print("hit enemy")

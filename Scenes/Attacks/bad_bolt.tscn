@@ -7,6 +7,7 @@
 size = Vector2(10, 20)
 
 [node name="Bolt" type="Area2D"]
+collision_mask = 3
 script = ExtResource("1_bawae")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
