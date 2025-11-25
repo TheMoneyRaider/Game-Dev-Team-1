@@ -75,16 +75,19 @@ func _ready() -> void:
 		#Temp Multiplayer Fix
 		player = player1
 		player_2 = player2
+		player_2.attack_requested.connect(_on_player_attack)
+		player_2.player_took_damage.connect(_on_player_take_damage)
 	else:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
 		player1.input_device = "key"
 		add_child(player1)
 		player = player1
+	player.attack_requested.connect(_on_player_attack)
+	player.player_took_damage.connect(_on_player_take_damage)
 	
 	add_child(pathfinding)
 	preload_rooms()
-	player.attack_requested.connect(_on_player_attack)
 	randomize()
 	choose_room()
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
@@ -730,6 +733,9 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 			
 func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
+	
+func _on_player_take_damage(damage_amount : int,current_health : int,player : Node) -> void:
+	layer_ai[11]+=damage_amount
 
 func _on_remnant_chosen(remnant : Resource):
 	player.add_remnant(remnant)
