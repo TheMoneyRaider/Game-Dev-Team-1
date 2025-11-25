@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Scripts/dynamEnemy.gd" id="1_ffkh2"]
 [ext_resource type="Texture2D" uid="uid://du7jbaqpib4u" path="res://art/characters/enemyPlaceHolder.png" id="1_xh4cr"]
-[ext_resource type="BehaviorTree" uid="uid://clbkhmh1c8a68" path="res://ai/trees/meleEnemy.tres" id="2_ffkh2"]
+[ext_resource type="BehaviorTree" uid="uid://dcnh0ja2aticr" path="res://ai/trees/meleEnemy.tres" id="2_ffkh2"]
 [ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Scenes/attack.tscn" id="4_vbfai"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]

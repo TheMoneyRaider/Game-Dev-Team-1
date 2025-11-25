@@ -1,8 +1,8 @@
+class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
 var current_health: int = 10 
-
 const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
 
