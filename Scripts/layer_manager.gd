@@ -91,6 +91,8 @@ func _ready() -> void:
 	player.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
 		player_2.global_position =  generated_room_entrance[room_instance.name]
+		player_2.global_position += Vector2(16,0)
+		player.global_position -= Vector2(16,0)
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
 	place_enemy_spawners(room_instance, room_instance_data,conflict_cells)

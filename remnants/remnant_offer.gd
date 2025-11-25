@@ -8,7 +8,6 @@ signal remnant_chosen(remnant: Resource)
 	$MarginContainer/container/slots_hbox/slot1,
 	$MarginContainer/container/slots_hbox/slot2]
 @onready var confirm_btn: Button = $MarginContainer/container/btn_confirm
-
 var offered_remnants: Array[Resource] = []
 var selected_index: int = -1
 
