@@ -144,12 +144,14 @@ func _process(delta: float) -> void:
 				
 		
 	if Input.is_action_just_pressed("get_remnant") and room_instance and !remnant_offer_popup:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		var offer_scene = load("res://ui/remnant_offer.tscn")
 		remnant_offer_popup = offer_scene.instantiate()
 		$CanvasLayer.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
 		remnant_offer_popup.popup_offer()
+		player.get_node("Crosshair").visible = false
+		if is_multiplayer:
+			player_2.get_node("Crosshair").visible = false
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -735,10 +737,10 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
 	
-func _on_player_take_damage(damage_amount : int,current_health : int,player : Node) -> void:
+func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node) -> void:
 	layer_ai[11]+=damage_amount
 	
-func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> void:
+func _on_enemy_take_damage(damage : int,current_health : int,_enemy : Node) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
 		layer_ai[7]+=1
@@ -746,7 +748,9 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> vo
 func _on_remnant_chosen(remnant : Resource):
 	player.add_remnant(remnant)
 	remnant_offer_popup.queue_free()
-	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	player.get_node("Crosshair").visible = true
+	if is_multiplayer:
+		player_2.get_node("Crosshair").visible = true
 	
 
 func _debug_message(msg : String) -> void:
