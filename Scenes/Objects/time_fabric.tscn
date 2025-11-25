@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7mhuqdx6rjx5"]
+
+[ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="1_kcv6a"]
+
+[node name="TimeFabric" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_kcv6a")
+hframes = 6

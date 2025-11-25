@@ -577,7 +577,6 @@ func _process_terrain_batch() -> void:
 		)
 
 #Helper Functions
-
 func _open_remnant_popup() -> void:
 	if room_instance and !remnant_offer_popup:
 		room_instance.get_node("RemnantOrb").queue_free()
@@ -801,6 +800,9 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
+		#_spawn_currency_greedy(enemy)
+		enemy.visible=false
+		enemy.queue_free()
 		layer_ai[7]+=1
 		for child in room_instance.get_children():
 			if child is DynamEnemy and child != enemy:
@@ -815,7 +817,6 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
-	
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)

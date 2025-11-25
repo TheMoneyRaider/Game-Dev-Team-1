@@ -6,6 +6,7 @@ var current_health: int = 10
 const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
 
+
 const attack = preload("res://Scripts/attack.gd")
 var bad_bolt = preload("res://Scripts/Attacks/bad_bolt.gd")
 var attacks = [attack.create_from_resource("res://Scenes/Attacks/bad_bolt.tscn", bad_bolt)]
@@ -42,12 +43,7 @@ func move(target_pos: Vector2, _delta: float):
 func _process(_delta):
 	queue_redraw()
 
-func die():
-	queue_free()
-
 func take_damage(damage : int):
 	current_health = current_health - damage
 	emit_signal("enemy_took_damage",damage,current_health,self)
-	if current_health <= 0:
-		die()
 		
