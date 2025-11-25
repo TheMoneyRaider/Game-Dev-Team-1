@@ -21,9 +21,9 @@ func press():
 			
 
 func next_button():
-	active = (active + 1) % ButtonsHere.size()
+	active = (active + 1) % ButtonsHere.size() as ButtonsHere
 func prev_button():
-	active = (active + ButtonsHere.size() - 1) % ButtonsHere.size()
+	active = (active + ButtonsHere.size() - 1) % ButtonsHere.size() as ButtonsHere
 	
 
 const HANDLED_ACTIONS = ["ui_accept", "ui_up", "ui_down"]
