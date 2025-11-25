@@ -44,7 +44,7 @@ func outline_remnant(child: Node, color: Color = Color.ORANGE):
 
 func _on_button_pressed():
 	emit_signal("slot_selected", index)
-	outline_remnant($btn_select/TextureRect, Color.PURPLE)
+	#outline_remnant($btn_select/TextureRect, Color.PURPLE)
 	
 func _num_to_roman(input : int) -> String:
 	match input:

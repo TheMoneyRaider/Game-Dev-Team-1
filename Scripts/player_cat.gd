@@ -35,13 +35,6 @@ var is_multiplayer = false
 var input_device = "key"
 var input_direction : Vector2 = Vector2.ZERO
 
-@onready var chosen_remnants: Array[Resource] = []
-
-func add_remnant(remnant: Resource) -> void:
-	chosen_remnants.append(remnant)
-
-func has_remnant(remnant: Resource) -> bool:
-	return remnant in chosen_remnants
 
 
 #The scripts for loading default values into the attack

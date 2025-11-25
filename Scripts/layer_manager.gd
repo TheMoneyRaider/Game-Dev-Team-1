@@ -7,6 +7,8 @@ var player
 var player_2
 ###
 
+@onready var player_1_remnants: Array[Resource] = []
+@onready var player_2_remnants: Array[Resource] = []
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
@@ -148,7 +150,7 @@ func _process(delta: float) -> void:
 		remnant_offer_popup = offer_scene.instantiate()
 		$CanvasLayer.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer()
+		remnant_offer_popup.popup_offer(is_multiplayer)
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
@@ -745,8 +747,9 @@ func _on_enemy_take_damage(damage : int,current_health : int,_enemy : Node) -> v
 	if current_health <= 0:
 		layer_ai[7]+=1
 
-func _on_remnant_chosen(remnant : Resource):
-	player.add_remnant(remnant)
+func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
+	player_1_remnants.append(remnant1)
+	player_1_remnants.append(remnant2)
 	remnant_offer_popup.queue_free()
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
