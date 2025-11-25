@@ -19,6 +19,8 @@ func _ready():
 		slot.index = i
 		slot.slot_selected.connect(_on_slot_selected)
 	confirm_btn.pressed.connect(_on_confirm_pressed)
+	#Pause the rest of the game
+	get_tree().paused = true
 
 func popup_offer():
 	#query the pool for 3 random remnants
@@ -55,3 +57,4 @@ func _on_confirm_pressed():
 
 func _close_offer():
 	visible = false
+	get_tree().paused = false
