@@ -43,13 +43,13 @@ var time_passed := 0.0
 	0,#Time spent in last room
 	0,#Time spent in game
 	0,#Time spent in combat
-	0,#Damage dealt   				#TODO
+	0,#Damage dealt
 	0,#Attacks made
-	0,#Enemies defeated   			#TODO
+	0,#Enemies defeated
 	0,#Shops visited
 	0,#Liquid rooms visited
 	0,#Trap rooms visited
-	0,#Damage taken   				#TODO
+	0,#Damage taken
 	0,#Elite enemies defeated   	#TODO
 	0,#Currency collected   		#TODO
 	0,#Items picked up   			#TODO
@@ -343,6 +343,7 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room, c
 		if if_node_exists("Enemy"+str(enemy_num),generated_room):
 			var enemy = load("res://Scenes/Characters/dynamEnemy.tscn").instantiate()
 			enemy.position = generated_room.get_node("Enemy"+str(enemy_num)).position
+			enemy.enemy_took_damage.connect(_on_enemy_take_damage)
 			generated_room.get_node("Enemy"+str(enemy_num)).queue_free()
 			generated_room.add_child(enemy)
 			
@@ -736,6 +737,11 @@ func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack
 	
 func _on_player_take_damage(damage_amount : int,current_health : int,player : Node) -> void:
 	layer_ai[11]+=damage_amount
+	
+func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> void:
+	layer_ai[5]+=damage
+	if current_health <= 0:
+		layer_ai[7]+=1
 
 func _on_remnant_chosen(remnant : Resource):
 	player.add_remnant(remnant)
