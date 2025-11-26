@@ -628,8 +628,8 @@ func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vec
 	timefabric_instance.get_node("Sprite2D").frame = time_idx
 	timefabric_instance.global_position = current_position + Vector2(offset)
 	timefabric_instance.set_arrays(self, room_instance.get_node("Walls").get_used_cells())
-	timefabric_instance.set_velocity(Vector2(randf_range(-50,50),randf_range(-250,-100)))
-	timefabric_instance.set_floor(current_position.y +offset.y+randf_range(-100,100))
+	timefabric_instance.set_velocity(Vector2(randf_range(-50,50),randf_range(-150,-50)))
+	timefabric_instance.set_floor(current_position.y +offset.y+randf_range(-40,40))
 	timefabric_instance.set_process(true)
 	timefabric_instance.absorbed_by_player.connect(_on_timefabric_absorbed)
 	return

@@ -182,6 +182,7 @@ colors = PackedColorArray(0.627, 0.125, 0.941, 1, 1, 0.647, 0, 1)
 
 [node name="PlayerCat" type="CharacterBody2D" node_paths=PackedStringArray("state_machine")]
 z_index = 1
+y_sort_enabled = true
 collision_layer = 2
 script = ExtResource("1_u0lhy")
 state_machine = NodePath("LimboHSM")
