@@ -10,6 +10,7 @@ var player_2
 
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
+@onready var timefabric_collected: int = 0
 
 @onready var player_1_remnants: Array[Resource] = []
 @onready var player_2_remnants: Array[Resource] = []
@@ -57,7 +58,7 @@ var time_passed := 0.0
 	0,#Trap rooms visited
 	0,#Damage taken
 	0,#Elite enemies defeated   	#TODO
-	0,#Currency collected   		#TODO
+	0,#Currency collected
 	0,#Items picked up   			#TODO
 	]
 
@@ -150,7 +151,7 @@ func _process(delta: float) -> void:
 	if terrain_update_queue.size() > 0:
 		_process_terrain_batch()
 				
-		
+	$CanvasLayer/Control/MarginContainer/HBoxContainer/Label.text = str(timefabric_collected)
 
 
 func create_new_rooms() -> void:
@@ -584,7 +585,8 @@ func _process_terrain_batch() -> void:
 #Helper Functions
 
 func _enemy_to_timefabric(enemy : Node) -> void:
-	var global_position = enemy.get_node("Sprite2D").get_global_position() 
+	var sprite = enemy.get_node("Sprite2D")
+	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
 	var return_values : Array = _load_enemy_image(enemy)
 	var pixels_to_cover : Dictionary = return_values[0]
 	var enemy_width : int = return_values[1]
@@ -618,19 +620,23 @@ func _enemy_to_timefabric(enemy : Node) -> void:
 			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
 				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
 	for fabric in timefabrics_to_place:
-		_place_timefabric(fabric[0],fabric[1],global_position)
+		_place_timefabric(fabric[0],fabric[1],current_position)
 
-func _place_timefabric(time_idx : int, offset : Vector2i, global_position : Vector2) -> void:
-	
+func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vector2) -> void:
 	var timefabric_instance = timefabric.instantiate()
-	timefabric_instance.get_node("Sprite2D").frame = time_idx
-	timefabric_instance.global_position = global_position + Vector2(offset)
 	room_instance.add_child(timefabric_instance)
+	timefabric_instance.get_node("Sprite2D").frame = time_idx
+	timefabric_instance.global_position = current_position + Vector2(offset)
+	timefabric_instance.set_arrays(self, room_instance.get_node("Walls").get_used_cells())
+	timefabric_instance.set_velocity(Vector2(randf_range(-50,50),randf_range(-250,-100)))
+	timefabric_instance.set_floor(current_position.y +offset.y+randf_range(-100,100))
+	timefabric_instance.set_process(true)
+	timefabric_instance.absorbed_by_player.connect(_on_timefabric_absorbed)
 	return
 
-func _score_timefabric_placement(pixels_to_cover : Dictionary, timefabric : Array, timefabric_idx : int,offset : Vector2i) -> float:
+func _score_timefabric_placement(pixels_to_cover : Dictionary, timefabric_pixels : Array, timefabric_idx : int,offset : Vector2i) -> float:
 	var count = 0.0
-	for pixel in timefabric:
+	for pixel in timefabric_pixels:
 		if pixels_to_cover.has(Vector2i(pixel+offset)) and pixels_to_cover[Vector2i(pixel+offset)]:
 			count+=1.0
 	return count / timefabric_sizes[timefabric_idx][2]
@@ -922,6 +928,12 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
+
+
+func _on_timefabric_absorbed(timefabric : Node):
+	timefabric_collected+=1
+	layer_ai[13]+=1
+	timefabric.queue_free()
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
