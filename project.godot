@@ -22,8 +22,6 @@ Globals="*res://Scripts/globals.gd"
 
 [display]
 
-window/size/viewport_width=1920
-window/size/viewport_height=1000
 window/stretch/mode="canvas_items"
 
 [editor_plugins]
