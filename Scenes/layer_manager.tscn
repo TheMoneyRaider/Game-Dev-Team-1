@@ -7,7 +7,7 @@
 script = ExtResource("1_t30qu")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(3, 3)
+zoom = Vector2(4, 4)
 
 [node name="Hud" parent="." instance=ExtResource("2_08600")]
 scale = Vector2(1, 1)

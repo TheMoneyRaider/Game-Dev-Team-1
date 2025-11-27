@@ -75,9 +75,9 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -39.0
+offset_top = 808.0
 offset_right = 1921.0
-offset_bottom = 1122.0
+offset_bottom = 1969.0
 grow_vertical = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="TimeFabric/MarginContainer"]
@@ -97,8 +97,8 @@ label_settings = SubResource("LabelSettings_t1xeu")
 [node name="HealthBar2" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 818.0
-offset_right = 1502.0
+offset_left = 1604.0
+offset_right = 2288.0
 offset_bottom = 333.0
 scale = Vector2(0.5, 0.5)
 theme = SubResource("Theme_t1xeu")
