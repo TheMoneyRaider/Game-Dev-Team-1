@@ -6,6 +6,7 @@ const attack = preload("res://Scripts/attack.gd")
 @export var current_health: float = 10
 @export var current_dmg_time: float = 0.0
 @export var in_instant_trap: bool = false
+@onready var disabled_countdown : int = 0
 
 @export var state_machine : LimboHSM
 
@@ -101,9 +102,10 @@ func _physics_process(_delta):
 		emit_signal("activate",self)
 	adjust_cooldowns(_delta)
 	#move and slide function
-	if(self.process_mode != PROCESS_MODE_DISABLED):
+	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
 		move_and_slide()
-	
+	if disabled_countdown >= 1:
+		disabled_countdown-=1
 
 func update_animation_parameters(move_input : Vector2):
 	if(move_input != Vector2.ZERO):

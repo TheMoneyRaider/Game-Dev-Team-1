@@ -66,36 +66,7 @@ var time_passed := 0.0
 
 func _ready() -> void:
 	var conflict_cells : Array[Vector2i]
-	var player_scene = load("res://Scenes/Characters/player_cat.tscn")
-	#Needs integration with main_menu
-	if(is_multiplayer):
-		var player1 = player_scene.instantiate()
-		player1.is_multiplayer = true
-		player1.input_device = "key"
-		var player2 = player_scene.instantiate()
-		player2.is_multiplayer = true
-		player2.input_device = "0"
-		player1.other_player = player2
-		player2.other_player = player1
-		add_child(player1)
-		add_child(player2)
-		player2.swap_color()
-		#Temp Multiplayer Fix
-		player = player1
-		player_2 = player2
-		player_2.attack_requested.connect(_on_player_attack)
-		player_2.player_took_damage.connect(_on_player_take_damage)
-		player_2.activate.connect(_on_activate)
-		hud.connect_signals(player_2)
-	else:
-		var player1 = player_scene.instantiate()
-		player1.is_multiplayer = false
-		player1.input_device = "key"
-		add_child(player1)
-		player = player1
-	player.attack_requested.connect(_on_player_attack)
-	player.player_took_damage.connect(_on_player_take_damage)
-	player.activate.connect(_on_activate)
+	_setup_players()
 	hud.set_players(player,player_2)
 	hud.connect_signals(player)
 	
@@ -106,8 +77,7 @@ func _ready() -> void:
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
-		player_2.global_position =  generated_room_entrance[room_instance.name]
-		player_2.global_position += Vector2(16,0)
+		player_2.global_position =  generated_room_entrance[room_instance.name] + Vector2(16,0)
 		player.global_position -= Vector2(16,0)
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
@@ -129,9 +99,6 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	time_passed += delta
-	#Pathway Travel Check
-		
-	
 	if is_multiplayer:
 		camera.global_position = (player.global_position + player_2.global_position) / 2
 	else:
@@ -586,6 +553,38 @@ func _process_terrain_batch() -> void:
 
 #Helper Functions
 
+func _setup_players() -> void:
+	var player_scene = load("res://Scenes/Characters/player_cat.tscn")
+	#Needs integration with main_menu
+	if(is_multiplayer):
+		var player1 = player_scene.instantiate()
+		player1.is_multiplayer = true
+		player1.input_device = "key"
+		var player2 = player_scene.instantiate()
+		player2.is_multiplayer = true
+		player2.input_device = "0"
+		player1.other_player = player2
+		player2.other_player = player1
+		add_child(player1)
+		add_child(player2)
+		player2.swap_color()
+		#Temp Multiplayer Fix
+		player = player1
+		player_2 = player2
+		player_2.attack_requested.connect(_on_player_attack)
+		player_2.player_took_damage.connect(_on_player_take_damage)
+		player_2.activate.connect(_on_activate)
+		hud.connect_signals(player_2)
+	else:
+		var player1 = player_scene.instantiate()
+		player1.is_multiplayer = false
+		player1.input_device = "key"
+		add_child(player1)
+		player = player1
+	player.attack_requested.connect(_on_player_attack)
+	player.player_took_damage.connect(_on_player_take_damage)
+	player.activate.connect(_on_activate)
+
 func _enemy_to_timefabric(enemy : Node) -> void:
 	var sprite = enemy.get_node("Sprite2D")
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
@@ -687,9 +686,6 @@ func _prepare_timefabric() -> void:
 					timefabric_masks[i].append(Vector2i(x,y))
 		timefabric_sizes.append(Vector3i(max_x,max_y,timefabric_masks[i].size()))
 
-func randi_range(min_val: int, max_val: int) -> int:
-	return (randi() % (max_val - min_val + 1)) + min_val
-	
 func _open_remnant_popup() -> void:
 	if room_instance and !remnant_offer_popup:
 		room_instance.get_node("RemnantOrb").queue_free()
@@ -789,13 +785,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	if not is_instance_valid(next_room):
 		push_warning("Linked room instance invalid for " + pathway_id)
 		return
-	
-	# Teleport player to the entrance of the next room
-	player.global_position =  generated_room_entrance[next_room.name]
-	#Temp Multiplayer Fix
-	if(is_multiplayer):
-		player_2.global_position = generated_room_entrance[next_room.name]
-	
+
 	# Delete all other generated rooms
 	for key in generated_rooms.keys():
 		if key != pathway_id and is_instance_valid(generated_rooms[key]):
@@ -815,6 +805,15 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	next_room.process_mode = Node.PROCESS_MODE_INHERIT
 	room_instance = next_room
 	
+	# Teleport player to the entrance of the next room
+	player.global_position =  generated_room_entrance[next_room.name]
+	player.disabled_countdown=3
+	if(is_multiplayer):
+		player_2.global_position = generated_room_entrance[next_room.name] + Vector2(16,0)
+		player_2.disabled_countdown=3
+		player.global_position -= Vector2(16,0)
+		
+	
 	room_instance.name = "Root"
 	# Enable Collisions
 	_set_tilemaplayer_collisions(room_instance, true)
@@ -830,6 +829,8 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	
+	
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():
@@ -931,12 +932,10 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
 
-
-@warning_ignore("shadowed_variable")
-func _on_timefabric_absorbed(timefabric : Node):
+func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_collected+=1
 	layer_ai[13]+=1
-	timefabric.queue_free()
+	timefabric_node.queue_free()
 	
 func _on_activate(player_node : Node):
 	if room_instance:
