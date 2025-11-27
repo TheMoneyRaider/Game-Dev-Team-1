@@ -1,11 +1,16 @@
 extends Node2D
 const room = preload("res://Scripts/room.gd")
 const room_data = preload("res://Scripts/room_data.gd")
+@onready var timefabric = preload("res://Scenes/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 ### Temp Multiplayer Fix
 var player
 var player_2
 ###
+
+@onready var timefabric_masks: Array[Array]
+@onready var timefabric_sizes: Array[Vector3i]
+@onready var timefabric_collected: int = 0
 
 @onready var player_1_remnants: Array[Resource] = []
 @onready var player_2_remnants: Array[Resource] = []
@@ -53,7 +58,7 @@ var time_passed := 0.0
 	0,#Trap rooms visited
 	0,#Damage taken
 	0,#Elite enemies defeated   	#TODO
-	0,#Currency collected   		#TODO
+	0,#Currency collected
 	0,#Items picked up   			#TODO
 	]
 
@@ -114,6 +119,7 @@ func _ready() -> void:
 	for child in root.get_children():
 		print("  - ", child.name, " (", child.get_class(), ")")
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	_prepare_timefabric()
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -145,7 +151,7 @@ func _process(delta: float) -> void:
 	if terrain_update_queue.size() > 0:
 		_process_terrain_batch()
 				
-		
+	$CanvasLayer/Control/MarginContainer/HBoxContainer/Label.text = str(timefabric_collected)
 
 
 func create_new_rooms() -> void:
@@ -578,6 +584,110 @@ func _process_terrain_batch() -> void:
 
 #Helper Functions
 
+func _enemy_to_timefabric(enemy : Node) -> void:
+	var sprite = enemy.get_node("Sprite2D")
+	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
+	var return_values : Array = _load_enemy_image(enemy)
+	var pixels_to_cover : Dictionary = return_values[0]
+	var enemy_width : int = return_values[1]
+	var enemy_height : int = return_values[2]
+	var timefabrics_to_place : Array[Array] = []
+	var time_idx =0
+	var offset = Vector2i(0,0)
+	var num_time_fabrics = timefabric_masks.size()
+	var best_score = 0.0
+	var score = 0.0
+	for i in range(0,100):
+		best_score = 0.0
+		#Place random timefabric variants and random locations.
+		timefabrics_to_place.append([0,Vector2i(0,0)])
+		for j in range(0,100):
+			time_idx = randi() % num_time_fabrics
+			offset = Vector2i(
+				randi_range(1 - timefabric_sizes[time_idx][0], enemy_width - 1),
+				randi_range(1 - timefabric_sizes[time_idx][1], enemy_height - 1)
+			)
+			score = _score_timefabric_placement(pixels_to_cover,timefabric_masks[time_idx],time_idx,offset)
+			if score > best_score:
+				best_score=score
+				timefabrics_to_place[i]= [time_idx,offset]
+			if best_score >= .95:
+				break
+		if best_score <= .5:
+			timefabrics_to_place.pop_back()
+			break
+		for pixel in timefabric_masks[timefabrics_to_place[i][0]]:
+			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
+				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
+	for fabric in timefabrics_to_place:
+		_place_timefabric(fabric[0],fabric[1],current_position)
+
+func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vector2) -> void:
+	var timefabric_instance = timefabric.instantiate()
+	room_instance.add_child(timefabric_instance)
+	timefabric_instance.get_node("Sprite2D").frame = time_idx
+	timefabric_instance.global_position = current_position + Vector2(offset)
+	timefabric_instance.set_arrays(self, room_instance.get_node("Walls").get_used_cells())
+	timefabric_instance.set_velocity(Vector2(randf_range(-50,50),randf_range(-150,-50)))
+	timefabric_instance.set_floor(current_position.y +offset.y+randf_range(-40,40))
+	timefabric_instance.set_process(true)
+	timefabric_instance.absorbed_by_player.connect(_on_timefabric_absorbed)
+	return
+
+func _score_timefabric_placement(pixels_to_cover : Dictionary, timefabric_pixels : Array, timefabric_idx : int,offset : Vector2i) -> float:
+	var count = 0.0
+	for pixel in timefabric_pixels:
+		if pixels_to_cover.has(Vector2i(pixel+offset)) and pixels_to_cover[Vector2i(pixel+offset)]:
+			count+=1.0
+	return count / timefabric_sizes[timefabric_idx][2]
+
+func _load_enemy_image(enemy : Node) -> Array: 
+	var sprite = enemy.get_node("Sprite2D") as Sprite2D
+	if not sprite.texture:
+		print("Sprite has no texture!")
+	var img : Image = sprite.texture.get_image()
+	if not sprite.texture:
+		print("Texture has no image!")
+	var visible_pixels := {}  # Dictionary as hashmap
+	var w = int(img.get_width() / sprite.hframes)
+	var h = int(img.get_height() / sprite.vframes)
+	#Get the coords of the current frame
+	var cur_x = sprite.frame % sprite.hframes * w
+	var cur_y = int (sprite.frame / sprite.hframes) * h
+	for y in range(cur_y,cur_y+h):
+		for x in range(cur_x,cur_x+w):
+			var color = img.get_pixel(x, y)
+			if color.a > 0.5:
+				visible_pixels[Vector2i(x-cur_x,y-cur_y)] = true
+	return [visible_pixels, w, h]
+
+func _prepare_timefabric() -> void: 
+	var sheet = preload("res://art/time_fabric.png") as Texture2D 
+	var w = 16
+	var h = 16
+	var max_x
+	var max_y
+	for i in range(6): 
+		var atlas = AtlasTexture.new() 
+		atlas.atlas = sheet 
+		atlas.region = Rect2(i * w, 0, w, h) 
+		var img = atlas.get_image() 
+		var mask = [] 
+		max_x = 0
+		max_y = 0
+		timefabric_masks.append([])
+		for y in range(h): 
+			mask.append([]) 
+			for x in range(w):
+				if img.get_pixel(x,y).a > 0.5:
+					max_x = max(max_x,x)
+					max_y = max(max_y,y)
+					timefabric_masks[i].append(Vector2i(x,y))
+		timefabric_sizes.append(Vector3i(max_x,max_y,timefabric_masks[i].size()))
+
+func randi_range(min_val: int, max_val: int) -> int:
+	return (randi() % (max_val - min_val + 1)) + min_val
+	
 func _open_remnant_popup() -> void:
 	if room_instance and !remnant_offer_popup:
 		room_instance.get_node("RemnantOrb").queue_free()
@@ -801,6 +911,9 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
+		_enemy_to_timefabric(enemy)
+		enemy.visible=false
+		enemy.queue_free()
 		layer_ai[7]+=1
 		for child in room_instance.get_children():
 			if child is DynamEnemy and child != enemy:
@@ -815,7 +928,12 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
-	
+
+
+func _on_timefabric_absorbed(timefabric : Node):
+	timefabric_collected+=1
+	layer_ai[13]+=1
+	timefabric.queue_free()
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
