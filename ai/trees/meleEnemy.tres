@@ -1,6 +1,6 @@
 [gd_resource type="BehaviorTree" load_steps=28 format=3 uid="uid://dcnh0ja2aticr"]
 
-[ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
+[ext_resource type="Script" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
 [ext_resource type="Script" uid="uid://dkrmjd0p1oufy" path="res://ai/tasks/checkDeagro.gd" id="2_llk5e"]

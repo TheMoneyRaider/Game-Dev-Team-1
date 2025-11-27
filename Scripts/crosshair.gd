@@ -17,13 +17,13 @@ func _process(_delta: float) -> void:
 		if(input_direction != Vector2(0,0)):
 			crosshair_direction = input_direction		
 	var camera = get_viewport().get_camera_2d()
-	var mouse_coords = camera.get_local_mouse_position()
-	var direction = mouse_coords.normalized()
+	var mouse_coords = camera.get_global_mouse_position()
+	var direction = (mouse_coords - player.global_position).normalized()
 	
 	if player_input_device == "key":
-		if(mouse_coords.length() < 70):
-			position = mouse_coords
+		if((mouse_coords - player.global_position).length() < 70):
+			global_position = mouse_coords
 		else:
-			position = direction * 70
+			global_position = player.global_position + (direction * 70)
 	else:
 		position = (crosshair_direction * 50)

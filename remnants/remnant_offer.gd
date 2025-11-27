@@ -45,17 +45,17 @@ func popup_offer(is_multiplayer_in : bool):
 	tween.tween_property(self, "modulate:a", 1.0, 0.5)
 
 func _on_slot_selected(idx: int) -> void:
-	if is_multiplayer:
-		# ORIGINAL BEHAVIOR FOR MULTIPLAYER
-		selected_index1 = idx
-		for i in range(slot_nodes.size()):
-			var slot = slot_nodes[i]
-			var btn = slot.get_node("btn_select")
-			if i == idx:
-				btn.grab_focus()
-			else:
-				btn.disabled = true
-		return
+	#if is_multiplayer:
+		## ORIGINAL BEHAVIOR FOR MULTIPLAYER
+		#selected_index1 = idx
+		#for i in range(slot_nodes.size()):
+			#var slot = slot_nodes[i]
+			#var btn = slot.get_node("btn_select")
+			#if i == idx:
+				#btn.grab_focus()
+			#else:
+				#btn.disabled = true
+		#return
 	#Purple select
 	if selected_index1 == -1:
 		selected_index1 = idx
