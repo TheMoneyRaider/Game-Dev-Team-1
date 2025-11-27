@@ -4,8 +4,8 @@ const room_data = preload("res://Scripts/room_data.gd")
 @onready var timefabric = preload("res://Scenes/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 ### Temp Multiplayer Fix
-var player
-var player_2
+var player = null
+var player_2 = null
 ###
 
 @onready var timefabric_masks: Array[Array]
@@ -29,6 +29,7 @@ var thread_running := false
 @onready var pathfinding = Pathfinding.new()
 
 @onready var camera = $Camera2D
+@onready var hud = $Hud
 
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
@@ -85,6 +86,7 @@ func _ready() -> void:
 		player_2.attack_requested.connect(_on_player_attack)
 		player_2.player_took_damage.connect(_on_player_take_damage)
 		player_2.activate.connect(_on_activate)
+		hud.connect_signals(player_2)
 	else:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
@@ -94,6 +96,8 @@ func _ready() -> void:
 	player.attack_requested.connect(_on_player_attack)
 	player.player_took_damage.connect(_on_player_take_damage)
 	player.activate.connect(_on_activate)
+	hud.set_players(player,player_2)
+	hud.connect_signals(player)
 	
 	add_child(pathfinding)
 	preload_rooms()
@@ -148,7 +152,7 @@ func _process(delta: float) -> void:
 	if terrain_update_queue.size() > 0:
 		_process_terrain_batch()
 				
-	$CanvasLayer/Control/MarginContainer/HBoxContainer/Label.text = str(timefabric_collected)
+	hud.set_timefabric_amount(timefabric_collected)
 
 
 func create_new_rooms() -> void:
@@ -691,7 +695,7 @@ func _open_remnant_popup() -> void:
 		room_instance.get_node("RemnantOrb").queue_free()
 		var offer_scene = load("res://ui/remnant_offer.tscn")
 		remnant_offer_popup = offer_scene.instantiate()
-		$CanvasLayer.add_child(remnant_offer_popup)
+		hud.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
 		remnant_offer_popup.popup_offer(is_multiplayer)
 		player.get_node("Crosshair").visible = false

@@ -51,6 +51,8 @@ var is_purple = true
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
+signal swapped_color(player_node : Node)
+signal max_health_changed(new_max_health : int, player_node : Node)
 
 func _ready():
 	_initialize_state_machine()
@@ -122,6 +124,7 @@ func take_damage(damage_amount : int):
 			emit_signal("attack_requested",revive, position, Vector2.ZERO)
 	
 func swap_color():
+	emit_signal("swapped_color", self)
 	if(is_purple):
 		is_purple = false
 		sprite.texture = orange_texture
@@ -177,7 +180,7 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			return false
 		if death:
 			max_health = max_health - 2
-			current_health = round(max_health / 2)
+			emit_signal("max_health_changed",max_health,self)
 			self.process_mode = PROCESS_MODE_DISABLED
 			visible = false
 			if(max_health <= 0):
@@ -185,6 +188,8 @@ func die(death : bool , insta_die : bool = false) -> bool:
 				get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 				return false
 		else:
+			current_health = round(max_health / 2)
+			emit_signal("player_took_damage",-round(max_health / 2),current_health,self)
 			self.process_mode = PROCESS_MODE_INHERIT
 			visible = true
 	return true

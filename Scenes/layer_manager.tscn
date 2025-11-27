@@ -1,48 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=3 format=3 uid="uid://bjlqt0ad4do23"]
 
 [ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Scripts/layer_manager.gd" id="1_t30qu"]
-[ext_resource type="Script" uid="uid://bs428146shl5s" path="res://ui/time_fabric_animation.gd" id="2_e5lrv"]
-[ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="3_4oxjq"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_4oxjq"]
-font_size = 70
+[ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Scenes/hud.tscn" id="2_08600"]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_t30qu")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(4, 4)
+zoom = Vector2(3, 3)
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="Control" type="Control" parent="CanvasLayer"]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-script = ExtResource("2_e5lrv")
-spritesheet = ExtResource("3_4oxjq")
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control"]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -39.0
-offset_right = 1921.0
-offset_bottom = 958.0
-grow_vertical = 0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer"]
-layout_mode = 2
-size_flags_vertical = 8
-
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
-layout_mode = 2
-texture = ExtResource("3_4oxjq")
-
-[node name="Label" type="Label" parent="CanvasLayer/Control/MarginContainer/HBoxContainer"]
-layout_mode = 2
-text = "Num:"
-label_settings = SubResource("LabelSettings_4oxjq")
+[node name="Hud" parent="." instance=ExtResource("2_08600")]
+scale = Vector2(1, 1)
+transform = Transform2D(1, 0, 0, 1, 0, 0)
