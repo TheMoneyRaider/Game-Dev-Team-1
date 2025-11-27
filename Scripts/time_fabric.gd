@@ -55,8 +55,8 @@ func _process(delta: float) -> void:
 func set_velocity(velocity_in : Vector2):
 	velocity = velocity_in
 
-func set_floor(floor : float) -> void:
-	y_floor = floor
+func set_floor(new_floor : float) -> void:
+	y_floor = new_floor
 
 func move_towards_player():
 	var layer_manager = get_parent().get_parent()

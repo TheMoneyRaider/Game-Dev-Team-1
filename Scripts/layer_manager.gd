@@ -84,6 +84,7 @@ func _ready() -> void:
 		player_2 = player2
 		player_2.attack_requested.connect(_on_player_attack)
 		player_2.player_took_damage.connect(_on_player_take_damage)
+		player_2.activate.connect(_on_activate)
 	else:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
@@ -92,6 +93,7 @@ func _ready() -> void:
 		player = player1
 	player.attack_requested.connect(_on_player_attack)
 	player.player_took_damage.connect(_on_player_take_damage)
+	player.activate.connect(_on_activate)
 	
 	add_child(pathfinding)
 	preload_rooms()
@@ -124,12 +126,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time_passed += delta
 	#Pathway Travel Check
-	#Temp Multiplayer Fix (It only gets activate from keyboard player)
-	if Input.is_action_just_pressed("activate_key") and room_instance:
-		check_remnant_orb(room_instance, room_instance_data)
-		var direction = check_pathways(room_instance, room_instance_data)
-		if direction != -1:
-			create_new_rooms()
+		
 	
 	if is_multiplayer:
 		camera.global_position = (player.global_position + player_2.global_position) / 2
@@ -200,7 +197,7 @@ func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> voi
 
 	print(layer_ai)
 
-func check_pathways(generated_room : Node2D, generated_room_data : Room) -> int:
+func check_pathways(generated_room : Node2D, generated_room_data : Room, player_reference : Node) -> int:
 	var targets_extents: Array = []
 	var targets_position: Array = []
 	var targets_id: Array = []
@@ -218,8 +215,8 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room) -> int:
 				targets_id.append(pathway_name+"_Detect")
 				targets_direction.append(p_direct)
 
-	var player_shape = player.get_node("CollisionShape2D").shape
-	var player_position = player.global_position
+	var player_shape = player_reference.get_node("CollisionShape2D").shape
+	var player_position = player_reference.global_position
 	var player_rect = player_shape.extents
 	for idx in range(0,len(targets_extents)):
 		var area_rect = targets_extents[idx]
@@ -445,14 +442,14 @@ func preload_rooms() -> void:
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
 
-func check_remnant_orb(generated_room : Node2D, _generated_room_data : Room) -> void:
+func check_remnant_orb(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> void:
 	if(!if_node_exists("RemnantOrb",generated_room)):
 		return
 	var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
-	if remnant_orb.overlaps_body(player):
+	if remnant_orb.overlaps_body(player_reference):
 		_open_remnant_popup()
-	if is_multiplayer and remnant_orb.overlaps_body(player_2):
-		_open_remnant_popup()
+	#if is_multiplayer and remnant_orb.overlaps_body(player_2):
+	#	_open_remnant_popup()
 
 func room_reward() -> void: #Change to have other rewards #TODO
 	var reward_location
@@ -463,7 +460,8 @@ func room_reward() -> void: #Change to have other rewards #TODO
 		
 	var reward = load("res://ui/remnant_orb.tscn").instantiate()
 	reward.position = reward_location
-	room_instance.add_child(reward)
+	room_instance.call_deferred("add_child",reward)
+	#call_deferred(room_instance.add_child(reward))
 
 #Thread functions
 
@@ -930,10 +928,18 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 		player_2.get_node("Crosshair").visible = true
 
 
+@warning_ignore("shadowed_variable")
 func _on_timefabric_absorbed(timefabric : Node):
 	timefabric_collected+=1
 	layer_ai[13]+=1
 	timefabric.queue_free()
+	
+func _on_activate(player_node : Node):
+	if room_instance:
+		check_remnant_orb(room_instance, room_instance_data,player_node)
+		var direction = check_pathways(room_instance, room_instance_data,player_node)
+		if direction != -1:
+			create_new_rooms()
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)

@@ -50,6 +50,7 @@ var is_purple = true
 
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
+signal activate(player_node : Node)
 
 func _ready():
 	_initialize_state_machine()
@@ -118,7 +119,8 @@ func _physics_process(_delta):
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		handle_attack()
-	
+	if Input.is_action_just_pressed("activate_" + input_device):
+		emit_signal("activate",self)
 	adjust_cooldowns(_delta)
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED):
@@ -230,4 +232,3 @@ func handle_attack():
 			await get_tree().create_timer(attacks[1].start_lag).timeout
 			request_attack(attacks[1])
 			cooldowns[1] = attacks[1].cooldown
-	
