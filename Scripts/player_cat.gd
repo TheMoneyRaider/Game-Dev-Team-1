@@ -42,7 +42,7 @@ var smash = preload("res://Scripts/Attacks/smash.gd")
 var bolt = preload("res://Scripts/Attacks/bolt.gd")
 var death_mark = preload("res://Scripts/Attacks/death_mark.gd")
 #The list of attacks for playercharacter
-var attacks = [attack.create_from_resource("res://Scenes/Attacks/smash.tscn",smash),attack.create_from_resource("res://Scenes/Attacks/bolt.tscn",bolt)]
+var attacks = [attack.create_from_resource("res://Scenes/Attacks/bolt.tscn",bolt),attack.create_from_resource("res://Scenes/Attacks/smash.tscn",smash)]
 var revive = attack.create_from_resource("res://Scenes/Attacks/death_mark.tscn",death_mark)
 var cooldowns = [0,0]
 var is_purple = true
@@ -74,31 +74,7 @@ func apply_movement(_delta):
 
 func _physics_process(_delta):
 	#Trap stuff
-	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_parent().trap_cells:
-		var tile_data = get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
-		if tile_data:
-			var dmg = tile_data.get_custom_data("trap_instant")
-			#Instant trap
-			if dmg and !in_instant_trap:
-				take_damage(dmg)
-				in_instant_trap = true
-			if !dmg:
-				in_instant_trap = false
-			#Ongoing trap
-			if tile_data.get_custom_data("trap_ongoing"):
-				current_dmg_time += _delta
-				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
-					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
-					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
-			else:
-				current_dmg_time = 0
-		else:
-			current_dmg_time = 0
-			in_instant_trap = false
-	else:
-		current_dmg_time = 0
-		in_instant_trap = false
+	check_traps(_delta)
 	#Cat input detection
 	input_direction = Vector2(
 		Input.get_action_strength("right_" + input_device) - Input.get_action_strength("left_" + input_device),
@@ -214,21 +190,38 @@ func die(death : bool , insta_die : bool = false) -> bool:
 	return true
 
 func adjust_cooldowns(time_elapsed : float):
-	if is_purple:
-		if cooldowns[0] > 0:
-			cooldowns[0] -= time_elapsed
-	else:
-		if cooldowns[1] > 0:
-			cooldowns[1] -= time_elapsed
+	if cooldowns[is_purple as int] > 0:
+		cooldowns[is_purple as int] -= time_elapsed
 
 func handle_attack():
-	if(is_purple):
-		if cooldowns[0] <= 0:
-			await get_tree().create_timer(attacks[0].start_lag).timeout
-			request_attack(attacks[0])
-			cooldowns[0] = attacks[0].cooldown
+	if cooldowns[is_purple as int] <= 0:
+		await get_tree().create_timer(attacks[is_purple as int].start_lag).timeout
+		request_attack(attacks[is_purple as int])
+		cooldowns[is_purple as int] = attacks[is_purple as int].cooldown
+
+func check_traps(delta):
+	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
+	if tile_pos in get_parent().trap_cells:
+		var tile_data = get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+		if tile_data:
+			var dmg = tile_data.get_custom_data("trap_instant")
+			#Instant trap
+			if dmg and !in_instant_trap:
+				take_damage(dmg)
+				in_instant_trap = true
+			if !dmg:
+				in_instant_trap = false
+			#Ongoing trap
+			if tile_data.get_custom_data("trap_ongoing"):
+				current_dmg_time += delta
+				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
+					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+			else:
+				current_dmg_time = 0
+		else:
+			current_dmg_time = 0
+			in_instant_trap = false
 	else:
-		if cooldowns[1] <= 0:
-			await get_tree().create_timer(attacks[1].start_lag).timeout
-			request_attack(attacks[1])
-			cooldowns[1] = attacks[1].cooldown
+		current_dmg_time = 0
+		in_instant_trap = false
