@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://ccwiql3bybf2p"]
+[gd_scene load_steps=27 format=3 uid="uid://ccwiql3bybf2p"]
 
 [ext_resource type="Script" uid="uid://ddvtpbrhc2iw1" path="res://Scripts/pathway.gd" id="1_0mqoo"]
 [ext_resource type="Texture2D" uid="uid://dyg7thp4m8so5" path="res://art/base_icon.png" id="2_dp20r"]
@@ -16,12 +16,12 @@ shader = ExtResource("2_x3etk")
 shader_parameter/u_time = 0.0
 shader_parameter/base_color = Color(1, 1, 1, 1)
 
-[sub_resource type="Gradient" id="Gradient_x3etk"]
+[sub_resource type="Gradient" id="Gradient_rjdqg"]
 offsets = PackedFloat32Array(0.2647059, 0.5392157, 1)
 colors = PackedColorArray(0.88733417, 0.64631766, 0.35203508, 1, 0.7655881, 0.4938748, 0, 0.81960785, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_rjdqg"]
-gradient = SubResource("Gradient_x3etk")
+gradient = SubResource("Gradient_rjdqg")
 
 [sub_resource type="Curve" id="Curve_hgkmx"]
 _data = [Vector2(0, 0.28089893), 0.0, 5.0165224, 0, 0, Vector2(0.13043478, 0.9550562), 0.0, 0.0, 0, 0, Vector2(0.9826088, 0), 0.0, 0.0, 0, 0]
@@ -50,11 +50,18 @@ scale_max = 2.0
 scale_curve = SubResource("CurveTexture_5ec6i")
 color_ramp = SubResource("GradientTexture1D_rjdqg")
 
+[sub_resource type="Gradient" id="Gradient_x3etk"]
+offsets = PackedFloat32Array(0.2647059, 0.5392157, 1)
+colors = PackedColorArray(0.88733417, 0.64631766, 0.35203508, 1, 0.7655881, 0.4938748, 0, 0.81960785, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_hgkmx"]
+gradient = SubResource("Gradient_x3etk")
+
 [sub_resource type="Curve" id="Curve_f0d0v"]
 _data = [Vector2(0.0043478236, 0), 0.0, 12.662923, 0, 0, Vector2(0.26521742, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
 point_count = 3
 
-[sub_resource type="CurveTexture" id="CurveTexture_ccisr"]
+[sub_resource type="CurveTexture" id="CurveTexture_1vvwv"]
 curve = SubResource("Curve_f0d0v")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_bamh0"]
@@ -75,8 +82,8 @@ tangential_accel_min = -50.0
 tangential_accel_max = -50.0
 scale_min = 0.099999994
 scale_max = 0.29999998
-scale_curve = SubResource("CurveTexture_ccisr")
-color_ramp = SubResource("GradientTexture1D_rjdqg")
+scale_curve = SubResource("CurveTexture_1vvwv")
+color_ramp = SubResource("GradientTexture1D_hgkmx")
 
 [sub_resource type="Gradient" id="Gradient_hgkmx"]
 offsets = PackedFloat32Array(0.2647059, 0.5392157, 1)
@@ -84,6 +91,13 @@ colors = PackedColorArray(0.94686705, 0.4836762, 0.99999994, 1, 0.87058824, 0, 0
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_5ec6i"]
 gradient = SubResource("Gradient_hgkmx")
+
+[sub_resource type="Curve" id="Curve_ccisr"]
+_data = [Vector2(0.0043478236, 0), 0.0, 12.662923, 0, 0, Vector2(0.26521742, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ccisr"]
+curve = SubResource("Curve_ccisr")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_1vvwv"]
 particle_flag_disable_z = true

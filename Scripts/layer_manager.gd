@@ -7,6 +7,8 @@ var player
 var player_2
 ###
 
+@onready var player_1_remnants: Array[Resource] = []
+@onready var player_2_remnants: Array[Resource] = []
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
@@ -43,13 +45,13 @@ var time_passed := 0.0
 	0,#Time spent in last room
 	0,#Time spent in game
 	0,#Time spent in combat
-	0,#Damage dealt   				#TODO
+	0,#Damage dealt
 	0,#Attacks made
-	0,#Enemies defeated   			#TODO
+	0,#Enemies defeated
 	0,#Shops visited
 	0,#Liquid rooms visited
 	0,#Trap rooms visited
-	0,#Damage taken   				#TODO
+	0,#Damage taken
 	0,#Elite enemies defeated   	#TODO
 	0,#Currency collected   		#TODO
 	0,#Items picked up   			#TODO
@@ -75,22 +77,27 @@ func _ready() -> void:
 		#Temp Multiplayer Fix
 		player = player1
 		player_2 = player2
+		player_2.attack_requested.connect(_on_player_attack)
+		player_2.player_took_damage.connect(_on_player_take_damage)
 	else:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
 		player1.input_device = "key"
 		add_child(player1)
 		player = player1
+	player.attack_requested.connect(_on_player_attack)
+	player.player_took_damage.connect(_on_player_take_damage)
 	
 	add_child(pathfinding)
 	preload_rooms()
-	player.attack_requested.connect(_on_player_attack)
 	randomize()
 	choose_room()
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
 		player_2.global_position =  generated_room_entrance[room_instance.name]
+		player_2.global_position += Vector2(16,0)
+		player.global_position -= Vector2(16,0)
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
 	place_enemy_spawners(room_instance, room_instance_data,conflict_cells)
@@ -113,6 +120,7 @@ func _process(delta: float) -> void:
 	#Pathway Travel Check
 	#Temp Multiplayer Fix (It only gets activate from keyboard player)
 	if Input.is_action_just_pressed("activate_key") and room_instance:
+		check_remnant_orb(room_instance, room_instance_data)
 		var direction = check_pathways(room_instance, room_instance_data)
 		if direction != -1:
 			create_new_rooms()
@@ -138,13 +146,7 @@ func _process(delta: float) -> void:
 		_process_terrain_batch()
 				
 		
-	if Input.is_action_just_pressed("get_remnant") and room_instance and !remnant_offer_popup:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		var offer_scene = load("res://ui/remnant_offer.tscn")
-		remnant_offer_popup = offer_scene.instantiate()
-		$CanvasLayer.add_child(remnant_offer_popup)
-		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer()
+
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -173,8 +175,6 @@ func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> voi
 	layer_ai[3] = time_passed
 	if generated_room_data.has_shop:
 		layer_ai[8] += 1
-	else:
-		layer_ai[4] += layer_ai[2]   #Change to actually only check time when enemies were active   TODO
 	if generated_room_data.num_liquid > 0:
 		var liquid_num = 0
 		var liquid_type : String
@@ -338,6 +338,7 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room, c
 		if if_node_exists("Enemy"+str(enemy_num),generated_room):
 			var enemy = load("res://Scenes/Characters/dynamEnemy.tscn").instantiate()
 			enemy.position = generated_room.get_node("Enemy"+str(enemy_num)).position
+			enemy.enemy_took_damage.connect(_on_enemy_take_damage)
 			generated_room.get_node("Enemy"+str(enemy_num)).queue_free()
 			generated_room.add_child(enemy)
 			
@@ -437,6 +438,26 @@ func preload_rooms() -> void:
 		if not cached_scenes.has(room_data_item.scene_location):
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
+
+func check_remnant_orb(generated_room : Node2D, _generated_room_data : Room) -> void:
+	if(!if_node_exists("RemnantOrb",generated_room)):
+		return
+	var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
+	if remnant_orb.overlaps_body(player):
+		_open_remnant_popup()
+	if is_multiplayer and remnant_orb.overlaps_body(player_2):
+		_open_remnant_popup()
+
+func room_reward() -> void: #Change to have other rewards #TODO
+	var reward_location
+	if is_multiplayer:
+		reward_location = _find_2x2_open_area([player.global_position,player_2.global_position],20)
+	else:
+		reward_location = _find_2x2_open_area([player.global_position],20)
+		
+	var reward = load("res://ui/remnant_orb.tscn").instantiate()
+	reward.position = reward_location
+	room_instance.add_child(reward)
 
 #Thread functions
 
@@ -557,6 +578,52 @@ func _process_terrain_batch() -> void:
 
 #Helper Functions
 
+func _open_remnant_popup() -> void:
+	if room_instance and !remnant_offer_popup:
+		room_instance.get_node("RemnantOrb").queue_free()
+		var offer_scene = load("res://ui/remnant_offer.tscn")
+		remnant_offer_popup = offer_scene.instantiate()
+		$CanvasLayer.add_child(remnant_offer_popup)
+		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
+		remnant_offer_popup.popup_offer(is_multiplayer)
+		player.get_node("Crosshair").visible = false
+		if is_multiplayer:
+			player_2.get_node("Crosshair").visible = false
+
+func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2:
+	var candidates := []
+	#Combine all blocked and unsafe cells
+	var unsafe_cells := blocked_cells.duplicate()
+	unsafe_cells.append_array(water_cells)
+	unsafe_cells.append_array(lava_cells)
+	unsafe_cells.append_array(acid_cells)
+	unsafe_cells.append_array(trap_cells)
+
+	#Generate candidate 2x2 positions around each player
+	for player_pos in player_positions:
+		for dx in range(-max_distance, max_distance):
+			for dy in range(-max_distance, max_distance):
+				var candidate = player_pos + Vector2(dx, dy)
+				#Check the 2x2 area is free
+				var all_free = true
+				for x in range(2):
+					for y in range(2):
+						for player_position in player_positions:
+							if (candidate + Vector2(x, y)) == position:
+								break
+						if unsafe_cells.has(candidate + Vector2(x, y)):
+							all_free = false
+							break
+					if not all_free:
+						break
+				if all_free:
+					candidates.append(candidate)
+
+	if candidates.size()==0:
+		return Vector2.ZERO
+	#Pick a random candidate
+	return candidates[randi() % candidates.size()]
+
 func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int) -> void:
 	var cells = generated_room.get_node("Trap"+str(trap_num)).get_used_cells()
 	var type = generated_room_data.trap_types[trap_num-1]
@@ -566,8 +633,7 @@ func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int)
 				var spike = load("res://Scenes/Objects/spike_trap.tscn").instantiate()
 				spike.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
 				generated_room.add_child(spike)
-				
-				
+
 func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 	for trap_num in range(1,room_instance_data.num_trap+1):
 		if if_node_exists(("Trap"+str(trap_num)), room_instance):
@@ -728,11 +794,27 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 			
 func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
+	
+func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node) -> void:
+	layer_ai[11]+=damage_amount
+	
+func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> void:
+	layer_ai[5]+=damage
+	if current_health <= 0:
+		layer_ai[7]+=1
+		for child in room_instance.get_children():
+			if child is DynamEnemy and child != enemy:
+				return
+		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
+		room_reward()
 
-func _on_remnant_chosen(remnant : Resource):
-	player.add_remnant(remnant)
+func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
+	player_1_remnants.append(remnant1)
+	player_1_remnants.append(remnant2)
 	remnant_offer_popup.queue_free()
-	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	player.get_node("Crosshair").visible = true
+	if is_multiplayer:
+		player_2.get_node("Crosshair").visible = true
 	
 
 func _debug_message(msg : String) -> void:

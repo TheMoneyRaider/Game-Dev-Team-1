@@ -1,8 +1,8 @@
+class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
 var current_health: int = 10 
-
 const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
 
@@ -11,6 +11,7 @@ var bad_bolt = preload("res://Scripts/Attacks/bad_bolt.gd")
 var attacks = [attack.create_from_resource("res://Scenes/Attacks/bad_bolt.tscn", bad_bolt)]
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
 
+signal enemy_took_damage(damage : int,current_health : int,c_node : Node)
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
 	var attack_position = attack_direction * 20 + global_position
@@ -46,6 +47,7 @@ func die():
 
 func take_damage(damage : int):
 	current_health = current_health - damage
+	emit_signal("enemy_took_damage",damage,current_health,self)
 	if current_health <= 0:
 		die()
 		

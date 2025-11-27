@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://duwpjadni8bdh"]
+
+[ext_resource type="Script" uid="uid://5fyl0sxojl7r" path="res://Scripts/crosshair_menu.gd" id="1_ho8jn"]
+[ext_resource type="Texture2D" uid="uid://ctv7cis0jidca" path="res://art/purple_crosshair.png" id="2_d2nwm"]
+
+[node name="Crosshair" type="Node2D"]
+z_index = 5
+texture_filter = 1
+script = ExtResource("1_ho8jn")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(4, 4)
+texture = ExtResource("2_d2nwm")
+offset = Vector2(0.5, -0.5)

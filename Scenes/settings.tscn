@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bfmw81k3isc75"]
 
-[ext_resource type="Script" uid="uid://jhehuw17cbi0" path="res://Scenes/settings.gd" id="1_4geyq"]
+[ext_resource type="Script" uid="uid://jhehuw17cbi0" path="res://Scripts/settings.gd" id="1_4geyq"]
 
 [node name="Settings" type="Node2D"]
 

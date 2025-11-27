@@ -44,7 +44,7 @@ func outline_remnant(child: Node, color: Color = Color.ORANGE):
 
 func _on_button_pressed():
 	emit_signal("slot_selected", index)
-	outline_remnant($btn_select/TextureRect, Color.PURPLE)
+	#outline_remnant($btn_select/TextureRect, Color.PURPLE)
 	
 func _num_to_roman(input : int) -> String:
 	match input:
@@ -60,13 +60,13 @@ func _num_to_roman(input : int) -> String:
 			return "V"
 	return "error"
 
-func _update_description(remnant : Resource, desc_label : Label, rank : int) -> void:
+func _update_description(remnant : Resource, desc_label_up : Label, rank : int) -> void:
 	if len(remnant.variable_names) >= 1:
-		desc_label.text = desc_label.text.replace(remnant.variable_names[0],str(remnant.variable_1_values[rank-1]))
+		desc_label_up.text = desc_label.text.replace(remnant.variable_names[0],str(remnant.variable_1_values[rank-1]))
 	if len(remnant.variable_names) >= 2:
-		desc_label.text = desc_label.text.replace(remnant.variable_names[1],str(remnant.variable_2_values[rank-1]))
+		desc_label_up.text = desc_label.text.replace(remnant.variable_names[1],str(remnant.variable_2_values[rank-1]))
 	if len(remnant.variable_names) >= 3:
-		desc_label.text = desc_label.text.replace(remnant.variable_names[2],str(remnant.variable_3_values[rank-1]))
+		desc_label_up.text = desc_label.text.replace(remnant.variable_names[2],str(remnant.variable_3_values[rank-1]))
 	if len(remnant.variable_names) >= 4:
-		desc_label.text = desc_label.text.replace(remnant.variable_names[3],str(remnant.variable_4_values[rank-1]))
+		desc_label_up.text = desc_label.text.replace(remnant.variable_names[3],str(remnant.variable_4_values[rank-1]))
 		

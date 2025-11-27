@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dfus7yvwe8o0w"]
 
-[ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Scenes/main_menu.gd" id="1_28flt"]
+[ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Scripts/main_menu.gd" id="1_28flt"]
 
 [node name="MainMenu" type="Node2D"]
 
