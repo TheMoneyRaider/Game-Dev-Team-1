@@ -118,7 +118,7 @@ func request_attack(t_attack : Attack):
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
 
-func take_damage(damage_amount : int):
+func take_damage(damage_amount : int, direction = Vector2(0,-1)):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):

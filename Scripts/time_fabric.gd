@@ -49,7 +49,6 @@ func _process(delta: float) -> void:
 	#Stop vertical movement only if below floor and not inside wall
 	if position.y >= y_floor and not inside_wall and velocity.y > 0.0:
 		grounded = true
-		position.y = y_floor
 		velocity = Vector2(0,0)
 	
 func set_velocity(velocity_in : Vector2):

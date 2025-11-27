@@ -829,8 +829,6 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
-	
-	
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():
@@ -908,10 +906,10 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
 	
-func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node) -> void:
+func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[11]+=damage_amount
 	
-func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node) -> void:
+func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
 		_enemy_to_timefabric(enemy)

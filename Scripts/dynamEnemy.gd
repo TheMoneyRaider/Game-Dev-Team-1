@@ -43,7 +43,7 @@ func move(target_pos: Vector2, _delta: float):
 func _process(_delta):
 	queue_redraw()
 
-func take_damage(damage : int):
+func take_damage(damage : int, direction = Vector2(0,-1)):
 	current_health = current_health - damage
 	emit_signal("enemy_took_damage",damage,current_health,self)
 		
