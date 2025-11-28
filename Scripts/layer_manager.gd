@@ -585,7 +585,7 @@ func _setup_players() -> void:
 	player.player_took_damage.connect(_on_player_take_damage)
 	player.activate.connect(_on_activate)
 
-func _enemy_to_timefabric(enemy : Node) -> void:
+func _enemy_to_timefabric(enemy : Node,direction : Vector2) -> void:
 	var sprite = enemy.get_node("Sprite2D")
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
 	var return_values : Array = _load_enemy_image(enemy)
@@ -621,16 +621,15 @@ func _enemy_to_timefabric(enemy : Node) -> void:
 			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
 				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
 	for fabric in timefabrics_to_place:
-		_place_timefabric(fabric[0],fabric[1],current_position)
+		_place_timefabric(fabric[0],fabric[1],current_position,direction)
 
-func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vector2) -> void:
+func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vector2, direction : Vector2) -> void:
 	var timefabric_instance = timefabric.instantiate()
 	room_instance.add_child(timefabric_instance)
 	timefabric_instance.get_node("Sprite2D").frame = time_idx
 	timefabric_instance.global_position = current_position + Vector2(offset) +Vector2(8,8)
 	timefabric_instance.set_arrays(self, room_instance.get_node("Walls").get_used_cells())
-	timefabric_instance.set_velocity(Vector2(randf_range(-50,50),randf_range(-150,-50)))
-	timefabric_instance.set_floor(current_position.y +offset.y+randf_range(-40,40))
+	timefabric_instance.set_direction(direction)
 	timefabric_instance.set_process(true)
 	timefabric_instance.absorbed_by_player.connect(_on_timefabric_absorbed)
 	return
@@ -906,13 +905,13 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
 	layer_ai[6]+=1
 	
-func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node, direction = Vector2(0,-1)) -> void:
+func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node) -> void:
 	layer_ai[11]+=damage_amount
 	
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
-		_enemy_to_timefabric(enemy)
+		_enemy_to_timefabric(enemy,direction)
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1

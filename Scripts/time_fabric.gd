@@ -6,8 +6,10 @@ extends Node2D
 @onready var trap_cells := []
 @onready var blocked_cells := []
 @onready var wall_cells := []
-@onready var y_floor = 0.0
-@onready var velocity : Vector2 = Vector2(0.0,0.0)
+@onready var z_floor = 0.0
+@onready var velocity : Vector3 = Vector3(0.0,0.0,0.0)
+@onready var position_z : = 0.0
+@onready var z_ratio = .66
 
 @onready var sprite := $Sprite2D  # Your visual node
 var time_passed := 0.0
@@ -33,29 +35,44 @@ func _process(delta: float) -> void:
 	if grounded:
 		sprite.offset.y += sin(time_passed * bob_speed) * bob_amplitude
 		move_towards_player()
-		position += velocity * delta
+		position += Vector2(velocity.x, velocity.y) * delta
 		return
 		
 	# Apply gravity
 	velocity.y += gravity * delta
+	velocity.z += gravity * delta
 	
 	#Apply velocity
-	position += velocity * delta
+	position += Vector2(velocity.x, velocity.y) * delta
+	position_z += velocity.z * delta
+	
 
 	#Check if inside any wall cell
 	var current_cell := Vector2i(floor(position.x / 16), floor(position.y / 16))
 	var inside_wall := current_cell in wall_cells
 
 	#Stop vertical movement only if below floor and not inside wall
-	if position.y >= y_floor and not inside_wall and velocity.y > 0.0:
+	if position_z >= 0 and not inside_wall and velocity.y > 0.0:
 		grounded = true
-		velocity = Vector2(0,0)
+		velocity = Vector3(0,0,0)
 	
-func set_velocity(velocity_in : Vector2):
-	velocity = velocity_in
+func set_direction(direction : Vector2):
+	#velocity = Vector2(randf_range(-50,50),randf_range(-150,-50))
+	var base_dir = direction.normalized()
+	#Random directional deviation
+	var max_angle = deg_to_rad(20.0)  #20° cone of variation
+	var angle_offset = randf_range(-max_angle, max_angle)
+	var deviated_dir = base_dir.rotated(angle_offset)
 
-func set_floor(new_floor : float) -> void:
-	y_floor = new_floor
+	#Random length, biased toward original ---
+	var orig_len = 100
+	#Random factor, but biased toward 1.0 by averaging with 1.
+	var random_scale = lerp(1.0, randf_range(0.5, 1.5), 0.4)
+	var final_len = orig_len * random_scale
+	var z = -randf_range(.25, 1.0)
+	velocity = Vector3(deviated_dir.x * final_len, deviated_dir.y * final_len-60, z * final_len)
+	print(velocity)
+
 
 func move_towards_player():
 	var layer_manager = get_parent().get_parent()
@@ -71,7 +88,8 @@ func check_player(player : Node):
 	var distance = dir.length()
 	var attraction_radius = 60.0
 	if distance < attraction_radius:
-		velocity = dir.normalized() * (100.0 + (attraction_radius - distance) * 5.0)
+		var new_vel = dir.normalized() * (100.0 + (attraction_radius - distance) * 5.0)
+		velocity = Vector3(new_vel.x,new_vel.y,0)
 	if distance < 5:
 		emit_signal("absorbed_by_player",self)
 	
