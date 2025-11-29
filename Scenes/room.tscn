@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx07rfu6un2ia"]
-
-[ext_resource type="TileSet" uid="uid://y4y0bgfgcsnn" path="res://tilesets/limbo.tres" id="1_mbine"]
-
-[node name="Room" type="TileMapLayer"]
-tile_set = ExtResource("1_mbine")

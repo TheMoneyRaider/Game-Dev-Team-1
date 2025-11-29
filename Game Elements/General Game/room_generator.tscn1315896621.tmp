@@ -1,0 +1,93 @@
+[gd_scene load_steps=7 format=3 uid="uid://cxuhym1b6tr5m"]
+
+[ext_resource type="Script" uid="uid://p50tq7d2kul6" path="res://Levels/room_generator.gd" id="1_a7321"]
+[ext_resource type="Script" uid="uid://jjix7hqp7jpi" path="res://Levels/canvas_layer.gd" id="3_a7321"]
+[ext_resource type="PackedScene" uid="uid://bgysbj2623d8d" path="res://Characters/player_cat.tscn" id="3_fuk2s"]
+
+[sub_resource type="Gradient" id="Gradient_a7321"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fuk2s"]
+gradient = SubResource("Gradient_a7321")
+
+[sub_resource type="LabelSettings" id="LabelSettings_n3dhm"]
+
+[node name="Room_generator" type="Node2D"]
+script = ExtResource("1_a7321")
+_walkers = 100
+_path_min = 5
+_path_max = 15
+
+[node name="Player" parent="." instance=ExtResource("3_fuk2s")]
+z_index = 1
+position = Vector2(8, 0)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+z_index = 10
+position_smoothing_enabled = true
+editor_draw_screen = false
+editor_draw_limits = true
+editor_draw_drag_margin = true
+
+[node name="PositionDisplay" type="RichTextLabel" parent="Player"]
+unique_name_in_owner = true
+offset_left = -188.0
+offset_top = -105.0
+offset_right = -23.0
+offset_bottom = -23.0
+bbcode_enabled = true
+text = "X: Y:"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Player"]
+script = ExtResource("3_a7321")
+
+[node name="Control" type="Control" parent="Player/CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -184.0
+offset_top = -108.0
+offset_right = -184.0
+offset_bottom = -108.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.199999, 0.199999)
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect" type="TextureRect" parent="Player/CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -179.996
+offset_top = 145.004
+offset_right = -139.996
+offset_bottom = 185.004
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture1D_fuk2s")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="Player/CanvasLayer/Control"]
+layout_mode = 0
+offset_left = -7.62939e-05
+offset_top = 730.004
+offset_right = 51.9999
+offset_bottom = 753.004
+scale = Vector2(12.3766, 10.7315)
+text = "Health"
+label_settings = SubResource("LabelSettings_n3dhm")
+
+[node name="ProgressBar" type="ProgressBar" parent="Player/CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -80.0
+offset_right = 900.0
+grow_vertical = 0
+step = 1.0
