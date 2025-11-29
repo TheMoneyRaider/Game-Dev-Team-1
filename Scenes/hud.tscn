@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="3_6fbih"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_t1xeu"]
-font_size = 70
+font_size = 35
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bjfho"]
 bg_color = Color(0.38210395, 0.030576311, 0.5883771, 1)
@@ -33,10 +33,6 @@ scale = Vector2(0.5, 0.5)
 transform = Transform2D(0.5, 0, 0, 0.5, 0, 0)
 script = ExtResource("1_6fbih")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
-
 [node name="RootControl" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -56,6 +52,7 @@ grow_horizontal = 2
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 1.0
+columns = 16
 
 [node name="RightRemnants" type="GridContainer" parent="RootControl/RemnantIcons"]
 layout_mode = 1
@@ -64,15 +61,16 @@ anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 0
+columns = 16
 
 [node name="TimeFabric" type="Control" parent="RootControl"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -194.5
-offset_right = 194.5
-offset_bottom = 200.0
+offset_left = -58.0
+offset_right = 58.0
+offset_bottom = 100.0
 grow_horizontal = 2
 script = ExtResource("2_bjfho")
 spritesheet = ExtResource("3_6fbih")
@@ -87,12 +85,13 @@ grow_vertical = 2
 size_flags_vertical = 8
 
 [node name="TextureRect" type="TextureRect" parent="RootControl/TimeFabric/HBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
+custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 texture = ExtResource("3_6fbih")
 
 [node name="Label" type="Label" parent="RootControl/TimeFabric/HBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "Num:"
 label_settings = SubResource("LabelSettings_t1xeu")
 
@@ -101,8 +100,8 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -75.0
-offset_right = 518.0
+offset_top = -37.0
+offset_right = 259.0
 grow_vertical = 0
 theme = SubResource("Theme_6fbih")
 script = ExtResource("1_e0onf")
@@ -110,8 +109,8 @@ is_purple = true
 
 [node name="ProgressBar" type="ProgressBar" parent="RootControl/HealthBar1"]
 layout_mode = 1
-offset_right = 352.0
-offset_bottom = 73.0
+offset_right = 175.0
+offset_bottom = 37.0
 max_value = 10.0
 value = 10.0
 show_percentage = false
@@ -121,10 +120,10 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -160.0
-offset_right = 72.0
-offset_bottom = 75.0
+offset_left = -83.0
+offset_bottom = 37.0
 grow_horizontal = 0
+theme_override_font_sizes/font_size = 20
 text = "5/10 HP"
 
 [node name="HealthBar2" type="Control" parent="RootControl"]
@@ -134,8 +133,8 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -518.0
-offset_top = -75.0
+offset_left = -259.0
+offset_top = -37.0
 grow_horizontal = 0
 grow_vertical = 0
 theme = SubResource("Theme_t1xeu")
@@ -146,8 +145,8 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -352.0
-offset_bottom = 73.0
+offset_left = -175.0
+offset_bottom = 37.0
 grow_horizontal = 0
 max_value = 10.0
 value = 10.0
@@ -155,8 +154,8 @@ show_percentage = false
 
 [node name="Label" type="Label" parent="RootControl/HealthBar2"]
 layout_mode = 1
-offset_left = -136.0
-offset_right = 160.0
-offset_bottom = 75.0
+offset_right = 79.0
+offset_bottom = 37.0
+theme_override_font_sizes/font_size = 20
 text = "5/10 HP"
 horizontal_alignment = 2

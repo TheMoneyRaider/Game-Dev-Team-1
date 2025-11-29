@@ -922,7 +922,7 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 
 func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player_1_remnants.append(remnant1)
-	player_1_remnants.append(remnant2)
+	player_2_remnants.append(remnant2)
 	remnant_offer_popup.queue_free()
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:

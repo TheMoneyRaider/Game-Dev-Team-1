@@ -12,40 +12,27 @@ extends Control
 
 var frames : Array[Texture2D] = []
 var current_frame := 0
-var next_frame := 0
+var next_frame := 1
 var anim_time := 0.0
 
 func _ready() -> void:
 	_slice_frames()
-	_randomize_next_frame()
 
 func _process(delta: float) -> void:
 	if frames.is_empty():
 		return
 
+	var prev_frame_index := int(anim_time)
 	anim_time += delta * fps
+	var new_frame_index := int(anim_time)
 
-	#fractional part drives smear
+	if new_frame_index != prev_frame_index:
+		current_frame = next_frame
+		next_frame = (next_frame + 1) % frame_count
+
 	var t := anim_time - int(anim_time)
 	var smear_t := pow(t, smear_strength)
-
-	#blend current-> random next
 	icon.texture = _blend_textures(frames[current_frame], frames[next_frame], smear_t)
-
-	#once we finish smearing toward next_frame... pick another
-	if t < 0.02: # right when anim_time crosses integer
-		current_frame = next_frame
-		_randomize_next_frame()
-
-func _randomize_next_frame():
-	if frame_count <= 1:
-		next_frame = current_frame
-		return
-
-	var new_frame := current_frame
-	while new_frame == current_frame:
-		new_frame = randi() % frame_count
-	next_frame = new_frame
 
 
 func _slice_frames() -> void:

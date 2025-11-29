@@ -14,6 +14,8 @@ signal remnant_chosen(remnant: Resource)
 var offered_remnants: Array[Resource] = []
 var selected_index1: int = -1 #Purple
 var selected_index2: int = -1 #Orange
+var player1_remnants = []
+var player2_remnants = []
 var hover_index : int = 0 #Orange
 @export var is_multiplayer = false
 
@@ -41,12 +43,12 @@ func _process(delta):
 		#If we now have two different selections -> close the menu
 		_close_after_two_chosen()
 
-func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnants : Array, player2_remnants : Array, rank_weights : Array = [50,35,10,5,0]):
+func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnants_in : Array, player2_remnants_in : Array, rank_weights : Array = [50,35,10,5,0]):
+	player1_remnants = player1_remnants_in
+	player2_remnants = player2_remnants_in
 	crosshair_sprite.texture = purple_crosshair
 	is_multiplayer = is_multiplayer_in
-	if is_multiplayer:
-		layer_manager.player_2.activate.connect(_on_activate)
-	else:
+	if !is_multiplayer:
 		hover_index = -1
 	#query the pool for 4 random remnants(2 from each player)
 	offered_remnants = RemnantManager.get_random_remnants(4,player1_remnants, player2_remnants)
@@ -63,8 +65,14 @@ func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnant
 	#Fade in
 	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
 
-func _on_activate(_player_node : Node):
-	selected_index2 = hover_index
+
+func _check_if_remnant_viable(remnant : Resource, remnant_array : Array):
+	var names = []
+	for r in remnant_array:
+		names.append(r.remnant_name)
+	if remnant.remnant_name not in names:
+		return true
+	return false
 
 func _unhandled_input(event):
 	if not visible:
@@ -84,22 +92,25 @@ func _handle_multiplayer_input(event):
 		hover_index = min(offered_remnants.size() - 1, hover_index + 1)
 		nav_timer = nav_cooldown
 	if Input.is_action_just_pressed("activate_0"):
-		selected_index2 = hover_index
+		if _check_if_remnant_viable(offered_remnants[hover_index], player2_remnants) and hover_index != selected_index2:
+			selected_index2 = hover_index
 
 
 
 func _on_slot_selected(idx: int) -> void:
 	if is_multiplayer:
-		#Purple select
-		selected_index1 = idx
+		if _check_if_remnant_viable(offered_remnants[idx], player1_remnants) and idx != selected_index2:
+			#Purple select
+			selected_index1 = idx
 	else:
 		#Purple select
 		if selected_index1 == -1:
-			selected_index1 = idx
-			crosshair_sprite.texture = orange_crosshair
+			if _check_if_remnant_viable(offered_remnants[idx], player1_remnants):
+				selected_index1 = idx
+				crosshair_sprite.texture = orange_crosshair
 			return
 		#Orange Select
-		if selected_index2 == -1 and idx != selected_index1:
+		if selected_index2 == -1 and idx != selected_index1 and _check_if_remnant_viable(offered_remnants[idx], player2_remnants):
 			selected_index2 = idx
 			#If we now have two different selections -> close the menu
 			_close_after_two_chosen()
