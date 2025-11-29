@@ -15,7 +15,7 @@ func _ready():
 	randomize()
 	btn_select.pressed.connect(_on_button_pressed)
 
-func set_remnant(remnant: Resource) -> void:
+func set_remnant(remnant: Resource,rank_weights : Array) -> void:
 	if remnant == null:
 		art.texture = null
 		name_label.text = "—"
@@ -27,18 +27,19 @@ func set_remnant(remnant: Resource) -> void:
 		art.texture = remnant.art
 	else:
 		art.texture = null
-	var rank : int = (randi() % 5)+1
+	var rank = weighted_random_index(rank_weights)
 	rank_label.text = "Rank " + _num_to_roman(rank)
 	
 	_update_description(remnant, desc_label, rank)
 
-func outline_remnant(child: Node, color: Color = Color.ORANGE):
+func outline_remnant(child: Node, color: Color = Color.ORANGE, alpha : float = 0.0):
 	var shader = Shader.new()
 	shader.code = load("res://Shaders/outline.gdshader").code
 	var mat = ShaderMaterial.new()
 	mat.shader = shader
 	mat.set_shader_parameter("outline_color", color)
 	mat.set_shader_parameter("outline_thickness", 5.0)
+	mat.set_shader_parameter("outline_opacity", alpha)
 	child.material = mat
 
 
@@ -69,4 +70,18 @@ func _update_description(remnant : Resource, desc_label_up : Label, rank : int) 
 		desc_label_up.text = desc_label.text.replace(remnant.variable_names[2],str(remnant.variable_3_values[rank-1]))
 	if len(remnant.variable_names) >= 4:
 		desc_label_up.text = desc_label.text.replace(remnant.variable_names[3],str(remnant.variable_4_values[rank-1]))
-		
+
+
+func weighted_random_index(weights: Array) -> int:
+	var total = 0
+	for w in weights:
+		total += w
+	var r = randf() * total
+	var cumulative = 0.0
+
+	for i in range(weights.size()):
+		cumulative += weights[i]
+		if r < cumulative:
+			return i+1
+
+	return weights.size()

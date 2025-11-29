@@ -2,6 +2,7 @@ shader_type canvas_item;
 
 uniform vec4 outline_color = vec4(1.0, 1.0, 0.0, 1.0);
 uniform float outline_thickness : hint_range(1.0, 5.0) = 2.0;
+uniform float outline_opacity : hint_range(0.0, 1.0) = 1.0;
 
 void fragment() {
     vec4 tex_color = texture(TEXTURE, UV);
@@ -18,8 +19,11 @@ void fragment() {
 	        }
 	    }
 
+	    //draw outline if outline pixel
 	    if (alpha > 0.0) {
-	        COLOR = outline_color;
+	        vec4 oc = outline_color;
+	        oc.a *= outline_opacity;
+	        COLOR = oc;
 	    }
 	}
 }

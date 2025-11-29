@@ -23,7 +23,7 @@ func _on_body_entered(body):
 			return
 		elif body.has_method("take_damage"):
 			print("hit enemy?")
-			body.take_damage(damage)
+			body.take_damage(damage,direction)
 		else:
 			print("hit!")
 	else:
@@ -31,7 +31,7 @@ func _on_body_entered(body):
 			return
 		elif body.has_method("take_damage"):
 			print("hit enemy")
-			body.take_damage(damage)
+			body.take_damage(damage,direction)
 		else:
 			print("hit!")
 	queue_free()

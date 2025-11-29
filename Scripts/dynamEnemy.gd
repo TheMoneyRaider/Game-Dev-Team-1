@@ -12,7 +12,7 @@ var bad_bolt = preload("res://Scripts/Attacks/bad_bolt.gd")
 var attacks = [attack.create_from_resource("res://Scenes/Attacks/bad_bolt.tscn", bad_bolt)]
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
 
-signal enemy_took_damage(damage : int,current_health : int,c_node : Node)
+signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
 	var attack_position = attack_direction * 20 + global_position
@@ -43,7 +43,7 @@ func move(target_pos: Vector2, _delta: float):
 func _process(_delta):
 	queue_redraw()
 
-func take_damage(damage : int):
+func take_damage(damage : int, direction = Vector2(0,-1)):
 	current_health = current_health - damage
-	emit_signal("enemy_took_damage",damage,current_health,self)
+	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 		

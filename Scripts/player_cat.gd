@@ -6,6 +6,7 @@ const attack = preload("res://Scripts/attack.gd")
 @export var current_health: float = 10
 @export var current_dmg_time: float = 0.0
 @export var in_instant_trap: bool = false
+@onready var disabled_countdown : int = 0
 
 @export var state_machine : LimboHSM
 
@@ -51,6 +52,8 @@ var is_purple = true
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
+signal swapped_color(player_node : Node)
+signal max_health_changed(new_max_health : int, player_node : Node)
 
 func _ready():
 	_initialize_state_machine()
@@ -99,9 +102,10 @@ func _physics_process(_delta):
 		emit_signal("activate",self)
 	adjust_cooldowns(_delta)
 	#move and slide function
-	if(self.process_mode != PROCESS_MODE_DISABLED):
+	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
 		move_and_slide()
-	
+	if disabled_countdown >= 1:
+		disabled_countdown-=1
 
 func update_animation_parameters(move_input : Vector2):
 	if(move_input != Vector2.ZERO):
@@ -114,7 +118,7 @@ func request_attack(t_attack : Attack):
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
 
-func take_damage(damage_amount : int):
+func take_damage(damage_amount : int, _direction = Vector2(0,-1)):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):
@@ -122,6 +126,7 @@ func take_damage(damage_amount : int):
 			emit_signal("attack_requested",revive, position, Vector2.ZERO)
 	
 func swap_color():
+	emit_signal("swapped_color", self)
 	if(is_purple):
 		is_purple = false
 		sprite.texture = orange_texture
@@ -177,7 +182,7 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			return false
 		if death:
 			max_health = max_health - 2
-			current_health = round(max_health / 2)
+			emit_signal("max_health_changed",max_health,self)
 			self.process_mode = PROCESS_MODE_DISABLED
 			visible = false
 			if(max_health <= 0):
@@ -185,6 +190,8 @@ func die(death : bool , insta_die : bool = false) -> bool:
 				get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 				return false
 		else:
+			current_health = round(max_health / 2)
+			emit_signal("player_took_damage",-round(max_health / 2),current_health,self)
 			self.process_mode = PROCESS_MODE_INHERIT
 			visible = true
 	return true

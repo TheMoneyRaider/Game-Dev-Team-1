@@ -22,23 +22,56 @@ func _load_all_remnants() -> void:
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-#Returns an array of up to `num` unique random remnants from the pool. #TODO update to remove current remnants the player has #TODO add level variance
-func get_random_remnants(num: int = 3) -> Array[Resource]:
-	var n = remnant_pool.size()
-	if n == 0:
-		return []
-	if n <= num:
-		#return a shuffled copy
-		var out = remnant_pool.duplicate()
-		out.shuffle()
-		return out
-	#chose num amount of remnants
-	var indices = []
-	while indices.size() < num:
-		var i = (randi() % n)
-		if i not in indices:
-			indices.append(i)
-	var result : Array[Resource] = []
-	for idx in indices:
-		result.append(remnant_pool[idx])
+#Returns an array of up to `num` unique random remnants from the pool. #TODO update to remove current remnants the player has
+func get_random_remnants(num: int = 4, player1_remnants: Array = [], player2_remnants : Array = []) -> Array[Resource]:
+	var result: Array[Resource] = []
+	if remnant_pool.is_empty():
+		return result
+
+	#Split the count
+	var half := int(num / 2)
+	var extra := num - half * 2
+
+	#Filter pools
+	var pool_for_p1: Array = []
+	var pool_for_p2: Array = []
+
+	#Arrays of remnant names
+	var p1_names: Array = []
+	var p2_names: Array = []
+
+	for r in player1_remnants:
+		p1_names.append(r.remnant_name)
+
+	for r in player2_remnants:
+		p2_names.append(r.remnant_name)
+
+	for rem in remnant_pool:
+		if rem.remnant_name not in p1_names:
+			pool_for_p1.append(rem)
+		if rem.remnant_name not in p2_names:
+			pool_for_p2.append(rem)
+
+	# Pick half from each
+	_pick_random_unique(pool_for_p1, half, result)
+	_pick_random_unique(pool_for_p2, half, result)
+	# If num is odd, pick one more at random from the union without duplicating
+	if extra > 0:
+		var combined := (pool_for_p1 + pool_for_p2).duplicate()
+		combined.shuffle()
+		for rem in combined:
+			if rem not in result:
+				result.append(rem)
+				break
 	return result
+
+func _pick_random_unique(from_pool: Array, amount: int, into: Array):
+	var temp = from_pool.duplicate()
+	temp.shuffle()
+	var am = 0
+	for i in range(temp.size()):
+		if temp[i] not in into:
+			into.append(temp[i])
+			am+=1
+		if am >= amount:
+			break
