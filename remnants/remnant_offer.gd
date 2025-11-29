@@ -40,7 +40,7 @@ func _process(delta):
 		#If we now have two different selections -> close the menu
 		_close_after_two_chosen()
 
-func popup_offer(is_multiplayer_in : bool, layer_manager : Node):
+func popup_offer(is_multiplayer_in : bool, layer_manager : Node, _player1_remannts : Array, _player2_remannts : Array, rank_weights : Array = [50,35,10,5,0]):
 	crosshair_sprite.texture = purple_crosshair
 	is_multiplayer = is_multiplayer_in
 	if is_multiplayer:
@@ -53,13 +53,16 @@ func popup_offer(is_multiplayer_in : bool, layer_manager : Node):
 	selected_index2 = -1
 	#populate UI
 	for i in range(slot_nodes.size()):
-		slot_nodes[i].set_remnant(offered_remnants[i] if i < offered_remnants.size() else null)
+		if i < offered_remnants.size():
+			slot_nodes[i].set_remnant(offered_remnants[i],rank_weights)
+		else:
+			slot_nodes[i].set_remnant(null,rank_weights)
 	visible = true
 	modulate.a = 0.0
 	#Fade in
-	var tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
+	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
 
-func _on_activate(player_node : Node):
+func _on_activate(_player_node : Node):
 	selected_index2 = hover_index
 
 func _unhandled_input(event):

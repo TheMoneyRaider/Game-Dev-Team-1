@@ -689,7 +689,8 @@ func _open_remnant_popup() -> void:
 		remnant_offer_popup = offer_scene.instantiate()
 		hud.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer(is_multiplayer, self)
+		remnant_offer_popup.popup_offer(is_multiplayer, self, player_1_remnants,player_2_remnants, [50,35,10,5,0])
+		
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
