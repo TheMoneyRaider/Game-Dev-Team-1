@@ -428,6 +428,10 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
 			timefabric_rewarded = 1000 #TODO change this
+	if(if_node_exists("UpgradeOrb",generated_room)):
+		var upgrade_orb = generated_room.get_node("UpgradeOrb") as Area2D
+		if upgrade_orb.overlaps_body(player_reference):
+			_open_upgrade_popup()
 	
 
 func room_reward() -> void: #Change to have other rewards based on room #TODO
@@ -437,12 +441,16 @@ func room_reward() -> void: #Change to have other rewards based on room #TODO
 		reward_location = _find_2x2_open_area([player.global_position,player_2.global_position],20)
 	else:
 		reward_location = _find_2x2_open_area([player.global_position],20)
-	# Remnant Orb Rewards
-	#reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-	#reward.position = reward_location
-	#room_instance.call_deferred("add_child",reward)
-	# Timefabric Reward
-	reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+	while reward == null:
+		match (randi()%3):
+			0:# Remnant Orb Reward
+				reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			1:# Timefabric Reward
+				reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+			2:#Upgrade Orb Reward
+				if _upgradable_remnants():
+					reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	room_cleared= true
@@ -565,6 +573,20 @@ func _process_terrain_batch() -> void:
 		)
 
 #Helper Functions
+
+func _upgradable_remnants() -> bool:
+	var count = 0
+	for remnant in player_1_remnants:
+		if remnant.rank != 5:
+			count+=1
+			break
+	for remnant in player_2_remnants:
+		if remnant.rank != 5:
+			count+=1
+			break
+	if count ==2:
+		return true
+	return false
 
 func _setup_players() -> void:
 	var player_scene = load("res://Game Elements/Characters/player_cat.tscn")
@@ -710,12 +732,24 @@ func _open_remnant_popup() -> void:
 		remnant_offer_popup = offer_scene.instantiate()
 		hud.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer(is_multiplayer, self, player_1_remnants,player_2_remnants, [50,35,10,5,0])
+		remnant_offer_popup.popup_offer(is_multiplayer, player_1_remnants,player_2_remnants, [50,35,10,5,0])
 		
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
-			
+
+func _open_upgrade_popup() -> void:
+	if room_instance and !remnant_offer_popup:
+		room_instance.get_node("UpgradeOrb").queue_free()
+		var offer_scene = load("res://Game Elements/ui/remnant_offer.tscn")
+		remnant_offer_popup = offer_scene.instantiate()
+		hud.add_child(remnant_offer_popup)
+		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
+		remnant_offer_popup.popup_offer(is_multiplayer, player_1_remnants,player_2_remnants, [50,35,10,5,0])
+		
+		player.get_node("Crosshair").visible = false
+		if is_multiplayer:
+			player_2.get_node("Crosshair").visible = false
 
 func _remove_timefabric_orb() -> void:
 	room_instance.get_node("TimeFabricOrb").queue_free()

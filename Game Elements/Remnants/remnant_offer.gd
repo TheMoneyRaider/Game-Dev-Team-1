@@ -43,7 +43,7 @@ func _process(delta):
 		#If we now have two different selections -> close the menu
 		_close_after_two_chosen()
 
-func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnants_in : Array, player2_remnants_in : Array, rank_weights : Array = [50,35,10,5,0]):
+func popup_offer(is_multiplayer_in : bool, player1_remnants_in : Array, player2_remnants_in : Array, rank_weights : Array = [50,35,10,5,0]):
 	player1_remnants = player1_remnants_in
 	player2_remnants = player2_remnants_in
 	crosshair_sprite.texture = purple_crosshair

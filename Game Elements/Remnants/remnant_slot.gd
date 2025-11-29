@@ -8,7 +8,7 @@ signal slot_selected(index: int)
 @onready var btn_select: Button = $btn_select
 @onready var art: TextureRect = $btn_select/SubViewport/art
 @onready var name_label: Label = $btn_select/SubViewport/container/name_label
-@onready var desc_label: Label = $btn_select/SubViewport/container/description_label
+@onready var desc_label: RichTextLabel = $btn_select/SubViewport/container/description_label
 @onready var rank_label: Label = $btn_select/SubViewport/container/rank_label
 
 func _ready():
@@ -61,16 +61,24 @@ func _num_to_roman(input : int) -> String:
 			return "V"
 	return "error"
 
-func _update_description(remnant : Resource, desc_label_up : Label, rank : int) -> void:
-	if len(remnant.variable_names) >= 1:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[0],str(remnant.variable_1_values[rank-1]))
-	if len(remnant.variable_names) >= 2:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[1],str(remnant.variable_2_values[rank-1]))
-	if len(remnant.variable_names) >= 3:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[2],str(remnant.variable_3_values[rank-1]))
-	if len(remnant.variable_names) >= 4:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[3],str(remnant.variable_4_values[rank-1]))
+func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: int) -> void:
+	var new_text := desc_label.text
 
+	for i in remnant.variable_names.size():
+		var rem_name : String = remnant.variable_names[i]
+		var value := str(remnant["variable_%d_values" % (i + 1)][rank - 1])
+
+		var colored_value := "[color=white]" + value
+
+		#Color a trailing % sign if present
+		if new_text.find(rem_name + "%") != -1:
+			colored_value += "%[/color]"
+			new_text = new_text.replace(rem_name + "%", colored_value)
+		else:
+			colored_value += "[/color]"
+			new_text = new_text.replace(rem_name, colored_value)
+
+	desc_label_up.text = new_text
 
 func weighted_random_index(weights: Array) -> int:
 	var total = 0

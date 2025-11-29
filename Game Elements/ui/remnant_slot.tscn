@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bsnhxne2rojuk"]
+[gd_scene load_steps=11 format=3 uid="uid://bsnhxne2rojuk"]
 
 [ext_resource type="Script" uid="uid://cnu4t3y0q3ad1" path="res://Game Elements/Remnants/remnant_slot.gd" id="1_blhod"]
 [ext_resource type="Texture2D" uid="uid://buubskqgdc4jf" path="res://art/remnants/hunter.png" id="2_o7i6x"]
@@ -29,12 +29,6 @@ font_size = 20
 font_color = Color(0.9186292, 0.88298976, 0.9554909, 1)
 outline_size = 14
 outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_65u0l"]
-font_size = 30
-font_color = Color(0, 0, 0, 1)
-outline_size = 7
-outline_color = Color(0.36282945, 0.36282945, 0.36282945, 1)
 
 [node name="RemnantSlot" type="Control"]
 custom_minimum_size = Vector2(413, 900)
@@ -99,11 +93,16 @@ label_settings = SubResource("LabelSettings_7cik6")
 autowrap_mode = 2
 uppercase = true
 
-[node name="description_label" type="Label" parent="btn_select/SubViewport/container"]
+[node name="description_label" type="RichTextLabel" parent="btn_select/SubViewport/container"]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
+theme_override_colors/default_color = Color(0, 0.8518738, 0.80920357, 1)
+theme_override_colors/font_outline_color = Color(5.655363e-07, 0.19671893, 0.14139438, 1)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/normal_font_size = 30
+bbcode_enabled = true
 text = "Ranged attacks do X% more damage if there are no enemies within Y meters."
-label_settings = SubResource("LabelSettings_65u0l")
-horizontal_alignment = 1
+fit_content = true
+scroll_active = false
 autowrap_mode = 2
+horizontal_alignment = 1
