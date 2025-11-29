@@ -11,6 +11,7 @@ var player_2 = null
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
+@onready var timefabric_rewarded = 0
 
 @onready var player_1_remnants: Array[Resource] = []
 @onready var player_2_remnants: Array[Resource] = []
@@ -116,6 +117,17 @@ func _process(delta: float) -> void:
 		_process_terrain_batch()
 				
 	hud.set_timefabric_amount(timefabric_collected)
+	
+	if timefabric_rewarded!= 0:
+		for i in range (20):
+			timefabric_rewarded -=1
+			_place_timefabric((randi() %timefabric_sizes.size()),
+			Vector2(-8,-8)+Vector2(randf_range(-6,6),randf_range(-6,6)), 
+			Vector2(room_instance.get_node("TimeFabricOrb").position), 
+			Vector2(0,-1))
+			if timefabric_rewarded== 0:
+				room_instance.get_node("TimeFabricOrb").queue_free()
+		
 
 
 func create_new_rooms() -> void:
@@ -406,23 +418,31 @@ func preload_rooms() -> void:
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
 
-func check_remnant_orb(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> void:
-	if(!if_node_exists("RemnantOrb",generated_room)):
-		return
-	var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
-	if remnant_orb.overlaps_body(player_reference):
-		_open_remnant_popup()
-	#if is_multiplayer and remnant_orb.overlaps_body(player_2):
-	#	_open_remnant_popup()
+func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> void:
+	#Remnant Orb
+	if(if_node_exists("RemnantOrb",generated_room)):
+		var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
+		if remnant_orb.overlaps_body(player_reference):
+			_open_remnant_popup()
+	if(if_node_exists("TimeFabricOrb",generated_room)):
+		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
+		if remnant_orb.overlaps_body(player_reference):
+			timefabric_rewarded = 1000 #TODO change this
+	
 
-func room_reward() -> void: #Change to have other rewards #TODO
+func room_reward() -> void: #Change to have other rewards based on room #TODO
 	var reward_location
+	var reward
 	if is_multiplayer:
 		reward_location = _find_2x2_open_area([player.global_position,player_2.global_position],20)
 	else:
 		reward_location = _find_2x2_open_area([player.global_position],20)
-		
-	var reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+	# Remnant Orb Rewards
+	#reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+	#reward.position = reward_location
+	#room_instance.call_deferred("add_child",reward)
+	# Timefabric Reward
+	reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	room_cleared= true
@@ -695,6 +715,10 @@ func _open_remnant_popup() -> void:
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
+			
+
+func _remove_timefabric_orb() -> void:
+	room_instance.get_node("TimeFabricOrb").queue_free()
 
 func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2:
 	var candidates := []
@@ -937,7 +961,7 @@ func _on_timefabric_absorbed(timefabric_node : Node):
 	
 func _on_activate(player_node : Node):
 	if room_instance and room_cleared:
-		check_remnant_orb(room_instance, room_instance_data,player_node)
+		check_reward(room_instance, room_instance_data,player_node)
 		var direction = check_pathways(room_instance, room_instance_data,player_node)
 		if direction != -1:
 			create_new_rooms()

@@ -82,7 +82,9 @@ color_ramp = SubResource("GradientTexture1D_35ope")
 shader = ExtResource("2_wxssq")
 shader_parameter/time_scale = 0.1
 shader_parameter/distortion_amount = 3.0
-shader_parameter/color_shift = 1.0
+shader_parameter/color_shift = 3.0
+shader_parameter/color_shift_time_scale = 1.0
+shader_parameter/shift_wave_enabled = 1
 
 [node name="RemnantOrb" type="Area2D"]
 collision_mask = 3
