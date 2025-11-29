@@ -29,7 +29,7 @@ func _ready():
 func _process(delta):
 	if nav_timer > 0:
 		nav_timer -= delta
-	for i in range(slot_nodes.size()):
+	for i in range(offered_remnants.size()):
 		slot_nodes[i].outline_remnant(slot_nodes[i].btn_select.get_node("TextureRect"), Color.GREEN, 0.0)
 	if hover_index!=-1:
 		slot_nodes[hover_index].outline_remnant(slot_nodes[hover_index].btn_select.get_node("TextureRect"), Color.ORANGE, .5)
@@ -58,8 +58,6 @@ func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnant
 			slot_nodes[i].set_remnant(offered_remnants[i],rank_weights)
 		else:
 			slot_nodes[i].queue_free()
-			slot_nodes.remove_at(i)
-			i -= 1
 	visible = true
 	modulate.a = 0.0
 	#Fade in
@@ -83,7 +81,7 @@ func _handle_multiplayer_input(event):
 		nav_timer = nav_cooldown
 
 	if event.is_action_pressed("menu_right_0"):
-		hover_index = min(slot_nodes.size() - 1, hover_index + 1)
+		hover_index = min(offered_remnants.size() - 1, hover_index + 1)
 		nav_timer = nav_cooldown
 	if Input.is_action_just_pressed("activate_0"):
 		selected_index2 = hover_index
