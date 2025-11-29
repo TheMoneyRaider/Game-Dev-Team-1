@@ -1,14 +1,14 @@
 extends CanvasLayer
 
 var is_multiplayer : bool = false
-@onready var health_bar_1 = $HealthBar1
-@onready var health_bar_2 = $HealthBar2
-@onready var TimeFabric = $TimeFabric
+@onready var health_bar_1 = $RootControl/HealthBar1
+@onready var health_bar_2 = $RootControl/HealthBar2
+@onready var TimeFabric = $RootControl/TimeFabric
 var player1
 var player2
 
 func set_timefabric_amount(timefabric_collected : int):
-	$TimeFabric/MarginContainer/HBoxContainer/Label.text = str(timefabric_collected)
+	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 
 func set_players(player1_node : Node, player2_node : Node = null):
 	player1 = player1_node

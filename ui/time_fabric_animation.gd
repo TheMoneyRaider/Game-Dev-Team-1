@@ -1,7 +1,7 @@
 extends Control
 
-@onready var icon := $MarginContainer/HBoxContainer/TextureRect
-@onready var label := $MarginContainer/HBoxContainer/Label
+@onready var icon := $HBoxContainer/TextureRect
+@onready var label := $HBoxContainer/Label
 
 @export var spritesheet : Texture2D            #The sprite sheet
 @export var frame_width : int = 16             #adjust to match your sheet
