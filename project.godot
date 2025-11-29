@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-RemnantManager="*res://remnants/remnant_manager.gd"
-Globals="*res://Scripts/globals.gd"
+RemnantManager="*res://Game Elements/Remnants/remnant_manager.gd"
+Globals="*res://Game Elements/General Game/globals.gd"
 
 [display]
 

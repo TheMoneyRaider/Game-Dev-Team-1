@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://cxwb6g0n3m1ev"]
+
+[ext_resource type="Script" uid="uid://6gkluo7xki0q" path="res://Game Elements/Attacks/bad_bolt.gd" id="1_bawae"]
+[ext_resource type="Texture2D" uid="uid://cws3x8eprmqf1" path="res://art/bolt.png" id="2_sb73u"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e1io4"]
+size = Vector2(10, 20)
+
+[node name="Bolt" type="Area2D"]
+collision_mask = 3
+script = ExtResource("1_bawae")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_e1io4")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, 4.7683716e-07)
+scale = Vector2(1, 1.25)
+texture = ExtResource("2_sb73u")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

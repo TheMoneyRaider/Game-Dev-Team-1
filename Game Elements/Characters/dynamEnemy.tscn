@@ -1,0 +1,103 @@
+[gd_scene load_steps=12 format=3 uid="uid://d4fye58prgexu"]
+
+[ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_ffkh2"]
+[ext_resource type="BehaviorTree" uid="uid://dcnh0ja2aticr" path="res://ai/trees/meleEnemy.tres" id="2_ffkh2"]
+[ext_resource type="Texture2D" uid="uid://t0ml20fd02ih" path="res://art/wolfsheet1.png" id="2_vbfai"]
+[ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Game Elements/Attacks/attack.tscn" id="4_vbfai"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
+radius = 3.0
+
+[sub_resource type="Animation" id="Animation_j4hvv"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame_coords")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2i(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_8qtnx"]
+resource_name = "agro"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame_coords")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2i(0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_qpolu"]
+resource_name = "idle"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame_coords")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2i(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_ivcad"]
+resource_name = "swing"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame_coords")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2i(0, 2)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_wg1fj"]
+_data = {
+&"RESET": SubResource("Animation_j4hvv"),
+&"agro": SubResource("Animation_8qtnx"),
+&"idle": SubResource("Animation_qpolu"),
+&"swing": SubResource("Animation_ivcad")
+}
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_4lifg"]
+
+[node name="dynamEnemy" type="CharacterBody2D"]
+y_sort_enabled = true
+collision_layer = 5
+script = ExtResource("1_ffkh2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_vbfai")
+hframes = 20
+vframes = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_p62ex")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_wg1fj")
+}
+
+[node name="BTPlayer" type="BTPlayer" parent="."]
+behavior_tree = ExtResource("2_ffkh2")
+blackboard_plan = SubResource("BlackboardPlan_4lifg")
+
+[node name="Attack" parent="." instance=ExtResource("4_vbfai")]

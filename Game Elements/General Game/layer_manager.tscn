@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://bjlqt0ad4do23"]
+
+[ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Game Elements/General Game/layer_manager.gd" id="1_gynnh"]
+[ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_gynnh")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(4, 4)
+
+[node name="Hud" parent="." instance=ExtResource("2_4xk7e")]
+scale = Vector2(1, 1)
+transform = Transform2D(1, 0, 0, 1, 0, 0)

@@ -1,5 +1,5 @@
 extends BTAction
-const layer_manager_script = preload("res://Scripts/layer_manager.gd")
+const layer_manager_script = preload("res://Game Elements/General Game/layer_manager.gd")
 
 @export var target_position_var: String = "target_pos"
 @export var path_output_var: String = "path"
