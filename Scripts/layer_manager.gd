@@ -296,8 +296,6 @@ func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room, c
 			generated_room.get_node("Enemy"+str(enemy_num)).queue_free()
 			#DEBUG
 			_debug_message("Layer collision removed")
-		else:
-			print(cell)
 	while enemy_num > generated_room_data.num_enemy_goal:
 		var curr_en = int(randf()*generated_room_data.num_enemy_spawnpoints)+1
 		if if_node_exists("Enemy"+str(curr_en),generated_room):
@@ -691,7 +689,7 @@ func _open_remnant_popup() -> void:
 		remnant_offer_popup = offer_scene.instantiate()
 		hud.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer(is_multiplayer)
+		remnant_offer_popup.popup_offer(is_multiplayer, self)
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false

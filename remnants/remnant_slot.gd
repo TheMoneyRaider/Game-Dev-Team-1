@@ -32,13 +32,14 @@ func set_remnant(remnant: Resource) -> void:
 	
 	_update_description(remnant, desc_label, rank)
 
-func outline_remnant(child: Node, color: Color = Color.ORANGE):
+func outline_remnant(child: Node, color: Color = Color.ORANGE, alpha : float = 0.0):
 	var shader = Shader.new()
 	shader.code = load("res://Shaders/outline.gdshader").code
 	var mat = ShaderMaterial.new()
 	mat.shader = shader
 	mat.set_shader_parameter("outline_color", color)
 	mat.set_shader_parameter("outline_thickness", 5.0)
+	mat.set_shader_parameter("outline_opacity", alpha)
 	child.material = mat
 
 

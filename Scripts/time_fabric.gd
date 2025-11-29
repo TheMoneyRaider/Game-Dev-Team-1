@@ -50,9 +50,8 @@ func _process(delta: float) -> void:
 	#Check if inside any wall cell
 	var current_cell := Vector2i(floor(position.x / 16), floor(position.y / 16))
 	var inside_wall := current_cell in wall_cells
-
 	#Stop vertical movement only if below floor and not inside wall
-	if position_z >= 0 and not inside_wall and velocity.y > 0.0:
+	if position_z >= 0 and (not inside_wall) and velocity.y > 0.0:
 		grounded = true
 		velocity = Vector3(0,0,0)
 	
@@ -71,7 +70,6 @@ func set_direction(direction : Vector2):
 	var final_len = orig_len * random_scale
 	var z = -randf_range(.25, 1.0)
 	velocity = Vector3(deviated_dir.x * final_len, deviated_dir.y * final_len-60, z * final_len)
-	print(velocity)
 
 
 func move_towards_player():
