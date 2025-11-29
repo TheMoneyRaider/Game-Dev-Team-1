@@ -15,6 +15,8 @@ func activate():
 	anim.play("activate")
 	await anim.animation_finished
 	active = true
+	for body in tracked_bodies:
+		body.take_damage(3)
 	while !tracked_bodies.is_empty():
 		await get_tree().process_frame
 	anim.play("deactivate")
