@@ -927,6 +927,7 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
+	hud.add_remnants(remnant1, remnant2)
 
 func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_collected+=1

@@ -105,12 +105,10 @@ func _on_slot_selected(idx: int) -> void:
 			_close_after_two_chosen()
 
 func _close_after_two_chosen():
-
 	#Fade out animation
 	var tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, .5)
 	await tween.finished
-
 	#Emit the two chosen remnants
 	emit_signal("remnant_chosen", offered_remnants[selected_index1], offered_remnants[selected_index2])
 	visible = false

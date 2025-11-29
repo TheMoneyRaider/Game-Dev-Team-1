@@ -33,6 +33,10 @@ scale = Vector2(0.5, 0.5)
 transform = Transform2D(0.5, 0, 0, 0.5, 0, 0)
 script = ExtResource("1_6fbih")
 
+[node name="MarginContainer" type="MarginContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
 [node name="RootControl" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -40,6 +44,26 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="RemnantIcons" type="Control" parent="RootControl"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="LeftRemnants" type="GridContainer" parent="RootControl/RemnantIcons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_bottom = 1.0
+
+[node name="RightRemnants" type="GridContainer" parent="RootControl/RemnantIcons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
 
 [node name="TimeFabric" type="Control" parent="RootControl"]
 layout_mode = 1

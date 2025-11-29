@@ -10,6 +10,18 @@ var player2
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 
+func add_remnants(remnant1 : Resource,remnant2 : Resource):
+	var icon1 = TextureRect.new()
+	var icon2 = TextureRect.new()
+	icon1.texture = remnant1.icon
+	icon2.texture = remnant2.icon
+	icon1.stretch_mode = TextureRect.STRETCH_SCALE
+	icon1.custom_minimum_size = icon1.texture.get_size() * 2
+	icon2.stretch_mode = TextureRect.STRETCH_SCALE
+	icon2.custom_minimum_size = icon2.texture.get_size() * 2
+	$RootControl/RemnantIcons/LeftRemnants.add_child(icon1)
+	$RootControl/RemnantIcons/RightRemnants.add_child(icon2)
+
 func set_players(player1_node : Node, player2_node : Node = null):
 	player1 = player1_node
 	player2 = player2_node
