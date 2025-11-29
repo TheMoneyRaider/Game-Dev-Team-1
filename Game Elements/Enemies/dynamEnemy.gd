@@ -5,6 +5,8 @@ const is_elite: bool = false
 var current_health: int = 10 
 const SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
+@onready var current_dmg_time: float = 0.0
+@onready var in_instant_trap: bool = false
 
 
 const attack = preload("res://Game Elements/Attacks/attack.gd")
@@ -40,10 +42,39 @@ func move(target_pos: Vector2, _delta: float):
 	
 	move_and_slide()
 	
-func _process(_delta):
+func _process(delta):
+	#Trap stuff
+	check_traps(delta)
 	queue_redraw()
 
 func take_damage(damage : int, direction = Vector2(0,-1)):
 	current_health = current_health - damage
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 		
+
+func check_traps(delta):
+	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
+	if tile_pos in get_parent().get_parent().trap_cells:
+		var tile_data = get_parent().get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+		if tile_data:
+			var dmg = tile_data.get_custom_data("trap_instant")
+			#Instant trap
+			if dmg and !in_instant_trap:
+				take_damage(dmg)
+				in_instant_trap = true
+			if !dmg:
+				in_instant_trap = false
+			#Ongoing trap
+			if tile_data.get_custom_data("trap_ongoing"):
+				current_dmg_time += delta
+				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
+					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+			else:
+				current_dmg_time = 0
+		else:
+			current_dmg_time = 0
+			in_instant_trap = false
+	else:
+		current_dmg_time = 0
+		in_instant_trap = false

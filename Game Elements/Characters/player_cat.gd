@@ -4,8 +4,8 @@ const attack = preload("res://Game Elements/Attacks/attack.gd")
 @export var move_speed: float = 100
 @export var max_health: float = 10
 @export var current_health: float = 10
-@export var current_dmg_time: float = 0.0
-@export var in_instant_trap: bool = false
+@onready var current_dmg_time: float = 0.0
+@onready var in_instant_trap: bool = false
 @onready var disabled_countdown : int = 0
 
 @export var state_machine : LimboHSM
@@ -75,9 +75,9 @@ func _initialize_state_machine():
 func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	#Trap stuff
-	check_traps(_delta)
+	check_traps(delta)
 	#Cat input detection
 	input_direction = Vector2(
 		Input.get_action_strength("right_" + input_device) - Input.get_action_strength("left_" + input_device),
@@ -100,7 +100,7 @@ func _physics_process(_delta):
 		handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
-	adjust_cooldowns(_delta)
+	adjust_cooldowns(delta)
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
 		move_and_slide()
