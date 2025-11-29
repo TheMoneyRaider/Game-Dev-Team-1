@@ -49,4 +49,8 @@ layout_mode = 2
 custom_minimum_size = Vector2(413, 995)
 layout_mode = 2
 
+[node name="slot3" parent="MarginContainer/slots_hbox" instance=ExtResource("2_vtfuc")]
+custom_minimum_size = Vector2(413, 995)
+layout_mode = 2
+
 [node name="Crosshair" parent="." instance=ExtResource("3_8x0qu")]

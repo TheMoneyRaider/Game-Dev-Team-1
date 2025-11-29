@@ -9,7 +9,8 @@ signal remnant_chosen(remnant: Resource)
 @onready var slot_nodes: Array = [
 	$MarginContainer/slots_hbox/slot0,
 	$MarginContainer/slots_hbox/slot1,
-	$MarginContainer/slots_hbox/slot2]
+	$MarginContainer/slots_hbox/slot2,
+	$MarginContainer/slots_hbox/slot3]
 var offered_remnants: Array[Resource] = []
 var selected_index1: int = -1 #Purple
 var selected_index2: int = -1 #Orange
@@ -40,15 +41,15 @@ func _process(delta):
 		#If we now have two different selections -> close the menu
 		_close_after_two_chosen()
 
-func popup_offer(is_multiplayer_in : bool, layer_manager : Node, _player1_remannts : Array, _player2_remannts : Array, rank_weights : Array = [50,35,10,5,0]):
+func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnants : Array, player2_remnants : Array, rank_weights : Array = [50,35,10,5,0]):
 	crosshair_sprite.texture = purple_crosshair
 	is_multiplayer = is_multiplayer_in
 	if is_multiplayer:
 		layer_manager.player_2.activate.connect(_on_activate)
 	else:
 		hover_index = -1
-	#query the pool for 3 random remnants
-	offered_remnants = RemnantManager.get_random_remnants(3)
+	#query the pool for 4 random remnants(2 from each player)
+	offered_remnants = RemnantManager.get_random_remnants(4,player1_remnants, player2_remnants)
 	selected_index1 = -1
 	selected_index2 = -1
 	#populate UI
@@ -56,7 +57,9 @@ func popup_offer(is_multiplayer_in : bool, layer_manager : Node, _player1_remann
 		if i < offered_remnants.size():
 			slot_nodes[i].set_remnant(offered_remnants[i],rank_weights)
 		else:
-			slot_nodes[i].set_remnant(null,rank_weights)
+			slot_nodes[i].queue_free()
+			slot_nodes.remove_at(i)
+			i -= 1
 	visible = true
 	modulate.a = 0.0
 	#Fade in
