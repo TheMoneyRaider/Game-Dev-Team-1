@@ -30,7 +30,8 @@ func _process(delta):
 		nav_timer -= delta
 	for i in range(slot_nodes.size()):
 		slot_nodes[i].outline_remnant(slot_nodes[i].btn_select.get_node("TextureRect"), Color.GREEN, 0.0)
-	slot_nodes[hover_index].outline_remnant(slot_nodes[hover_index].btn_select.get_node("TextureRect"), Color.ORANGE, .5)
+	if hover_index!=-1:
+		slot_nodes[hover_index].outline_remnant(slot_nodes[hover_index].btn_select.get_node("TextureRect"), Color.ORANGE, .5)
 	if selected_index1 != -1:
 		slot_nodes[selected_index1].outline_remnant(slot_nodes[selected_index1].btn_select.get_node("TextureRect"), Color.PURPLE, 1)
 	if selected_index2 != -1:
@@ -44,6 +45,8 @@ func popup_offer(is_multiplayer_in : bool, layer_manager : Node):
 	is_multiplayer = is_multiplayer_in
 	if is_multiplayer:
 		layer_manager.player_2.activate.connect(_on_activate)
+	else:
+		hover_index = -1
 	#query the pool for 3 random remnants
 	offered_remnants = RemnantManager.get_random_remnants(3)
 	selected_index1 = -1

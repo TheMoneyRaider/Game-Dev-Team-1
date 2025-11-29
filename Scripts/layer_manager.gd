@@ -7,7 +7,7 @@ const room_data = preload("res://Scripts/room_data.gd")
 var player = null
 var player_2 = null
 ###
-
+@onready var room_cleared: bool = false
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
@@ -429,7 +429,7 @@ func room_reward() -> void: #Change to have other rewards #TODO
 	var reward = load("res://ui/remnant_orb.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
-	#call_deferred(room_instance.add_child(reward))
+	room_cleared= true
 
 #Thread functions
 
@@ -825,6 +825,9 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	
+	
+	room_cleared= false
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():
@@ -930,7 +933,7 @@ func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_node.queue_free()
 	
 func _on_activate(player_node : Node):
-	if room_instance:
+	if room_instance and room_cleared:
 		check_remnant_orb(room_instance, room_instance_data,player_node)
 		var direction = check_pathways(room_instance, room_instance_data,player_node)
 		if direction != -1:
