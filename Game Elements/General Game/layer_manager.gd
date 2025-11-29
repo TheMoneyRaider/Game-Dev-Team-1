@@ -90,10 +90,6 @@ func _ready() -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	create_new_rooms()
-	print("Room children: ")
-	var root = get_tree().root
-	for child in root.get_children():
-		print("  - ", child.name, " (", child.get_class(), ")")
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
 	_prepare_timefabric()
 
@@ -582,7 +578,7 @@ func _setup_players() -> void:
 	player.player_took_damage.connect(_on_player_take_damage)
 	player.activate.connect(_on_activate)
 
-func _enemy_to_timefabric(enemy : Node,direction : Vector2) -> void:
+func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vector2) -> void:
 	var sprite = enemy.get_node("Sprite2D")
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
 	var return_values : Array = _load_enemy_image(enemy)
@@ -617,6 +613,11 @@ func _enemy_to_timefabric(enemy : Node,direction : Vector2) -> void:
 		for pixel in timefabric_masks[timefabrics_to_place[i][0]]:
 			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
 				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
+	while timefabrics_to_place.size() > amount_range.y:
+		timefabrics_to_place.remove_at(randi() % timefabrics_to_place.size())
+	while timefabrics_to_place.size() < amount_range.x:
+		timefabrics_to_place.append(timefabrics_to_place[randi() % timefabrics_to_place.size()])
+	
 	for fabric in timefabrics_to_place:
 		_place_timefabric(fabric[0],fabric[1],current_position,direction)
 
@@ -910,7 +911,7 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
-		_enemy_to_timefabric(enemy,direction)
+		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1
