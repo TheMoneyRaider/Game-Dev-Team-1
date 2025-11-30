@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://c33ebrxd41yae"]
+[gd_scene load_steps=6 format=3 uid="uid://c33ebrxd41yae"]
 
 [ext_resource type="Texture2D" uid="uid://dc615m8r6verx" path="res://art/remnants/remnant_orb_feet.png" id="1_jd1oi"]
-[ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="2_wu7qe"]
+[ext_resource type="Texture2D" uid="uid://bp337bkoxod8h" path="res://art/timefabric_orb.png" id="3_2ieqf"]
 [ext_resource type="Shader" uid="uid://bcbula2hj7vua" path="res://Game Elements/Remnants/remnant_orb.gdshader" id="4_vru07"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p07o2"]
@@ -15,119 +15,8 @@ shader_parameter/color_shift = 2.0
 shader_parameter/color_shift_time_scale = 1.5
 shader_parameter/shift_wave_enabled = 1
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_p6cai"]
-viewport_path = NodePath("SubViewport")
-
 [node name="TimeFabricOrb" type="Area2D"]
 collision_mask = 3
-
-[node name="SubViewport" type="SubViewport" parent="."]
-transparent_bg = true
-size = Vector2i(64, 64)
-
-[node name="Timefabric9" type="Sprite2D" parent="SubViewport"]
-position = Vector2(38, 24)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 4
-
-[node name="Timefabric8" type="Sprite2D" parent="SubViewport"]
-position = Vector2(32, 28)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-
-[node name="Timefabric1" type="Sprite2D" parent="SubViewport"]
-position = Vector2(37, 30)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-
-[node name="Timefabric2" type="Sprite2D" parent="SubViewport"]
-position = Vector2(45, 32)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 1
-
-[node name="Timefabric3" type="Sprite2D" parent="SubViewport"]
-position = Vector2(40, 27)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 3
-
-[node name="Timefabric4" type="Sprite2D" parent="SubViewport"]
-position = Vector2(31, 33)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 2
-
-[node name="Timefabric5" type="Sprite2D" parent="SubViewport"]
-position = Vector2(38, 37)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 4
-
-[node name="Timefabric6" type="Sprite2D" parent="SubViewport"]
-position = Vector2(29, 29)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 4
-
-[node name="Timefabric7" type="Sprite2D" parent="SubViewport"]
-position = Vector2(33, 36)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 5
-
-[node name="Timefabric10" type="Sprite2D" parent="SubViewport"]
-position = Vector2(36, 20)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 4
-
-[node name="Timefabric11" type="Sprite2D" parent="SubViewport"]
-position = Vector2(34, 25)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-
-[node name="Timefabric12" type="Sprite2D" parent="SubViewport"]
-position = Vector2(32, 28)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-
-[node name="Timefabric13" type="Sprite2D" parent="SubViewport"]
-position = Vector2(47, 29)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 1
-
-[node name="Timefabric14" type="Sprite2D" parent="SubViewport"]
-position = Vector2(42, 24)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 3
-
-[node name="Timefabric16" type="Sprite2D" parent="SubViewport"]
-position = Vector2(40, 34)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 4
-
-[node name="Timefabric17" type="Sprite2D" parent="SubViewport"]
-position = Vector2(45, 26)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 4
-
-[node name="Timefabric18" type="Sprite2D" parent="SubViewport"]
-position = Vector2(44, 22)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 5
-
-[node name="Timefabric15" type="Sprite2D" parent="SubViewport"]
-position = Vector2(44, 35)
-texture = ExtResource("2_wu7qe")
-hframes = 6
-frame = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_p07o2")
@@ -137,5 +26,4 @@ texture = ExtResource("1_jd1oi")
 
 [node name="Image" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_itn33")
-position = Vector2(-6, 3)
-texture = SubResource("ViewportTexture_p6cai")
+texture = ExtResource("3_2ieqf")

@@ -439,10 +439,10 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		if upgrade_orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 			_enable_pathways()
-	
+
 func room_reward() -> void:
 	var reward_location
-	var reward
+	var reward = null
 	if is_multiplayer:
 		reward_location = _find_2x2_open_area([player.global_position,player_2.global_position],20)
 	else:
@@ -610,7 +610,7 @@ func _enable_pathways() -> void:
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if not if_node_exists(pathway_name,room_instance):
 			var pathway_detect = room_instance.get_node_or_null(pathway_name+"_Detect/Area2D/CollisionShape2D")
-			if pathway_detect:
+			if pathway_detect and !room_instance.get_node(pathway_name+"_Detect").used:
 				room_instance.get_node(pathway_name+"_Detect").enable_pathway()
 
 func _upgradable_remnants() -> bool:

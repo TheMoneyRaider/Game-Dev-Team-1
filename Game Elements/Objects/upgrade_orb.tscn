@@ -41,7 +41,7 @@ scale_max = 0.25
 scale_curve = SubResource("CurveTexture_ewlq3")
 color_ramp = SubResource("GradientTexture1D_8r85b")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_itn33"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3b7d0"]
 shader = ExtResource("3_evrwk")
 shader_parameter/time_scale = 2.0
 shader_parameter/distortion_amount = 0.2
@@ -64,6 +64,11 @@ process_material = SubResource("ParticleProcessMaterial_oyqiy")
 [node name="Feet" type="Sprite2D" parent="."]
 texture = ExtResource("1_1fi3s")
 
-[node name="Image" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_itn33")
+[node name="Image" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_3b7d0")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("4_qixjf")

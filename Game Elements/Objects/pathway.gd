@@ -21,4 +21,3 @@ func set_reward(new_icon : Node, reward : Reward):
 	reward_type = reward
 	reward_texture = new_icon.texture
 	reward_material = new_icon.material
-	
