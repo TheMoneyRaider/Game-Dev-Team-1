@@ -447,9 +447,9 @@ func room_reward() -> void:
 	var reward_location
 	var reward = null
 	if is_multiplayer:
-		reward_location = _find_2x2_open_area([player.global_position,player_2.global_position],20)
+		reward_location = _find_2x2_open_area([Vector2i(floor(player.global_position.x / 16), floor(player.global_position.y / 16)),Vector2i(floor(player_2.global_position.x / 16), floor(player_2.global_position.y / 16))])
 	else:
-		reward_location = _find_2x2_open_area([player.global_position],20)
+		reward_location = _find_2x2_open_area([Vector2i(floor(player.global_position.x / 16), floor(player.global_position.y / 16))])
 	while reward == null:
 		match this_room_reward:
 			Reward.Remnant:
@@ -792,7 +792,7 @@ func _open_upgrade_popup() -> void:
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
 
-func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2:
+func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2i:
 	var candidates := []
 	#Combine all blocked and unsafe cells
 	var unsafe_cells := blocked_cells.duplicate()
@@ -800,31 +800,57 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 	unsafe_cells.append_array(lava_cells)
 	unsafe_cells.append_array(acid_cells)
 	unsafe_cells.append_array(trap_cells)
-
+	var direction_count = [0,0,0,0]
+	var pathway_name = ""
+	for p_direct in room_instance_data.pathway_direction:
+		direction_count[p_direct]+=1
+		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
+		if if_node_exists(pathway_name,room_instance):
+			unsafe_cells += room_instance.get_node(pathway_name).get_used_cells()
 	#Generate candidate 2x2 positions around each player
 	for player_pos in player_positions:
 		for dx in range(-max_distance, max_distance):
 			for dy in range(-max_distance, max_distance):
-				var candidate = player_pos + Vector2(dx, dy)
+				var candidate = player_pos + Vector2i(dx, dy)
 				#Check the 2x2 area is free
 				var all_free = true
 				for x in range(2):
 					for y in range(2):
-						for player_position in player_positions:
-							if (candidate + Vector2(x, y)) == position:
-								break
-						if unsafe_cells.has(candidate + Vector2(x, y)):
+						if unsafe_cells.has(candidate + Vector2i(x, y)):
 							all_free = false
 							break
 					if not all_free:
 						break
 				if all_free:
-					candidates.append(candidate)
+					for player_position in player_positions:
+						if player_position.distance_to(candidate + Vector2i(1, 1)) >=2:
+							candidates.append(candidate)
 
 	if candidates.size()==0:
-		return Vector2.ZERO
-	#Pick a random candidate
-	return candidates[randi() % candidates.size()]
+		return Vector2i.ZERO
+	#Weighted random selection
+	var weights := []
+	for c in candidates:
+		var min_dist = INF
+		for player_pos in player_positions:
+			var dist = player_pos.distance_to(c + Vector2i(1, 1))
+			if dist < min_dist:
+				min_dist = dist
+		#Closer = higher weight
+		weights.append(1.0 / (min_dist*2 + 1))
+
+	# Pick a candidate based on weight
+	var total_weight = 0.0
+	for w in weights:
+		total_weight += w
+
+	var rnd = randf() * total_weight
+	for i in range(candidates.size()):
+		rnd -= weights[i]
+		if rnd <= 0:
+			return candidates[i] * 16
+
+	return candidates[0] * 16
 
 func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int) -> void:
 	var cells = generated_room.get_node("Trap"+str(trap_num)).get_used_cells()
