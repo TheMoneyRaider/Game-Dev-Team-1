@@ -799,18 +799,24 @@ func _open_upgrade_popup() -> void:
 func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2i:
 	var candidates := []
 	#Combine all blocked and unsafe cells
-	var unsafe_cells := blocked_cells.duplicate()
+	var unsafe_cells :Array = blocked_cells.duplicate()
+	var safe_cells : Array = room_instance.get_node("Ground").get_used_cells()
 	unsafe_cells.append_array(water_cells)
 	unsafe_cells.append_array(lava_cells)
 	unsafe_cells.append_array(acid_cells)
 	unsafe_cells.append_array(trap_cells)
 	var direction_count = [0,0,0,0]
+	var pathway_positions = []
 	var pathway_name = ""
+	var temp_pos
 	for p_direct in room_instance_data.pathway_direction:
 		direction_count[p_direct]+=1
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if if_node_exists(pathway_name,room_instance):
 			unsafe_cells += room_instance.get_node(pathway_name).get_used_cells()
+		if if_node_exists(pathway_name+"_Detect",room_instance):
+			temp_pos = room_instance.get_node(pathway_name+"_Detect").position
+			pathway_positions.append(Vector2i(floor(temp_pos.x / 16), floor(temp_pos.y / 16)))
 	#Generate candidate 2x2 positions around each player
 	for player_pos in player_positions:
 		for dx in range(-max_distance, max_distance):
@@ -818,17 +824,25 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 				var candidate = player_pos + Vector2i(dx, dy)
 				#Check the 2x2 area is free
 				var all_free = true
-				for x in range(2):
-					for y in range(2):
-						if unsafe_cells.has(candidate + Vector2i(x, y)):
+				for x in range(-1,1):
+					for y in range(-1,1):
+						if unsafe_cells.has(candidate + Vector2i(x, y)) or !safe_cells.has(candidate + Vector2i(x, y)):
 							all_free = false
 							break
 					if not all_free:
 						break
 				if all_free:
 					for player_position in player_positions:
-						if player_position.distance_to(candidate + Vector2i(1, 1)) >=2:
-							candidates.append(candidate)
+						if player_position.distance_to(candidate) < 3:
+							all_free = false
+							break
+				if all_free:
+					for path_position in pathway_positions:
+						if path_position.distance_to(candidate) < 3:
+							all_free = false
+							break
+				if all_free:
+					candidates.append(candidate)
 
 	if candidates.size()==0:
 		return Vector2i.ZERO
@@ -837,11 +851,13 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 	for c in candidates:
 		var min_dist = INF
 		for player_pos in player_positions:
-			var dist = player_pos.distance_to(c + Vector2i(1, 1))
+			var dist = player_pos.distance_to(c)
 			if dist < min_dist:
 				min_dist = dist
 		#Closer = higher weight
 		weights.append(1.0 / (min_dist*2 + 1))
+	_debug_tiles(candidates)
+
 
 	# Pick a candidate based on weight
 	var total_weight = 0.0
@@ -1090,4 +1106,10 @@ func _on_activate(player_node : Node):
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
-	return
+	
+func _debug_tiles(array_of_tiles) -> void:
+	var debug
+	for tile in array_of_tiles:
+		debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
+		debug.position = tile*16
+		room_instance.add_child(debug)

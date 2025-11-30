@@ -55,10 +55,9 @@ func _process(delta: float) -> void:
 		grounded = true
 		
 func _check_if_hitting_wall(delta) -> void:
-	var current_cell := Vector2i(floor(position.x / 16), floor(position.y / 16))
 	var next_cellx := Vector2i(floor((position.x+velocity.x* delta) / 16), floor(position.y / 16))
 	var next_celly := Vector2i(floor(position.x / 16), floor((position.y+velocity.y* delta) / 16))
-	if next_cellx in blocked_cells or next_cellx in blocked_cells:
+	if next_cellx in blocked_cells or next_celly in blocked_cells:
 		velocity = Vector3(0,0,0)
 		grounded=true
 		
