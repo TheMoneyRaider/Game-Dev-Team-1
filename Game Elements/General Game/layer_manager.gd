@@ -423,7 +423,7 @@ func preload_rooms() -> void:
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
 
-func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> void:
+func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
 	#Remnant Orb
 	if(if_node_exists("RemnantOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
@@ -431,17 +431,21 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			_open_remnant_popup()
 			_enable_pathways()
 			reward_claimed = true
+			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
 			timefabric_rewarded = 1000 #TODO change this
 			_enable_pathways()
+			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
 		var upgrade_orb = generated_room.get_node("UpgradeOrb") as Area2D
 		if upgrade_orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 			_enable_pathways()
 			reward_claimed = true
+			return true
+	return false
 
 func room_reward() -> void:
 	var reward_location
@@ -1077,7 +1081,8 @@ func _on_timefabric_absorbed(timefabric_node : Node):
 	
 func _on_activate(player_node : Node):
 	if room_instance and room_cleared:
-		check_reward(room_instance, room_instance_data,player_node)
+		if check_reward(room_instance, room_instance_data,player_node):
+			return
 		if reward_claimed:
 			var direction = check_pathways(room_instance, room_instance_data,player_node)
 			if direction != -1:

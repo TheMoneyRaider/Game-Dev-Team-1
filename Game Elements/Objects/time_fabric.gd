@@ -49,20 +49,17 @@ func _process(delta: float) -> void:
 	position += Vector2(velocity.x, velocity.y) * delta
 	position_z += velocity.z * delta
 	
-	#Stop vertical movement only if below floor and not inside wall
+	#Stop all movement if timefabric landed.
 	if position_z >= 0 and velocity.y > 0.0:
-		grounded = true
 		velocity = Vector3(0,0,0)
+		grounded = true
 		
 func _check_if_hitting_wall(delta) -> void:
 	var current_cell := Vector2i(floor(position.x / 16), floor(position.y / 16))
 	var next_cellx := Vector2i(floor((position.x+velocity.x* delta) / 16), floor(position.y / 16))
 	var next_celly := Vector2i(floor(position.x / 16), floor((position.y+velocity.y* delta) / 16))
-	if next_cellx in blocked_cells:
-		velocity.x = 0.0
-	if next_celly in blocked_cells:
-		velocity.y = 0.0
-	if velocity.x <= 0.01 and velocity.y <= 0.01:
+	if next_cellx in blocked_cells or next_cellx in blocked_cells:
+		velocity = Vector3(0,0,0)
 		grounded=true
 		
 		
