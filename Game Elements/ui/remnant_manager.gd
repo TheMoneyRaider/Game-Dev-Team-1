@@ -22,7 +22,7 @@ func _load_all_remnants() -> void:
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-#Returns an array of up to `num` unique random remnants from the pool. #TODO update to remove current remnants the player has
+#Returns an array of up to `num` unique random remnants from the pool.
 func get_random_remnants(num: int = 4, player1_remnants: Array = [], player2_remnants : Array = []) -> Array[Resource]:
 	var result: Array[Resource] = []
 	if remnant_pool.is_empty():
@@ -64,7 +64,49 @@ func get_random_remnants(num: int = 4, player1_remnants: Array = [], player2_rem
 				result.append(rem)
 				break
 	return result
+	
 
+#Returns an array of up to `num` unique remnants from the two players pools that can be upgraded
+func get_remnant_upgrades(num: int = 4, player1_remnants: Array = [], player2_remnants : Array = []) -> Array[Resource]:
+	var result: Array[Resource] = []
+
+	#Split the count
+	var half := int(num / 2)
+	var extra := num - half * 2
+
+	# Pick half from each
+	print("Check player 1 remnants")
+	_pick_random_upgradable(player1_remnants, half, result)
+	print("Check player 2 remnants")
+	_pick_random_upgradable(player2_remnants, half, result)
+	# If num is odd, pick one more at random from the union without duplicating
+	if extra > 0:
+		var combined := (player1_remnants + player2_remnants).duplicate()
+		combined.shuffle()
+		for rem in combined:
+			if rem not in result and rem.rank <=4:
+				result.append(rem)
+				break
+	
+	print("Viewable remnants")
+	for rem in result:
+		print("Name: "+str(rem.remnant_name)+" Rank: "+str(rem.rank))
+	return result
+
+func _pick_random_upgradable(from_pool: Array, amount: int, into: Array):
+	var temp = from_pool.duplicate()
+	temp.shuffle()
+	var am = 0
+	for i in range(temp.size()):
+		if temp[i] not in into and temp[i].rank <= 4:
+			into.append(temp[i])
+			am+=1
+		if am >= amount:
+			for rem in temp:
+				print("Name: "+str(rem.remnant_name)+" Rank: "+str(rem.rank))
+			break
+	
+	
 func _pick_random_unique(from_pool: Array, amount: int, into: Array):
 	var temp = from_pool.duplicate()
 	temp.shuffle()

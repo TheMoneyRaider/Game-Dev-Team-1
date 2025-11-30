@@ -37,6 +37,7 @@ var thread_running := false
 var room_location : Resource 
 var room_instance
 var remnant_offer_popup
+var remnant_upgrade_popup
 #The total time of this run
 var time_passed := 0.0
 @export var water_cells := []
@@ -433,7 +434,6 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		if upgrade_orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 	
-
 func room_reward() -> void: #Change to have other rewards based on room #TODO
 	var reward_location
 	var reward
@@ -740,13 +740,13 @@ func _open_remnant_popup() -> void:
 			player_2.get_node("Crosshair").visible = false
 
 func _open_upgrade_popup() -> void:
-	if room_instance and !remnant_offer_popup:
+	if room_instance and !remnant_upgrade_popup:
 		room_instance.get_node("UpgradeOrb").queue_free()
-		var offer_scene = load("res://Game Elements/ui/remnant_offer.tscn")
-		remnant_offer_popup = offer_scene.instantiate()
-		hud.add_child(remnant_offer_popup)
-		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer(is_multiplayer, player_1_remnants,player_2_remnants, [50,35,10,5,0])
+		var upgrade_scene = load("res://Game Elements/ui/remnant_upgrade.tscn")
+		remnant_upgrade_popup = upgrade_scene.instantiate()
+		hud.add_child(remnant_upgrade_popup)
+		remnant_upgrade_popup.remnant_upgraded.connect(_on_remnant_upgraded)
+		remnant_upgrade_popup.popup_upgrade(is_multiplayer, player_1_remnants.duplicate(),player_2_remnants.duplicate())
 		
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
@@ -981,14 +981,26 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		room_reward()
 
 func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
-	player_1_remnants.append(remnant1)
-	player_2_remnants.append(remnant2)
+	player_1_remnants.append(remnant1.duplicate(true))
+	player_2_remnants.append(remnant2.duplicate(true))
 	remnant_offer_popup.queue_free()
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
-	for remnant in player_1_remnants:
-		print(remnant.rank)
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+
+func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
+	for i in range(player_1_remnants.size()):
+		if player_1_remnants[i] == remnant1:
+			player_1_remnants[i].rank +=1
+	for i in range(player_2_remnants.size()):
+		if player_2_remnants[i] == remnant2:
+			player_2_remnants[i].rank +=1
+	remnant_upgrade_popup.queue_free()
+	player.get_node("Crosshair").visible = true
+	if is_multiplayer:
+		player_2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 
 func _on_timefabric_absorbed(timefabric_node : Node):

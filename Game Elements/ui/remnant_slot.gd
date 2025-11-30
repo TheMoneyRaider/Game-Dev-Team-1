@@ -15,7 +15,7 @@ func _ready():
 	randomize()
 	btn_select.pressed.connect(_on_button_pressed)
 
-func set_remnant(remnant: Resource) -> void:
+func set_remnant(remnant: Resource, is_upgrade : bool) -> void:
 	if remnant == null:
 		art.texture = null
 		name_label.text = "—"
@@ -27,9 +27,9 @@ func set_remnant(remnant: Resource) -> void:
 		art.texture = remnant.art
 	else:
 		art.texture = null
-	rank_label.text = "Rank " + _num_to_roman(remnant.rank)
+	rank_label.text = "Rank " + _num_to_roman(remnant.rank) if !is_upgrade else "Rank " + _num_to_roman(remnant.rank) +"->" + _num_to_roman(remnant.rank+1)
 	
-	_update_description(remnant, desc_label, remnant.rank)
+	_update_description(remnant, desc_label, remnant.rank, is_upgrade)
 
 func outline_remnant(child: Node, color: Color = Color.ORANGE, alpha : float = 0.0):
 	var shader = Shader.new()
@@ -60,21 +60,29 @@ func _num_to_roman(input : int) -> String:
 			return "V"
 	return "error"
 
-func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: int) -> void:
+func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: int, is_upgrade : bool) -> void:
 	var new_text := desc_label.text
 
 	for i in remnant.variable_names.size():
 		var rem_name : String = remnant.variable_names[i]
 		var value := str(remnant["variable_%d_values" % (i + 1)][rank - 1])
+		var new_value := str(remnant["variable_%d_values" % (i + 1)][rank])
 
 		var colored_value := "[color=white]" + value
+		var colored_new_value := "[color=white]" + new_value
 
 		#Color a trailing % sign if present
 		if new_text.find(rem_name + "%") != -1:
-			colored_value += "%[/color]"
+			if is_upgrade:
+				colored_value += "%->"+colored_new_value+"%[/color]"
+			else:
+				colored_value += "%[/color]"
 			new_text = new_text.replace(rem_name + "%", colored_value)
 		else:
-			colored_value += "[/color]"
+			if is_upgrade:
+				colored_value += "->"+colored_new_value+"[/color]"
+			else:
+				colored_value += "[/color]"
 			new_text = new_text.replace(rem_name, colored_value)
 
 	desc_label_up.text = new_text
