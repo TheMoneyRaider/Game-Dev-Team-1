@@ -132,6 +132,7 @@ func _process(delta: float) -> void:
 			Vector2(0,-1))
 			if timefabric_rewarded== 0:
 				room_instance.get_node("TimeFabricOrb").queue_free()
+				reward_claimed = true
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -429,6 +430,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		if remnant_orb.overlaps_body(player_reference):
 			_open_remnant_popup()
 			_enable_pathways()
+			reward_claimed = true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
@@ -439,6 +441,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		if upgrade_orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 			_enable_pathways()
+			reward_claimed = true
 
 func room_reward() -> void:
 	var reward_location
@@ -602,7 +605,6 @@ func _choose_reward(pathway_name : String) -> void:
 	room_instance.get_node(pathway_name).set_reward(reward_texture, reward_type)
 
 func _enable_pathways() -> void:
-	reward_claimed = true
 	var pathway_name= ""
 	var direction_count = [0,0,0,0]
 	for p_direct in room_instance_data.pathway_direction:
@@ -789,9 +791,6 @@ func _open_upgrade_popup() -> void:
 		player.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
-
-func _remove_timefabric_orb() -> void:
-	room_instance.get_node("TimeFabricOrb").queue_free()
 
 func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2:
 	var candidates := []
