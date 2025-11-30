@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://bsnhxne2rojuk"]
 
-[ext_resource type="Script" uid="uid://cnu4t3y0q3ad1" path="res://Game Elements/Remnants/remnant_slot.gd" id="1_blhod"]
+[ext_resource type="Script" uid="uid://cnu4t3y0q3ad1" path="res://Game Elements/ui/remnant_slot.gd" id="1_blhod"]
 [ext_resource type="Texture2D" uid="uid://buubskqgdc4jf" path="res://art/remnants/hunter.png" id="2_o7i6x"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_o7i6x"]

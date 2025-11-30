@@ -446,7 +446,8 @@ func room_reward() -> void: #Change to have other rewards based on room #TODO
 			0:# Remnant Orb Reward
 				reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
 			1:# Timefabric Reward
-				reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+				pass
+				#reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 			2:#Upgrade Orb Reward
 				if _upgradable_remnants():
 					reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
@@ -986,7 +987,9 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player.get_node("Crosshair").visible = true
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
-	hud.add_remnants(remnant1, remnant2)
+	for remnant in player_1_remnants:
+		print(remnant.rank)
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 
 func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_collected+=1

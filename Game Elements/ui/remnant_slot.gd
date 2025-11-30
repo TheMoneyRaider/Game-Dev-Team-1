@@ -15,7 +15,7 @@ func _ready():
 	randomize()
 	btn_select.pressed.connect(_on_button_pressed)
 
-func set_remnant(remnant: Resource,rank_weights : Array) -> void:
+func set_remnant(remnant: Resource) -> void:
 	if remnant == null:
 		art.texture = null
 		name_label.text = "—"
@@ -27,10 +27,9 @@ func set_remnant(remnant: Resource,rank_weights : Array) -> void:
 		art.texture = remnant.art
 	else:
 		art.texture = null
-	var rank = weighted_random_index(rank_weights)
-	rank_label.text = "Rank " + _num_to_roman(rank)
+	rank_label.text = "Rank " + _num_to_roman(remnant.rank)
 	
-	_update_description(remnant, desc_label, rank)
+	_update_description(remnant, desc_label, remnant.rank)
 
 func outline_remnant(child: Node, color: Color = Color.ORANGE, alpha : float = 0.0):
 	var shader = Shader.new()
@@ -79,17 +78,3 @@ func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: 
 			new_text = new_text.replace(rem_name, colored_value)
 
 	desc_label_up.text = new_text
-
-func weighted_random_index(weights: Array) -> int:
-	var total = 0
-	for w in weights:
-		total += w
-	var r = randf() * total
-	var cumulative = 0.0
-
-	for i in range(weights.size()):
-		cumulative += weights[i]
-		if r < cumulative:
-			return i+1
-
-	return weights.size()

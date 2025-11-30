@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cys7wosqyyfkf"]
 
-[ext_resource type="Script" uid="uid://b8v4o056n160f" path="res://Game Elements/Remnants/remnant_offer.gd" id="1_vtfuc"]
+[ext_resource type="Script" uid="uid://b8v4o056n160f" path="res://Game Elements/ui/remnant_offer.gd" id="1_vtfuc"]
 [ext_resource type="PackedScene" uid="uid://bsnhxne2rojuk" path="res://Game Elements/ui/remnant_slot.tscn" id="2_vtfuc"]
 [ext_resource type="PackedScene" uid="uid://duwpjadni8bdh" path="res://Game Elements/ui/crosshair_menu.tscn" id="3_8x0qu"]
 

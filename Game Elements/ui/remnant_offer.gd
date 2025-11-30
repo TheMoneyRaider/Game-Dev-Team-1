@@ -57,13 +57,29 @@ func popup_offer(is_multiplayer_in : bool, player1_remnants_in : Array, player2_
 	#populate UI
 	for i in range(slot_nodes.size()):
 		if i < offered_remnants.size():
-			slot_nodes[i].set_remnant(offered_remnants[i],rank_weights)
+			offered_remnants[i].rank = weighted_random_index(rank_weights)
+			slot_nodes[i].set_remnant(offered_remnants[i])
 		else:
 			slot_nodes[i].queue_free()
 	visible = true
 	modulate.a = 0.0
 	#Fade in
 	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
+
+
+func weighted_random_index(weights: Array) -> int:
+	var total = 0
+	for w in weights:
+		total += w
+	var r = randf() * total
+	var cumulative = 0.0
+
+	for i in range(weights.size()):
+		cumulative += weights[i]
+		if r < cumulative:
+			return i+1
+
+	return weights.size()
 
 
 func _check_if_remnant_viable(remnant : Resource, remnant_array : Array):
