@@ -1,20 +1,13 @@
-[gd_scene load_steps=27 format=3 uid="uid://ccwiql3bybf2p"]
+[gd_scene load_steps=24 format=3 uid="uid://ccwiql3bybf2p"]
 
 [ext_resource type="Script" uid="uid://ddvtpbrhc2iw1" path="res://Game Elements/Objects/pathway.gd" id="1_0mqoo"]
-[ext_resource type="Texture2D" uid="uid://dyg7thp4m8so5" path="res://art/base_icon.png" id="2_dp20r"]
-[ext_resource type="Shader" uid="uid://bylr7hbsry4y7" path="res://Game Elements/Shaders/icon_glow.gdshader" id="2_x3etk"]
-[ext_resource type="Script" uid="uid://c76nmnuf36fnq" path="res://Game Elements/Objects/rift_core_icon.gd" id="4_rjdqg"]
+[ext_resource type="Texture2D" uid="uid://4kec172p2w3c" path="res://art/closed_room_reward.png" id="2_okald"]
 [ext_resource type="Texture2D" uid="uid://jauot8cjpgbk" path="res://art/white_dot.png" id="6_rjdqg"]
 [ext_resource type="Shader" uid="uid://c7aprdgds5kpc" path="res://Game Elements/Shaders/chromatic_abberation.gdshader" id="6_x3etk"]
 [ext_resource type="Texture2D" uid="uid://dsg1hqhbidk6m" path="res://art/gradiant_dot.png" id="8_hgkmx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wj84b"]
 size = Vector2(50, 50)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_rjdqg"]
-shader = ExtResource("2_x3etk")
-shader_parameter/u_time = 0.0
-shader_parameter/base_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Gradient" id="Gradient_rjdqg"]
 offsets = PackedFloat32Array(0.2647059, 0.5392157, 1)
@@ -135,13 +128,6 @@ script = ExtResource("1_0mqoo")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("RectangleShape2D_wj84b")
 
-[node name="RiftCoreIcon" type="Sprite2D" parent="."]
-z_index = 1
-material = SubResource("ShaderMaterial_rjdqg")
-scale = Vector2(0.048, 0.048)
-texture = ExtResource("2_dp20r")
-script = ExtResource("4_rjdqg")
-
 [node name="RiftWisps_OrangeOld" type="GPUParticles2D" parent="."]
 visible = false
 position = Vector2(240, 69)
@@ -173,3 +159,15 @@ process_material = SubResource("ParticleProcessMaterial_1vvwv")
 [node name="ShaderSprite" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_hgkmx")
 texture = SubResource("ViewportTexture_dp20r")
+
+[node name="PathwayIcon" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -15.5
+offset_top = -15.5
+offset_right = 15.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_okald")

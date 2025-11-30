@@ -61,9 +61,9 @@ texture = ExtResource("1_3b7d0")
 lifetime = 2.0
 process_material = SubResource("ParticleProcessMaterial_oyqiy")
 
-[node name="Sprite2D2" type="Sprite2D" parent="."]
+[node name="Feet" type="Sprite2D" parent="."]
 texture = ExtResource("1_1fi3s")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Image" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_itn33")
 texture = ExtResource("4_qixjf")

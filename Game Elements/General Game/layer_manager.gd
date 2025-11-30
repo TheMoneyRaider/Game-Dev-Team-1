@@ -3,11 +3,13 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
+enum Reward {TimeFabric, Remnant, RemnantUpgrade}
 ### Temp Multiplayer Fix
 var player = null
 var player_2 = null
 ###
 @onready var room_cleared: bool = false
+@onready var reward_claimed: bool = false
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
@@ -19,9 +21,11 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
+var this_room_reward = Reward.TimeFabric
+
+#Thread Stuff
 var pending_room_creations: Array = []
 var terrain_update_queue: Array = []
-#Thread Stuff
 var room_gen_thread: Thread
 var thread_result: Dictionary
 var thread_running := false
@@ -128,8 +132,6 @@ func _process(delta: float) -> void:
 			Vector2(0,-1))
 			if timefabric_rewarded== 0:
 				room_instance.get_node("TimeFabricOrb").queue_free()
-		
-
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -204,6 +206,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 			and abs(player_position.y - targets_position[idx].y) <= player_rect.y + area_rect.y:
 			var target_id = targets_id[idx]
 			if !generated_room.get_node(target_id).used:
+				this_room_reward = generated_room.get_node(target_id).reward_type
 				_move_to_pathway_room(targets_id[idx])
 				return targets_direction[idx]
 	return -1
@@ -425,16 +428,19 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
 			_open_remnant_popup()
+			_enable_pathways()
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
 			timefabric_rewarded = 1000 #TODO change this
+			_enable_pathways()
 	if(if_node_exists("UpgradeOrb",generated_room)):
 		var upgrade_orb = generated_room.get_node("UpgradeOrb") as Area2D
 		if upgrade_orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
+			_enable_pathways()
 	
-func room_reward() -> void: #Change to have other rewards based on room #TODO
+func room_reward() -> void:
 	var reward_location
 	var reward
 	if is_multiplayer:
@@ -442,16 +448,13 @@ func room_reward() -> void: #Change to have other rewards based on room #TODO
 	else:
 		reward_location = _find_2x2_open_area([player.global_position],20)
 	while reward == null:
-		match (randi()%3):
-			0:# Remnant Orb Reward
+		match this_room_reward:
+			Reward.Remnant:
 				reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-			1:# Timefabric Reward
-				pass
-				#reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
-			2:#Upgrade Orb Reward
-				if _upgradable_remnants():
-					reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
-
+			Reward.TimeFabric:
+				reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+			Reward.RemnantUpgrade:
+				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	room_cleared= true
@@ -574,6 +577,41 @@ func _process_terrain_batch() -> void:
 		)
 
 #Helper Functions
+func _choose_reward(pathway_name : String) -> void:
+	var reward_type = null
+	var reward_texture : Node = null
+	while reward_type == null:
+		match randi() % 3:
+			0:
+				reward_type = Reward.Remnant
+				var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+				reward_texture = inst.get_node("Image")
+
+			1:
+				reward_type = Reward.TimeFabric
+				var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+				reward_texture = inst.get_node("Image")
+
+			2:
+				if _upgradable_remnants():
+					reward_type = Reward.RemnantUpgrade
+					var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+					reward_texture = inst.get_node("Image")
+
+	#Pass the icon & type to the pathway node
+	room_instance.get_node(pathway_name).set_reward(reward_texture, reward_type)
+
+func _enable_pathways() -> void:
+	reward_claimed = true
+	var pathway_name= ""
+	var direction_count = [0,0,0,0]
+	for p_direct in room_instance_data.pathway_direction:
+		direction_count[p_direct]+=1
+		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
+		if not if_node_exists(pathway_name,room_instance):
+			var pathway_detect = room_instance.get_node_or_null(pathway_name+"_Detect/Area2D/CollisionShape2D")
+			if pathway_detect:
+				room_instance.get_node(pathway_name+"_Detect").enable_pathway()
 
 func _upgradable_remnants() -> bool:
 	var count = 0
@@ -833,6 +871,8 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	generated_room_metadata[pathway_detect.name] = next_room_data
 	generated_rooms[pathway_detect.name] = next_room_instance
 	
+	_choose_reward(pathway_detect.name)
+	
 func _move_to_pathway_room(pathway_id: String) -> void:
 	if not generated_rooms.has(pathway_id):
 		push_warning("No linked room for pathway " + pathway_id)
@@ -889,6 +929,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	
 	
 	room_cleared= false
+	reward_claimed = false
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():
@@ -936,6 +977,8 @@ func _get_liquid_string(liquid : room.Liquid) -> String:
 func _open_pathway(input : String,generated_room : Node2D) -> void:
 	_debug_message("Opened "+input+" In this room: "+generated_room.name)
 	generated_room.get_node(input).queue_free()
+	if !input.ends_with("_Detect"):
+		generated_room.get_node(input+"_Detect").disable_pathway()
 	
 func if_node_exists(input : String,generated_room : Node2D) -> bool:
 	if generated_room.get_node_or_null(input):
@@ -988,7 +1031,6 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	if is_multiplayer:
 		player_2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
-	
 
 func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 	for i in range(player_1_remnants.size()):
@@ -1011,9 +1053,10 @@ func _on_timefabric_absorbed(timefabric_node : Node):
 func _on_activate(player_node : Node):
 	if room_instance and room_cleared:
 		check_reward(room_instance, room_instance_data,player_node)
-		var direction = check_pathways(room_instance, room_instance_data,player_node)
-		if direction != -1:
-			create_new_rooms()
+		if reward_claimed:
+			var direction = check_pathways(room_instance, room_instance_data,player_node)
+			if direction != -1:
+				create_new_rooms()
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
