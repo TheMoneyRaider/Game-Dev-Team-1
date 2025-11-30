@@ -8,14 +8,14 @@ signal slot_selected(index: int)
 @onready var btn_select: Button = $btn_select
 @onready var art: TextureRect = $btn_select/SubViewport/art
 @onready var name_label: Label = $btn_select/SubViewport/container/name_label
-@onready var desc_label: Label = $btn_select/SubViewport/container/description_label
+@onready var desc_label: RichTextLabel = $btn_select/SubViewport/container/description_label
 @onready var rank_label: Label = $btn_select/SubViewport/container/rank_label
 
 func _ready():
 	randomize()
 	btn_select.pressed.connect(_on_button_pressed)
 
-func set_remnant(remnant: Resource,rank_weights : Array) -> void:
+func set_remnant(remnant: Resource, is_upgrade : bool) -> void:
 	if remnant == null:
 		art.texture = null
 		name_label.text = "—"
@@ -27,10 +27,9 @@ func set_remnant(remnant: Resource,rank_weights : Array) -> void:
 		art.texture = remnant.art
 	else:
 		art.texture = null
-	var rank = weighted_random_index(rank_weights)
-	rank_label.text = "Rank " + _num_to_roman(rank)
+	rank_label.text = "Rank " + _num_to_roman(remnant.rank) if !is_upgrade else "Rank " + _num_to_roman(remnant.rank) +"->" + _num_to_roman(remnant.rank+1)
 	
-	_update_description(remnant, desc_label, rank)
+	_update_description(remnant, desc_label, remnant.rank, is_upgrade)
 
 func outline_remnant(child: Node, color: Color = Color.ORANGE, alpha : float = 0.0):
 	var shader = Shader.new()
@@ -61,27 +60,29 @@ func _num_to_roman(input : int) -> String:
 			return "V"
 	return "error"
 
-func _update_description(remnant : Resource, desc_label_up : Label, rank : int) -> void:
-	if len(remnant.variable_names) >= 1:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[0],str(remnant.variable_1_values[rank-1]))
-	if len(remnant.variable_names) >= 2:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[1],str(remnant.variable_2_values[rank-1]))
-	if len(remnant.variable_names) >= 3:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[2],str(remnant.variable_3_values[rank-1]))
-	if len(remnant.variable_names) >= 4:
-		desc_label_up.text = desc_label.text.replace(remnant.variable_names[3],str(remnant.variable_4_values[rank-1]))
+func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: int, is_upgrade : bool) -> void:
+	var new_text := desc_label.text
 
+	for i in remnant.variable_names.size():
+		var rem_name : String = remnant.variable_names[i]
+		var value := str(remnant["variable_%d_values" % (i + 1)][rank - 1])
+		var new_value := str(remnant["variable_%d_values" % (i + 1)][rank])
 
-func weighted_random_index(weights: Array) -> int:
-	var total = 0
-	for w in weights:
-		total += w
-	var r = randf() * total
-	var cumulative = 0.0
+		var colored_value := "[color=white]" + value
+		var colored_new_value := "[color=white]" + new_value
 
-	for i in range(weights.size()):
-		cumulative += weights[i]
-		if r < cumulative:
-			return i+1
+		#Color a trailing % sign if present
+		if new_text.find(rem_name + "%") != -1:
+			if is_upgrade:
+				colored_value += "%->"+colored_new_value+"%[/color]"
+			else:
+				colored_value += "%[/color]"
+			new_text = new_text.replace(rem_name + "%", colored_value)
+		else:
+			if is_upgrade:
+				colored_value += "->"+colored_new_value+"[/color]"
+			else:
+				colored_value += "[/color]"
+			new_text = new_text.replace(rem_name, colored_value)
 
-	return weights.size()
+	desc_label_up.text = new_text

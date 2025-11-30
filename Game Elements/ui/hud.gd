@@ -4,23 +4,50 @@ var is_multiplayer : bool = false
 @onready var health_bar_1 = $RootControl/HealthBar1
 @onready var health_bar_2 = $RootControl/HealthBar2
 @onready var TimeFabric = $RootControl/TimeFabric
+@onready var IconSlotScene = preload("res://Game Elements/ui/remnant_icon.tscn")
 var player1
 var player2
 
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 
-func add_remnants(remnant1 : Resource,remnant2 : Resource):
-	var icon1 = TextureRect.new()
-	var icon2 = TextureRect.new()
-	icon1.texture = remnant1.icon
-	icon2.texture = remnant2.icon
-	icon1.stretch_mode = TextureRect.STRETCH_SCALE
-	icon1.custom_minimum_size = icon1.texture.get_size() * 2
-	icon2.stretch_mode = TextureRect.STRETCH_SCALE
-	icon2.custom_minimum_size = icon2.texture.get_size() * 2
-	$RootControl/RemnantIcons/LeftRemnants.add_child(icon1)
-	$RootControl/RemnantIcons/RightRemnants.add_child(icon2)
+func set_remnant_icons(player1_remnants: Array, player2_remnants: Array):
+	for child in $RootControl/RemnantIcons/LeftRemnants.get_children():
+		child.queue_free()
+	for child in $RootControl/RemnantIcons/RightRemnants.get_children():
+		child.queue_free()
+	for remnant in player1_remnants:
+		_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant)
+	#add in reverse so GridContainer displays them right->left
+	for i in range(player2_remnants.size() - 1, -1, -1):
+		_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i])
+	
+
+func _add_slot(grid: Node, remnant: Resource):
+	var slot := IconSlotScene.instantiate()
+	var tex := slot.get_node("TextureRect")
+	var label := slot.get_node("Label")
+	tex.texture = remnant.icon
+	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex.custom_minimum_size = remnant.icon.get_size() * 2
+	label.text = _num_to_roman(remnant.rank)
+	grid.add_child(slot)
+
+
+
+func _num_to_roman(input : int) -> String:
+	match input:
+		1:
+			return "I"
+		2:
+			return "II"
+		3:
+			return "III"
+		4:
+			return "IV"
+		5:
+			return "V"
+	return "error"
 
 func set_players(player1_node : Node, player2_node : Node = null):
 	player1 = player1_node

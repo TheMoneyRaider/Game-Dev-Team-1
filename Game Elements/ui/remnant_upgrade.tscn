@@ -1,8 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://cys7wosqyyfkf"]
+[gd_scene load_steps=4 format=3 uid="uid://cs11p7215qny6"]
 
-[ext_resource type="Script" uid="uid://b8v4o056n160f" path="res://Game Elements/ui/remnant_offer.gd" id="1_vtfuc"]
-[ext_resource type="PackedScene" uid="uid://bsnhxne2rojuk" path="res://Game Elements/ui/remnant_slot.tscn" id="2_vtfuc"]
-[ext_resource type="PackedScene" uid="uid://duwpjadni8bdh" path="res://Game Elements/ui/crosshair_menu.tscn" id="3_8x0qu"]
+[ext_resource type="Script" uid="uid://cy2r4my2oiosy" path="res://Game Elements/ui/remnant_upgrade.gd" id="1_jvxp2"]
+[ext_resource type="PackedScene" uid="uid://bsnhxne2rojuk" path="res://Game Elements/ui/remnant_slot.tscn" id="2_bn8o0"]
+[ext_resource type="PackedScene" uid="uid://duwpjadni8bdh" path="res://Game Elements/ui/crosshair_menu.tscn" id="3_61lpe"]
 
 [node name="RemnantOffer" type="Control"]
 process_mode = 2
@@ -14,7 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-script = ExtResource("1_vtfuc")
+script = ExtResource("1_jvxp2")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -37,20 +37,20 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="slot0" parent="MarginContainer/slots_hbox" instance=ExtResource("2_vtfuc")]
+[node name="slot0" parent="MarginContainer/slots_hbox" instance=ExtResource("2_bn8o0")]
 custom_minimum_size = Vector2(413, 995)
 layout_mode = 2
 
-[node name="slot1" parent="MarginContainer/slots_hbox" instance=ExtResource("2_vtfuc")]
+[node name="slot1" parent="MarginContainer/slots_hbox" instance=ExtResource("2_bn8o0")]
 custom_minimum_size = Vector2(413, 995)
 layout_mode = 2
 
-[node name="slot2" parent="MarginContainer/slots_hbox" instance=ExtResource("2_vtfuc")]
+[node name="slot2" parent="MarginContainer/slots_hbox" instance=ExtResource("2_bn8o0")]
 custom_minimum_size = Vector2(413, 995)
 layout_mode = 2
 
-[node name="slot3" parent="MarginContainer/slots_hbox" instance=ExtResource("2_vtfuc")]
+[node name="slot3" parent="MarginContainer/slots_hbox" instance=ExtResource("2_bn8o0")]
 custom_minimum_size = Vector2(413, 995)
 layout_mode = 2
 
-[node name="Crosshair" parent="." instance=ExtResource("3_8x0qu")]
+[node name="Crosshair" parent="." instance=ExtResource("3_61lpe")]

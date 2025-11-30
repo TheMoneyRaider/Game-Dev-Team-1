@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://whwenrbf4lw8"]
+
+[ext_resource type="Texture2D" uid="uid://21s1bbewu58o" path="res://art/remnants/hunter_icon.png" id="1_2lyub"]
+
+[node name="RemnantIcon" type="Control"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+texture = ExtResource("1_2lyub")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 38.0
+offset_top = 30.0
+offset_right = 57.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 32
+text = "I"

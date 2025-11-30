@@ -1,7 +1,7 @@
 extends Control
 class_name RemnantOffer
 
-signal remnant_chosen(remnant: Resource)
+signal remnant_chosen(remnant1: Resource,remnant2: Resource)
 
 @onready var crosshair_sprite = $Crosshair/Sprite2D
 @onready var purple_crosshair = preload("res://art/purple_crosshair.png")
@@ -43,9 +43,9 @@ func _process(delta):
 		#If we now have two different selections -> close the menu
 		_close_after_two_chosen()
 
-func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnants_in : Array, player2_remnants_in : Array, rank_weights : Array = [50,35,10,5,0]):
-	player1_remnants = player1_remnants_in
-	player2_remnants = player2_remnants_in
+func popup_offer(is_multiplayer_in : bool, player1_remnants_in : Array, player2_remnants_in : Array, rank_weights : Array = [50,35,10,5,0]):
+	player1_remnants = player1_remnants_in.duplicate()
+	player2_remnants = player2_remnants_in.duplicate()
 	crosshair_sprite.texture = purple_crosshair
 	is_multiplayer = is_multiplayer_in
 	if !is_multiplayer:
@@ -57,13 +57,29 @@ func popup_offer(is_multiplayer_in : bool, layer_manager : Node, player1_remnant
 	#populate UI
 	for i in range(slot_nodes.size()):
 		if i < offered_remnants.size():
-			slot_nodes[i].set_remnant(offered_remnants[i],rank_weights)
+			offered_remnants[i].rank = weighted_random_index(rank_weights)
+			slot_nodes[i].set_remnant(offered_remnants[i],false)
 		else:
 			slot_nodes[i].queue_free()
 	visible = true
 	modulate.a = 0.0
 	#Fade in
 	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
+
+
+func weighted_random_index(weights: Array) -> int:
+	var total = 0
+	for w in weights:
+		total += w
+	var r = randf() * total
+	var cumulative = 0.0
+
+	for i in range(weights.size()):
+		cumulative += weights[i]
+		if r < cumulative:
+			return i+1
+
+	return weights.size()
 
 
 func _check_if_remnant_viable(remnant : Resource, remnant_array : Array):
