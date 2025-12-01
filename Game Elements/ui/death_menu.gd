@@ -88,6 +88,16 @@ func play_replay_reverse():
 	#Variables
 	var recent_len = recent_buffer.size() 
 	var long_len = longterm_buffer.size()
+	#Remove first few frames(they're bad)
+	if long_len > 0:
+		long_len-=4
+	else:
+		recent_len-=4
+	total_frames-=4
+	
+	#Change rewind time if total time is too low
+	if total_time < 3/2 * rewind_time:
+		rewind_time = 2/3 * total_time
 	
 	var base_recent_wait = 1.0 / recent_fps #slowest recent frame 
 	var max_recent_wait = 1.0 / recent_target_fps #fastest recent frame
@@ -97,9 +107,9 @@ func play_replay_reverse():
 	var wait_time = 1.0 / recent_target_fps
 	
 	var weights = [] 
-	var running_times = [] 
+	var running_times = []
 	var total_weight = 0.0
-	for idx in range(total_frames-1,-1,-1):
+	for idx in range(total_frames+3,3,-1):
 		#Determine if frame is recent or long-term
 		if idx >= long_len:
 			#Recent buffer: exponential acceleration
@@ -124,7 +134,7 @@ func play_replay_reverse():
 	
 	var weights_len = len(weights)
 	
-	for idx in range(total_frames-1,-1,-1):
+	for idx in range(total_frames+3,3,-1):
 		var tex = ImageTexture.create_from_image(frames[idx])
 		replay_texture.texture = tex
 		#Set shader value
@@ -150,5 +160,12 @@ func end_replay():
 	recent_buffer.clear()
 	longterm_buffer.clear()
 	frame_amount = 0
+	
+	# Create a full-screen overlay with the last frame
+	var overlay = load("res://Game Elements/ui/transition_texture.tscn").instantiate()
+	overlay.get_node("TextureRect").texture = replay_texture.texture
+	get_tree().get_root().add_child(overlay)
+
 	get_tree().paused = false
+	# Load the next scene deferred, the overlay keeps the last frame visible
 	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/General Game/layer_manager.tscn")
