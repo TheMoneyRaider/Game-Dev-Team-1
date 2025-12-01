@@ -22,10 +22,13 @@ var hover_index : int = 0 #Orange
 var nav_cooldown := 0.15
 var nav_timer := 0.0
 
+
 func _ready():
 	for i in range(slot_nodes.size()):
 		slot_nodes[i].index = i
 		slot_nodes[i].slot_selected.connect(_on_slot_selected)
+		
+	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	get_tree().paused = true
 
 func _process(delta):

@@ -54,8 +54,8 @@ func take_damage(damage : int, direction = Vector2(0,-1)):
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_parent().get_parent().trap_cells:
-		var tile_data = get_parent().get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in get_tree().get_root().get_node("LayerManager").trap_cells:
+		var tile_data = get_tree().get_root().get_node("LayerManager").return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap

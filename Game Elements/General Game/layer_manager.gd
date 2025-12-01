@@ -21,7 +21,7 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.TimeFabric
+var this_room_reward = Reward.Remnant
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -33,8 +33,9 @@ var thread_running := false
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var pathfinding = Pathfinding.new()
 
-@onready var camera = $Camera2D
-@onready var hud = $Hud
+@onready var camera = $game_container/game_viewport/game_root/Camera2D
+@onready var game_root = $game_container/game_viewport/game_root
+@onready var hud = $game_container/game_viewport/Hud
 
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
@@ -69,14 +70,13 @@ var time_passed := 0.0
 	0,#Items picked up   			#TODO
 	]
 
-
 func _ready() -> void:
+	
 	var conflict_cells : Array[Vector2i] = []
 	_setup_players()
 	hud.set_players(player,player_2)
 	hud.connect_signals(player)
-	
-	add_child(pathfinding)
+	game_root.add_child(pathfinding)
 	preload_rooms()
 	randomize()
 	choose_room()
@@ -218,7 +218,7 @@ func choose_room() -> void:
 	
 	room_location = load(room_instance_data.scene_location)
 	room_instance = room_location.instantiate()
-	add_child(room_instance)
+	game_root.add_child(room_instance)
 
 func choose_pathways(direction : int, generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:
 	# Place required pathway(where the player(s) is entering		
@@ -517,7 +517,7 @@ func _create_room_step() -> void:
 	next_room_instance.name = pathway_name
 	next_room_instance.visible = false
 	next_room_instance.process_mode = Node.PROCESS_MODE_DISABLED
-	add_child(next_room_instance)
+	game_root.add_child(next_room_instance)
 	
 	# defer the more computationally heavy code
 	call_deferred("_finalize_room_creation", next_room_instance, next_room_data, direction, pathway_detect)
@@ -645,8 +645,8 @@ func _setup_players() -> void:
 		player2.input_device = "0"
 		player1.other_player = player2
 		player2.other_player = player1
-		add_child(player1)
-		add_child(player2)
+		game_root.add_child(player1)
+		game_root.add_child(player2)
 		player2.swap_color()
 		#Temp Multiplayer Fix
 		player = player1
@@ -659,7 +659,7 @@ func _setup_players() -> void:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
 		player1.input_device = "key"
-		add_child(player1)
+		game_root.add_child(player1)
 		player = player1
 	player.attack_requested.connect(_on_player_attack)
 	player.player_took_damage.connect(_on_player_take_damage)
@@ -1106,7 +1106,7 @@ func _on_activate(player_node : Node):
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
-	
+
 func _debug_tiles(array_of_tiles) -> void:
 	var debug
 	for tile in array_of_tiles:

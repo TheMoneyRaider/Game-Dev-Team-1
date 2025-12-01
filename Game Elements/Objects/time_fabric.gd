@@ -85,7 +85,7 @@ func set_direction(direction : Vector2):
 
 
 func move_towards_player():
-	var layer_manager = get_parent().get_parent()
+	var layer_manager = get_tree().get_root().get_node("LayerManager")
 	var is_multiplayer = layer_manager.is_multiplayer
 	if is_multiplayer:
 		check_player(layer_manager.player)
