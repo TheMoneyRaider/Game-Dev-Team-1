@@ -1,5 +1,5 @@
 extends CanvasLayer
-@export var recent_seconds := 20
+@export var recent_seconds := 6
 @export var recent_fps : float = 30.0
 @export var longterm_fps : float = 2.0
 @export var longterm_buffer_size := 10000
@@ -77,16 +77,17 @@ func play_replay_reverse():
 	frames.append_array(recent_buffer)
 	var total_frames = frames.size()
 	var running_time = 0.0
+	var running_intensity = 0.0
 	
 	#Variables
 	var recent_len = recent_buffer.size() 
 	var long_len = longterm_buffer.size()
 	
 	var min_shader_intensity = .1
-	var max_shader_intensity = 2.8
+	var max_shader_intensity = 1
 
 	var recent_target_fps = 150.0 #end recent frame FPS 
-	var long_target_fps = 2*(5+float(long_len)/100) # end recent frame FPS 
+	var long_target_fps = 2*(5+float(long_len)/10) # end recent frame FPS 
 	var base_recent_wait = 1.0 / recent_fps #slowest recent frame 
 	var max_recent_wait = 1.0 / recent_target_fps #fastest recent frame
 	var base_long_wait = max_recent_wait *  recent_fps / longterm_fps #slowest long-term frame 
@@ -113,12 +114,11 @@ func play_replay_reverse():
 		#Set shader value
 		if idx >= long_len:
 			running_time+=wait_time
+			running_intensity+= 1/ recent_fps
 		else:
 			running_time+=wait_time*longterm_fps/recent_fps
-		print(running_time)
-		print(total_time)
-		#print(get_shader_intensity(running_time, total_time, min_shader_intensity, max_shader_intensity))
-		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_time, total_time, min_shader_intensity, max_shader_intensity))
+			running_intensity+= 1/ longterm_fps
+		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_intensity, total_time, min_shader_intensity, max_shader_intensity))
 		replay_texture.material.set_shader_parameter("time", running_time)
 		#Wait for the computed frame time before continuing
 		await get_tree().process_frame # ensures UI updates immediately
@@ -126,12 +126,12 @@ func play_replay_reverse():
 	end_replay()
 	return
 
-func get_shader_intensity(running_time: float, total_time: float, min_intensity: float, max_intensity: float) -> float:
-	var t = clamp(running_time / total_time, 0.0, 1.0)
-	#S-curve cubic interpolation
-	var s_curve = t * t * (3.0 - 2.0 * t)
-	#Map to shader intensity
-	return lerp(min_intensity, max_intensity, s_curve)
+func get_shader_intensity(running_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
+	var t = clamp(running_time / total_time_func, 0.0, 1.0)
+	#Exponential curve: start slow, end fast
+	var exp_curve = pow(t, exponent)
+	# Map to shader intensity
+	return lerp(min_intensity, max_intensity, exp_curve)
 func end_replay():
 	#TODO do a transition
 	capturing = false
