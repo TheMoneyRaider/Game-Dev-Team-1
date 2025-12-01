@@ -133,6 +133,13 @@ func _process(delta: float) -> void:
 			if timefabric_rewarded== 0:
 				room_instance.get_node("TimeFabricOrb").queue_free()
 				reward_claimed = true
+	if !room_cleared:
+		for child in room_instance.get_children():
+			if child is DynamEnemy:
+				return
+		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
+		room_reward()
+		room_cleared= true
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -464,7 +471,6 @@ func room_reward() -> void:
 				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
-	room_cleared= true
 
 #Thread functions
 
@@ -584,6 +590,12 @@ func _process_terrain_batch() -> void:
 		)
 
 #Helper Functions
+
+func open_death_menu() -> void:
+	get_node("DeathMenu").activate()
+	
+
+
 func _choose_reward(pathway_name : String) -> void:
 	var reward_type = null
 	var reward_texture : Node = null
@@ -1062,11 +1074,6 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1
-		for child in room_instance.get_children():
-			if child is DynamEnemy and child != enemy:
-				return
-		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
-		room_reward()
 
 func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player_1_remnants.append(remnant1.duplicate(true))
@@ -1108,8 +1115,9 @@ func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
 
 func _debug_tiles(array_of_tiles) -> void:
-	var debug
-	for tile in array_of_tiles:
-		debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
-		debug.position = tile*16
-		room_instance.add_child(debug)
+	pass
+	#var debug
+	#for tile in array_of_tiles:
+		#debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
+		#debug.position = tile*16
+		#room_instance.add_child(debug)

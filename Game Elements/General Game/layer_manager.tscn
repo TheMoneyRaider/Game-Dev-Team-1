@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=5 format=3 uid="uid://bjlqt0ad4do23"]
 
 [ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Game Elements/General Game/layer_manager.gd" id="1_gynnh"]
 [ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
+[ext_resource type="PackedScene" uid="uid://bmb5ip00tidvr" path="res://Game Elements/ui/death_menu.tscn" id="3_aya3e"]
 
 [sub_resource type="GDScript" id="GDScript_n323y"]
 script/source = "extends SubViewport
@@ -14,6 +15,9 @@ func _unhandled_input(event):
 [node name="LayerManager" type="Node2D"]
 process_mode = 3
 script = ExtResource("1_gynnh")
+
+[node name="DeathMenu" parent="." instance=ExtResource("3_aya3e")]
+layer = 2
 
 [node name="game_container" type="SubViewportContainer" parent="."]
 offset_right = 1920.0
@@ -30,7 +34,6 @@ render_target_update_mode = 4
 script = SubResource("GDScript_n323y")
 
 [node name="Hud" parent="game_container/game_viewport" instance=ExtResource("2_4xk7e")]
-process_mode = 3
 scale = Vector2(1, 1)
 transform = Transform2D(1, 0, 0, 1, 0, 0)
 

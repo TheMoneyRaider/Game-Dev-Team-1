@@ -174,11 +174,11 @@ func die(death : bool , insta_die : bool = false) -> bool:
 		#Change to signal something
 		self.process_mode = PROCESS_MODE_DISABLED
 		visible = false
-		get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+		get_tree().get_root().get_node("LayerManager").open_death_menu()
 		return false
 	else:
 		if insta_die:
-			get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+			get_tree().get_root().get_node("LayerManager").open_death_menu()
 			return false
 		if death:
 			max_health = max_health - 2
@@ -186,8 +186,8 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			self.process_mode = PROCESS_MODE_DISABLED
 			visible = false
 			if(max_health <= 0):
-				#Change to signal something
-				get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+				#Change to signal 
+				get_tree().get_root().get_node("LayerManager").open_death_menu()
 				return false
 		else:
 			current_health = round(max_health / 2)

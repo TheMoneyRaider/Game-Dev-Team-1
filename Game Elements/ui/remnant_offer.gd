@@ -114,8 +114,6 @@ func _handle_multiplayer_input(event):
 		if _check_if_remnant_viable(offered_remnants[hover_index], player2_remnants) and hover_index != selected_index2:
 			selected_index2 = hover_index
 
-
-
 func _on_slot_selected(idx: int) -> void:
 	if is_multiplayer:
 		if _check_if_remnant_viable(offered_remnants[idx], player1_remnants) and idx != selected_index2:

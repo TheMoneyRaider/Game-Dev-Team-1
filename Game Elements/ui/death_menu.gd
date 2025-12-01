@@ -1,91 +1,118 @@
 extends CanvasLayer
-@export var frame_buffer_size: int = 180  # Number of frames to record (~3 sec at 60fps)
+@export var recent_seconds := 20
+@export var recent_fps : float = 30.0
+@export var longterm_fps : float = 2.0
+@export var longterm_buffer_size := 10000
 
-@onready var bg_blur: TextureRect = $Control/Game_Blur
 @onready var replay_texture: TextureRect = $Control/Replay
-@onready var replay_btn: Button = $Control/VBoxContainer/Rewind
 @onready var death_box: VBoxContainer = $Control/VBoxContainer
 
-var frame_buffer := []
+var recent_buffer := []
+var longterm_buffer := []
+var capture_timer: Timer
 var capturing := true
 
-enum ButtonsHere {
-	Rewind,
-	Quit
-}
-
-var active = ButtonsHere.Rewind
-
-const HANDLED_ACTIONS = ["ui_accept", "ui_up", "ui_down"]
+var frame_amount = 0
 
 func _ready():
 	hide()
-	replay_texture.visible = false
-	replay_btn.pressed.connect(_on_replay_pressed)
-	
-func _process(_delta):
-	if capturing:
-		capture_frame()
-
-func _input(event):
-	if event.is_pressed():
-		var occ = ""
-		for action in HANDLED_ACTIONS:
-			if event.is_action_pressed(action):
-				occ = action
-		match occ:
-			"ui_accept":
-				press()
-			"ui_up":
-				prev_button()
-			"ui_down":
-				next_button()
-
-func press():
-	print(active)
-	match active:
-		ButtonsHere.Rewind:
-			_on_replay_pressed()
-		ButtonsHere.Quit:
-			get_tree().quit()
-			
-			
-
-func next_button():
-	active = (active + 1) % ButtonsHere.size() as ButtonsHere
-func prev_button():
-	active = (active + ButtonsHere.size() - 1) % ButtonsHere.size() as ButtonsHere
-	
+	#Disable buttons at start
+	for button in death_box.get_children():
+		if button is Button:
+			button.disabled = true
+	capture_timer = Timer.new()
+	capture_timer.wait_time = 1.0 / recent_fps
+	capture_timer.one_shot = false
+	add_child(capture_timer)
+	capture_timer.timeout.connect(_capture_frame)
+	capture_timer.start()
 
 
-func capture_frame():
-	var viewport = get_viewport()
+func activate():
+	capturing=false
+	capture_timer.stop()
+	show()
+	get_tree().paused = true
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	var game_root = get_parent().get_node("game_container/game_viewport/game_root")
+	game_root.call_deferred("set", "process_mode", Node.PROCESS_MODE_DISABLED)
+	for button in death_box.get_children():
+		if button is Button:
+			button.disabled = false
+
+func _capture_frame():
+	print("frame: "+str(frame_amount))
+	frame_amount +=1
+	if not capturing:
+		return
+	var viewport = get_parent().get_node("game_container/game_viewport") as SubViewport
 	var img = viewport.get_texture().get_image()
-	if frame_buffer.size() >= frame_buffer_size:
-		frame_buffer.pop_front()
-	frame_buffer.append(img)
+
+	#Add to recent buffer (rotating)
+	recent_buffer.append(img)
+	if recent_buffer.size() > recent_seconds * recent_fps:
+		var oldest = recent_buffer.pop_front()
+		#Push oldest to long-term buffer
+		if frame_amount % int(recent_fps/longterm_fps) == 0:
+			longterm_buffer.append(oldest)
+			if longterm_buffer.size() > longterm_buffer_size:
+				longterm_buffer.pop_front()
+
+func _on_quit_pressed():
+	get_tree().quit()
+func _on_menu_pressed():
+	get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
 
 func _on_replay_pressed():
 	replay_texture.visible = true
 	death_box.visible = false
-	capturing = false
 	play_replay_reverse()
 
 func play_replay_reverse():
-	var idx = frame_buffer.size() - 1
-	var timer = Timer.new()
-	timer.wait_time = 1.0 / 60.0
-	timer.one_shot = false
-	add_child(timer)
-	timer.start()
-	timer.timeout.connect(func():
-		if idx < 0:
-			timer.queue_free()
-			end_replay()
-			return
-		var tex = ImageTexture.create_from_image(frame_buffer[idx])
+	# Concatenate frames
+	var frames = longterm_buffer.duplicate()
+	frames.append_array(recent_buffer)
+	var total_frames = frames.size()
+	
+	# Base timing 
+	var recent_len = recent_buffer.size() 
+	var long_len = longterm_buffer.size()
+
+	var recent_target_fps = 150.0 # end recent frame FPS 
+	var long_target_fps = 2*(5+float(long_len)/100) # end recent frame FPS 
+	var base_recent_wait = 1.0 / recent_fps # slowest recent frame 
+	var max_recent_wait = 1.0 / recent_target_fps #fastest recent frame
+	var base_long_wait = max_recent_wait *  recent_fps / longterm_fps# slowest long-term frame 
+	var max_long_wait = 1 / float(long_target_fps) # fastest long-term frame
+	
+	var wait_time = 1.0 / recent_target_fps
+	
+	for idx in range(total_frames-2,-1,-1):
+		var tex = ImageTexture.create_from_image(frames[idx])
 		replay_texture.texture = tex
-		idx -= 1
-)
+		# Determine if frame is recent or long-term
+		if idx >= long_len:
+			# Recent buffer: exponential acceleration
+			var local_idx = idx - long_len
+			var progress = float(local_idx) / float(recent_len) 
+			wait_time = base_recent_wait * pow(max_recent_wait / base_recent_wait, 1 - progress)
+			print("short_frame: "+str(wait_time*recent_fps))
+		else:
+			# Long-term buffer: slow frames, but still accelerating
+			var local_idx = idx
+			var progress = float(local_idx) / float(long_len) 
+			wait_time = base_long_wait * pow(max_long_wait / base_long_wait, 1 - progress)
+			print("long_frame: "+str(wait_time*recent_fps))
+		#Wait for the computed frame time before continuing
+		await get_tree().process_frame # ensures UI updates immediately
+		await get_tree().create_timer(wait_time).timeout
+	end_replay()
+	return
 func end_replay():
-	pass
+	#TODO do a transition
+	capturing = false
+	recent_buffer.clear()
+	longterm_buffer.clear()
+	frame_amount = 0
+	get_tree().paused = false
+	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/General Game/layer_manager.tscn")

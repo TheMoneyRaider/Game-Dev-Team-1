@@ -1,14 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://bmb5ip00tidvr"]
+[gd_scene load_steps=6 format=3 uid="uid://bmb5ip00tidvr"]
 
 [ext_resource type="Script" uid="uid://djs1rcercfqnx" path="res://Game Elements/ui/death_menu.gd" id="1_wxn66"]
+[ext_resource type="Shader" uid="uid://dfm28pjuolxrq" path="res://Game Elements/ui/blur.gdshader" id="2_mh5qr"]
+[ext_resource type="Shader" uid="uid://bxy3s0x1oqsce" path="res://Game Elements/ui/replay.gdshader" id="3_mw7a0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mw7a0"]
+shader = ExtResource("2_mh5qr")
+shader_parameter/blur_size = 6.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dydff"]
+shader = ExtResource("3_mw7a0")
+shader_parameter/time = 0.0
 
 [node name="DeathMenu" type="CanvasLayer"]
 process_mode = 3
 script = ExtResource("1_wxn66")
 
 [node name="Control" type="Control" parent="."]
+process_mode = 2
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1920.0
@@ -17,6 +26,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+process_mode = 2
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -32,16 +42,19 @@ grow_vertical = 2
 theme_override_constants/separation = 40
 
 [node name="Rewind" type="Button" parent="Control/VBoxContainer"]
+process_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
 text = "Rewind"
 
 [node name="Quit" type="Button" parent="Control/VBoxContainer"]
+process_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
 text = "Quit"
 
 [node name="Menu" type="Button" parent="Control/VBoxContainer"]
+process_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
 text = "Main Menu"
@@ -61,8 +74,16 @@ theme_override_constants/outline_size = 20
 theme_override_font_sizes/font_size = 100
 text = "Timeline Fractured"
 
+[node name="Game_Blur" type="TextureRect" parent="Control"]
+material = SubResource("ShaderMaterial_mw7a0")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="Replay" type="TextureRect" parent="Control"]
-visible = false
 material = SubResource("ShaderMaterial_dydff")
 layout_mode = 1
 anchors_preset = 15
