@@ -2,7 +2,6 @@ extends Control
 @export var fade_duration: float = 0.5  # seconds
 
 func _ready():
-	var tex_rect = get_child(0)
 	var tex_rect2 = get_child(1)
 	# Start fade-out
 	var tween = create_tween()

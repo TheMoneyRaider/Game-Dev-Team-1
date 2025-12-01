@@ -64,10 +64,41 @@ func popup_offer(is_multiplayer_in : bool, player1_remnants_in : Array, player2_
 			slot_nodes[i].set_remnant(offered_remnants[i],false)
 		else:
 			slot_nodes[i].queue_free()
+	# Wait a frame for layout to update
+	await get_tree().process_frame
+	for i in range(slot_nodes.size()):
+		if i < offered_remnants.size():
+			_place_purple_selectable(slot_nodes[i],offered_remnants[i])
+			_place_orange_selectable(slot_nodes[i],offered_remnants[i])
+
 	visible = true
 	modulate.a = 0.0
 	#Fade in
 	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
+	
+	
+
+func _place_purple_selectable(slot : Node ,remnant : Resource):
+	var rem_names = []
+	for r in player1_remnants:
+		rem_names.append(r.remnant_name)
+	if remnant.remnant_name not in rem_names:
+		var particle = load("res://Game Elements/ui/purple_selectable.tscn").instantiate()
+		particle.position = slot.position+slot.size+$MarginContainer/slots_hbox.position
+		particle.position.x -= slot.size.x/2
+		add_child(particle)
+
+func _place_orange_selectable(slot : Node ,remnant : Resource):
+	var rem_names = []
+	for r in player2_remnants:
+		rem_names.append(r.remnant_name)
+	if remnant.remnant_name not in rem_names:
+		var particle = load("res://Game Elements/ui/orange_selectable.tscn").instantiate()
+		particle.position = slot.position+slot.size+$MarginContainer/slots_hbox.position
+		particle.position.x -= slot.size.x/2
+		particle.position.y -= slot.size.y
+		add_child(particle)
+	
 
 
 func weighted_random_index(weights: Array) -> int:
