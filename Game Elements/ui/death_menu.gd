@@ -1,8 +1,8 @@
 extends CanvasLayer
 @export var recent_seconds := 8
-@export var rewind_time := 12
-@export var recent_fps : float = 30.0
-@export var longterm_fps : float = 2.0
+@export var rewind_time := 10 #can't be smaller than recent_seconds. also the actual rewind time is generally 3 seconds or so greater.
+@export var recent_fps : float = 32.0
+@export var longterm_fps : float = 8.0
 #Note, these goals arn't actually achieved. They're more like weights. 
 @export var recent_target_fps = 5*recent_fps # Seconds per second goal by the recent frame buffer end
 @export var long_target_fps = 8*longterm_fps # Seconds per second goal by the longterm frame buffer end
@@ -135,10 +135,8 @@ func play_replay_reverse():
 		wait_time = (weights[weights_len-1-idx] / total_weight) * rewind_time
 		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_intensity, total_time, min_shader_intensity, max_shader_intensity))
 		replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
-		await get_tree().process_frame # ensures UI updates immediately
 		await get_tree().create_timer(wait_time).timeout
 	end_replay()
-	return
 
 func get_shader_intensity(running_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
 	var t = clamp(running_time / total_time_func, 0.0, 1.0)
