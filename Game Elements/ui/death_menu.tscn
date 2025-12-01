@@ -1,8 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://bmb5ip00tidvr"]
+[gd_scene load_steps=4 format=3 uid="uid://bmb5ip00tidvr"]
 
 [ext_resource type="Script" uid="uid://djs1rcercfqnx" path="res://Game Elements/ui/death_menu.gd" id="1_wxn66"]
+[ext_resource type="Shader" uid="uid://bxy3s0x1oqsce" path="res://Game Elements/ui/replay.gdshader" id="2_mh5qr"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dydff"]
+shader = ExtResource("2_mh5qr")
+shader_parameter/time = 0.0
+shader_parameter/intensity = 0.30000001425
 
 [node name="DeathMenu" type="CanvasLayer"]
 process_mode = 3
