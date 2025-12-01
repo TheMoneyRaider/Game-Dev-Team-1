@@ -1,7 +1,11 @@
 extends CanvasLayer
-@export var recent_seconds := 6
+@export var recent_seconds := 8
+@export var rewind_time := 12
 @export var recent_fps : float = 30.0
 @export var longterm_fps : float = 2.0
+#Note, these goals arn't actually achieved. They're more like weights. 
+@export var recent_target_fps = 5*recent_fps # Seconds per second goal by the recent frame buffer end
+@export var long_target_fps = 8*longterm_fps # Seconds per second goal by the longterm frame buffer end
 @export var longterm_buffer_size := 10000
 
 @onready var replay_texture: TextureRect = $Control/Replay
@@ -78,49 +82,59 @@ func play_replay_reverse():
 	var total_frames = frames.size()
 	var running_time = 0.0
 	var running_intensity = 0.0
+	var min_shader_intensity = .1
+	var max_shader_intensity = 1
 	
 	#Variables
 	var recent_len = recent_buffer.size() 
 	var long_len = longterm_buffer.size()
 	
-	var min_shader_intensity = .1
-	var max_shader_intensity = 1
-
-	var recent_target_fps = 150.0 #end recent frame FPS 
-	var long_target_fps = 2*(5+float(long_len)/10) # end recent frame FPS 
 	var base_recent_wait = 1.0 / recent_fps #slowest recent frame 
 	var max_recent_wait = 1.0 / recent_target_fps #fastest recent frame
 	var base_long_wait = max_recent_wait *  recent_fps / longterm_fps #slowest long-term frame 
-	var max_long_wait = 1 / float(long_target_fps) #fastest long-term frame
-	
+	var max_long_wait = 1.0 / float(long_target_fps) #fastest long-term frame
+	# Set the first wait_time
 	var wait_time = 1.0 / recent_target_fps
 	
-	for idx in range(total_frames-2,-1,-1):
-		var tex = ImageTexture.create_from_image(frames[idx])
-		replay_texture.texture = tex
+	var weights = [] 
+	var running_times = [] 
+	var total_weight = 0.0
+	for idx in range(total_frames-1,-1,-1):
 		#Determine if frame is recent or long-term
 		if idx >= long_len:
 			#Recent buffer: exponential acceleration
 			var local_idx = idx - long_len
 			var progress = float(local_idx) / float(recent_len) 
 			wait_time = base_recent_wait * pow(max_recent_wait / base_recent_wait, 1 - progress)
-			print("short_frame: "+str(wait_time*recent_fps))
+			weights.append(wait_time) 
+			total_weight += wait_time
 		else:
 			#Long-term buffer: slow frames, but still accelerating
 			var local_idx = idx
 			var progress = float(local_idx) / float(long_len) 
 			wait_time = base_long_wait * pow(max_long_wait / base_long_wait, 1 - progress)
-			print("long_frame: "+str(wait_time*longterm_fps))
+			weights.append(wait_time) 
+			total_weight += wait_time
 		#Set shader value
 		if idx >= long_len:
 			running_time+=wait_time
-			running_intensity+= 1/ recent_fps
 		else:
 			running_time+=wait_time*longterm_fps/recent_fps
+		running_times.append(running_time)
+	
+	var weights_len = len(weights)
+	
+	for idx in range(total_frames-1,-1,-1):
+		var tex = ImageTexture.create_from_image(frames[idx])
+		replay_texture.texture = tex
+		#Set shader value
+		if idx >= long_len:
+			running_intensity+= 1/ recent_fps
+		else:
 			running_intensity+= 1/ longterm_fps
+		wait_time = (weights[weights_len-1-idx] / total_weight) * rewind_time
 		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_intensity, total_time, min_shader_intensity, max_shader_intensity))
-		replay_texture.material.set_shader_parameter("time", running_time)
-		#Wait for the computed frame time before continuing
+		replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
 		await get_tree().process_frame # ensures UI updates immediately
 		await get_tree().create_timer(wait_time).timeout
 	end_replay()
