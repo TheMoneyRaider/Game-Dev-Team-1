@@ -174,41 +174,26 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_okald")
 
-[node name="Prompt2" type="Node2D" parent="."]
-scale = Vector2(3, 3)
-
-[node name="Text" type="RichTextLabel" parent="Prompt2"]
-offset_left = -22.0
-offset_top = -32.999996
-offset_right = 1078.0
-offset_bottom = 142.0
+[node name="Prompt" type="RichTextLabel" parent="."]
+offset_left = -19.0
+offset_top = -24.0
+offset_right = 1005.0
+offset_bottom = 151.0
 scale = Vector2(0.04, 0.04)
 theme_override_font_sizes/normal_font_size = 128
 bbcode_enabled = true
-text = ": Reroll for 500"
+text = "Press E to Enter"
 fit_content = true
 scroll_active = false
-horizontal_alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="Prompt2"]
-offset_left = 18.333334
-offset_top = -34.0
-offset_right = 168.33333
-offset_bottom = 116.0
-scale = Vector2(0.06, 0.06)
-
-[node name="Prompt1" type="Node2D" parent="."]
-scale = Vector2(3, 3)
-
-[node name="Text" type="RichTextLabel" parent="Prompt1"]
-offset_left = -14.666667
-offset_top = -23.333334
-offset_right = 718.6666
-offset_bottom = 151.66667
+[node name="Prompt2" type="RichTextLabel" parent="."]
+offset_left = -26.0
+offset_top = -31.0
+offset_right = 1324.0
+offset_bottom = 319.0
 scale = Vector2(0.04, 0.04)
 theme_override_font_sizes/normal_font_size = 128
 bbcode_enabled = true
-text = ": Enter"
+text = "Press F to Reroll(500)"
 fit_content = true
 scroll_active = false
-horizontal_alignment = 1

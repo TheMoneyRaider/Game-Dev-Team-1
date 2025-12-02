@@ -79,9 +79,12 @@ func _ready() -> void:
 	#####Remnant Testing
 	
 	var rem = load("res://Game Elements/Remnants/hunter.tres")
+	var rem2 = load("res://Game Elements/Remnants/trickster.tres")
 	rem.rank = 5
+	rem2.rank = 5
 	player_1_remnants.append(rem)
 	player_2_remnants.append(rem)
+	player_2_remnants.append(rem2)
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####
@@ -196,7 +199,7 @@ func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> voi
 
 	print(layer_ai)
 
-func check_pathways(generated_room : Node2D, generated_room_data : Room, player_reference : Node) -> int:
+func check_pathways(generated_room : Node2D, generated_room_data : Room, player_reference : Node, is_special_action : bool = false) -> int:
 	var targets_extents: Array = []
 	var targets_position: Array = []
 	var targets_id: Array = []
@@ -223,6 +226,9 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 			and abs(player_position.y - targets_position[idx].y) <= player_rect.y + area_rect.y:
 			var target_id = targets_id[idx]
 			if !generated_room.get_node(target_id).used:
+				if is_special_action:
+					_randomize_room_reward(generated_room.get_node(target_id))
+					return -1
 				this_room_reward = generated_room.get_node(target_id).reward_type
 				_move_to_pathway_room(targets_id[idx])
 				return targets_direction[idx]
@@ -480,6 +486,7 @@ func room_reward() -> void:
 				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
+	
 
 #Thread functions
 
@@ -604,6 +611,38 @@ func open_death_menu() -> void:
 	get_node("DeathMenu").activate()
 	
 
+func _randomize_room_reward(pathway_to_randomize : Node) -> void:
+	var reward_type = null
+	var prev_reward_type = pathway_to_randomize.reward_type
+	var reward_texture : Node = null
+	while reward_type == null:
+		match randi() % 3:
+			0:
+				reward_type = Reward.Remnant
+				if reward_type == prev_reward_type:
+					reward_type = null
+				else:
+					var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+					reward_texture = inst.get_node("Image")
+
+			1:
+				reward_type = Reward.TimeFabric
+				if reward_type == prev_reward_type:
+					reward_type = null
+				else:
+					var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+					reward_texture = inst.get_node("Image")
+
+			2:
+				if _upgradable_remnants():
+					reward_type = Reward.RemnantUpgrade
+					if reward_type == prev_reward_type:
+						reward_type = null
+					else:
+						var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+						reward_texture = inst.get_node("Image")
+	#Pass the icon & type to the pathway node
+	pathway_to_randomize.set_reward(reward_texture, reward_type)
 
 func _choose_reward(pathway_name : String) -> void:
 	var reward_type = null
@@ -675,6 +714,7 @@ func _setup_players() -> void:
 		player_2.attack_requested.connect(_on_player_attack)
 		player_2.player_took_damage.connect(_on_player_take_damage)
 		player_2.activate.connect(_on_activate)
+		player_2.special.connect(_on_special)
 		hud.connect_signals(player_2)
 	else:
 		var player1 = player_scene.instantiate()
@@ -685,6 +725,7 @@ func _setup_players() -> void:
 	player.attack_requested.connect(_on_player_attack)
 	player.player_took_damage.connect(_on_player_take_damage)
 	player.activate.connect(_on_activate)
+	player.special.connect(_on_special)
 
 func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vector2) -> void:
 	var sprite = enemy.get_node("Sprite2D")
@@ -1077,7 +1118,6 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 	layer_ai[11]+=damage_amount
 	
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
-	print(damage)
 	layer_ai[5]+=damage
 	if current_health <= 0:
 		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
@@ -1117,9 +1157,23 @@ func _on_activate(player_node : Node):
 		if check_reward(room_instance, room_instance_data,player_node):
 			return
 		if reward_claimed:
-			var direction = check_pathways(room_instance, room_instance_data,player_node)
+			var direction = check_pathways(room_instance, room_instance_data,player_node,false)
 			if direction != -1:
 				create_new_rooms()
+	
+func _on_special(player_node : Node):
+	var remnants : Array[Remnant] = []
+	if player_node.is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var trickster = load("res://Game Elements/Remnants/trickster.tres")
+	for rem in remnants:
+		if rem.remnant_name == trickster.remnant_name:
+			if timefabric_collected >= int(rem.variable_1_values[rem.rank-1]):
+				timefabric_collected-=int(rem.variable_1_values[rem.rank-1])
+				check_pathways(room_instance, room_instance_data,player_node,true)
+	return -1
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
