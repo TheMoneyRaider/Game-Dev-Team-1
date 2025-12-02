@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-var is_multiplayer : bool = false
+var is_multiplayer : bool = true
 @onready var health_bar_1 = $RootControl/HealthBar1
 @onready var health_bar_2 = $RootControl/HealthBar2
 @onready var TimeFabric = $RootControl/TimeFabric
@@ -55,6 +55,7 @@ func set_players(player1_node : Node, player2_node : Node = null):
 	player1 = player1_node
 	player2 = player2_node
 	if(player2_node == null):
+		is_multiplayer = false
 		CrossCooldownBar.cover_cooldown()
 		health_bar_2.visible = false
 
