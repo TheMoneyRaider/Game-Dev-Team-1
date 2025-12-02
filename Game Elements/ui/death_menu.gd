@@ -69,9 +69,11 @@ func _capture_frame():
 				longterm_buffer.pop_front()
 
 func _on_quit_pressed():
+	get_tree().paused = false
 	get_tree().quit()
 func _on_menu_pressed():
-	get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+	get_tree().paused = false
+	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
 
 func _on_replay_pressed():
 	replay_texture.visible = true
