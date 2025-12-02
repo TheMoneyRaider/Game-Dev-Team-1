@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://b84illenn3ykj"]
+[gd_scene load_steps=13 format=3 uid="uid://b84illenn3ykj"]
 
 [ext_resource type="Texture2D" uid="uid://dc615m8r6verx" path="res://art/remnants/remnant_orb_feet.png" id="1_1fi3s"]
 [ext_resource type="Texture2D" uid="uid://dnk7rx0ff2g7" path="res://art/remnants/upgrade_orb_particle.png" id="1_3b7d0"]
+[ext_resource type="Script" uid="uid://bn7wc23ktk2ry" path="res://Game Elements/Objects/orb.gd" id="1_qixjf"]
 [ext_resource type="Shader" uid="uid://bcbula2hj7vua" path="res://Game Elements/Remnants/remnant_orb.gdshader" id="3_evrwk"]
 [ext_resource type="Texture2D" uid="uid://b47fnmu3eqtfa" path="res://art/remnants/upgrade_orb.png" id="4_qixjf"]
 
@@ -51,6 +52,7 @@ shader_parameter/shift_wave_enabled = 0
 
 [node name="UpgradeOrb" type="Area2D"]
 collision_mask = 3
+script = ExtResource("1_qixjf")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_p07o2")
@@ -72,3 +74,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("4_qixjf")
+
+[node name="Prompt1" type="Node2D" parent="."]
+scale = Vector2(1.5, 1.5)
+
+[node name="Text" type="RichTextLabel" parent="Prompt1"]
+offset_left = -14.666667
+offset_top = -23.333334
+offset_right = 718.6666
+offset_bottom = 151.66667
+scale = Vector2(0.04, 0.04)
+theme_override_font_sizes/normal_font_size = 128
+bbcode_enabled = true
+text = ": Enter"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1

@@ -52,6 +52,7 @@ var is_purple = true
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
+signal special(player_node : Node)
 signal swapped_color(player_node : Node)
 signal max_health_changed(new_max_health : int, player_node : Node)
 
@@ -100,6 +101,8 @@ func _physics_process(delta):
 		handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
+	if Input.is_action_just_pressed("special_" + input_device):
+		emit_signal("special",self)
 	adjust_cooldowns(delta)
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
