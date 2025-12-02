@@ -7,6 +7,7 @@ var direction = Vector2.RIGHT
 @export var hit_force = 0
 @export var start_lag = 0
 @export var cooldown = 0
+@export var pierce = -1
 var c_owner: Node = null
 
 func _ready():

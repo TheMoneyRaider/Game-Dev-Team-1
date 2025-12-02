@@ -7,6 +7,7 @@ const attack = preload("res://Game Elements/Attacks/attack.gd")
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
 @onready var disabled_countdown : int = 0
+@onready var i_frames : int = 0
 
 @export var state_machine : LimboHSM
 
@@ -77,6 +78,8 @@ func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
 func _physics_process(delta):
+	if(i_frames > 0):
+		i_frames -= 1
 	#Trap stuff
 	check_traps(delta)
 	#Cat input detection
@@ -122,11 +125,13 @@ func request_attack(t_attack : Attack):
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
-	current_health = current_health - damage_amount
-	emit_signal("player_took_damage",damage_amount,current_health,self)
-	if(current_health <= 0):
-		if(die(true)):
-			emit_signal("attack_requested",revive, position, Vector2.ZERO)
+	if(i_frames <= 0):
+		i_frames = 20
+		current_health = current_health - damage_amount
+		emit_signal("player_took_damage",damage_amount,current_health,self)
+		if(current_health <= 0):
+			if(die(true)):
+				emit_signal("attack_requested",revive, position, Vector2.ZERO)
 	
 func swap_color():
 	emit_signal("swapped_color", self)
