@@ -143,7 +143,7 @@ func prepare_rewind():
 		v0.append(speed)
 
 		#Total cost = integral of speed over time (linear ramp)
-		var Ki =  1.5 * Ti
+		var Ki = Ti
 		K.append(Ki)
 		
 		cost_sum += Ki
@@ -176,20 +176,16 @@ func update_rewind(delta: float) -> Image:
 		return null
 
 	var buffer := buffers[i]
-	var fps := buffer_fps[i]
 
 	var prev_cost = cumulative_cost[i - 1] if i > 0 else 0.0
 	var local_cost = cursor - prev_cost
 
 	var Ti = T[i]
-	var v0i = v0[i]
 	var Ki = K[i]
 
 	var t = (local_cost/Ki)*Ti #Linear
 
-	var frame_index = int(floor(t * fps))
-	#frame_index = clamp(frame_index, 0, buffer.size() - 1)
-
+	var frame_index = int(floor(t * buffer_fps[i]))
 	return buffer[frame_index]
 
 
