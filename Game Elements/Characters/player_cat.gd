@@ -49,7 +49,7 @@ var cooldowns = [0,0]
 var is_purple = true
 
 
-signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
+signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
 signal swapped_color(player_node : Node)
@@ -116,7 +116,7 @@ func update_animation_parameters(move_input : Vector2):
 func request_attack(t_attack : Attack):
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
-	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
+	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
 	current_health = current_health - damage_amount
@@ -244,10 +244,29 @@ func _crafter_chance() -> bool:
 	var crafter = load("res://Game Elements/Remnants/crafter.tres")
 	for rem in remnants:
 		if rem.remnant_name == crafter.remnant_name:
-			if rem.variable_1_values[rem.rank-1] > randf():
+			if rem.variable_1_values[rem.rank-1] > randf()*100:
 				var particle =  load("res://Game Elements/Effects/crafter_particles.tscn").instantiate()
 				particle.position = self.position
 				get_parent().add_child(particle)
 				return false
 			
 	return true
+
+func _hunter_percent_boost() -> float:
+	randomize()
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var hunter = load("res://Game Elements/Remnants/hunter.tres")
+	for rem in remnants:
+		if rem.remnant_name == hunter.remnant_name:
+			var min_dist = 100000
+			for child in get_tree().get_root().get_node("LayerManager").room_instance.get_children():
+				if child is DynamEnemy:
+					min_dist = min(min_dist,self.position.distance_to(child.position))
+			if rem.variable_2_values[rem.rank-1]*16 < min_dist:
+				print("boosted")
+				return float(rem.variable_1_values[rem.rank-1])
+	return 0.0

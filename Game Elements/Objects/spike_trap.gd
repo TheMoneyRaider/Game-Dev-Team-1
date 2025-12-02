@@ -51,7 +51,7 @@ func _crafter_chance(node_to_damage : Node) -> bool:
 	var crafter = load("res://Game Elements/Remnants/crafter.tres")
 	for rem in remnants:
 		if rem.remnant_name == crafter.remnant_name:
-			if rem.variable_1_values[rem.rank-1] > randf():
+			if rem.variable_1_values[rem.rank-1] > randf()*100:
 				var particle =  load("res://Game Elements/Effects/crafter_particles.tscn").instantiate()
 				particle.position = self.position
 				get_parent().add_child(particle)
