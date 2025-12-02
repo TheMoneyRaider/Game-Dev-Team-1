@@ -1,27 +1,49 @@
 extends CanvasLayer
+# INPUTS -----------------------------------------------------
 
-@export var recent_seconds := 8
-@export var rewind_time := 10 #can't be smaller than recent_seconds. also the actual rewind time is generally 3 seconds or so greater.
-@export var recent_fps : float = 32.0
-@export var longterm_fps : float = 8.0
-@export var min_shader_intensity = 0.0
-@export	var max_shader_intensity = 1
-@export	var longterm_buffer_size := 10000
-#Note, these goals arn't actually achieved. They're more like weights. 
-var recent_target_fps = 5*recent_fps # Seconds per second goal by the recent frame buffer end
-var long_target_fps = 8*longterm_fps # Seconds per second goal by the longterm frame buffer end
+#Array of frame buffers, each buffer is an Array of Image
+#Buffer 0 = highest FPS (64), buffer 1 = 32, buffer 2 = 16, ... etc.
+@export var buffers: Array[Array] = [[],[],[],[],[],[]]
+
+#FPS for each buffer in order:
+@export var buffer_fps : Array[int]= [64, 32, 16, 8, 4, 2]
+
+#Total real time (seconds) to complete the rewind
+@export var rewind_time : float = 12.0
+
+#Base speed entering buffer 0
+var base_speed : float = 1.0
+#Max and min shader values
+@export var min_shader_intensity : float = 0.0
+@export	var max_shader_intensity : float = 1.0
+
+#Seconds stored per buffer
+@export var buffer_time : float = 6.0
+
+
+# INTERNALS ---------------------------------------------------
+var T : Array[float] = []                  #duration (seconds) of each buffer
+var v0 : Array[float] = []                 #entry speed to each buffer
+var K : Array[float] = []                  #cost integral per buffer
+var cumulative_cost : Array[float] = []    #prefix sum of K
+var total_cost : float= 0.0
+
+var progress : float = 0.0         #0->1 during rewind
+var ln2 : float = log(2.0)
+
+
+
+
 
 @onready var replay_texture: TextureRect = $Control/Replay
 @onready var death_box: VBoxContainer = $Control/VBoxContainer
 
-var recent_buffer := []
-var longterm_buffer := []
-var capture_timer: Timer
 var capturing := true
-var total_time = 0.0
+var rewinding := false
 var final_frame : Image
 
 var frame_amount = 0
+var total_time = 0.0
 
 func _ready():
 	hide()
@@ -29,20 +51,20 @@ func _ready():
 	for button in death_box.get_children():
 		if button is Button:
 			button.disabled = true
-	capture_timer = Timer.new()
-	capture_timer.wait_time = 1.0 / recent_fps
-	capture_timer.one_shot = false
-	add_child(capture_timer)
-	capture_timer.timeout.connect(_capture_frame)
-	capture_timer.start()
 
 func _process(delta):
 	if capturing:
 		total_time+=delta
+		_capture_frame(0)
+	if !rewinding:
+		return
+	var frame = update_rewind(delta)
+	if frame:
+		replay_texture.texture = ImageTexture.create_from_image(frame)
+		
 
 func activate():
 	capturing=false
-	capture_timer.stop()
 	show()
 	get_tree().paused = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -52,28 +74,30 @@ func activate():
 		if button is Button:
 			button.disabled = false
 
-func _capture_frame():
-	frame_amount +=1
-	if not capturing:
+func _capture_frame(index : int, frame : Image = null):
+	#Check if we need a new frame
+	if buffers[index].size() >= int(total_time*buffer_fps[index]):
 		return
-	var viewport = get_parent().get_node("game_container/game_viewport") as SubViewport
-	var img = viewport.get_texture().get_image()
-	#Save final frame
-	if frame_amount == 3:
-		final_frame = img.duplicate(true)
-	#Add to recent buffer (rotating)
-	recent_buffer.append(img)
-	if recent_buffer.size() > recent_seconds * recent_fps:
-		var oldest = recent_buffer.pop_front()
-		#Push oldest to long-term buffer
-		if frame_amount % int(recent_fps/longterm_fps) == 0:
-			longterm_buffer.append(oldest)
-			if longterm_buffer.size() > longterm_buffer_size:
-				longterm_buffer.pop_front()
+	#we need a new frame
+	if !frame:
+		var viewport = get_parent().get_node("game_container/game_viewport") as SubViewport
+		frame = viewport.get_texture().get_image()
+	
+	##Save final frame
+	if index==0 and buffers[index].size() == 2:
+		final_frame = frame.duplicate(true)
+	##Add to buffer
+	buffers[index].append(frame.duplicate(true))
+	if index == 5:
+		return
+	#Only rotate if not the last buffer
+	if buffers[index].size() > int(buffer_time*buffer_fps[index]):
+		_capture_frame(index+1,buffers[index].pop_front().duplicate(true))
 
 func _on_quit_pressed():
 	get_tree().paused = false
 	get_tree().quit()
+
 func _on_menu_pressed():
 	get_tree().paused = false
 	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
@@ -81,84 +105,107 @@ func _on_menu_pressed():
 func _on_replay_pressed():
 	replay_texture.visible = true
 	death_box.visible = false
-	play_replay_reverse()
-
-func play_replay_reverse():
-	#Concatenate frames
-	var frames = longterm_buffer.duplicate()
-	frames.append_array(recent_buffer)
-	var total_frames = frames.size()
-	var running_time = 0.0
-	
-	#Variables
-	var recent_len = recent_buffer.size() 
-	var long_len = longterm_buffer.size()
-	#Remove first few frames(they're bad)
-	if long_len > 0:
-		long_len-=1
-	else:
-		recent_len-=1
-	total_frames-=1
-	
+	rewinding=true
 	#Change rewind time if total time is too low
-	if total_time < 3/float(2) * rewind_time:
-		rewind_time = float(2)/3 * total_time
-	
-	var base_recent_wait = 1.0 / recent_fps #slowest recent frame 
-	var max_recent_wait = 1.0 / recent_target_fps #fastest recent frame
-	var base_long_wait = max_recent_wait *  recent_fps / longterm_fps #slowest long-term frame 
-	var max_long_wait = 1.0 / float(long_target_fps) #fastest long-term frame
-	# Set the first wait_time
-	var wait_time = 1.0 / recent_target_fps
-	
-	var weights = [] 
-	var running_times = []
-	var total_weight = 0.0
-	for idx in range(total_frames,0,-1):
-		#Determine if frame is recent or long-term
-		if idx >= long_len:
-			#Recent buffer: exponential acceleration
-			var local_idx = idx - long_len
-			var progress = float(local_idx) / float(recent_len) 
-			wait_time = base_recent_wait * pow(max_recent_wait / base_recent_wait, 1 - progress)
-			weights.append(wait_time) 
-			total_weight += wait_time
-		else:
-			#Long-term buffer: slow frames, but still accelerating
-			var local_idx = idx
-			var progress = float(local_idx) / float(long_len) 
-			wait_time = base_long_wait * pow(max_long_wait / base_long_wait, 1 - progress)
-			weights.append(wait_time) 
-			total_weight += wait_time
-		#Set shader value
-		if idx >= long_len:
-			running_time+=wait_time
-		else:
-			running_time+=wait_time*longterm_fps/recent_fps
-		running_times.append(running_time)
-	
-	var weights_len = len(weights)
-	
-	for idx in range(total_frames,0,-1):
-		var tex = ImageTexture.create_from_image(frames[idx])
-		replay_texture.texture = tex
-		wait_time = (weights[weights_len-1-idx] / total_weight) * rewind_time
-		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
-		replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
-		await get_tree().create_timer(wait_time).timeout
-	end_replay()
+	if total_time < 1.5 * rewind_time:
+		rewind_time = .6 * total_time
+	for buf in buffers:
+		print(buf.size())
+	prepare_rewind()
 
+func prepare_rewind():
+	T.clear()
+	v0.clear()
+	K.clear()
+	cumulative_cost.clear()
+
+	var cost_sum = 0.0
+	var speed = base_speed
+
+	for i in range(buffers.size()):
+		var buffer := buffers[i]
+		var count := buffer.size()
+		var fps := buffer_fps[i]
+
+		if count == 0:
+			T.append(0.0)
+			v0.append(speed)
+			K.append(0.0)
+			cumulative_cost.append(cost_sum)
+			speed *= 2.0
+			continue
+
+		# Duration of buffer in seconds
+		var Ti := float(count) / float(fps)
+		T.append(Ti)
+
+		# Starting speed for this buffer
+		v0.append(speed)
+
+		# Total cost = integral of speed over time (linear ramp)
+		var Ki = 1.5 * speed * Ti
+		K.append(Ki)
+
+		# Prefix sum of frames across buffers
+		cost_sum += Ki
+		cumulative_cost.append(cost_sum)
+
+		# Next buffer starts at double speed
+		speed *= 2.0
+
+	total_cost = cost_sum
+	progress = 0.0
+
+func update_rewind(delta: float) -> Image:
+	if total_cost <= 0.0:
+		return null
+
+	# Advance progress (0 -> 1 over rewind_time seconds)
+	progress += delta / rewind_time
+	progress = clamp(progress, 0.0, 1.0)
+
+	# Map progress to "total frame count" coordinate
+	var cursor = progress * total_cost
+
+	# Find which buffer we are in
+	var i = 0
+	while i < cumulative_cost.size() and cursor >= cumulative_cost[i]:
+		i += 1
+
+	if i >= buffers.size():  # rewind complete
+		end_replay()
+		return null
+
+	var buffer := buffers[i]
+	var fps := buffer_fps[i]
+
+	var prev_cost = cumulative_cost[i - 1] if i > 0 else 0.0
+	var local_cost = cursor - prev_cost
+
+	var Ti = T[i]
+	var v0i = v0[i]
+
+	# Solve quadratic: t/Ti * 0.5*v0 + v0*t = local_cost  => t = Ti * (-1 + sqrt(1 + 2*local_cost/(v0*Ti)))
+	var t = Ti * (-1.0 + sqrt(1.0 + 2.0 * local_cost / (v0i * Ti)))
+
+	var frame_index = int(floor(t * fps))
+	#frame_index = clamp(frame_index, 0, buffer.size() - 1)
+
+	return buffer[frame_index]
+
+
+#replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
+#replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
 func get_shader_intensity(current_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
 	var t = clamp(current_time / total_time_func, 0.0, 1.0)
 	#Exponential curve: start slow, end fast
 	var exp_curve = pow(t, exponent)
 	# Map to shader intensity
 	return lerp(min_intensity, max_intensity, exp_curve)
+
 func end_replay():
 	capturing = false
-	recent_buffer.clear()
-	longterm_buffer.clear()
-	frame_amount = 0
+	buffers.clear()
 	
 	# Create a full-screen overlay with the last frame
 	var overlay = load("res://Game Elements/ui/transition_texture.tscn").instantiate()
