@@ -19,6 +19,7 @@ var longterm_buffer := []
 var capture_timer: Timer
 var capturing := true
 var total_time = 0.0
+var final_frame : Image
 
 var frame_amount = 0
 
@@ -57,7 +58,9 @@ func _capture_frame():
 		return
 	var viewport = get_parent().get_node("game_container/game_viewport") as SubViewport
 	var img = viewport.get_texture().get_image()
-
+	#Save final frame
+	if frame_amount == 3:
+		final_frame = img.duplicate(true)
 	#Add to recent buffer (rotating)
 	recent_buffer.append(img)
 	if recent_buffer.size() > recent_seconds * recent_fps:
@@ -159,9 +162,9 @@ func end_replay():
 	
 	# Create a full-screen overlay with the last frame
 	var overlay = load("res://Game Elements/ui/transition_texture.tscn").instantiate()
-	overlay.get_node("TextureRect").texture = replay_texture.texture
+	overlay.get_node("TextureRect").texture = ImageTexture.create_from_image(final_frame)
+	overlay.get_properties(replay_texture)
 	get_tree().get_root().add_child(overlay)
-
 	get_tree().paused = false
 	# Load the next scene deferred, the overlay keeps the last frame visible
 	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/General Game/layer_manager.tscn")
