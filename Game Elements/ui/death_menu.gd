@@ -87,12 +87,12 @@ func _capture_frame(index : int, frame : Image = null):
 	if index==0 and buffers[index].size() == 2:
 		final_frame = frame.duplicate(true)
 	##Add to buffer
-	buffers[index].append(frame.duplicate(true))
+	buffers[index].push_front(frame.duplicate(true))
 	if index == 5:
 		return
 	#Only rotate if not the last buffer
 	if buffers[index].size() > int(buffer_time*buffer_fps[index]):
-		_capture_frame(index+1,buffers[index].pop_front().duplicate(true))
+		_capture_frame(index+1,buffers[index].pop_back().duplicate(true))
 
 func _on_quit_pressed():
 	get_tree().paused = false
