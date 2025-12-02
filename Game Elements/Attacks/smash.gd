@@ -49,3 +49,4 @@ func _on_area_entered(area: Area2D) -> void:
 	if area.has_method("deflect"):
 		area.deflect(direction, hit_force)
 		area.c_owner = c_owner
+		area.hit_nodes = {}
