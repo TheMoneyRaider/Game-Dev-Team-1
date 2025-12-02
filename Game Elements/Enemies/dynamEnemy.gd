@@ -57,10 +57,10 @@ func _process(delta):
 	queue_redraw()
 	
 
-func take_damage(damage : int, owner : Node, direction = Vector2(0,-1)):
-	if owner != null and owner.is_purple != null:
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
+	if dmg_owner != null and "is_purple" in dmg_owner:
 		var remnants : Array[Remnant] = []
-		if owner.is_purple:
+		if dmg_owner.is_purple:
 			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
 		else:
 			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
