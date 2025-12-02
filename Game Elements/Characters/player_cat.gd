@@ -118,7 +118,7 @@ func request_attack(t_attack : Attack):
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
 
-func take_damage(damage_amount : int, _direction = Vector2(0,-1)):
+func take_damage(damage_amount : int, owner : Node,_direction = Vector2(0,-1)):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):
@@ -214,7 +214,7 @@ func check_traps(delta):
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
 			if dmg and !in_instant_trap:
-				take_damage(dmg)
+				take_damage(dmg, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false
@@ -223,7 +223,7 @@ func check_traps(delta):
 				current_dmg_time += delta
 				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
 					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
-					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null)
 			else:
 				current_dmg_time = 0
 		else:

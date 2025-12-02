@@ -3,11 +3,12 @@ extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
 var current_health: int = 10 
-const SPEED: float = 50
+var SPEED: float = 50
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
 
+var effects : Array[Effect] = []
 
 const attack = preload("res://Game Elements/Attacks/attack.gd")
 var bad_bolt = preload("res://Game Elements/Attacks/bad_bolt.gd")
@@ -43,11 +44,37 @@ func move(target_pos: Vector2, _delta: float):
 	move_and_slide()
 	
 func _process(delta):
+	var idx = 0
+	for effect in effects:
+		effect.tick(delta,self)
+		if effect.cooldown == 0:
+			effects.remove_at(idx)
+		idx +=1
+		
+	
 	#Trap stuff
 	check_traps(delta)
 	queue_redraw()
+	
 
-func take_damage(damage : int, direction = Vector2(0,-1)):
+func take_damage(damage : int, owner : Node, direction = Vector2(0,-1)):
+	if owner != null and owner.is_purple != null:
+		var remnants : Array[Remnant] = []
+		if owner.is_purple:
+			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		else:
+			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
+		var effect : Effect
+		for rem in remnants:
+			if rem.remnant_name == winter.remnant_name:
+				effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
+				effect.cooldown = rem.variable_2_values[rem.rank-1]
+				effect.value1 =  rem.variable_1_values[rem.rank-1]
+				effect.gained(self)
+				effects.append(effect)
+				
+		
 	current_health = current_health - damage
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 		
@@ -60,7 +87,7 @@ func check_traps(delta):
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
 			if dmg and !in_instant_trap:
-				take_damage(dmg)
+				take_damage(dmg, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false
@@ -69,7 +96,7 @@ func check_traps(delta):
 				current_dmg_time += delta
 				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
 					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
-					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"), null)
 			else:
 				current_dmg_time = 0
 		else:

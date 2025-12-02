@@ -15,8 +15,8 @@ var player_2 = null
 @onready var timefabric_collected: int = 0
 @onready var timefabric_rewarded = 0
 
-@onready var player_1_remnants: Array[Resource] = []
-@onready var player_2_remnants: Array[Resource] = []
+@onready var player_1_remnants: Array[Remnant] = []
+@onready var player_2_remnants: Array[Remnant] = []
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
@@ -71,11 +71,20 @@ var time_passed := 0.0
 	]
 
 func _ready() -> void:
-	
 	var conflict_cells : Array[Vector2i] = []
 	_setup_players()
 	hud.set_players(player,player_2)
 	hud.connect_signals(player)
+	
+	#####Remnant Testing
+	
+	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
+	winter.rank = 5
+	player_1_remnants.append(winter)
+	player_2_remnants.append(winter)
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+	#####
 	game_root.add_child(pathfinding)
 	preload_rooms()
 	randomize()
@@ -442,7 +451,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
-			timefabric_rewarded = 1000 #TODO change this
+			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
 			_enable_pathways()
 			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
@@ -868,7 +877,7 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 				min_dist = dist
 		#Closer = higher weight
 		weights.append(1.0 / (min_dist*2 + 1))
-	_debug_tiles(candidates)
+	#_debug_tiles(candidates)
 
 
 	# Pick a candidate based on weight
@@ -1115,9 +1124,8 @@ func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
 
 func _debug_tiles(array_of_tiles) -> void:
-	pass
-	#var debug
-	#for tile in array_of_tiles:
-		#debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
-		#debug.position = tile*16
-		#room_instance.add_child(debug)
+	var debug
+	for tile in array_of_tiles:
+		debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
+		debug.position = tile*16
+		room_instance.add_child(debug)
