@@ -13,7 +13,7 @@ var effects : Array[Effect] = []
 const attack = preload("res://Game Elements/Attacks/attack.gd")
 var bad_bolt = preload("res://Game Elements/Attacks/bad_bolt.gd")
 var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bad_bolt.tscn", bad_bolt)]
-signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2)
+signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
 func handle_attack(target_position: Vector2):

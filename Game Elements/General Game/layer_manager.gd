@@ -78,7 +78,7 @@ func _ready() -> void:
 	
 	#####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/crafter.tres")
+	var rem = load("res://Game Elements/Remnants/hunter.tres")
 	rem.rank = 5
 	player_1_remnants.append(rem)
 	player_2_remnants.append(rem)
@@ -1070,13 +1070,14 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 				_open_pathway(pathway_name+"_Detect", generated_room)
 				conflict_cells.append_array(generated_room.get_node(pathway_name).get_used_cells())
 			
-func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2) -> void:
+func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2, _damage_boost : float) -> void:
 	layer_ai[6]+=1
 	
 func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node) -> void:
 	layer_ai[11]+=damage_amount
 	
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
+	print(damage)
 	layer_ai[5]+=damage
 	if current_health <= 0:
 		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
