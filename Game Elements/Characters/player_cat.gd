@@ -131,7 +131,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if(current_health <= 0):
 			if(die(true)):
-				emit_signal("attack_requested",revive, position, Vector2.ZERO)
+				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
 	emit_signal("swapped_color", self)

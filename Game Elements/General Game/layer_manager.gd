@@ -75,6 +75,7 @@ func _ready() -> void:
 	_setup_players()
 	hud.set_players(player,player_2)
 	hud.connect_signals(player)
+	hud.set_cross_position()
 	
 	#####Remnant Testing
 	
@@ -134,6 +135,7 @@ func _process(delta: float) -> void:
 		_process_terrain_batch()
 				
 	hud.set_timefabric_amount(timefabric_collected)
+	hud.set_cooldowns()
 	
 	if timefabric_rewarded!= 0:
 		for i in range (20):

@@ -1,9 +1,11 @@
 extends CanvasLayer
 
-var is_multiplayer : bool = false
+var is_multiplayer : bool = true
 @onready var health_bar_1 = $RootControl/HealthBar1
 @onready var health_bar_2 = $RootControl/HealthBar2
 @onready var TimeFabric = $RootControl/TimeFabric
+@onready var MaceCooldownBar = $RootControl/MaceCooldownBar
+@onready var CrossCooldownBar = $RootControl/CrossCooldownBar
 @onready var IconSlotScene = preload("res://Game Elements/ui/remnant_icon.tscn")
 var player1
 var player2
@@ -53,6 +55,8 @@ func set_players(player1_node : Node, player2_node : Node = null):
 	player1 = player1_node
 	player2 = player2_node
 	if(player2_node == null):
+		is_multiplayer = false
+		CrossCooldownBar.cover_cooldown()
 		health_bar_2.visible = false
 
 func connect_signals(player_node : Node):
@@ -60,9 +64,36 @@ func connect_signals(player_node : Node):
 	player_node.swapped_color.connect(_on_player_swap)
 	player_node.max_health_changed.connect(_on_max_health_changed)
 
+func set_max_cooldowns():
+	if is_multiplayer:
+		MaceCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
+		CrossCooldownBar.set_max_cooldown(player2.attacks[0].cooldown)
+	else:
+		MaceCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
+		CrossCooldownBar.set_max_cooldown(player1.attacks[0].cooldown)
+
+func set_cooldowns():
+	if is_multiplayer:
+		MaceCooldownBar.set_current_cooldown(player1.cooldowns[1])
+		CrossCooldownBar.set_current_cooldown(player2.cooldowns[0])
+	else:
+		MaceCooldownBar.set_current_cooldown(player1.cooldowns[1])
+		CrossCooldownBar.set_current_cooldown(player1.cooldowns[0])
+
+func set_cross_position():
+	if is_multiplayer:
+		CrossCooldownBar.offset_left = 1838
+		CrossCooldownBar.offset_right = 1956
+	else:
+		CrossCooldownBar.offset_left = 94
+		CrossCooldownBar.offset_right = 212
+	
 func _on_player_swap(player_node : Node):
 	if player1 == player_node:
 		health_bar_1.set_color(!player1.is_purple)
+		if(!is_multiplayer):
+			MaceCooldownBar.cover_cooldown()
+			CrossCooldownBar.cover_cooldown()
 	else:
 		health_bar_2.set_color(!player2.is_purple)
 
