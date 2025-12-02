@@ -19,7 +19,7 @@ void fragment(){
     float tear = step(tear_prob, rand(vec2(uv_mod.y*100.0 + floor(time*10.0), 0.0)));
 
     // Apply horizontal offset
-    uv_mod.x += tear * 0.05 * intensity * sin(uv_mod.y * 60.0 + time * 15.0);
+    uv_mod.x += tear * 0.05 * intensity * sin(uv_mod.y * 60.0);
 
     // --- RGB shift ---
     vec4 color = texture(TEXTURE, uv_mod);

@@ -1,12 +1,15 @@
 extends CanvasLayer
+
 @export var recent_seconds := 8
 @export var rewind_time := 10 #can't be smaller than recent_seconds. also the actual rewind time is generally 3 seconds or so greater.
 @export var recent_fps : float = 32.0
 @export var longterm_fps : float = 8.0
+@export var min_shader_intensity = 0.0
+@export	var max_shader_intensity = 1
+@export	var longterm_buffer_size := 10000
 #Note, these goals arn't actually achieved. They're more like weights. 
-@export var recent_target_fps = 5*recent_fps # Seconds per second goal by the recent frame buffer end
-@export var long_target_fps = 8*longterm_fps # Seconds per second goal by the longterm frame buffer end
-@export var longterm_buffer_size := 10000
+var recent_target_fps = 5*recent_fps # Seconds per second goal by the recent frame buffer end
+var long_target_fps = 8*longterm_fps # Seconds per second goal by the longterm frame buffer end
 
 @onready var replay_texture: TextureRect = $Control/Replay
 @onready var death_box: VBoxContainer = $Control/VBoxContainer
@@ -81,9 +84,6 @@ func play_replay_reverse():
 	frames.append_array(recent_buffer)
 	var total_frames = frames.size()
 	var running_time = 0.0
-	var running_intensity = 0.0
-	var min_shader_intensity = .1
-	var max_shader_intensity = 1
 	
 	#Variables
 	var recent_len = recent_buffer.size() 
@@ -137,25 +137,19 @@ func play_replay_reverse():
 	for idx in range(total_frames,0,-1):
 		var tex = ImageTexture.create_from_image(frames[idx])
 		replay_texture.texture = tex
-		#Set shader value
-		if idx >= long_len:
-			running_intensity+= 1/ recent_fps
-		else:
-			running_intensity+= 1/ longterm_fps
 		wait_time = (weights[weights_len-1-idx] / total_weight) * rewind_time
-		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_intensity, total_time, min_shader_intensity, max_shader_intensity))
+		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
 		replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
 		await get_tree().create_timer(wait_time).timeout
 	end_replay()
 
-func get_shader_intensity(running_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
-	var t = clamp(running_time / total_time_func, 0.0, 1.0)
+func get_shader_intensity(current_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
+	var t = clamp(current_time / total_time_func, 0.0, 1.0)
 	#Exponential curve: start slow, end fast
 	var exp_curve = pow(t, exponent)
 	# Map to shader intensity
 	return lerp(min_intensity, max_intensity, exp_curve)
 func end_replay():
-	#TODO do a transition
 	capturing = false
 	recent_buffer.clear()
 	longterm_buffer.clear()

@@ -9,6 +9,7 @@ func _ready():
 	await tween.finished
 	_fade_out()
 
+
 func _fade_out():
 	var tex_rect = get_child(0)
 	var tex_rect2 = get_child(1)
