@@ -50,3 +50,4 @@ func set_values(attack_speed, attack_damage = self.damage, attack_lifespan = sel
 	self.damage = attack_damage
 	self.lifespan = attack_lifespan
 	self.hit_force = attack_hit_force
+	

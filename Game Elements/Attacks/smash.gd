@@ -21,29 +21,29 @@ func _process(delta):
 
 func _on_body_entered(body):
 	print("hit type is ", body)
-	
-	if c_owner.has_method("swap_color"):
-		if body.has_method("swap_color"):
-			return
-		elif body.has_method("take_damage"):
-			if(!hit_nodes.has(body)):
-				print("hit enemy?")
-				pierce -= 1
-				body.take_damage(damage,c_owner,direction)
-			else:
-				hit_nodes[body] = null
-	else:
-		if !body.has_method("swap_color"):
-			return
-		elif body.has_method("take_damage"):
-			if(!hit_nodes.has(body)):
-				pierce -= 1
-				print("hit enemy?")
-				body.take_damage(damage,c_owner,direction)
-			else:
-				hit_nodes[body] = null
+	if(!hit_nodes.has(body)):
+		if(apply_damage(body)):
+			pierce -= 1
+			hit_nodes[body] = null
 	if pierce == -1:
 		queue_free()
+		
+func apply_damage(body : Node) -> bool:
+	if c_owner.has_method("swap_color"):
+		if body.has_method("swap_color"):
+			return false
+		elif body.has_method("take_damage"):
+			print("hit enemy?")
+			body.take_damage(damage,c_owner,direction)
+			return true				
+	else:
+		if !body.has_method("swap_color"):
+			return false
+		elif body.has_method("take_damage"):
+			print("hit enemy?")
+			body.take_damage(damage,c_owner,direction)
+			return true
+	return false
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.has_method("deflect"):
