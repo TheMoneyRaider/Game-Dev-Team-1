@@ -78,10 +78,10 @@ func _ready() -> void:
 	
 	#####Remnant Testing
 	
-	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
-	winter.rank = 5
-	player_1_remnants.append(winter)
-	player_2_remnants.append(winter)
+	var rem = load("res://Game Elements/Remnants/crafter.tres")
+	rem.rank = 5
+	player_1_remnants.append(rem)
+	player_2_remnants.append(rem)
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####

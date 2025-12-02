@@ -118,7 +118,7 @@ func request_attack(t_attack : Attack):
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
 
-func take_damage(damage_amount : int, owner : Node,_direction = Vector2(0,-1)):
+func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):
@@ -214,7 +214,8 @@ func check_traps(delta):
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
 			if dmg and !in_instant_trap:
-				take_damage(dmg, null)
+				if _crafter_chance():
+					take_damage(dmg, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false
@@ -223,7 +224,8 @@ func check_traps(delta):
 				current_dmg_time += delta
 				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
 					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
-					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null)
+					if _crafter_chance():
+						take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null)
 			else:
 				current_dmg_time = 0
 		else:
@@ -232,3 +234,20 @@ func check_traps(delta):
 	else:
 		current_dmg_time = 0
 		in_instant_trap = false
+func _crafter_chance() -> bool:
+	randomize()
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var crafter = load("res://Game Elements/Remnants/crafter.tres")
+	for rem in remnants:
+		if rem.remnant_name == crafter.remnant_name:
+			if rem.variable_1_values[rem.rank-1] > randf():
+				var particle =  load("res://Game Elements/Effects/crafter_particles.tscn").instantiate()
+				particle.position = self.position
+				get_parent().add_child(particle)
+				return false
+			
+	return true
