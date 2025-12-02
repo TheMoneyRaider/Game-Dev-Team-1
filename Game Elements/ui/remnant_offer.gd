@@ -22,10 +22,13 @@ var hover_index : int = 0 #Orange
 var nav_cooldown := 0.15
 var nav_timer := 0.0
 
+
 func _ready():
 	for i in range(slot_nodes.size()):
 		slot_nodes[i].index = i
 		slot_nodes[i].slot_selected.connect(_on_slot_selected)
+		
+	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	get_tree().paused = true
 
 func _process(delta):
@@ -61,10 +64,41 @@ func popup_offer(is_multiplayer_in : bool, player1_remnants_in : Array, player2_
 			slot_nodes[i].set_remnant(offered_remnants[i],false)
 		else:
 			slot_nodes[i].queue_free()
+	# Wait a frame for layout to update
+	await get_tree().process_frame
+	for i in range(slot_nodes.size()):
+		if i < offered_remnants.size():
+			_place_purple_selectable(slot_nodes[i],offered_remnants[i])
+			_place_orange_selectable(slot_nodes[i],offered_remnants[i])
+
 	visible = true
 	modulate.a = 0.0
 	#Fade in
 	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
+	
+	
+
+func _place_purple_selectable(slot : Node ,remnant : Resource):
+	var rem_names = []
+	for r in player1_remnants:
+		rem_names.append(r.remnant_name)
+	if remnant.remnant_name not in rem_names:
+		var particle = load("res://Game Elements/ui/purple_selectable.tscn").instantiate()
+		particle.position = slot.position+slot.size+$MarginContainer/slots_hbox.position
+		particle.position.x -= slot.size.x/2
+		add_child(particle)
+
+func _place_orange_selectable(slot : Node ,remnant : Resource):
+	var rem_names = []
+	for r in player2_remnants:
+		rem_names.append(r.remnant_name)
+	if remnant.remnant_name not in rem_names:
+		var particle = load("res://Game Elements/ui/orange_selectable.tscn").instantiate()
+		particle.position = slot.position+slot.size+$MarginContainer/slots_hbox.position
+		particle.position.x -= slot.size.x/2
+		particle.position.y -= slot.size.y
+		add_child(particle)
+	
 
 
 func weighted_random_index(weights: Array) -> int:
@@ -110,8 +144,6 @@ func _handle_multiplayer_input(event):
 	if Input.is_action_just_pressed("activate_0"):
 		if _check_if_remnant_viable(offered_remnants[hover_index], player2_remnants) and hover_index != selected_index2:
 			selected_index2 = hover_index
-
-
 
 func _on_slot_selected(idx: int) -> void:
 	if is_multiplayer:

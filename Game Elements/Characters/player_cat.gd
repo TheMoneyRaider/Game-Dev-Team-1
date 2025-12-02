@@ -118,7 +118,7 @@ func request_attack(t_attack : Attack):
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction)
 
-func take_damage(damage_amount : int, _direction = Vector2(0,-1)):
+func take_damage(damage_amount : int, owner : Node,_direction = Vector2(0,-1)):
 	current_health = current_health - damage_amount
 	emit_signal("player_took_damage",damage_amount,current_health,self)
 	if(current_health <= 0):
@@ -174,11 +174,11 @@ func die(death : bool , insta_die : bool = false) -> bool:
 		#Change to signal something
 		self.process_mode = PROCESS_MODE_DISABLED
 		visible = false
-		get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+		get_tree().get_root().get_node("LayerManager").open_death_menu()
 		return false
 	else:
 		if insta_die:
-			get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+			get_tree().get_root().get_node("LayerManager").open_death_menu()
 			return false
 		if death:
 			max_health = max_health - 2
@@ -186,8 +186,8 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			self.process_mode = PROCESS_MODE_DISABLED
 			visible = false
 			if(max_health <= 0):
-				#Change to signal something
-				get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
+				#Change to signal 
+				get_tree().get_root().get_node("LayerManager").open_death_menu()
 				return false
 		else:
 			current_health = round(max_health / 2)
@@ -208,13 +208,13 @@ func handle_attack():
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_parent().trap_cells:
-		var tile_data = get_parent().return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in get_tree().get_root().get_node("LayerManager").trap_cells:
+		var tile_data = get_tree().get_root().get_node("LayerManager").return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
 			if dmg and !in_instant_trap:
-				take_damage(dmg)
+				take_damage(dmg, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false
@@ -223,7 +223,7 @@ func check_traps(delta):
 				current_dmg_time += delta
 				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
 					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
-					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"))
+					take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null)
 			else:
 				current_dmg_time = 0
 		else:

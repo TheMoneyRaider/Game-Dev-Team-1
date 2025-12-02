@@ -1,0 +1,80 @@
+[gd_scene load_steps=4 format=3 uid="uid://bmb5ip00tidvr"]
+
+[ext_resource type="Script" uid="uid://djs1rcercfqnx" path="res://Game Elements/ui/death_menu.gd" id="1_wxn66"]
+[ext_resource type="Shader" uid="uid://bxy3s0x1oqsce" path="res://Game Elements/ui/replay.gdshader" id="2_mh5qr"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dydff"]
+shader = ExtResource("2_mh5qr")
+shader_parameter/time = 0.0
+shader_parameter/intensity = 0.0
+
+[node name="DeathMenu" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_wxn66")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -104.5
+offset_top = -109.0
+offset_right = 104.5
+offset_bottom = 109.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+
+[node name="Rewind" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Rewind"
+
+[node name="Quit" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Quit"
+
+[node name="Menu" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "Main Menu"
+
+[node name="DeathAnnouncement" type="Label" parent="Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -73.0
+offset_right = 73.0
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 100
+text = "Timeline Fractured"
+
+[node name="Replay" type="TextureRect" parent="Control"]
+visible = false
+material = SubResource("ShaderMaterial_dydff")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="pressed" from="Control/VBoxContainer/Rewind" to="." method="_on_replay_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/Menu" to="." method="_on_menu_pressed"]

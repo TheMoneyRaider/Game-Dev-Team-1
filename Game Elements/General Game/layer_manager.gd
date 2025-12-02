@@ -15,13 +15,13 @@ var player_2 = null
 @onready var timefabric_collected: int = 0
 @onready var timefabric_rewarded = 0
 
-@onready var player_1_remnants: Array[Resource] = []
-@onready var player_2_remnants: Array[Resource] = []
+@onready var player_1_remnants: Array[Remnant] = []
+@onready var player_2_remnants: Array[Remnant] = []
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.TimeFabric
+var this_room_reward = Reward.Remnant
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -33,8 +33,9 @@ var thread_running := false
 #A list of all the tile locations that have an additional tile on them(i.e liquids, traps, etc)
 @onready var pathfinding = Pathfinding.new()
 
-@onready var camera = $Camera2D
-@onready var hud = $Hud
+@onready var camera = $game_container/game_viewport/game_root/Camera2D
+@onready var game_root = $game_container/game_viewport/game_root
+@onready var hud = $game_container/game_viewport/Hud
 
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
@@ -69,14 +70,22 @@ var time_passed := 0.0
 	0,#Items picked up   			#TODO
 	]
 
-
 func _ready() -> void:
 	var conflict_cells : Array[Vector2i] = []
 	_setup_players()
 	hud.set_players(player,player_2)
 	hud.connect_signals(player)
 	
-	add_child(pathfinding)
+	#####Remnant Testing
+	
+	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
+	winter.rank = 5
+	player_1_remnants.append(winter)
+	player_2_remnants.append(winter)
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+	#####
+	game_root.add_child(pathfinding)
 	preload_rooms()
 	randomize()
 	choose_room()
@@ -132,6 +141,14 @@ func _process(delta: float) -> void:
 			Vector2(0,-1))
 			if timefabric_rewarded== 0:
 				room_instance.get_node("TimeFabricOrb").queue_free()
+				reward_claimed = true
+	if !room_cleared:
+		for child in room_instance.get_children():
+			if child is DynamEnemy:
+				return
+		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
+		room_reward()
+		room_cleared= true
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -217,7 +234,7 @@ func choose_room() -> void:
 	
 	room_location = load(room_instance_data.scene_location)
 	room_instance = room_location.instantiate()
-	add_child(room_instance)
+	game_root.add_child(room_instance)
 
 func choose_pathways(direction : int, generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:
 	# Place required pathway(where the player(s) is entering		
@@ -422,31 +439,37 @@ func preload_rooms() -> void:
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
 
-func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> void:
+func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
 	#Remnant Orb
 	if(if_node_exists("RemnantOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
 			_open_remnant_popup()
 			_enable_pathways()
+			reward_claimed = true
+			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if remnant_orb.overlaps_body(player_reference):
-			timefabric_rewarded = 1000 #TODO change this
+			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
 			_enable_pathways()
+			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
 		var upgrade_orb = generated_room.get_node("UpgradeOrb") as Area2D
 		if upgrade_orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 			_enable_pathways()
+			reward_claimed = true
+			return true
+	return false
 
 func room_reward() -> void:
 	var reward_location
 	var reward = null
 	if is_multiplayer:
-		reward_location = _find_2x2_open_area([player.global_position,player_2.global_position],20)
+		reward_location = _find_2x2_open_area([Vector2i(floor(player.global_position.x / 16), floor(player.global_position.y / 16)),Vector2i(floor(player_2.global_position.x / 16), floor(player_2.global_position.y / 16))])
 	else:
-		reward_location = _find_2x2_open_area([player.global_position],20)
+		reward_location = _find_2x2_open_area([Vector2i(floor(player.global_position.x / 16), floor(player.global_position.y / 16))])
 	while reward == null:
 		match this_room_reward:
 			Reward.Remnant:
@@ -457,7 +480,6 @@ func room_reward() -> void:
 				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
-	room_cleared= true
 
 #Thread functions
 
@@ -510,7 +532,7 @@ func _create_room_step() -> void:
 	next_room_instance.name = pathway_name
 	next_room_instance.visible = false
 	next_room_instance.process_mode = Node.PROCESS_MODE_DISABLED
-	add_child(next_room_instance)
+	game_root.add_child(next_room_instance)
 	
 	# defer the more computationally heavy code
 	call_deferred("_finalize_room_creation", next_room_instance, next_room_data, direction, pathway_detect)
@@ -577,6 +599,12 @@ func _process_terrain_batch() -> void:
 		)
 
 #Helper Functions
+
+func open_death_menu() -> void:
+	get_node("DeathMenu").activate()
+	
+
+
 func _choose_reward(pathway_name : String) -> void:
 	var reward_type = null
 	var reward_texture : Node = null
@@ -602,7 +630,6 @@ func _choose_reward(pathway_name : String) -> void:
 	room_instance.get_node(pathway_name).set_reward(reward_texture, reward_type)
 
 func _enable_pathways() -> void:
-	reward_claimed = true
 	var pathway_name= ""
 	var direction_count = [0,0,0,0]
 	for p_direct in room_instance_data.pathway_direction:
@@ -639,8 +666,8 @@ func _setup_players() -> void:
 		player2.input_device = "0"
 		player1.other_player = player2
 		player2.other_player = player1
-		add_child(player1)
-		add_child(player2)
+		game_root.add_child(player1)
+		game_root.add_child(player2)
 		player2.swap_color()
 		#Temp Multiplayer Fix
 		player = player1
@@ -653,7 +680,7 @@ func _setup_players() -> void:
 		var player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
 		player1.input_device = "key"
-		add_child(player1)
+		game_root.add_child(player1)
 		player = player1
 	player.attack_requested.connect(_on_player_attack)
 	player.player_took_damage.connect(_on_player_take_damage)
@@ -790,42 +817,81 @@ func _open_upgrade_popup() -> void:
 		if is_multiplayer:
 			player_2.get_node("Crosshair").visible = false
 
-func _remove_timefabric_orb() -> void:
-	room_instance.get_node("TimeFabricOrb").queue_free()
-
-func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2:
+func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2i:
 	var candidates := []
 	#Combine all blocked and unsafe cells
-	var unsafe_cells := blocked_cells.duplicate()
+	var unsafe_cells :Array = blocked_cells.duplicate()
+	var safe_cells : Array = room_instance.get_node("Ground").get_used_cells()
 	unsafe_cells.append_array(water_cells)
 	unsafe_cells.append_array(lava_cells)
 	unsafe_cells.append_array(acid_cells)
 	unsafe_cells.append_array(trap_cells)
-
+	var direction_count = [0,0,0,0]
+	var pathway_positions = []
+	var pathway_name = ""
+	var temp_pos
+	for p_direct in room_instance_data.pathway_direction:
+		direction_count[p_direct]+=1
+		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
+		if if_node_exists(pathway_name,room_instance):
+			unsafe_cells += room_instance.get_node(pathway_name).get_used_cells()
+		if if_node_exists(pathway_name+"_Detect",room_instance):
+			temp_pos = room_instance.get_node(pathway_name+"_Detect").position
+			pathway_positions.append(Vector2i(floor(temp_pos.x / 16), floor(temp_pos.y / 16)))
 	#Generate candidate 2x2 positions around each player
 	for player_pos in player_positions:
 		for dx in range(-max_distance, max_distance):
 			for dy in range(-max_distance, max_distance):
-				var candidate = player_pos + Vector2(dx, dy)
+				var candidate = player_pos + Vector2i(dx, dy)
 				#Check the 2x2 area is free
 				var all_free = true
-				for x in range(2):
-					for y in range(2):
-						for player_position in player_positions:
-							if (candidate + Vector2(x, y)) == position:
-								break
-						if unsafe_cells.has(candidate + Vector2(x, y)):
+				for x in range(-1,1):
+					for y in range(-1,1):
+						if unsafe_cells.has(candidate + Vector2i(x, y)) or !safe_cells.has(candidate + Vector2i(x, y)):
 							all_free = false
 							break
 					if not all_free:
 						break
 				if all_free:
+					for player_position in player_positions:
+						if player_position.distance_to(candidate) < 3:
+							all_free = false
+							break
+				if all_free:
+					for path_position in pathway_positions:
+						if path_position.distance_to(candidate) < 3:
+							all_free = false
+							break
+				if all_free:
 					candidates.append(candidate)
 
 	if candidates.size()==0:
-		return Vector2.ZERO
-	#Pick a random candidate
-	return candidates[randi() % candidates.size()]
+		return Vector2i.ZERO
+	#Weighted random selection
+	var weights := []
+	for c in candidates:
+		var min_dist = INF
+		for player_pos in player_positions:
+			var dist = player_pos.distance_to(c)
+			if dist < min_dist:
+				min_dist = dist
+		#Closer = higher weight
+		weights.append(1.0 / (min_dist*2 + 1))
+	#_debug_tiles(candidates)
+
+
+	# Pick a candidate based on weight
+	var total_weight = 0.0
+	for w in weights:
+		total_weight += w
+
+	var rnd = randf() * total_weight
+	for i in range(candidates.size()):
+		rnd -= weights[i]
+		if rnd <= 0:
+			return candidates[i] * 16
+
+	return candidates[0] * 16
 
 func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int) -> void:
 	var cells = generated_room.get_node("Trap"+str(trap_num)).get_used_cells()
@@ -1017,11 +1083,6 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1
-		for child in room_instance.get_children():
-			if child is DynamEnemy and child != enemy:
-				return
-		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
-		room_reward()
 
 func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player_1_remnants.append(remnant1.duplicate(true))
@@ -1052,7 +1113,8 @@ func _on_timefabric_absorbed(timefabric_node : Node):
 	
 func _on_activate(player_node : Node):
 	if room_instance and room_cleared:
-		check_reward(room_instance, room_instance_data,player_node)
+		if check_reward(room_instance, room_instance_data,player_node):
+			return
 		if reward_claimed:
 			var direction = check_pathways(room_instance, room_instance_data,player_node)
 			if direction != -1:
@@ -1060,4 +1122,10 @@ func _on_activate(player_node : Node):
 
 func _debug_message(msg : String) -> void:
 	print("DEBUG: "+msg)
-	return
+
+func _debug_tiles(array_of_tiles) -> void:
+	var debug
+	for tile in array_of_tiles:
+		debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
+		debug.position = tile*16
+		room_instance.add_child(debug)

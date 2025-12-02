@@ -16,7 +16,7 @@ func activate():
 	await anim.animation_finished
 	active = true
 	for body in tracked_bodies:
-		body.take_damage(3)
+		body.take_damage(3, null)
 	while !tracked_bodies.is_empty():
 		await get_tree().process_frame
 	anim.play("deactivate")
@@ -31,7 +31,7 @@ func _on_body_entered(body):
 			activate()
 			return
 	elif body.has_method("take_damage"):
-		body.take_damage(3)
+		body.take_damage(3, null)
 
 func _on_body_exited(body):
 	if body in tracked_bodies:

@@ -42,18 +42,30 @@ func _process(delta: float) -> void:
 	velocity.y += gravity * delta
 	velocity.z += gravity * delta
 	
+	
+	_check_if_hitting_wall(delta)
+		
 	#Apply velocity
 	position += Vector2(velocity.x, velocity.y) * delta
 	position_z += velocity.z * delta
 	
-
-	#Check if inside any wall cell
-	var current_cell := Vector2i(floor(position.x / 16), floor(position.y / 16))
-	var inside_wall := current_cell in wall_cells
-	#Stop vertical movement only if below floor and not inside wall
-	if position_z >= 0 and (not inside_wall) and velocity.y > 0.0:
-		grounded = true
+	#Stop all movement if timefabric landed.
+	if position_z >= 0 and velocity.y > 0.0:
 		velocity = Vector3(0,0,0)
+		grounded = true
+		
+func _check_if_hitting_wall(delta) -> void:
+	var next_cellx := Vector2i(floor((position.x+velocity.x* delta) / 16), floor(position.y / 16))
+	var next_celly := Vector2i(floor(position.x / 16), floor((position.y+velocity.y* delta) / 16))
+	if next_cellx in blocked_cells or next_celly in blocked_cells:
+		velocity = Vector3(0,0,0)
+		grounded=true
+		
+		
+	
+	
+	
+	
 	
 func set_direction(direction : Vector2):
 	#velocity = Vector2(randf_range(-50,50),randf_range(-150,-50))
@@ -73,7 +85,7 @@ func set_direction(direction : Vector2):
 
 
 func move_towards_player():
-	var layer_manager = get_parent().get_parent()
+	var layer_manager = get_tree().get_root().get_node("LayerManager")
 	var is_multiplayer = layer_manager.is_multiplayer
 	if is_multiplayer:
 		check_player(layer_manager.player)
