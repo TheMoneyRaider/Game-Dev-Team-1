@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://0hahdiffjt61"]
+[gd_scene load_steps=15 format=3 uid="uid://0hahdiffjt61"]
 
 [ext_resource type="Script" uid="uid://ttvprfi61vn4" path="res://Game Elements/ui/hud.gd" id="1_6fbih"]
 [ext_resource type="Script" uid="uid://cdv7ke8wr65tg" path="res://Game Elements/ui/health_bar.gd" id="1_e0onf"]
@@ -7,6 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://eifl7usgphl5" path="res://art/mace_shadow.png" id="5_0rag0"]
 [ext_resource type="Script" uid="uid://d36yo1gmy8tkb" path="res://Game Elements/ui/cooldown_bar_1.gd" id="5_kgqo6"]
 [ext_resource type="Texture2D" uid="uid://dykkxim3f5y3g" path="res://art/mace_bright.png" id="6_65670"]
+[ext_resource type="Texture2D" uid="uid://covbs8hs8mbq3" path="res://art/crossbow_shadow.png" id="8_p8pfh"]
+[ext_resource type="Texture2D" uid="uid://kdaw8in4wo0" path="res://art/crossbow_bright.png" id="9_gp50j"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_t1xeu"]
 font_size = 35
@@ -163,7 +165,7 @@ theme_override_font_sizes/font_size = 20
 text = "5/10 HP"
 horizontal_alignment = 2
 
-[node name="Player1CooldownBars" type="Control" parent="RootControl"]
+[node name="MaceCooldownBar" type="Control" parent="RootControl"]
 layout_mode = 1
 anchor_bottom = 0.477
 offset_left = 2.0
@@ -172,7 +174,7 @@ offset_right = 120.0
 offset_bottom = 470.0
 script = ExtResource("5_kgqo6")
 
-[node name="MaceBar" type="TextureProgressBar" parent="RootControl/Player1CooldownBars"]
+[node name="CooldownBar" type="TextureProgressBar" parent="RootControl/MaceCooldownBar"]
 layout_mode = 1
 offset_top = 24.0
 offset_right = 23.0
@@ -181,5 +183,29 @@ scale = Vector2(4, 4)
 max_value = 0.5
 step = 0.005
 texture_under = ExtResource("5_0rag0")
+texture_over = ExtResource("6_65670")
 texture_progress = ExtResource("6_65670")
+tint_over = Color(0.44313726, 0.44313726, 0.44313726, 0)
 tint_progress = Color(0.627451, 0.1254902, 0.9411765, 1)
+
+[node name="CrossCooldownBar" type="Control" parent="RootControl"]
+layout_mode = 1
+anchor_bottom = 0.477
+offset_left = 1838.0
+offset_top = 902.0
+offset_right = 1956.0
+offset_bottom = 494.0
+script = ExtResource("5_kgqo6")
+
+[node name="CooldownBar" type="TextureProgressBar" parent="RootControl/CrossCooldownBar"]
+layout_mode = 1
+offset_right = 23.0
+offset_bottom = 14.0
+scale = Vector2(4, 4)
+max_value = 0.5
+step = 0.005
+texture_under = ExtResource("8_p8pfh")
+texture_over = ExtResource("9_gp50j")
+texture_progress = ExtResource("9_gp50j")
+tint_over = Color(0.44313726, 0.44313726, 0.44313726, 0)
+tint_progress = Color(1, 0.64705884, 0, 1)
