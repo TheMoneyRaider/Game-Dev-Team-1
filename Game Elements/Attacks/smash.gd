@@ -42,7 +42,7 @@ func _on_body_entered(body):
 				body.take_damage(damage,c_owner,direction)
 			else:
 				hit_nodes[body] = null
-	if pierce == 0:
+	if pierce == -1:
 		queue_free()
 
 func _on_area_entered(area: Area2D) -> void:
