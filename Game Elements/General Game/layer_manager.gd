@@ -82,9 +82,9 @@ func _ready() -> void:
 	var rem2 = load("res://Game Elements/Remnants/trickster.tres")
 	rem.rank = 5
 	rem2.rank = 5
-	player_1_remnants.append(rem)
-	player_2_remnants.append(rem)
-	player_2_remnants.append(rem2)
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####

@@ -90,13 +90,16 @@ func disable_pathway():
 func enable_pathway():
 	$ShaderSprite.visible = true
 	active = true
+	$PathwayIcon.texture = reward_texture
+	$PathwayIcon.material = reward_material
 
 func set_reward(new_icon : Node, reward : Reward):
 	reward_type = reward
 	reward_texture = new_icon.texture
 	reward_material = new_icon.material
-	$PathwayIcon.texture = reward_texture
-	$PathwayIcon.material = reward_material
+	if active:
+		$PathwayIcon.texture = reward_texture
+		$PathwayIcon.material = reward_material
 
 func _on_body_entered(body):
 	if !active:
