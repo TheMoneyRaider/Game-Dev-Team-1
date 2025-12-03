@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bgysbj2623d8d"]
+[gd_scene load_steps=22 format=3 uid="uid://bgysbj2623d8d"]
 
 [ext_resource type="Script" uid="uid://dpumkeekpn38k" path="res://Game Elements/Characters/player_cat.gd" id="1_u0lhy"]
 [ext_resource type="Texture2D" uid="uid://bse7gaxbkiksd" path="res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png" id="2_qmbn4"]
@@ -176,31 +176,9 @@ _data = {
 &"walk_up": SubResource("Animation_tnolk")
 }
 
-[sub_resource type="Shader" id="Shader_etjf5"]
-code = "shader_type canvas_item;
-
-void vertex() {
-	// Called for every vertex the material is visible on.
-}
-
-void fragment() {
-	// Called for every pixel the material is visible on.
-}
-
-//void light() {
-//	// Called for every pixel for every light affecting the CanvasItem.
-//	// Uncomment to replace the default light processing function with this one.
-//}
-"
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_q6sfk"]
-resource_local_to_scene = true
-shader = SubResource("Shader_etjf5")
-
 [sub_resource type="Curve" id="Curve_etjf5"]
-_limits = [0.75, 1.0, 0.0, 1.0]
-_data = [Vector2(0, 0.75), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.35, 0.0, 0, 0]
-point_count = 2
+_data = [Vector2(0, 1), 0.0, -2.0, 0, 1, Vector2(0.5, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
 
 [sub_resource type="Gradient" id="Gradient_ylelj"]
 resource_name = "TetherGradient"
@@ -252,8 +230,7 @@ script = ExtResource("8_5huac")
 visible = false
 top_level = true
 z_index = 3
-material = SubResource("ShaderMaterial_q6sfk")
-points = PackedVector2Array(0, 0, 0, 0)
+points = PackedVector2Array(0, 0, 0, 0, 0, 0)
 width = 5.0
 width_curve = SubResource("Curve_etjf5")
 default_color = Color(0.627451, 0.1254902, 0.9411765, 1)

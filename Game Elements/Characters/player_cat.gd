@@ -158,19 +158,20 @@ func tether():
 		if other_player.is_tethered:
 			if is_purple:
 				tether_line.gradient = tether_gradient
-				tether_line.width_curve = null
 			else:
 				tether_line.visible = false
 		else:
 			tether_line.gradient = null
-			tether_line.width_curve = tether_width_curve
 		tether_line.points[0] = position + (other_player.position - position).normalized() * 8
-		tether_line.points[1] = other_player.position + (position - other_player.position).normalized() * 8
+		tether_line.points[2] = other_player.position + (position - other_player.position).normalized() * 8
+		tether_line.points[1] = (tether_line.points[0] + tether_line.points[2]) / 2
 		if ((other_player.position - position) / 25).length() > 8:
 			tether_momentum += (other_player.position - position).normalized() * 8 + (((other_player.position - position) - ((other_player.position - position).normalized() * 8)) / 100)
 		else:
 			tether_momentum += (other_player.position - position) / 25
 		tether_momentum *= .995
+		print(tether_momentum.length())
+		tether_line.width_curve.set_point_value(1, min(max(50 / tether_momentum.length(),.4),1))
 	else:
 		if Input.is_action_just_released("swap_" + input_device):
 			tether_line.visible = false
