@@ -2,38 +2,53 @@ extends Control
 
 @onready var BreakFX = $BreakFX
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
-
+@onready var frames = 0
+@onready var exploaded = false
+@onready var cooldown : float = 0.0
+@onready var the_ui : Texture2D
 
 func _ready():
 	randomize()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	explode_ui()
+
+func _process(delta):
+	frames+=1
+	if frames < 2:
+		return
+	if frames <3:
+		# Capture UI texture
+		var vp_tex = $SubViewportContainer/SubViewport.get_texture()
+		the_ui = ImageTexture.create_from_image(vp_tex.get_image())
+	cooldown -= delta
+	if cooldown > 0:
+		if cooldown <= 3*delta and !exploaded:
+			UI_Group.visible = true
+		return
+	if !exploaded:
+		UI_Group.visible = false
+		print("explode")
+		explode_ui()
+		cooldown = randf_range(.5,8)
+		exploaded =true
+	else:
+		print("rewind")
+		cooldown = randf_range(2,6)
+		rewind_ui(cooldown)
+		exploaded =false
 
 func explode_ui():
-	UI_Group.visible = false
 
-	# Capture UI texture
-	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
-	var tex = ImageTexture.create_from_image(vp_tex.get_image())
 
 	# Generate fragments
-	var fragments_data = generate_jittered_grid_fragments(tex.get_size(),20,20)
+	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),20,20)
 	for frag_data in fragments_data:
 		var frag = Node2D.new()
-		frag.position = UI_Group.get_global_position()
 		frag.set_script(preload("res://Game Elements/ui/break_fx.gd"))
-
-
 		BreakFX.add_child(frag)
-		frag.begin_break(size,frag_data,tex)
+		frag.begin_break(the_ui.get_size(), frag_data, the_ui, UI_Group.global_position)
 
-func rewind_ui():
+func rewind_ui(time : float):
 	for f in BreakFX.get_children():
-		f.begin_rewind()
-	# Wait a bit before showing UI_Group again
-	await get_tree().create_timer(1.6).timeout
-	UI_Group.visible = true
+		f.begin_rewind(time)
 
 func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 20.0) -> Array:
 	var fragments = []
