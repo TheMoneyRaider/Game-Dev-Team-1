@@ -138,13 +138,15 @@ func update_highlights(hovered_button: Node):
 
 	# Compute intersection in global coordinates
 	var intersect_packed : PackedVector2Array = Geometry2D.intersect_polygons(frag_poly_global, button_poly)
-	if intersect_packed.size() == 0:
+	if intersect_packed.size() < 2:
 		return
+	print(intersect_packed)
 
 	# Convert to Array and offset to local coordinates
 	var intersect : Array = []
 	for p in intersect_packed:
-		intersect.append(p - global_position)
+		intersect.append(Vector2(p-global_position))
+		
 
 	# Create highlight as a sibling
 	var highlight = Polygon2D.new()

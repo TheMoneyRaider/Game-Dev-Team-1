@@ -163,6 +163,9 @@ func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, j
 		for x in range(grid_x):
 			# Convex hull to ensure valid polygon
 			var poly = Geometry2D.convex_hull([points[x][y],points[x+1][y],points[x+1][y+1],points[x][y+1]])
+			# Remove last point if it equals the first
+			if poly.size() > 1 and poly[0] == poly[poly.size() - 1]:
+				poly.remove_at(poly.size() - 1)
 			fragments.append(poly)
 	return fragments
 	
