@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://ds5s78sfvdcer"]
+
+[ext_resource type="Texture2D" uid="uid://i476iia1ua8q" path="res://demo/assets/env_gong.png" id="1_cig3n"]
+[ext_resource type="Script" uid="uid://bguvcklsj5k2s" path="res://Game Elements/ui/break_fx.gd" id="1_ju5u8"]
+
+[node name="BreakFrag" type="Node2D"]
+script = ExtResource("1_ju5u8")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_cig3n")
