@@ -8,42 +8,36 @@ var breaking: bool = false
 var rewinding: bool = false
 var rewind_time: float = 0.0
 var rewind_duration: float = 1.5
+var assigned_button : Button = null
 
-func begin_break(size: Vector2, frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_position : Vector2):
-	# 1. Compute fragment's top-left corner (min bounds)
+func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_position : Vector2):
+	#Compute fragment's top-left corner (min bounds)
 	var min_p = frag_data[0]
 	for p in frag_data:
 		min_p.x = min(min_p.x, p.x)
 		min_p.y = min(min_p.y, p.y)
 
-	# 2. Convert polygon vertices into local space
+	#Convert polygon vertices into local space
 	var local_points = []
 	for p in frag_data:
 		local_points.append(p - min_p)
 
-	# 3. Position this Node2D in world space (must add UI_Group offset)
+	#Position this Node2D in world space (must add UI_Group offset)
 	position = ui_pos + min_p
 
-	# 4. Create the Polygon2D
+	# Polygon2D
 	var poly = Polygon2D.new()
 	poly.position = Vector2.ZERO
 	poly.offset = Vector2.ZERO
 	poly.texture = tex
-
-	# UVs stay in texture-space
-	poly.uv = frag_data
-
-	# Geometry is local
 	poly.polygon = local_points
-
+	poly.uv = frag_data
 	add_child(poly)
 
-	# --- EXPLOSION MOTION ---
+	#Motion
 	breaking = true
 	rewinding = false
-
 	start_pos = position
-
 	var center = min_p  # use fragment's reference point
 	var dist = center.distance_to(pulse_position)
 	var direction = (center - pulse_position).normalized()
@@ -51,11 +45,7 @@ func begin_break(size: Vector2, frag_data: Array, tex: Texture2D, ui_pos : Vecto
 	#var max_angle = deg_to_rad(20.0)  #20° cone of variation
 	#var angle_offset = randf_range(-max_angle, max_angle)
 	#direction = direction.rotated(angle_offset)
-	
-	
 	velocity = direction * (dist * dist * 0.00006)
-	
-
 	set_process(true)
 
 func begin_rewind(duration := 1.5):
@@ -76,3 +66,26 @@ func _process(delta):
 		position = rewind_pos.lerp(start_pos, t)
 		if t >= 1.0:
 			call_deferred("queue_free")
+			
+func add_interactive_area(frag_poly: Array, button: Button):
+	assigned_button = button
+	var area = Area2D.new()
+	area.input_pickable = true
+	area.collision_layer = 1
+	area.collision_mask = 1
+	
+	var collision = CollisionPolygon2D.new()
+	var local_poly = []
+	for p in frag_poly:
+		local_poly.append(p - position)
+	collision.polygon = local_poly
+	area.add_child(collision)
+	add_child(area)
+	
+	area.connect("input_event", Callable(self, "_on_fragment_input"))
+
+
+func _on_fragment_input(viewport, event, shape_idx):
+	if event is InputEventMouseButton and event.pressed:
+		if assigned_button:
+			assigned_button.emit_signal("pressed")

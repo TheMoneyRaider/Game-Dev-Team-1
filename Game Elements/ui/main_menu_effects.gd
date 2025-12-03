@@ -2,22 +2,25 @@ extends Control
 
 @onready var BreakFX = $BreakFX
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
-@onready var frames = 0
 @onready var exploaded = false
 @onready var cooldown : float = 0.0
 @onready var the_ui : Texture2D
 
 func _ready():
 	randomize()
+	cooldown = 10.0
+	await get_tree().process_frame
+	await get_tree().process_frame
+	# Capture the UI once
+	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
+	the_ui = ImageTexture.create_from_image(vp_tex.get_image())
+	UI_Group.visible = false
+	print("explode")
+	explode_ui()
+	cooldown = randf_range(.5,4)
+	exploaded =true
 
 func _process(delta):
-	frames+=1
-	if frames < 2:
-		return
-	if frames <3:
-		# Capture UI texture
-		var vp_tex = $SubViewportContainer/SubViewport.get_texture()
-		the_ui = ImageTexture.create_from_image(vp_tex.get_image())
 	cooldown -= delta
 	if cooldown > 0:
 		if cooldown <= 3*delta and !exploaded:
@@ -36,18 +39,32 @@ func _process(delta):
 		exploaded =false
 
 func explode_ui():
-	var pulse_position = Vector2(randi_range(the_ui.get_size().x*1.0/6.0,the_ui.get_size().x*5.0/6.0),randi_range(the_ui.get_size().y*1.0/6.0,the_ui.get_size().y*5.0/6.0))
+	var pulse_position = Vector2(randi_range(int(the_ui.get_size().x*1.0/6.0),int(the_ui.get_size().x*5.0/6.0)),
+								randi_range(int(the_ui.get_size().y*1.0/6.0),int(the_ui.get_size().y*5.0/6.0)))
+	var button_bounds = {}
+	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
+		if button is Button:
+			button_bounds[button] = button.get_global_rect()
 	# Generate fragments
 	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),100,20)
 	for frag_data in fragments_data:
-		var frag = Node2D.new()
-		frag.set_script(preload("res://Game Elements/ui/break_fx.gd"))
+		var frag = load("res://Game Elements/ui/break_frag.tscn").instantiate()
 		BreakFX.add_child(frag)
-		frag.begin_break(the_ui.get_size(), frag_data, the_ui, UI_Group.global_position, pulse_position)
+		
+		# Determine if this fragment belongs to a button
+		var assigned_button = find_button_for_fragment(frag_data, button_bounds)
+		
+		# Initialize fragment script
+		frag.begin_break(frag_data, the_ui, UI_Group.global_position, pulse_position)
+		
+		# Add clickable area if belongs to a button
+		if assigned_button:
+			frag.add_interactive_area(frag_data, assigned_button)
 
 func rewind_ui(time : float):
 	for f in BreakFX.get_children():
-		f.begin_rewind(time)
+		if "begin_rewind" in f:
+			f.begin_rewind(time)
 
 func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 20.0) -> Array:
 	var fragments = []
@@ -85,3 +102,13 @@ func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, j
 	
 func jitter_point(size : Vector2, p : float, jitter : float, is_x : bool) -> float:
 	return max(0,min(size.x, p+randf_range(-jitter, jitter))) if is_x else max(0,min(size.y, p+randf_range(-jitter, jitter)))
+	
+func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Button:
+	var centroid = Vector2.ZERO
+	for p in frag_poly:
+		centroid += p
+	centroid /= frag_poly.size()
+	for button in button_bounds.keys():
+		if button_bounds[button].has_point(centroid):
+			return button
+	return null
