@@ -105,3 +105,33 @@ func check_traps(delta):
 	else:
 		current_dmg_time = 0
 		in_instant_trap = false
+		
+func _draw():
+	# Get path from blackboard if behavior tree exists
+	if not has_node("BTPlayer"):
+		return
+	
+	var bt_player = get_node("BTPlayer")
+	
+	if not bt_player.blackboard.has_var("path"):
+		return
+		
+	var path = bt_player.blackboard.get_var("path", [])
+	
+	if path.is_empty():
+		return
+
+	# Draw lines between waypoints
+	for i in range(path.size() - 1):
+		var start = to_local(path[i])
+		var end = to_local(path[i + 1])
+		draw_line(start, end, Color.YELLOW, 2.0)
+	
+	# Draw circles at each waypoint
+	for waypoint in path:
+		draw_circle(to_local(waypoint), 4, Color.RED)
+		
+	# Draw larger circle at current target
+	var waypoint_index = bt_player.blackboard.get_var("waypoint_index", 0)
+	if waypoint_index < path.size():
+		draw_circle(to_local(path[waypoint_index]), 6, Color.GREEN)

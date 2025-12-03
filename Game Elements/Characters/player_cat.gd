@@ -278,3 +278,5 @@ func _hunter_percent_boost() -> float:
 				print("boosted")
 				return float(rem.variable_1_values[rem.rank-1])
 	return 0.0
+	
+	
