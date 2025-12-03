@@ -1,14 +1,45 @@
-[gd_scene load_steps=6 format=3 uid="uid://dfus7yvwe8o0w"]
+[gd_scene load_steps=13 format=3 uid="uid://dfus7yvwe8o0w"]
 
 [ext_resource type="Script" uid="uid://c4n53rkbitwny" path="res://Game Elements/ui/main_menu_effects.gd" id="1_6am0n"]
 [ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Game Elements/ui/main_menu.gd" id="1_28flt"]
 [ext_resource type="Texture2D" uid="uid://rawhoxpikpyp" path="res://art/title_assets/grainy_background_visual.png" id="1_l8pfx"]
 [ext_resource type="Texture2D" uid="uid://ci51uf2w36bgw" path="res://art/title_assets/grainy_purple_and_orange_hourglass.png" id="2_6am0n"]
+[ext_resource type="Texture2D" uid="uid://bqpms85vwcukf" path="res://art/UI Package/Elements/7-1.png" id="5_8qedp"]
+[ext_resource type="Texture2D" uid="uid://bkguhuhr0xrt1" path="res://art/UI Package/Elements/5-1.png" id="6_uac55"]
+[ext_resource type="Texture2D" uid="uid://cbff04xfv2cbh" path="res://art/UI Package/Elements/6-1.png" id="7_5lttq"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
 font_size = 200
 outline_size = 30
 outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fr8ws"]
+texture = ExtResource("5_8qedp")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8qedp"]
+texture = ExtResource("5_8qedp")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6wjqi"]
+texture = ExtResource("6_uac55")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qvtd8"]
+texture = ExtResource("7_5lttq")
+texture_margin_left = 10.0
+texture_margin_top = 10.0
+texture_margin_right = 10.0
+texture_margin_bottom = 10.0
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -93,6 +124,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxTexture_fr8ws")
 text = "Start Singleplayer"
 script = ExtResource("1_28flt")
 
@@ -101,6 +133,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxTexture_8qedp")
 text = "Start Multiplayer"
 
 [node name="SettingsButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -108,6 +141,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxTexture_6wjqi")
 text = "Settings"
 script = ExtResource("1_28flt")
 
@@ -116,6 +150,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxTexture_qvtd8")
 text = "Quit Game"
 script = ExtResource("1_28flt")
 

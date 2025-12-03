@@ -6,6 +6,9 @@ extends Control
 @onready var cooldown : float = 0.0
 @onready var the_ui : Texture2D
 
+var highlight_color : Color = Color(1,1,1,0.5)
+var normal_color : Color = Color(1,1,1,1)
+
 func _ready():
 	randomize()
 	cooldown = 10.0
@@ -21,6 +24,7 @@ func _ready():
 	exploaded =true
 
 func _process(delta):
+	button_checks()
 	cooldown -= delta
 	if cooldown > 0:
 		if cooldown <= 3*delta and !exploaded:
@@ -37,6 +41,39 @@ func _process(delta):
 		cooldown = randf_range(2,5)
 		rewind_ui(cooldown)
 		exploaded =false
+
+
+
+var last_hovered_button : Node = null
+func button_checks():
+	var mouse_global = get_viewport().get_mouse_position()
+	var hovered_button : Node = null
+
+	# Loop through fragments to check if mouse is over their polygon
+	for frag in get_tree().get_nodes_in_group("ui_fragments"):
+		var poly_node = frag.get_child(0)
+		var local_mouse = mouse_global - frag.position
+		if Geometry2D.is_point_in_polygon(local_mouse, poly_node.polygon):
+			for button in frag.assigned_buttons:
+				if Geometry2D.is_point_in_polygon(local_mouse, get_button_polygon(button, frag.start_pos)):
+					hovered_button = button
+					break
+			break
+	# Only update if hovered button changed
+	if hovered_button != last_hovered_button:
+		last_hovered_button = hovered_button
+		for frag in get_tree().get_nodes_in_group("ui_fragments"):
+			frag.update_highlights(hovered_button)
+
+func get_button_polygon(button: Button, frag_start_pos: Vector2) -> Array:
+	var rect = button.get_global_rect()
+	return [
+		rect.position - frag_start_pos,
+		rect.position + Vector2(rect.size.x, 0) - frag_start_pos,
+		rect.position + rect.size - frag_start_pos,
+		rect.position + Vector2(0, rect.size.y) - frag_start_pos
+	]
+
 
 
 # Recursive helper to collect leaf nodes
@@ -72,14 +109,14 @@ func explode_ui():
 		BreakFX.add_child(frag)
 		
 		# Determine if this fragment belongs to a button
-		var assigned_button = find_button_for_fragment(frag_data, button_bounds)
+		var assigned_buttons = find_button_for_fragment(frag_data, button_bounds)
 		
 		# Initialize fragment script
 		frag.begin_break(frag_data, the_ui, UI_Group.global_position, pulse_position)
 		
 		# Add clickable area if belongs to a button
-		if assigned_button:
-			frag.add_interactive_area(frag_data)
+		if assigned_buttons != []:
+			frag.add_interactive_area(frag_data,assigned_buttons)
 	print(BreakFX.get_child_count())
 
 func rewind_ui(time : float):
@@ -132,16 +169,13 @@ func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, j
 func jitter_point(size : Vector2, p : float, jitter : float, is_x : bool) -> float:
 	return max(0,min(size.x, p+randf_range(-jitter, jitter))) if is_x else max(0,min(size.y, p+randf_range(-jitter, jitter)))
 	
-func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Button:
+func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Array[Button]:
+	var overlapping_buttons : Array[Button]= []
 	for button in button_bounds.keys():
 		var rect = button_bounds[button]
-		var rect_points = [
-			rect.position,
-			rect.position + Vector2(rect.size.x, 0),
-			rect.position + rect.size,
-			rect.position + Vector2(0, rect.size.y)
-		]
 		for p in frag_poly:
-			if Geometry2D.is_point_in_polygon(p, rect_points):
-				return button
-	return null
+			var global_point = p + UI_Group.global_position
+			if rect.has_point(global_point):
+				overlapping_buttons.append(button)
+				break
+	return overlapping_buttons

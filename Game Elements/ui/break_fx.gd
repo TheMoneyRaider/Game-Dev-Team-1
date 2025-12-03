@@ -8,8 +8,11 @@ var breaking: bool = false
 var rewinding: bool = false
 var rewind_time: float = 0.0
 var rewind_duration: float = 1.5
-var highlight_color : Color = Color(1,1,1,0.5)
-var normal_color : Color = Color(1,1,1,1)
+var assigned_buttons : Array[Button] = []
+var highlight_nodes: Array = []
+
+var normal_color: Color = Color(1,1,1,1)
+var highlight_color: Color = Color(1,1,1,0.5)
 
 func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_position : Vector2):
 	#Compute fragment's top-left corner (min bounds)
@@ -35,6 +38,7 @@ func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_posit
 	poly.uv = frag_data
 	add_child(poly)
 
+	highlight_nodes.clear()
 	#Motion
 	breaking = true
 	rewinding = false
@@ -71,7 +75,7 @@ func _process(delta):
 		if t >= 1.0:
 			call_deferred("queue_free")
 			
-func add_interactive_area(frag_poly: Array):
+func add_interactive_area(frag_poly: Array, assigned_b : Array):
 	var area = Area2D.new()
 	area.input_pickable = true
 	area.collision_layer = 1
@@ -86,7 +90,9 @@ func add_interactive_area(frag_poly: Array):
 	add_child(area)
 	add_to_group("ui_fragments")  # allow easy access to all button fragments
 	area.connect("input_event", Callable(self, "_on_fragment_input"))
+	assigned_buttons = assigned_b
 
+var last_hovered_button : Node = null
 
 func _on_fragment_input(viewport, event, shape_idx):
 	# Get global mouse position
@@ -96,31 +102,56 @@ func _on_fragment_input(viewport, event, shape_idx):
 	
 	if event is InputEventMouseButton and event.pressed:
 		# Iterate over buttons
-		for button in get_tree().get_nodes_in_group("ui_buttons"):
-			# Button's global rect
-			var rect = button.get_global_rect()
-			# Check if mouse is inside the button rect
-			if rect.has_point(mouse_original_space):
+		for button in assigned_buttons:
+			if button.get_global_rect().has_point(mouse_original_space):
 				button.emit_signal("pressed")
 				break
-			
-	elif event is InputEventMouseMotion:
-		# Iterate over buttons
-		for button in get_tree().get_nodes_in_group("ui_buttons"):
-			# Button's global rect
-			var rect = button.get_global_rect()
-			# Check if mouse is inside the button rect
-			if rect.has_point(mouse_original_space):
-				for frag in get_tree().get_nodes_in_group("ui_fragments"):
-					if frag.has_button(button):
-						frag.get_child(0).modulate = highlight_color
-					else:
-						frag.get_child(0).modulate = normal_color
 
 func has_button(button : Node) -> bool:
-	var poly_node = get_child(0)
-	for p in poly_node.polygon:
-		var global_point = position + p
-		if button.get_global_rect().has_point(global_point):
+	for b in assigned_buttons:
+		if b == button:
 			return true
 	return false
+	
+	
+func update_highlights(hovered_button: Node):
+	# Clear old highlights
+	for node in highlight_nodes:
+		node.queue_free()
+	highlight_nodes.clear()
+
+	if not hovered_button or not assigned_buttons.has(hovered_button):
+		return
+	# Get the fragment polygon in **global coordinates**
+	var frag_poly_global : Array = []
+	for p in get_child(0).polygon:
+		frag_poly_global.append(p + global_position)
+
+	# Get button polygon in global coordinates
+	var button_rect = hovered_button.get_global_rect()
+	var button_poly = [
+		button_rect.position,
+		button_rect.position + Vector2(button_rect.size.x, 0),
+		button_rect.position + button_rect.size,
+		button_rect.position + Vector2(0, button_rect.size.y)
+	]
+
+	# Compute intersection in global coordinates
+	var intersect_packed : PackedVector2Array = Geometry2D.intersect_polygons(frag_poly_global, button_poly)
+	if intersect_packed.size() == 0:
+		return
+
+	# Convert to Array and offset to local coordinates
+	var intersect : Array = []
+	for p in intersect_packed:
+		intersect.append(p - global_position)
+
+	# Create highlight as a sibling
+	var highlight = Polygon2D.new()
+	highlight.polygon = intersect
+	highlight.texture = null
+	highlight.color = highlight_color
+	highlight.z_index = get_child(0).z_index + 10
+	get_parent().add_child(highlight)  # sibling
+	highlight.global_position = global_position
+	highlight_nodes.append(highlight)
