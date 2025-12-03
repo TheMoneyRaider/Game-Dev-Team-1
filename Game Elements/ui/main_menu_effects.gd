@@ -18,25 +18,15 @@ func explode_ui():
 	var tex = ImageTexture.create_from_image(vp_tex.get_image())
 
 	# Generate fragments
-	var fragments_data = generate_fast_voronoi_fragments(tex.get_size(),1000)
+	var fragments_data = generate_jittered_grid_fragments(tex.get_size(),20,20)
 	for frag_data in fragments_data:
 		var frag = Node2D.new()
-		frag.position = UI_Group.get_global_position() + frag_data["rect"].position
+		frag.position = UI_Group.get_global_position()
 		frag.set_script(preload("res://Game Elements/ui/break_fx.gd"))
 
-		var poly = Polygon2D.new()
-		poly.polygon = frag_data["polygon"]
-		# map UVs to the sub-rectangle of the texture
-		var uv = []
-		for point in frag_data["polygon"]:
-			uv.append(frag_data["rect"].position + point)
-		poly.uv = uv
-
-		poly.texture = tex
-		frag.add_child(poly)
 
 		BreakFX.add_child(frag)
-		frag.begin_break()
+		frag.begin_break(size,frag_data,tex)
 
 func rewind_ui():
 	for f in BreakFX.get_children():
@@ -45,51 +35,39 @@ func rewind_ui():
 	await get_tree().create_timer(1.6).timeout
 	UI_Group.visible = true
 
-func generate_fast_voronoi_fragments(tex_size: Vector2, site_count: int, points_per_site: int = 10) -> Array:
+func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 20.0) -> Array:
 	var fragments = []
-
-	for i in site_count:
-		# Random site within texture
-		var site = Vector2(randf_range(0, tex_size.x), randf_range(0, tex_size.y))
-
-		# Generate small random cloud around the site
-		var points = []
-		for j in points_per_site:
-			points.append(site + Vector2(randf_range(-50,50), randf_range(-50,50)))
-
-		# Compute convex hull → polygon
-		var polygon = Geometry2D.convex_hull(points)
-		if polygon.size() < 3:
-			continue
-
-		# Compute polygon center
-		var center = Vector2.ZERO
-		for pt in polygon:
-			center += pt
-		center /= polygon.size()
-
-		# Convert polygon to local coordinates relative to center
-		var local_poly = []
-		for pt in polygon:
-			local_poly.append(pt - center)
-
-		# Compute bounding rect for UV mapping
-		var min_x = INF
-		var min_y = INF
-		var max_x = -INF
-		var max_y = -INF
-		for pt in polygon:
-			min_x = min(min_x, pt.x)
-			min_y = min(min_y, pt.y)
-			max_x = max(max_x, pt.x)
-			max_y = max(max_y, pt.y)
-		var rect = Rect2(Vector2(min_x, min_y), Vector2(max_x - min_x, max_y - min_y))
-
-		# Add fragment data
-		fragments.append({
-			"polygon": local_poly,
-			"center": center,
-			"rect": rect
-		})
-
+	var cell_w = size.x / grid_x
+	var cell_h = size.y / grid_y
+	var points = []
+	for x in range(grid_x + 1):
+		points.append([])
+		for y in range(grid_y + 1):
+			points[x].append(Vector2.ZERO)
+	var stop = false
+	for y in range(grid_y+1):
+		for x in range(grid_x+1):
+			var px = x * cell_w
+			var py = y * cell_h
+			for vec in [Vector2(0,0),Vector2(0,size.y),Vector2(size.x,0),Vector2(size.x,size.y)]:
+				if Vector2(px,py)==vec:
+					points[x][y]= Vector2(px,py)
+					stop = true
+					break
+			if stop:
+				stop = false
+			elif px == size.x or px == 0:
+				points[x][y]= Vector2(px,jitter_point(size,py,jitter, false))
+			elif py == size.y or py == 0:
+				points[x][y]= Vector2(jitter_point(size,px,jitter, true),py)
+			else:
+				points[x][y]= Vector2(jitter_point(size,px,jitter, true),jitter_point(size,py,jitter, false))
+	for y in range(grid_y):
+		for x in range(grid_x):
+			# Convex hull to ensure valid polygon
+			var poly = Geometry2D.convex_hull([points[x][y],points[x+1][y],points[x+1][y+1],points[x][y+1]])
+			fragments.append(poly)
 	return fragments
+	
+func jitter_point(size : Vector2, p : float, jitter : float, is_x : bool) -> float:
+	return max(0,min(size.x, p+randf_range(-jitter, jitter))) if is_x else max(0,min(size.y, p+randf_range(-jitter, jitter)))
