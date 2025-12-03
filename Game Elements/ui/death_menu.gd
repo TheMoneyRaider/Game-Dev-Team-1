@@ -146,7 +146,7 @@ func play_replay_reverse():
 		var tex = ImageTexture.create_from_image(frames[idx])
 		replay_texture.texture = tex
 		wait_time = (weights[weights_len-1-idx] / total_weight)
-		wait_time = clamp(wait_time * rewind_time -.01 * total_time/20,0.0,1)
+		wait_time = clamp(wait_time * rewind_time -.012 * total_time/20,0.0,1)
 		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
 		replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
 		await get_tree().create_timer(wait_time).timeout
