@@ -9,10 +9,10 @@ var rewinding: bool = false
 var rewind_time: float = 0.0
 var rewind_duration: float = 1.5
 var assigned_buttons : Array[Button] = []
-var highlight_nodes: Array = []
-
-var normal_color: Color = Color(1,1,1,1)
-var highlight_color: Color = Color(1,1,1,0.5)
+#var highlight_nodes: Array = []
+#
+#var normal_color: Color = Color(1,1,1,1)
+#var highlight_color: Color = Color(1,1,1,0.5)
 
 func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_position : Vector2):
 	#Compute fragment's top-left corner (min bounds)
@@ -38,7 +38,7 @@ func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_posit
 	poly.uv = frag_data
 	add_child(poly)
 
-	highlight_nodes.clear()
+	#highlight_nodes.clear()
 	#Motion
 	breaking = true
 	rewinding = false
@@ -94,7 +94,7 @@ func add_interactive_area(frag_poly: Array, assigned_b : Array):
 
 var last_hovered_button : Node = null
 
-func _on_fragment_input(viewport, event, shape_idx):
+func _on_fragment_input(_viewport, event, _shape_idx):
 	# Get global mouse position
 	var mouse_global = event.global_position
 	var fragment_displacement = position - start_pos
@@ -113,47 +113,47 @@ func has_button(button : Node) -> bool:
 			return true
 	return false
 	
-	
-func update_highlights(hovered_button: Node):
-	# Clear old highlights
-	for node in highlight_nodes:
-		node.queue_free()
-	highlight_nodes.clear()
-
-	if not hovered_button or not assigned_buttons.has(hovered_button):
-		return
-	# Get the fragment polygon in **global coordinates**
-	var frag_poly_global : Array = []
-	for p in get_child(0).polygon:
-		frag_poly_global.append(p + global_position)
-
-	# Get button polygon in global coordinates
-	var button_rect = hovered_button.get_global_rect()
-	var button_poly = [
-		button_rect.position,
-		button_rect.position + Vector2(button_rect.size.x, 0),
-		button_rect.position + button_rect.size,
-		button_rect.position + Vector2(0, button_rect.size.y)
-	]
-
-	# Compute intersection in global coordinates
-	var intersect_packed : PackedVector2Array = Geometry2D.intersect_polygons(frag_poly_global, button_poly)
-	if intersect_packed.size() < 2:
-		return
-	print(intersect_packed)
-
-	# Convert to Array and offset to local coordinates
-	var intersect : Array = []
-	for p in intersect_packed:
-		intersect.append(Vector2(p-global_position))
-		
-
-	# Create highlight as a sibling
-	var highlight = Polygon2D.new()
-	highlight.polygon = intersect
-	highlight.texture = null
-	highlight.color = highlight_color
-	highlight.z_index = get_child(0).z_index + 10
-	get_parent().add_child(highlight)  # sibling
-	highlight.global_position = global_position
-	highlight_nodes.append(highlight)
+	#
+#func update_highlights(hovered_button: Node):
+	## Clear old highlights
+	#for node in highlight_nodes:
+		#node.queue_free()
+	#highlight_nodes.clear()
+#
+	#if not hovered_button or not assigned_buttons.has(hovered_button):
+		#return
+	## Get the fragment polygon in **global coordinates**
+	#var frag_poly_global : Array = []
+	#for p in get_child(0).polygon:
+		#frag_poly_global.append(p + global_position)
+#
+	## Get button polygon in global coordinates
+	#var button_rect = hovered_button.get_global_rect()
+	#var button_poly = [
+		#button_rect.position,
+		#button_rect.position + Vector2(button_rect.size.x, 0),
+		#button_rect.position + button_rect.size,
+		#button_rect.position + Vector2(0, button_rect.size.y)
+	#]
+#
+	## Compute intersection in global coordinates
+	#var intersect_packed : PackedVector2Array = Geometry2D.intersect_polygons(frag_poly_global, button_poly)
+	#if intersect_packed.size() < 2:
+		#return
+	#print(intersect_packed)
+#
+	## Convert to Array and offset to local coordinates
+	#var intersect : Array = []
+	#for p in intersect_packed:
+		#intersect.append(Vector2(p-global_position))
+		#
+#
+	## Create highlight as a sibling
+	#var highlight = Polygon2D.new()
+	#highlight.polygon = intersect
+	#highlight.texture = null
+	#highlight.color = highlight_color
+	#highlight.z_index = get_child(0).z_index + 10
+	#get_parent().add_child(highlight)  # sibling
+	#highlight.global_position = global_position
+	#highlight_nodes.append(highlight)

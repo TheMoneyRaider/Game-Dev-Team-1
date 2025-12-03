@@ -6,8 +6,8 @@ extends Control
 @onready var cooldown : float = 0.0
 @onready var the_ui : Texture2D
 
-var highlight_color : Color = Color(1,1,1,0.5)
-var normal_color : Color = Color(1,1,1,1)
+#var highlight_color : Color = Color(1,1,1,0.5)
+#var normal_color : Color = Color(1,1,1,1)
 
 func _ready():
 	randomize()
@@ -20,11 +20,11 @@ func _ready():
 	UI_Group.visible = false
 	print("explode")
 	explode_ui()
-	cooldown = randf_range(.5,4)
+	cooldown = randf_range(2,4)
 	exploaded =true
 
 func _process(delta):
-	button_checks()
+	#button_checks()
 	cooldown -= delta
 	if cooldown > 0:
 		if cooldown <= 3*delta and !exploaded:
@@ -34,36 +34,36 @@ func _process(delta):
 		UI_Group.visible = false
 		print("explode")
 		explode_ui()
-		cooldown = randf_range(.5,4)
+		cooldown = randf_range(2,4)
 		exploaded =true
 	else:
 		print("rewind")
-		cooldown = randf_range(2,5)
+		cooldown = randf_range(3,4)
 		rewind_ui(cooldown)
 		exploaded =false
 
 
 
-var last_hovered_button : Node = null
-func button_checks():
-	var mouse_global = get_viewport().get_mouse_position()
-	var hovered_button : Node = null
-
-	# Loop through fragments to check if mouse is over their polygon
-	for frag in get_tree().get_nodes_in_group("ui_fragments"):
-		var poly_node = frag.get_child(0)
-		var local_mouse = mouse_global - frag.position
-		if Geometry2D.is_point_in_polygon(local_mouse, poly_node.polygon):
-			for button in frag.assigned_buttons:
-				if Geometry2D.is_point_in_polygon(local_mouse, get_button_polygon(button, frag.start_pos)):
-					hovered_button = button
-					break
-			break
-	# Only update if hovered button changed
-	if hovered_button != last_hovered_button:
-		last_hovered_button = hovered_button
-		for frag in get_tree().get_nodes_in_group("ui_fragments"):
-			frag.update_highlights(hovered_button)
+#var last_hovered_button : Node = null
+#func button_checks():
+	#var mouse_global = get_viewport().get_mouse_position()
+	#var hovered_button : Node = null
+#
+	## Loop through fragments to check if mouse is over their polygon
+	#for frag in get_tree().get_nodes_in_group("ui_fragments"):
+		#var poly_node = frag.get_child(0)
+		#var local_mouse = mouse_global - frag.position
+		#if Geometry2D.is_point_in_polygon(local_mouse, poly_node.polygon):
+			#for button in frag.assigned_buttons:
+				#if Geometry2D.is_point_in_polygon(local_mouse, get_button_polygon(button, frag.start_pos)):
+					#hovered_button = button
+					#break
+			#break
+	## Only update if hovered button changed
+	#if hovered_button != last_hovered_button:
+		#last_hovered_button = hovered_button
+		#for frag in get_tree().get_nodes_in_group("ui_fragments"):
+			#frag.update_highlights(hovered_button)
 
 func get_button_polygon(button: Button, frag_start_pos: Vector2) -> Array:
 	var rect = button.get_global_rect()
