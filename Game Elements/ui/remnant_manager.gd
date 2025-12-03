@@ -54,6 +54,9 @@ func get_random_remnants(num: int = 4, player1_remnants: Array = [], player2_rem
 	# Pick half from each
 	_pick_random_unique(pool_for_p1, half, result)
 	_pick_random_unique(pool_for_p2, half, result)
+	print(pool_for_p1)
+	print(pool_for_p2)
+	print(result)
 	var extra := result.size() - half * 2
 	if extra <= 0:
 		return result
@@ -65,7 +68,11 @@ func get_random_remnants(num: int = 4, player1_remnants: Array = [], player2_rem
 			result.append(rem)
 			extra-=1
 			if extra <= 0:
-				return result
+				break
+	print(pool_for_p1)
+	print(pool_for_p2)
+	print(combined)
+	print(result)
 	return result
 	
 

@@ -23,17 +23,11 @@ var base_speed : float = 1.0
 
 # INTERNALS ---------------------------------------------------
 var T : Array[float] = []                  #duration (seconds) of each buffer
-var v0 : Array[float] = []                 #entry speed to each buffer
-var K : Array[float] = []                  #cost integral per buffer
-var cumulative_cost : Array[float] = []    #prefix sum of K
-var total_cost : float= 0.0
+var cumulative_time : Array[float] = []    #prefix sum for each Ti
+var total_time : float= 0.0
 
 var progress : float = 0.0         #0->1 during rewind
 var ln2 : float = log(2.0)
-
-
-
-
 
 @onready var replay_texture: TextureRect = $Control/Replay
 @onready var death_box: VBoxContainer = $Control/VBoxContainer
@@ -43,7 +37,6 @@ var rewinding := false
 var final_frame : Image
 
 var frame_amount = 0
-var total_time = 0.0
 
 func _ready():
 	hide()
@@ -54,7 +47,7 @@ func _ready():
 
 func _process(delta):
 	if capturing:
-		total_time+=delta
+		total_time += delta
 		_capture_frame(0)
 	if !rewinding:
 		return
@@ -115,12 +108,9 @@ func _on_replay_pressed():
 
 func prepare_rewind():
 	T.clear()
-	v0.clear()
-	K.clear()
-	cumulative_cost.clear()
+	cumulative_time.clear()
 
-	var cost_sum = 0.0
-	var speed = base_speed
+	var time_sum = 0.0
 
 	for i in range(buffers.size()):
 		var buffer := buffers[i]
@@ -129,34 +119,19 @@ func prepare_rewind():
 
 		if count == 0:
 			T.append(0.0)
-			v0.append(speed)
-			K.append(0.0)
-			cumulative_cost.append(cost_sum)
-			speed *= 2.0
+			cumulative_time.append(time_sum)
 			continue
 
 		#Duration of buffer in seconds
 		var Ti := float(count) / float(fps)
 		T.append(Ti)
 
-		#Starting speed for this buffer
-		v0.append(speed)
-
-		#Total cost = integral of speed over time (linear ramp)
-		var Ki = Ti
-		K.append(Ki)
-		
-		cost_sum += Ki
-		cumulative_cost.append(cost_sum)
-
-		#Next buffer starts at double speed
-		speed *= 2.0
-
-	total_cost = cost_sum
+		time_sum += Ti
+		cumulative_time.append(time_sum)
 	progress = 0.0
 
 func update_rewind(delta: float) -> Image:
-	if total_cost <= 0.0:
+	if total_time <= 0.0:
 		return null
 
 	# Advance progress (0 -> 1 over rewind_time seconds)
@@ -164,28 +139,26 @@ func update_rewind(delta: float) -> Image:
 	progress = clamp(progress, 0.0, 1.0)
 
 	# Map progress to "total frame count" coordinate
-	var cursor = progress * total_cost
+	var cursor = progress * rewind_time
+	var time_ratio = (rewind_time/total_time)
 
 	# Find which buffer we are in
 	var i = 0
-	while i < cumulative_cost.size() and cursor >= cumulative_cost[i]:
+	while i < (cumulative_time.size()-1) and cursor > cumulative_time[i] * time_ratio:
 		i += 1
 
-	if i >= buffers.size():  # rewind complete
+	if progress == 1.0:  # rewind complete
 		end_replay()
 		return null
 
 	var buffer := buffers[i]
 
-	var prev_cost = cumulative_cost[i - 1] if i > 0 else 0.0
-	var local_cost = cursor - prev_cost
+	var prev_time = cumulative_time[i - 1]*time_ratio if i > 0 else 0.0
+	var local_time = cursor - prev_time
 
-	var Ti = T[i]
-	var Ki = K[i]
-
-	var t = (local_cost/Ki)*Ti #Linear
-
-	var frame_index = int(floor(t * buffer_fps[i]))
+	var frame_index = int(floor(local_time * buffer_fps[i]))
+	print("Frame: "+str(frame_index)+" Buffer: "+str(i)+" Progress: "+str(progress))
+	frame_index = clamp(frame_index, 0, buffer.size() - 1)
 	return buffer[frame_index]
 
 
