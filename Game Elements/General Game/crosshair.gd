@@ -25,8 +25,9 @@ func _process(_delta: float) -> void:
 	var direction = (mouse_coords).normalized()
 	if player_input_device == "key":
 		if((mouse_coords).length() < 70):
-			global_position = player.global_position+mouse_coords
+			global_position = player.global_position + mouse_coords
 		else:
+			Input.warp_mouse(camera.get_global_transform().basis_xform(direction * 70) + Vector2(viewport_size/2))
 			global_position = player.global_position + (direction * 70)
 	else:
 		position = (crosshair_direction * 50)
