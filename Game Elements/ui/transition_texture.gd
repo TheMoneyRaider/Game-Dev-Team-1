@@ -10,6 +10,12 @@ func _ready():
 	_fade_out()
 
 
+func get_properties(texture : TextureRect) -> void:
+	var tex_rect = get_child(0)
+	tex_rect.material.set_shader_parameter("intensity", texture.material.get_shader_parameter("intensity"))
+	tex_rect.material.set_shader_parameter("time", texture.material.get_shader_parameter("time"))
+	
+
 func _fade_out():
 	var tex_rect = get_child(0)
 	var tex_rect2 = get_child(1)
