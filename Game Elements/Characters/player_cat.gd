@@ -32,6 +32,7 @@ var other_player
 var tether_momentum = Vector2.ZERO
 var is_tethered = false
 var tether_gradient
+var tether_width_curve
 
 var is_multiplayer = false
 var input_device = "key"
@@ -63,6 +64,7 @@ func _ready():
 	add_to_group("player")
 	if is_multiplayer:
 		tether_gradient = tether_line.gradient
+		tether_width_curve = tether_line.width_curve
 		tether_line.gradient = null			
 
 func _initialize_state_machine():
@@ -156,10 +158,12 @@ func tether():
 		if other_player.is_tethered:
 			if is_purple:
 				tether_line.gradient = tether_gradient
+				tether_line.width_curve = null
 			else:
 				tether_line.visible = false
 		else:
 			tether_line.gradient = null
+			tether_line.width_curve = tether_width_curve
 		tether_line.points[0] = position + (other_player.position - position).normalized() * 8
 		tether_line.points[1] = other_player.position + (position - other_player.position).normalized() * 8
 		if ((other_player.position - position) / 25).length() > 8:
