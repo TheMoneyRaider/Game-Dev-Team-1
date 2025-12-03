@@ -27,24 +27,23 @@ func _process(delta):
 		UI_Group.visible = false
 		print("explode")
 		explode_ui()
-		cooldown = randf_range(.5,8)
+		cooldown = randf_range(.5,4)
 		exploaded =true
 	else:
 		print("rewind")
-		cooldown = randf_range(2,6)
+		cooldown = randf_range(2,5)
 		rewind_ui(cooldown)
 		exploaded =false
 
 func explode_ui():
-
-
+	var pulse_position = Vector2(randi_range(the_ui.get_size().x*1.0/6.0,the_ui.get_size().x*5.0/6.0),randi_range(the_ui.get_size().y*1.0/6.0,the_ui.get_size().y*5.0/6.0))
 	# Generate fragments
-	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),20,20)
+	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),100,20)
 	for frag_data in fragments_data:
 		var frag = Node2D.new()
 		frag.set_script(preload("res://Game Elements/ui/break_fx.gd"))
 		BreakFX.add_child(frag)
-		frag.begin_break(the_ui.get_size(), frag_data, the_ui, UI_Group.global_position)
+		frag.begin_break(the_ui.get_size(), frag_data, the_ui, UI_Group.global_position, pulse_position)
 
 func rewind_ui(time : float):
 	for f in BreakFX.get_children():
