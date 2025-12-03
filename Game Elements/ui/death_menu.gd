@@ -35,6 +35,7 @@ var ln2 : float = log(2.0)
 var capturing := true
 var rewinding := false
 var final_frame : Image
+var current_frame = 0
 
 var frame_amount = 0
 
@@ -109,25 +110,17 @@ func _on_replay_pressed():
 func prepare_rewind():
 	T.clear()
 	cumulative_time.clear()
-
-	var time_sum = 0.0
+	var sum = 0.0
 
 	for i in range(buffers.size()):
-		var buffer := buffers[i]
-		var count := buffer.size()
-		var fps := buffer_fps[i]
-
-		if count == 0:
-			T.append(0.0)
-			cumulative_time.append(time_sum)
-			continue
-
-		#Duration of buffer in seconds
-		var Ti := float(count) / float(fps)
+		var count = buffers[i].size()
+		var fps = buffer_fps[i]
+		var Ti = float(count) / float(fps)
 		T.append(Ti)
+		sum += Ti
+		cumulative_time.append(sum)
 
-		time_sum += Ti
-		cumulative_time.append(time_sum)
+	total_time = sum
 	progress = 0.0
 
 func update_rewind(delta: float) -> Image:
@@ -137,29 +130,37 @@ func update_rewind(delta: float) -> Image:
 	# Advance progress (0 -> 1 over rewind_time seconds)
 	progress += delta / rewind_time
 	progress = clamp(progress, 0.0, 1.0)
+	
+	#Convert progress into a global rewind time
+	var t : float = progress * total_time
 
-	# Map progress to "total frame count" coordinate
-	var cursor = progress * rewind_time
-	var time_ratio = (rewind_time/total_time)
-
-	# Find which buffer we are in
-	var i = 0
-	while i < (cumulative_time.size()-1) and cursor > cumulative_time[i] * time_ratio:
+	#Find which buffer this time falls into
+	var i := 0
+	while i < buffers.size() and t > cumulative_time[i]:
 		i += 1
 
-	if progress == 1.0:  # rewind complete
+	#Rewind finished (t beyond all buffers)
+	if i >= buffers.size():
 		end_replay()
 		return null
 
-	var buffer := buffers[i]
+	#Local time inside this buffer
+	var start_time : float = 0.0 if (i == 0) else cumulative_time[i - 1]
+	var local_time :float = t - start_time
 
-	var prev_time = cumulative_time[i - 1]*time_ratio if i > 0 else 0.0
-	var local_time = cursor - prev_time
+	# Convert local_time to frame index
+	var fps := buffer_fps[0]
+	var frame_idx := int(local_time * fps)
 
-	var frame_index = int(floor(local_time * buffer_fps[i]))
-	print("Frame: "+str(frame_index)+" Buffer: "+str(i)+" Progress: "+str(progress))
-	frame_index = clamp(frame_index, 0, buffer.size() - 1)
-	return buffer[frame_index]
+	# Clamp to valid range
+	frame_idx = clamp(frame_idx, 0, buffers[i].size() - 1)
+
+	## IMPORTANT:
+	## Buffers were captured with push_front() → newest first.
+	## But rewind must play oldest → newest.
+	var corrected_idx := buffers[i].size() - 1 - frame_idx
+
+	return buffers[i][corrected_idx]
 
 
 #replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
