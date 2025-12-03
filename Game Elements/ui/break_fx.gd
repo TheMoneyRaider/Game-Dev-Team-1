@@ -66,6 +66,14 @@ func _ready():
 
 func _process(delta):
 	if breaking:
+		var mouse_global = get_viewport().get_mouse_position()
+		if position.distance_to(mouse_global) < 100:
+			var move =Vector2(200/clamp((position-mouse_global).x,10,200),200/clamp((position-mouse_global).y,10,200))
+			if (position-mouse_global).x <= 0.0:
+				move.x *= -1
+			if (position-mouse_global).y <= 0.0:
+				move.y *= -1
+			velocity+= move
 		position += velocity * delta
 	elif rewinding:
 		rewind_time += delta

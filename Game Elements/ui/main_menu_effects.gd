@@ -38,7 +38,7 @@ func _process(delta):
 		exploaded =true
 	else:
 		print("rewind")
-		cooldown = randf_range(3,4)
+		cooldown = randf_range(1,2)
 		rewind_ui(cooldown)
 		exploaded =false
 
@@ -100,7 +100,7 @@ func explode_ui():
 		if button is Button:
 			button_bounds[button] = button.get_global_rect()
 	# Generate fragments
-	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),100,20)
+	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),40,20)
 	for frag_data in fragments_data:
 		# Only create a fragment if it overlaps any UI element
 		if not overlaps_any_ui_element(frag_data, ui_bounds):
