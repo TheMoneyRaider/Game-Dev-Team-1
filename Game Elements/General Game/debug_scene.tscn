@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://8noggnfr4y4v"]
+
+[ext_resource type="Texture2D" uid="uid://dlcpw4tgvjjuo" path="res://art/ring_texture.png" id="1_umnlk"]
+
+[node name="Root" type="Node2D"]
+
+[node name="TestScene" type="Sprite2D" parent="."]
+position = Vector2(-8, -8)
+scale = Vector2(0.031, 0.031)
+texture = ExtResource("1_umnlk")

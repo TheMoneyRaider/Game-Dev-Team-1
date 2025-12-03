@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7mhuqdx6rjx5"]
+
+[ext_resource type="Script" uid="uid://ddccjsnskpuxm" path="res://Game Elements/Objects/time_fabric.gd" id="1_edgu3"]
+[ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="1_kcv6a"]
+
+[node name="TimeFabric" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_edgu3")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_kcv6a")
+hframes = 6

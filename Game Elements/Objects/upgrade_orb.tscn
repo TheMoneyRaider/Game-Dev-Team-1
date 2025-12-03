@@ -1,0 +1,92 @@
+[gd_scene load_steps=13 format=3 uid="uid://b84illenn3ykj"]
+
+[ext_resource type="Texture2D" uid="uid://dc615m8r6verx" path="res://art/remnants/remnant_orb_feet.png" id="1_1fi3s"]
+[ext_resource type="Texture2D" uid="uid://dnk7rx0ff2g7" path="res://art/remnants/upgrade_orb_particle.png" id="1_3b7d0"]
+[ext_resource type="Script" uid="uid://bn7wc23ktk2ry" path="res://Game Elements/Objects/orb.gd" id="1_qixjf"]
+[ext_resource type="Shader" uid="uid://bcbula2hj7vua" path="res://Game Elements/Remnants/remnant_orb.gdshader" id="3_evrwk"]
+[ext_resource type="Texture2D" uid="uid://b47fnmu3eqtfa" path="res://art/remnants/upgrade_orb.png" id="4_qixjf"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_p07o2"]
+radius = 36.138622
+
+[sub_resource type="Gradient" id="Gradient_6mb4o"]
+offsets = PackedFloat32Array(0.37623763, 0.669967)
+colors = PackedColorArray(0.5266252, 0.0026518118, 0.8153331, 1, 0.9892896, 0.65959156, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_8r85b"]
+gradient = SubResource("Gradient_6mb4o")
+
+[sub_resource type="Curve" id="Curve_8dltk"]
+_data = [Vector2(0, 0), 0.0, -0.36316064, 0, 0, Vector2(0.5045593, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ewlq3"]
+curve = SubResource("Curve_8dltk")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_oyqiy"]
+particle_flag_disable_z = true
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 1.0
+emission_ring_radius = 23.35
+emission_ring_inner_radius = 0.0
+emission_ring_cone_angle = 90.0
+direction = Vector3(0, 0, 0)
+spread = 180.0
+radial_velocity_min = 19.999977
+radial_velocity_max = 19.999977
+tangential_accel_min = -2.2351742e-06
+tangential_accel_max = -2.2351742e-06
+scale_min = 0.25
+scale_max = 0.25
+scale_curve = SubResource("CurveTexture_ewlq3")
+color_ramp = SubResource("GradientTexture1D_8r85b")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3b7d0"]
+shader = ExtResource("3_evrwk")
+shader_parameter/time_scale = 2.0
+shader_parameter/distortion_amount = 0.2
+shader_parameter/color_shift = 0.0
+shader_parameter/color_shift_time_scale = 0.0
+shader_parameter/shift_wave_enabled = 0
+
+[node name="UpgradeOrb" type="Area2D"]
+collision_mask = 3
+script = ExtResource("1_qixjf")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_p07o2")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+amount = 20
+texture = ExtResource("1_3b7d0")
+lifetime = 2.0
+process_material = SubResource("ParticleProcessMaterial_oyqiy")
+
+[node name="Feet" type="Sprite2D" parent="."]
+texture = ExtResource("1_1fi3s")
+
+[node name="Image" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_3b7d0")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_qixjf")
+
+[node name="Prompt1" type="Node2D" parent="."]
+scale = Vector2(1.5, 1.5)
+
+[node name="Text" type="RichTextLabel" parent="Prompt1"]
+offset_left = -14.666667
+offset_top = -23.333334
+offset_right = 718.6666
+offset_bottom = 151.66667
+scale = Vector2(0.04, 0.04)
+theme_override_font_sizes/normal_font_size = 128
+bbcode_enabled = true
+text = ": Enter"
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
