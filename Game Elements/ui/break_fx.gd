@@ -67,8 +67,7 @@ func _process(delta):
 		if t >= 1.0:
 			call_deferred("queue_free")
 			
-func add_interactive_area(frag_poly: Array, button: Button):
-	assigned_button = button
+func add_interactive_area(frag_poly: Array):
 	var area = Area2D.new()
 	area.input_pickable = true
 	area.collision_layer = 1
@@ -87,5 +86,19 @@ func add_interactive_area(frag_poly: Array, button: Button):
 
 func _on_fragment_input(viewport, event, shape_idx):
 	if event is InputEventMouseButton and event.pressed:
-		if assigned_button:
-			assigned_button.emit_signal("pressed")
+		# Get mouse global position
+		var mouse_global = event.global_position
+		
+		# Undo fragment movement to get original space
+		var fragment_displacement = position - start_pos
+		var mouse_original_space = mouse_global - fragment_displacement
+		
+		# Iterate over buttons
+		for button in get_tree().get_nodes_in_group("ui_buttons"):
+			# Button's global rect
+			var rect = button.get_global_rect()
+			
+			# Check if mouse is inside the button rect
+			if rect.has_point(mouse_original_space):
+				button.emit_signal("pressed")
+				break

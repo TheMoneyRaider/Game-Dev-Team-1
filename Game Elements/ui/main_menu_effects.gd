@@ -59,7 +59,7 @@ func explode_ui():
 		
 		# Add clickable area if belongs to a button
 		if assigned_button:
-			frag.add_interactive_area(frag_data, assigned_button)
+			frag.add_interactive_area(frag_data)
 
 func rewind_ui(time : float):
 	for f in BreakFX.get_children():
@@ -104,11 +104,15 @@ func jitter_point(size : Vector2, p : float, jitter : float, is_x : bool) -> flo
 	return max(0,min(size.x, p+randf_range(-jitter, jitter))) if is_x else max(0,min(size.y, p+randf_range(-jitter, jitter)))
 	
 func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Button:
-	var centroid = Vector2.ZERO
-	for p in frag_poly:
-		centroid += p
-	centroid /= frag_poly.size()
 	for button in button_bounds.keys():
-		if button_bounds[button].has_point(centroid):
-			return button
+		var rect = button_bounds[button]
+		var rect_points = [
+			rect.position,
+			rect.position + Vector2(rect.size.x, 0),
+			rect.position + rect.size,
+			rect.position + Vector2(0, rect.size.y)
+		]
+		for p in frag_poly:
+			if Geometry2D.is_point_in_polygon(p, rect_points):
+				return button
 	return null

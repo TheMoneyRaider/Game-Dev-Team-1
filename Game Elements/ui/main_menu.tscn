@@ -95,7 +95,7 @@ label_settings = SubResource("LabelSettings_l8pfx")
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-[node name="StartSinglePlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
+[node name="StartSinglePlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -103,14 +103,14 @@ theme_override_font_sizes/font_size = 40
 text = "Start Singleplayer"
 script = ExtResource("1_28flt")
 
-[node name="StartMPlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
+[node name="StartMPlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
 text = "Start Multiplayer"
 
-[node name="SettingsButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
+[node name="SettingsButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -118,7 +118,7 @@ theme_override_font_sizes/font_size = 40
 text = "Settings"
 script = ExtResource("1_28flt")
 
-[node name="QuitButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
+[node name="QuitButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
