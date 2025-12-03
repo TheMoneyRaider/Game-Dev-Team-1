@@ -8,7 +8,8 @@ var breaking: bool = false
 var rewinding: bool = false
 var rewind_time: float = 0.0
 var rewind_duration: float = 1.5
-var assigned_button : Button = null
+var highlight_color : Color = Color(1,1,1,0.5)
+var normal_color : Color = Color(1,1,1,1)
 
 func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2, pulse_position : Vector2):
 	#Compute fragment's top-left corner (min bounds)
@@ -56,6 +57,9 @@ func begin_rewind(duration := 1.5):
 	set_process(true)
 	rewind_pos = position
 
+func _ready():
+	set_process_input(true)
+
 func _process(delta):
 	if breaking:
 		position += velocity * delta
@@ -80,25 +84,43 @@ func add_interactive_area(frag_poly: Array):
 	collision.polygon = local_poly
 	area.add_child(collision)
 	add_child(area)
-	
+	add_to_group("ui_fragments")  # allow easy access to all button fragments
 	area.connect("input_event", Callable(self, "_on_fragment_input"))
 
 
 func _on_fragment_input(viewport, event, shape_idx):
+	# Get global mouse position
+	var mouse_global = event.global_position
+	var fragment_displacement = position - start_pos
+	var mouse_original_space = mouse_global - fragment_displacement
+	
 	if event is InputEventMouseButton and event.pressed:
-		# Get mouse global position
-		var mouse_global = event.global_position
-		
-		# Undo fragment movement to get original space
-		var fragment_displacement = position - start_pos
-		var mouse_original_space = mouse_global - fragment_displacement
-		
 		# Iterate over buttons
 		for button in get_tree().get_nodes_in_group("ui_buttons"):
 			# Button's global rect
 			var rect = button.get_global_rect()
-			
 			# Check if mouse is inside the button rect
 			if rect.has_point(mouse_original_space):
 				button.emit_signal("pressed")
 				break
+			
+	elif event is InputEventMouseMotion:
+		# Iterate over buttons
+		for button in get_tree().get_nodes_in_group("ui_buttons"):
+			# Button's global rect
+			var rect = button.get_global_rect()
+			# Check if mouse is inside the button rect
+			if rect.has_point(mouse_original_space):
+				for frag in get_tree().get_nodes_in_group("ui_fragments"):
+					if frag.has_button(button):
+						frag.get_child(0).modulate = highlight_color
+					else:
+						frag.get_child(0).modulate = normal_color
+
+func has_button(button : Node) -> bool:
+	var poly_node = get_child(0)
+	for p in poly_node.polygon:
+		var global_point = position + p
+		if button.get_global_rect().has_point(global_point):
+			return true
+	return false

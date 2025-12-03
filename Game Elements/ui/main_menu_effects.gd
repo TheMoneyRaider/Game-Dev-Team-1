@@ -38,9 +38,26 @@ func _process(delta):
 		rewind_ui(cooldown)
 		exploaded =false
 
+
+# Recursive helper to collect leaf nodes
+func collect_leaf_children(node: Node, bounds: Dictionary) -> void:
+	for child in node.get_children():
+		if child.get_child_count() == 0:
+			# Leaf node, add to dictionary
+			if child is Control and child.get_class() == "Control":
+				continue
+			bounds[child] = child.get_global_rect()
+		else:
+			# Recurse into children
+			collect_leaf_children(child, bounds)
+
 func explode_ui():
 	var pulse_position = Vector2(randi_range(int(the_ui.get_size().x*1.0/6.0),int(the_ui.get_size().x*5.0/6.0)),
 								randi_range(int(the_ui.get_size().y*1.0/6.0),int(the_ui.get_size().y*5.0/6.0)))
+	# Get all leaf children of the SubViewport
+	var ui_bounds = {}
+	collect_leaf_children($SubViewportContainer/SubViewport, ui_bounds)
+		
 	var button_bounds = {}
 	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
 		if button is Button:
@@ -48,6 +65,9 @@ func explode_ui():
 	# Generate fragments
 	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),100,20)
 	for frag_data in fragments_data:
+		# Only create a fragment if it overlaps any UI element
+		if not overlaps_any_ui_element(frag_data, ui_bounds):
+			continue
 		var frag = load("res://Game Elements/ui/break_frag.tscn").instantiate()
 		BreakFX.add_child(frag)
 		
@@ -60,11 +80,20 @@ func explode_ui():
 		# Add clickable area if belongs to a button
 		if assigned_button:
 			frag.add_interactive_area(frag_data)
+	print(BreakFX.get_child_count())
 
 func rewind_ui(time : float):
 	for f in BreakFX.get_children():
 		if "begin_rewind" in f:
 			f.begin_rewind(time)
+
+func overlaps_any_ui_element(frag_poly: Array, button_bounds: Dictionary) -> bool:
+	for p in frag_poly:
+		var global_point = UI_Group.global_position + p
+		for rect in button_bounds.values():
+			if rect.has_point(global_point):
+				return true
+	return false
 
 func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 20.0) -> Array:
 	var fragments = []

@@ -7,6 +7,8 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
 font_size = 200
+outline_size = 30
+outline_color = Color(0, 0, 0, 1)
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -59,17 +61,6 @@ offset_bottom = 997.0
 mouse_filter = 1
 script = ExtResource("1_28flt")
 
-[node name="Background" type="TextureRect" parent="SubViewportContainer/SubViewport/UI_Group"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("1_l8pfx")
-expand_mode = 1
-
 [node name="VBoxContainer" type="VBoxContainer" parent="SubViewportContainer/SubViewport/UI_Group"]
 layout_direction = 1
 layout_mode = 1
@@ -88,8 +79,10 @@ theme_override_constants/separation = 20
 
 [node name="Label" type="Label" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
 text = "Time To Love"
 label_settings = SubResource("LabelSettings_l8pfx")
+uppercase = true
 
 [node name="Spacer" type="Control" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
 custom_minimum_size = Vector2(0, 100)
