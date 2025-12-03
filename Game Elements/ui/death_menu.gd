@@ -82,6 +82,8 @@ func _on_menu_pressed():
 func _on_replay_pressed():
 	replay_texture.visible = true
 	death_box.visible = false
+	var now := Time.get_time_dict_from_system()
+	print(now.second)
 	play_replay_reverse()
 
 func play_replay_reverse():
@@ -143,7 +145,8 @@ func play_replay_reverse():
 	for idx in range(total_frames,0,-1):
 		var tex = ImageTexture.create_from_image(frames[idx])
 		replay_texture.texture = tex
-		wait_time = (weights[weights_len-1-idx] / total_weight) * rewind_time
+		wait_time = (weights[weights_len-1-idx] / total_weight)
+		wait_time = clamp(wait_time * rewind_time -.01 * total_time/20,0.0,1)
 		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
 		replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
 		await get_tree().create_timer(wait_time).timeout
@@ -156,6 +159,8 @@ func get_shader_intensity(current_time: float, total_time_func: float, min_inten
 	# Map to shader intensity
 	return lerp(min_intensity, max_intensity, exp_curve)
 func end_replay():
+	var now := Time.get_time_dict_from_system()
+	print(now.second)
 	capturing = false
 	recent_buffer.clear()
 	longterm_buffer.clear()
