@@ -4,7 +4,11 @@ extends Control
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
 @onready var exploaded = false
 @onready var cooldown : float = 0.0
+@onready var disrupt_cooldown : float = 0.0
 @onready var the_ui : Texture2D
+@onready var is_disruptive : bool = true
+@onready var is_purple: bool = true
+var input_device = "key"
 
 #var highlight_color : Color = Color(1,1,1,0.5)
 #var normal_color : Color = Color(1,1,1,1)
@@ -24,8 +28,18 @@ func _ready():
 	exploaded =true
 
 func _process(delta):
+	if Input.is_action_just_pressed("swap_" + input_device):
+		is_purple=!is_purple
+		disrupt_cooldown = 10.0
+		is_disruptive = false
+	
 	#button_checks()
 	cooldown -= delta
+	disrupt_cooldown -= delta
+	
+	if disrupt_cooldown < 0 and !is_disruptive:
+		is_disruptive = true
+	
 	if cooldown > 0:
 		if cooldown <= 3*delta and !exploaded:
 			UI_Group.visible = true
@@ -38,7 +52,7 @@ func _process(delta):
 		exploaded =true
 	else:
 		print("rewind")
-		cooldown = randf_range(1,2)
+		cooldown = 1
 		rewind_ui(cooldown)
 		exploaded =false
 
