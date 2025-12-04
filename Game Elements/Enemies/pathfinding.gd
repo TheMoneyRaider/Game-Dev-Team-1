@@ -109,3 +109,96 @@ func find_path(from_world: Vector2, to_world: Vector2) -> Array:
 	var path = astar.get_point_path(from_id, to_id)
 	
 	return path
+	
+	
+func smooth_path(path: Array, ) -> Array: 
+	
+	print("path being smoothed")
+	var smooth = [path[0]]
+	var i = 0 
+	
+	# try skipping intermediate points
+	while i < path.size() - 1: 
+		var current = path[i]
+		var next_node = i + 1
+		
+		while next_node < path.size(): 
+			var target = path[next_node]
+			
+			if can_walk_straight(current, target): 
+				next_node += 1
+			else: 
+				break
+				
+		var next_point = path[next_node - 1]
+		if next_point != current:
+			smooth.append(next_point)
+			
+		i = next_node - 1
+			
+	if smooth[smooth.size() - 1] != path[path.size() - 1]: 
+		smooth.append(path[path.size() - 1])
+	
+	return smooth
+	
+	
+	# Bresenham's algorithm
+func get_line_cells(from: Vector2i, to: Vector2i) -> Array[Vector2i]:
+	var cells: Array[Vector2i] = []
+	
+	var dx = abs(to.x - from.x)
+	var dy = abs(to.y - from.y)
+	var sx = 1 if from.x < to.x else -1
+	var sy = 1 if from.y < to.y else -1
+	var err = dx - dy
+	
+	var current = from
+	
+	while true:
+		cells.append(current)
+		
+		if current == to:
+			break
+		
+		var e2 = 2 * err
+		if e2 > -dy:
+			err -= dy
+			current.x += sx
+		if e2 < dx:
+			err += dx
+			current.y += sy
+	
+	return cells
+	
+func can_walk_straight(from: Vector2, to: Vector2) -> bool:
+	var from_cell = Vector2i(floor(from.x / cell_size), floor(from.y / cell_size))
+	var to_cell = Vector2i(floor(to.x / cell_size), floor(to.y / cell_size))
+	
+	# Use Bresenham's line algorithm to check all cells along the line
+	var cells_on_line = get_line_cells(from_cell, to_cell)
+	
+	# Check if all cells on the line are walkable
+	for cell in cells_on_line:
+		if not cell in walkable_cells:
+			return false
+	
+	# ADDITIONAL CHECK: Make sure we're not cutting corners diagonally through walls
+	# Check the cells adjacent to the line
+	for i in range(len(cells_on_line) - 1):
+		var current = cells_on_line[i]
+		var next = cells_on_line[i + 1]
+		
+		# If moving diagonally, check both adjacent cells
+		var dx = next.x - current.x
+		var dy = next.y - current.y
+		
+		if dx != 0 and dy != 0:  # Diagonal move
+			# Check the two cells that form the corner
+			var corner1 = Vector2i(current.x + dx, current.y)
+			var corner2 = Vector2i(current.x, current.y + dy)
+			
+			# Both corners must be walkable to allow diagonal movement
+			if not (corner1 in walkable_cells and corner2 in walkable_cells):
+				return false
+	
+	return true
