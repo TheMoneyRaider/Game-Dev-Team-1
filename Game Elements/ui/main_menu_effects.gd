@@ -2,11 +2,11 @@ extends Control
 
 @onready var BreakFX = $BreakFX
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
-@onready var exploaded = false
 @onready var cooldown : float = 0.0
 @onready var the_ui : Texture2D
 @onready var is_disruptive : bool = true
 @onready var is_purple: bool = true
+@onready var exploaded: bool = false
 var input_device = "key"
 
 
@@ -21,30 +21,27 @@ func _ready():
 	UI_Group.visible = false
 	print("explode")
 	explode_ui()
-	cooldown = randf_range(2,4)
-	exploaded =true
+	cooldown = -1
+
+func _begin_explosion_cooldown():
+	if cooldown < 0:
+		print("explode")
+		cooldown = randf_range(2,4)
+		exploaded = true
 
 func _process(delta):
 	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
 	if Input.is_action_just_pressed("swap_" + input_device):
 		is_purple=!is_purple
 		is_disruptive = !is_disruptive
-	
-	#button_checks()
+
 	cooldown -= delta
 	
-	if cooldown > 0:
-		return
-	if !exploaded:
-		print("explode")
-		#explode_ui()
-		cooldown = randf_range(2,4)
-		exploaded =true
-	else:
+	if cooldown < 0 and cooldown > -.9 and exploaded:
+		exploaded = false
 		print("rewind")
 		cooldown = 1
 		rewind_ui(cooldown)
-		exploaded =false
 
 func get_button_polygon(button: Button, frag_start_pos: Vector2) -> Array:
 	var rect = button.get_global_rect()

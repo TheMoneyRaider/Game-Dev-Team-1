@@ -92,6 +92,8 @@ func _physics_process(delta):
 		rotation = lerp(rewind_rot, 0.0, t)
 		if t >= 1.0:
 			redo_break()
+	if linear_velocity.length() > 20:
+		get_parent().get_parent()._begin_explosion_cooldown()
 			
 func add_interactive_area(frag_poly: Array, assigned_b : Array):
 	var poly_node = get_node("Polygon2D")
