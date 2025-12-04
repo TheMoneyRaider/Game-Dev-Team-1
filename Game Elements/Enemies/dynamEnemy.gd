@@ -34,6 +34,7 @@ func load_settings():
 func _ready():
 	current_health = max_health
 	add_to_group("enemy")
+	load_settings()
 
 func update_flip(dir: float): 
 	sprite_2d.flip_h = dir < 0 
