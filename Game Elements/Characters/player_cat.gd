@@ -1,5 +1,6 @@
 extends CharacterBody2D
 const attack = preload("res://Game Elements/Attacks/attack.gd")
+var mouse_sensitivity: float = 1.0
 
 @export var move_speed: float = 100
 @export var max_health: float = 10
