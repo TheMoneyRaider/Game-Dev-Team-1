@@ -7,8 +7,10 @@ uniform float tendril_waviness : hint_range(5, 200) = 40.0;
 uniform float tendril_speed : hint_range(0, 10) = 1.5;
 
 vec3 tendril_color(float t) {
+	t = t*t*t;
+    t = clamp(t, 0.0, 1.0);
     // Gradient along tendril: center=purple, tip=orange
-    return mix(vec3(0.6, 0.0, 1.0), vec3(1.0, 0.5, 0.0), t);
+    return mix(vec3(1.0, 0.5, 0.0), vec3(0.6, 0.0, 1.0), t);
 }
 
 void fragment() {

@@ -7,7 +7,7 @@
 [ext_resource type="StyleBox" uid="uid://dobyvfqwbwfh0" path="res://Game Elements/ui/7-1_button.tres" id="5_5lttq"]
 [ext_resource type="Texture2D" uid="uid://bqpms85vwcukf" path="res://art/UI Package/Elements/7-1.png" id="5_8qedp"]
 [ext_resource type="StyleBox" uid="uid://duatvi4nhndpj" path="res://Game Elements/ui/4-1_button.tres" id="7_6wjqi"]
-[ext_resource type="Shader" path="res://Game Elements/ui/timelines.gdshader" id="9_6wjqi"]
+[ext_resource type="Shader" uid="uid://df6is5vss0kty" path="res://Game Elements/ui/timelines.gdshader" id="9_6wjqi"]
 [ext_resource type="Texture2D" uid="uid://eifbgnatdh4i" path="res://art/gradiant_dot3.png" id="10_a412y"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
