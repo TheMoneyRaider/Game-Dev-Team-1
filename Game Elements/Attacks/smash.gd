@@ -13,6 +13,7 @@ var hit_nodes = {}
 
 
 func _ready():
+	rotation = direction.angle() + PI/2
 	await get_tree().create_timer(lifespan).timeout
 	queue_free()
 
