@@ -112,8 +112,6 @@ func find_path(from_world: Vector2, to_world: Vector2) -> Array:
 	
 	
 func smooth_path(path: Array, ) -> Array: 
-	
-	print("path being smoothed")
 	var smooth = [path[0]]
 	var i = 0 
 	

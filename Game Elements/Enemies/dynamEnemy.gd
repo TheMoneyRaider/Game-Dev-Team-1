@@ -7,6 +7,7 @@ var SPEED: float = 100
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
+var debug_mode = false 
 
 var effects : Array[Effect] = []
 
@@ -24,6 +25,12 @@ func handle_attack(target_position: Vector2):
 func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction: Vector2):
 	emit_signal("attack_requested", t_attack, attack_position, attack_direction)
 # import like, takes damage or something like that
+
+func load_settings():
+	var config = ConfigFile.new()
+	if config.load("user://settings.cfg") == OK:
+		debug_mode = config.get_value("debug", "enabled", false)
+		
 
 func _ready():
 	current_health = max_health
@@ -54,7 +61,9 @@ func _process(delta):
 	
 	#Trap stuff
 	check_traps(delta)
-	queue_redraw()
+	
+	if debug_mode:
+		queue_redraw()
 	
 
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
