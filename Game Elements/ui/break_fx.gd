@@ -132,9 +132,14 @@ func add_interactive_area(frag_poly: Array, assigned_b : Array):
 	assigned_buttons = assigned_b
 	#poly_node.visible = false
 
-var last_hovered_button : Node = null
+
+func _ready():
+	print("Area2D:", get_node("Area2D").is_inside_tree())
+	print("Monitoring:", get_node("Area2D").monitoring)
+	print("Pickable:", get_node("Area2D").input_pickable)
 
 func _on_fragment_input(_viewport, event, _shape_idx):
+	print("CLICKED FRAGMENT")
 	# Get global mouse position
 	var mouse_global = event.global_position
 	var fragment_displacement = position - start_pos
@@ -146,10 +151,3 @@ func _on_fragment_input(_viewport, event, _shape_idx):
 			if button.get_global_rect().has_point(mouse_original_space):
 				button.emit_signal("pressed")
 				break
-
-
-func has_button(button : Node) -> bool:
-	for b in assigned_buttons:
-		if b == button:
-			return true
-	return false

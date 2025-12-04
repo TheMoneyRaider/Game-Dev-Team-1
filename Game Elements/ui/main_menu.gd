@@ -58,19 +58,15 @@ func _on_start_button_pressed() -> void:
 	Globals.is_multiplayer = false
 	get_tree().change_scene_to_file("res://Game Elements/General Game/layer_manager.tscn")
 
+func _on_start_m_button_pressed() -> void:
+	Globals.is_multiplayer =true
+	get_tree().change_scene_to_file("res://Game Elements/General Game/layer_manager.tscn")
+
 
 func _on_settings_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://Game Elements/ui/settings.tscn")
 	pass # Replace with function body.
 
-
 func _on_quit_button_pressed() -> void:
 	print("ARGGG")
 	get_tree().quit()
-
-
-
-func _on_resume_button_pressed() -> void:
-	Globals.is_multiplayer = true
-	get_tree().change_scene_to_file("res://Game Elements/General Game/layer_manager.tscn")
-	pass # Replace with function body.

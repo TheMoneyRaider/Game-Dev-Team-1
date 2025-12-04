@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dfus7yvwe8o0w"]
+[gd_scene load_steps=13 format=3 uid="uid://dfus7yvwe8o0w"]
 
 [ext_resource type="Script" uid="uid://c4n53rkbitwny" path="res://Game Elements/ui/main_menu_effects.gd" id="1_6am0n"]
 [ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Game Elements/ui/main_menu.gd" id="1_28flt"]
@@ -6,8 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://ci51uf2w36bgw" path="res://art/title_assets/grainy_purple_and_orange_hourglass.png" id="2_6am0n"]
 [ext_resource type="StyleBox" uid="uid://dobyvfqwbwfh0" path="res://Game Elements/ui/7-1_button.tres" id="5_5lttq"]
 [ext_resource type="Texture2D" uid="uid://bqpms85vwcukf" path="res://art/UI Package/Elements/7-1.png" id="5_8qedp"]
-[ext_resource type="StyleBox" uid="uid://blu7jpl2ulkms" path="res://Game Elements/ui/5-1_button.tres" id="7_6wjqi"]
-[ext_resource type="StyleBox" uid="uid://bhn7lbt5yrxsl" path="res://Game Elements/ui/6-1_button.tres" id="8_5lttq"]
+[ext_resource type="StyleBox" uid="uid://duatvi4nhndpj" path="res://Game Elements/ui/4-1_button.tres" id="7_6wjqi"]
 [ext_resource type="Shader" uid="uid://df6is5vss0kty" path="res://Game Elements/ui/timelines.gdshader" id="9_6wjqi"]
 [ext_resource type="Texture2D" uid="uid://eifbgnatdh4i" path="res://art/gradiant_dot3.png" id="10_a412y"]
 
@@ -120,7 +119,6 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("5_5lttq")
 theme_override_styles/hover = ExtResource("5_5lttq")
 text = "Start Singleplayer"
-script = ExtResource("1_28flt")
 
 [node name="StartMPlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
 custom_minimum_size = Vector2(200, 0)
@@ -140,17 +138,15 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
 theme_override_styles/hover = ExtResource("7_6wjqi")
 text = "Settings"
-script = ExtResource("1_28flt")
 
 [node name="QuitButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = ExtResource("8_5lttq")
-theme_override_styles/hover = ExtResource("8_5lttq")
-text = "Quit Game"
-script = ExtResource("1_28flt")
+theme_override_styles/normal = ExtResource("7_6wjqi")
+theme_override_styles/hover = ExtResource("7_6wjqi")
+text = "Quit"
 
 [node name="ColorRect" type="ColorRect" parent="."]
 z_index = -1
@@ -214,6 +210,6 @@ bbcode_enabled = true
 text = "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space[/font]: Enable/Disable Fracturing"
 
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartSinglePlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_start_button_pressed"]
-[connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartMPlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_resume_button_pressed"]
+[connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartMPlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_start_m_button_pressed"]
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/SettingsButton" to="SubViewportContainer/SubViewport/UI_Group" method="_on_settings_button_pressed"]
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/QuitButton" to="SubViewportContainer/SubViewport/UI_Group" method="_on_quit_button_pressed"]
