@@ -58,7 +58,6 @@ func _process(delta):
 			effects.remove_at(idx)
 		idx +=1
 		
-	
 	#Trap stuff
 	check_traps(delta)
 	
