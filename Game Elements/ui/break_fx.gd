@@ -111,8 +111,6 @@ func add_interactive_area(frag_poly: Array, assigned_b : Array):
 		min_y = min(min_y, p.y)
 		max_y = max(max_y, p.y)
 	
-	#print("Sizex: "+str(max_x-min_x)+" Sizey: "+str(max_y-min_y))
-	
 	var points: Array[Vector2i] = []
 	var step = 1  # every 1 pixels
 	for y in range(int(min_y), int(max_y)+1, step):
@@ -130,16 +128,8 @@ func add_interactive_area(frag_poly: Array, assigned_b : Array):
 		get_node("Area2D").connect("input_event", Callable(self, "_on_fragment_input"))
 
 	assigned_buttons = assigned_b
-	#poly_node.visible = false
-
-
-func _ready():
-	print("Area2D:", get_node("Area2D").is_inside_tree())
-	print("Monitoring:", get_node("Area2D").monitoring)
-	print("Pickable:", get_node("Area2D").input_pickable)
 
 func _on_fragment_input(_viewport, event, _shape_idx):
-	print("CLICKED FRAGMENT")
 	# Get global mouse position
 	var mouse_global = event.global_position
 	var fragment_displacement = position - start_pos

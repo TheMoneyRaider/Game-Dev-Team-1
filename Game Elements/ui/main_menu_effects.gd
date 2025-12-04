@@ -164,3 +164,6 @@ func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Ar
 				overlapping_buttons.append(button)
 				break
 	return overlapping_buttons
+	
+	
+	
