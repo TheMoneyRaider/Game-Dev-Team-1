@@ -17,7 +17,7 @@ func load_settings():
 func save_settings():
 	var config = ConfigFile.new()
 	
-	var volslider = $Volume
+	var volslider = $MarginContainer/VBoxContainer/Volume/Volume
 	config.set_value("audio", "master", volslider.value)
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("debug", "enabled", debug_mode)
@@ -29,7 +29,7 @@ func _on_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
 	pass # Replace with function body.
 
-@onready var label := $Volume/VolVal
+@onready var label := $MarginContainer/VBoxContainer/Volume/VolVal
 @export var bus_name: String = "Master"
 
 func _ready() -> void:
@@ -40,11 +40,11 @@ func _ready() -> void:
 	load_settings()
 
 	if has_node("MouseSensitivity"):
-		$MouseSensitivity.value = mouse_sensitivity
+		$MarginContainer/VBoxContainer/Mouse/MouseSensitivity.value = mouse_sensitivity
 		update_sensitivity_label()
 		
 	if has_node("DebugMode"):
-		$DebugMode.button_pressed = debug_mode
+		$MarginContainer/VBoxContainer/Debug/DebugMode.button_pressed = debug_mode
 		update_debug_menu_label()
 	 
 func _on_volume_value_changed(value: float) -> void:
@@ -74,7 +74,7 @@ func set_mouse_sensitivity(value: float):
 
 func update_sensitivity_label():
 	if has_node("MouseSensitivity/SensLabel"):
-		$MouseSensitivity/SensLabel.text = "%.2f" % mouse_sensitivity
+		$MarginContainer/VBoxContainer/Mouse/SensLabel.text = "%.2f" % mouse_sensitivity
 
 func _on_mouse_sensitivity_value_changed(value: float) -> void:
 	set_mouse_sensitivity(value)
@@ -88,9 +88,9 @@ func set_debug_value(toggled_on: bool) -> void:
 func update_debug_menu_label() -> void:
 	if has_node("DebugMode/DebugLabel"):
 		if debug_mode == false: 
-			$DebugMode/DebugLabel.text = "Off"
+			$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "Off"
 		else:
-			$DebugMode/DebugLabel.text = "On"
+			$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "On"
 		
 func _on_debug_mode_toggled(toggled_on: bool) -> void:
 	set_debug_value(toggled_on)
