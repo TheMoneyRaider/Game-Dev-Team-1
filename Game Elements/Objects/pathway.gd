@@ -111,6 +111,7 @@ func _on_body_entered(body):
 		if tricky != -1:
 			tracked_bodies2.append(body)
 			prompt2.visible = true
+			_set_display(tracked_bodies2[0])
 		if len(tracked_bodies1) == 1:
 			_set_display(tracked_bodies1[0])
 func _on_body_exited(body):
@@ -123,10 +124,12 @@ func _on_body_exited(body):
 	if len(tracked_bodies1) == 0:
 		prompt1.visible = false
 	else:
+		tricky = _has_trickster(tracked_bodies1[0],false)
 		_set_display(tracked_bodies1[0])
 	if len(tracked_bodies2) == 0:
 		prompt2.visible = false
 	else:
+		tricky = _has_trickster(tracked_bodies2[0],false)
 		_set_display(tracked_bodies2[0])
 		
 		

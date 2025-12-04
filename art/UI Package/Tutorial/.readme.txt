@@ -1,0 +1,3 @@
+All the UI's here is just to help you get started, however you can adjust or build it however you want!
+
+You don't need to resize or edit anything to build any UI here everything is already in the files.

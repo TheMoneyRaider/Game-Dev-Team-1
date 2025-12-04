@@ -175,6 +175,7 @@ grow_vertical = 2
 texture = ExtResource("2_okald")
 
 [node name="Prompt2" type="Node2D" parent="."]
+z_index = 1000
 scale = Vector2(3, 3)
 
 [node name="Text" type="RichTextLabel" parent="Prompt2"]
@@ -198,6 +199,7 @@ offset_bottom = 116.0
 scale = Vector2(0.06, 0.06)
 
 [node name="Prompt1" type="Node2D" parent="."]
+z_index = 1000
 scale = Vector2(3, 3)
 
 [node name="Text" type="RichTextLabel" parent="Prompt1"]

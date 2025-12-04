@@ -54,10 +54,11 @@ func get_random_remnants(num: int = 4, player1_remnants: Array = [], player2_rem
 	# Pick half from each
 	_pick_random_unique(pool_for_p1, half, result)
 	_pick_random_unique(pool_for_p2, half, result)
+	
 	var extra := (half * 2) -result.size()
 	if extra <= 0:
 		return result
-	# If num is odd, pick one more at random from the union without duplicating
+	# If we need more remnants
 	var combined := (pool_for_p1 + pool_for_p2).duplicate()
 	combined.shuffle()
 	for rem in combined:
@@ -76,7 +77,6 @@ func get_remnant_upgrades(num: int = 4, player1_remnants: Array = [], player2_re
 
 	#Split the count
 	var half := int(num / 2)
-	var extra := num - half * 2
 
 	# Pick half from each
 	print("Check player 1 remnants")
@@ -84,18 +84,24 @@ func get_remnant_upgrades(num: int = 4, player1_remnants: Array = [], player2_re
 	print("Check player 2 remnants")
 	_pick_random_upgradable(player2_remnants, half, result)
 	# If num is odd, pick one more at random from the union without duplicating
-	if extra > 0:
-		var combined := (player1_remnants + player2_remnants).duplicate()
-		combined.shuffle()
-		for rem in combined:
-			if rem not in result and rem.rank <=4:
-				result.append(rem)
+	var extra := (half * 2) -result.size()
+	if extra <= 0:
+		print("Viewable remnants")
+		for rem in result:
+			print("Name: "+str(rem.remnant_name)+" Rank: "+str(rem.rank))
+		return result
+	# If we need more remnants
+	var combined := (player1_remnants + player2_remnants).duplicate()
+	combined.shuffle()
+	for rem in combined:
+		if rem not in result and rem.rank <= 4:
+			result.append(rem)
+			extra-=1
+			if extra <= 0:
 				break
-	
-	print("Viewable remnants")
-	for rem in result:
-		print("Name: "+str(rem.remnant_name)+" Rank: "+str(rem.rank))
+	print("Result "+str(result))
 	return result
+	
 
 func _pick_random_upgradable(from_pool: Array, amount: int, into: Array):
 	var temp = from_pool.duplicate()
