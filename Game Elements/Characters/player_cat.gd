@@ -109,6 +109,7 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("special_" + input_device):
 		emit_signal("special",self)
 	adjust_cooldowns(delta)
+	red_flash()
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
 		move_and_slide()
@@ -283,3 +284,9 @@ func _hunter_percent_boost() -> float:
 				print("boosted")
 				return float(rem.variable_1_values[rem.rank-1])
 	return 0.0
+
+func red_flash() -> void:
+	if(i_frames > 0):
+		sprite.self_modulate = Color(1.0, 0.378, 0.31, 1.0)
+	else:
+		sprite.self_modulate = Color(1.0, 1.0, 1.0)
