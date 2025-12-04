@@ -10,6 +10,7 @@ var direction = Vector2.RIGHT
 @export var pierce = -1
 var c_owner: Node = null
 var hit_nodes = {}
+@export var wall_collision = false
 
 
 func _ready():
@@ -44,7 +45,11 @@ func apply_damage(body : Node) -> bool:
 			print("hit enemy?")
 			body.take_damage(damage,c_owner,direction)
 			return true
-	return false
+	if(wall_collision):
+		queue_free()
+		return false
+	else:
+		return true
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.has_method("deflect"):
