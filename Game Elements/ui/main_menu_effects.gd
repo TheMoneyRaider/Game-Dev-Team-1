@@ -114,7 +114,7 @@ func explode_ui():
 		if button is Button:
 			button_bounds[button] = button.get_global_rect()
 	# Generate fragments
-	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),40,20)
+	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),10,20)
 	for frag_data in fragments_data:
 		# Only create a fragment if it overlaps any UI element
 		if not overlaps_any_ui_element(frag_data, ui_bounds):
@@ -129,8 +129,7 @@ func explode_ui():
 		frag.begin_break(frag_data, the_ui, UI_Group.global_position, pulse_position)
 		
 		# Add clickable area if belongs to a button
-		if assigned_buttons != []:
-			frag.add_interactive_area(frag_data,assigned_buttons)
+		frag.add_interactive_area(frag_data,assigned_buttons)
 	print(BreakFX.get_child_count())
 
 func rewind_ui(time : float):
