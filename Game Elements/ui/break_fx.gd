@@ -51,7 +51,7 @@ func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2):
 	var dist = center.distance_to(get_viewport().get_mouse_position())
 	dist = clamp(dist, 0, 1000)
 	var direction = (center - get_viewport().get_mouse_position()).normalized()
-	velocity = direction * (dist * dist * 0.00006)
+	#velocity = direction * (dist * dist * 0.00005)
 	
 
 func redo_break():
@@ -70,7 +70,7 @@ func redo_break():
 	var dist = center.distance_to(get_viewport().get_mouse_position())
 	var direction = (center - get_viewport().get_mouse_position()).normalized()
 	dist = clamp(dist, 0, 1000)
-	velocity = direction * (dist * dist * 0.00006)
+	#velocity = direction * (dist * dist * 0.00005)
 
 func begin_rewind(duration := 1.5):
 	rewinding = true
@@ -88,7 +88,7 @@ func _physics_process(delta):
 		if get_parent().get_parent().is_disruptive:
 			var mouse_global = get_viewport().get_mouse_position()
 			if position.distance_to(mouse_global) < 100:
-				var move =Vector2(10/clamp((position-mouse_global).x,10,200),10/clamp((position-mouse_global).y,10,200))
+				var move =Vector2(20/clamp((position-mouse_global).x,10,200),20/clamp((position-mouse_global).y,10,200))
 				if (position-mouse_global).x <= 0.0:
 					move.x *= -1
 				if (position-mouse_global).y <= 0.0:

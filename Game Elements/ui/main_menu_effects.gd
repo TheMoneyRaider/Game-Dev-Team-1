@@ -26,6 +26,7 @@ func _ready():
 	exploaded =true
 
 func _process(delta):
+	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
 	if Input.is_action_just_pressed("swap_" + input_device):
 		is_purple=!is_purple
 		disrupt_cooldown = 10.0
