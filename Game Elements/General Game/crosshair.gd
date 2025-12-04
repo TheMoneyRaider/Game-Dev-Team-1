@@ -46,10 +46,13 @@ func _process(_delta: float) -> void:
 	var CIRCLE_RADIUS = 70
 	
 	if player_input_device == "key":
-		if((mouse_coords - player.global_position).length() < CIRCLE_RADIUS):
-			global_position = mouse_coords
+		var effective_clamping_radius = CIRCLE_RADIUS / mouse_sensitivity
+		
+		if((mouse_coords - player.global_position).length() < effective_clamping_radius ):
+			var mouse_offset = mouse_coords - player.global_position
+			var scaled_offset = mouse_offset * mouse_sensitivity
+			global_position = player.global_position + scaled_offset
 		else:
-			
 			var clamped_offset = direction * CIRCLE_RADIUS
 			global_position = player.global_position + clamped_offset
 			
