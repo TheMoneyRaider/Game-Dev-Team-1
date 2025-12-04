@@ -63,6 +63,7 @@ animations = [{
 }]
 
 [node name="Smash" type="Area2D"]
+collision_layer = 0
 input_pickable = false
 script = ExtResource("1_tujfn")
 

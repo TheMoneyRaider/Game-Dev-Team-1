@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://bfmw81k3isc75"]
+[gd_scene load_steps=4 format=3 uid="uid://bfmw81k3isc75"]
 
 [ext_resource type="Script" uid="uid://jhehuw17cbi0" path="res://Game Elements/ui/settings.gd" id="1_4geyq"]
+[ext_resource type="StyleBox" uid="uid://dobyvfqwbwfh0" path="res://Game Elements/ui/7-1_button.tres" id="2_xrwt4"]
+[ext_resource type="StyleBox" uid="uid://gpahke45chv" path="res://Game Elements/ui/7-3_button.tres" id="3_27vsl"]
 
 [node name="Settings" type="Node2D"]
 
@@ -44,10 +46,13 @@ offset_bottom = 8.0
 
 [node name="Back" type="Button" parent="Control"]
 layout_mode = 0
-offset_left = 7.0
-offset_top = 135.0
-offset_right = 164.0
-offset_bottom = 166.0
+offset_top = 72.0
+offset_right = 157.0
+offset_bottom = 103.0
+theme_override_styles/normal = ExtResource("2_xrwt4")
+theme_override_styles/pressed = ExtResource("3_27vsl")
+theme_override_styles/hover = ExtResource("2_xrwt4")
+theme_override_styles/hover_pressed = ExtResource("3_27vsl")
 text = "Back to Main Menu"
 
 [node name="MouseSensitivity" type="HSlider" parent="Control"]
