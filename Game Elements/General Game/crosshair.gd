@@ -16,6 +16,10 @@ func _ready():
 func _input(event):
 	if event.is_action_pressed("toggle_mouse_clamp"):
 		mouse_clamping_enabled = !mouse_clamping_enabled
+		if mouse_clamping_enabled:
+			Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	
 func load_settings():
 	var config = ConfigFile.new()

@@ -31,7 +31,6 @@ func load_settings():
 	if config.load("user://settings.cfg") == OK:
 		debug_mode = config.get_value("debug", "enabled", false)
 		
-
 func _ready():
 	current_health = max_health
 	add_to_group("enemy")
