@@ -114,7 +114,7 @@ func explode_ui():
 		if button is Button:
 			button_bounds[button] = button.get_global_rect()
 	# Generate fragments
-	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),10,20)
+	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(),50,50)
 	for frag_data in fragments_data:
 		# Only create a fragment if it overlaps any UI element
 		if not overlaps_any_ui_element(frag_data, ui_bounds):
@@ -145,7 +145,7 @@ func overlaps_any_ui_element(frag_poly: Array, button_bounds: Dictionary) -> boo
 				return true
 	return false
 
-func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 20.0) -> Array:
+func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 10.0) -> Array:
 	var fragments = []
 	var cell_w = size.x / grid_x
 	var cell_h = size.y / grid_y
@@ -167,11 +167,20 @@ func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, j
 			if stop:
 				stop = false
 			elif px == size.x or px == 0:
-				points[x][y]= Vector2(px,jitter_point(size,py,jitter, false))
+				points[x][y] = Vector2(
+					px,
+					jitter_point(py, jitter, 0, size.y)
+				)
 			elif py == size.y or py == 0:
-				points[x][y]= Vector2(jitter_point(size,px,jitter, true),py)
+				points[x][y] = Vector2(
+					jitter_point(px, jitter, 0, size.x),
+					py
+				)
 			else:
-				points[x][y]= Vector2(jitter_point(size,px,jitter, true),jitter_point(size,py,jitter, false))
+				points[x][y] = Vector2(
+					jitter_point(px, jitter, 0, size.x),
+					jitter_point(py, jitter, 0, size.y)
+				)
 	for y in range(grid_y):
 		for x in range(grid_x):
 			# Convex hull to ensure valid polygon
@@ -182,8 +191,8 @@ func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, j
 			fragments.append(poly)
 	return fragments
 	
-func jitter_point(size : Vector2, p : float, jitter : float, is_x : bool) -> float:
-	return max(0,min(size.x, p+randf_range(-jitter, jitter))) if is_x else max(0,min(size.y, p+randf_range(-jitter, jitter)))
+func jitter_point(p: float, jitter: float, min_val: float, max_val: float) -> float:
+	return clamp(p + randf_range(-jitter, jitter), min_val, max_val)
 	
 func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Array[Button]:
 	var overlapping_buttons : Array[Button]= []
