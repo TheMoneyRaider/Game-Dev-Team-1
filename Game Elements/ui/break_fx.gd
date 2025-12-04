@@ -47,11 +47,6 @@ func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2):
 	#Motion
 	breaking = true
 	rewinding = false
-	var center = min_p  # use fragment's reference point
-	var dist = center.distance_to(get_viewport().get_mouse_position())
-	dist = clamp(dist, 0, 1000)
-	var direction = (center - get_viewport().get_mouse_position()).normalized()
-	#velocity = direction * (dist * dist * 0.00005)
 	
 
 func redo_break():
@@ -66,11 +61,6 @@ func redo_break():
 	#Motion
 	breaking = true
 	rewinding = false
-	var center = start_pos  # use fragment's reference point
-	var dist = center.distance_to(get_viewport().get_mouse_position())
-	var direction = (center - get_viewport().get_mouse_position()).normalized()
-	dist = clamp(dist, 0, 1000)
-	#velocity = direction * (dist * dist * 0.00005)
 
 func begin_rewind(duration := 1.5):
 	rewinding = true
@@ -84,7 +74,6 @@ func begin_rewind(duration := 1.5):
 
 func _physics_process(delta):
 	if breaking:
-		pass
 		if get_parent().get_parent().is_disruptive:
 			var mouse_global = get_viewport().get_mouse_position()
 			if position.distance_to(mouse_global) < 100:

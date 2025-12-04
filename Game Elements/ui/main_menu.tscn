@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dfus7yvwe8o0w"]
+[gd_scene load_steps=14 format=3 uid="uid://dfus7yvwe8o0w"]
 
 [ext_resource type="Script" uid="uid://c4n53rkbitwny" path="res://Game Elements/ui/main_menu_effects.gd" id="1_6am0n"]
 [ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Game Elements/ui/main_menu.gd" id="1_28flt"]
@@ -10,7 +10,6 @@
 [ext_resource type="StyleBox" uid="uid://bhn7lbt5yrxsl" path="res://Game Elements/ui/6-1_button.tres" id="8_5lttq"]
 [ext_resource type="Shader" uid="uid://df6is5vss0kty" path="res://Game Elements/ui/timelines.gdshader" id="9_6wjqi"]
 [ext_resource type="Texture2D" uid="uid://eifbgnatdh4i" path="res://art/gradiant_dot3.png" id="10_a412y"]
-[ext_resource type="Texture2D" uid="uid://binx3rvrf87r" path="res://art/gradiant_dot2.png" id="11_odps5"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
 font_size = 200
@@ -182,13 +181,37 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("10_a412y")
 
-[node name="Light_light" type="PointLight2D" parent="."]
-visible = false
-z_index = -10
-position = Vector2(980, 500)
-color = Color(0.49438703, 7.123351e-05, 0.4402193, 1)
-energy = 10.8
-texture = ExtResource("11_odps5")
+[node name="Light_texture2" type="TextureRect" parent="."]
+modulate = Color(0.52135843, 0.0013825077, 0.6983415, 1)
+z_index = -1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -231.0
+offset_top = -244.0
+offset_right = 281.0
+offset_bottom = 268.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_a412y")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -682.0
+offset_top = -81.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/normal_font_size = 48
+bbcode_enabled = true
+text = "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space[/font]: Enable/Disable Fracturing"
 
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartSinglePlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_start_button_pressed"]
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartMPlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_resume_button_pressed"]

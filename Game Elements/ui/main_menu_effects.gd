@@ -4,7 +4,6 @@ extends Control
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
 @onready var exploaded = false
 @onready var cooldown : float = 0.0
-@onready var disrupt_cooldown : float = 0.0
 @onready var the_ui : Texture2D
 @onready var is_disruptive : bool = true
 @onready var is_purple: bool = true
@@ -29,15 +28,10 @@ func _process(delta):
 	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
 	if Input.is_action_just_pressed("swap_" + input_device):
 		is_purple=!is_purple
-		disrupt_cooldown = 10.0
-		is_disruptive = false
+		is_disruptive = !is_disruptive
 	
 	#button_checks()
 	cooldown -= delta
-	disrupt_cooldown -= delta
-	
-	if disrupt_cooldown < 0 and !is_disruptive:
-		is_disruptive = true
 	
 	if cooldown > 0:
 		return
