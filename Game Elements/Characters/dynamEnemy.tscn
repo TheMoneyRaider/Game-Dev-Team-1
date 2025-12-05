@@ -141,6 +141,7 @@ _data = {
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_4lifg"]
 
 [node name="dynamEnemy" type="CharacterBody2D"]
+z_index = 1
 y_sort_enabled = true
 collision_layer = 5
 script = ExtResource("1_ffkh2")
