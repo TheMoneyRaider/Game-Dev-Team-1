@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://66yt3wrlir7l"
-path="res://.godot/imported/goblin_swipe.png-e0cc49cec260101dfd26dae049cc5b3a.ctex"
+uid="uid://bulthemulnjtu"
+path="res://.godot/imported/goblin_spritesheet.png-8202f5cd55174b3b76d0d5cf668b465c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/characters/goblin_swipe.png"
-dest_files=["res://.godot/imported/goblin_swipe.png-e0cc49cec260101dfd26dae049cc5b3a.ctex"]
+source_file="res://art/characters/goblin_spritesheet.png"
+dest_files=["res://.godot/imported/goblin_spritesheet.png-8202f5cd55174b3b76d0d5cf668b465c.ctex"]
 
 [params]
 
