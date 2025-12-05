@@ -24,7 +24,8 @@ Globals="*res://Game Elements/General Game/globals.gd"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1000
-window/stretch/mode="canvas_items"
+window/stretch/mode="viewport"
+window/stretch/aspect="ignore"
 
 [input]
 
@@ -215,5 +216,4 @@ toggle_mouse_clamp={
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-renderer/rendering_method="mobile"
 2d/snap/snap_2d_transforms_to_pixel=true
