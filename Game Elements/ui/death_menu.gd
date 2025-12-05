@@ -119,7 +119,7 @@ func play_replay_reverse():
 			if cur_fps < recent_fps:
 				cur_fps = recent_fps
 		
-		var disp_time = 1 / cur_fps
+		var disp_time = min(1 / cur_fps, rewind_time - running_time)
 		
 		running_time += disp_time
 		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_time, rewind_time, min_shader_intensity, max_shader_intensity))
