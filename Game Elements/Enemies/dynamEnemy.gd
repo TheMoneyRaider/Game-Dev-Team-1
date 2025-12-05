@@ -101,7 +101,6 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 		current_health = current_health - damage
 
 func die():
-	print(current_health)
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
 
 func check_traps(delta):

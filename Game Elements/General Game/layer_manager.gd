@@ -109,7 +109,7 @@ func _ready() -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	create_new_rooms()
-	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
 
 func _process(delta: float) -> void:
@@ -1037,7 +1037,10 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
-	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	pathfinding.setup_from_room(room_instance.get_node("Ground"), 
+		room_instance.blocked_cells,
+		room_instance.trap_cells
+		)
 	
 	
 	room_cleared= false
