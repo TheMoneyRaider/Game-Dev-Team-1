@@ -109,14 +109,14 @@ func play_replay_reverse():
 			var time_through = recent_seconds - to_disp
 			var idx = time_through * longterm_fps
 			print("got frame %d from the longterm buffer")
-			replay_texture.texture = ImageTexture.create_from_image(longterm_buffer[idx])
+			replay_texture.texture = ImageTexture.create_from_image(longterm_buffer[int(idx)])
 			if cur_fps < longterm_fps:
 				cur_fps = longterm_fps
 		else:
 			var idx = to_disp * recent_fps + 1
 			print("got frame %d from the recent buffer")
 			idx = recent_len - idx
-			replay_texture.texture = ImageTexture.create_from_image(recent_buffer[idx])
+			replay_texture.texture = ImageTexture.create_from_image(recent_buffer[int(idx)])
 			if cur_fps < recent_fps:
 				cur_fps = recent_fps
 		
