@@ -32,17 +32,6 @@ func _tick(_delta: float) -> Status:
 		if player_moved_distance > recalc_distance_threshold:
 			#print("Player moved", player_moved_distance)
 			return FAILURE
-			
-		#if int(Time.get_ticks_msec()) % 1000 < 16:  # Print roughly once per second
-			#print("Player moved ", player_moved_distance, "px (threshold: ", recalc_distance_threshold, ")")
-	
-	#if not path.is_empty() and target_pos_player != Vector2.ZERO:
-		#var last_waypoint: Vector2 = path[path.size() - 1]
-		#var player_moved_distance = last_waypoint.distance_to(target_pos_player)
-		#
-		#if player_moved_distance > recalc_distance_threshold:
-			#print("player moved too far, recalc path")
-			#return SUCCESS
 	
 	if path.is_empty():
 		

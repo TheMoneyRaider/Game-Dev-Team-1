@@ -36,6 +36,7 @@ func _ready():
 	add_to_group("enemy")
 	load_settings()
 
+#need this for flipping the sprite movement
 func update_flip(dir: float): 
 	sprite_2d.flip_h = dir < 0 
 
