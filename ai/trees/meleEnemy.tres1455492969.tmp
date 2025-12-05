@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=37 format=3 uid="uid://dcnh0ja2aticr"]
+[gd_resource type="BehaviorTree" load_steps=33 format=3 uid="uid://dcnh0ja2aticr"]
 
 [ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
@@ -27,14 +27,6 @@ resource_name = "agro"
 variable = &"state"
 value = SubResource("BBVariant_3c6mk")
 
-[sub_resource type="BBNode" id="BBNode_4evon"]
-saved_value = NodePath("AnimationPlayer")
-resource_name = "AnimationPlayer"
-
-[sub_resource type="BTStopAnimation" id="BTStopAnimation_3jwwk"]
-animation_player = SubResource("BBNode_4evon")
-animation_name = &"idle"
-
 [sub_resource type="BBNode" id="BBNode_xsft4"]
 saved_value = NodePath("AnimationPlayer")
 resource_name = "AnimationPlayer"
@@ -51,6 +43,7 @@ script = ExtResource("2_tqs8k")
 
 [sub_resource type="BTAction" id="BTAction_1kwu6"]
 script = ExtResource("1_hnqba")
+player_idx = null
 
 [sub_resource type="BBNode" id="BBNode_1kwu6"]
 saved_value = NodePath("AnimationPlayer")
@@ -68,15 +61,7 @@ script = ExtResource("5_xsft4")
 
 [sub_resource type="BTSequence" id="BTSequence_ecge8"]
 custom_name = "Attack"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTStopAnimation_3jwwk"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTWait_xsft4"), SubResource("BTAction_4evon")]
-
-[sub_resource type="BBNode" id="BBNode_3ccgm"]
-saved_value = NodePath("AnimationPlayer")
-resource_name = "AnimationPlayer"
-
-[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_6xbjc"]
-animation_player = SubResource("BBNode_3ccgm")
-animation_name = &"idle"
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTWait_xsft4"), SubResource("BTAction_4evon")]
 
 [sub_resource type="BTAction" id="BTAction_3ccgm"]
 script = ExtResource("4_tqs8k")
@@ -92,7 +77,7 @@ value = SubResource("BBVariant_tqs8k")
 
 [sub_resource type="BTSequence" id="BTSequence_tqs8k"]
 custom_name = "Set Agro"
-children = [SubResource("BTPlayAnimation_6xbjc"), SubResource("BTAction_3ccgm"), SubResource("BTSetVar_llk5e")]
+children = [SubResource("BTAction_3ccgm"), SubResource("BTSetVar_llk5e")]
 
 [sub_resource type="BTFail" id="BTFail_xsft4"]
 
@@ -109,6 +94,7 @@ script = ExtResource("2_tqs8k")
 [sub_resource type="BTAction" id="BTAction_hnqba"]
 custom_name = "moveToPos"
 script = ExtResource("1_hnqba")
+player_idx = null
 
 [sub_resource type="BTSequence" id="BTSequence_3c6mk"]
 custom_name = "Patrol"

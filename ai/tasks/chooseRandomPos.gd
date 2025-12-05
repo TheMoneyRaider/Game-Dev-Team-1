@@ -1,5 +1,7 @@
 extends BTAction
 
+@export var target_position_var: String = "target_pos"
+
 func _tick(_delta: float) -> Status: 
 	var pos: Vector2 = agent.global_position
 	
@@ -21,7 +23,7 @@ func _tick(_delta: float) -> Status:
 	
 	print("Player Pos: " + str(agent.global_transform.origin) + "Random Pos: " + str(pos))
 	
-	blackboard.set_var("pos", pos)
+	blackboard.set_var("target_pos", pos)
 	
 	return SUCCESS
 
