@@ -10,6 +10,7 @@ func _tick(_delta: float) -> Status:
 	
 	var distance_squared = agent.global_position.distance_squared_to(player_pos)
 	
+	
 	if not player_pos:
 		return FAILURE
 	

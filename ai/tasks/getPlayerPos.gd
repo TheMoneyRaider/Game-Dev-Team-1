@@ -3,6 +3,7 @@ extends BTAction
 @export var player_position_var: String = "target_pos"
 @export var player_positions: String = "player_positions"
 @export var player_idx: String = "player_idx"
+@export var player_healths: String = "player_healths"
 
 func _tick(_delta: float) -> Status:
 	# Find the player in the scene
@@ -22,12 +23,15 @@ func _tick(_delta: float) -> Status:
 	# blackboard.set_var(player_position_var, players[0].global_position)
 	
 	var positions_array = []
+	var player_health_array = []
+
 	
 	for player in players: 
 		positions_array.append(player.global_position)
+		player_health_array.append(player.current_health)
 		
 	blackboard.set_var(player_positions, positions_array)
-	
+	blackboard.set_var(player_healths, player_health_array)
 	
 	if blackboard.get_var("state") == "agro":
 		#print("does this ever actually happen")
