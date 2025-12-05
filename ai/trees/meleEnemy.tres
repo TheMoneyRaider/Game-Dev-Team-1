@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=30 format=3 uid="uid://dcnh0ja2aticr"]
+[gd_resource type="BehaviorTree" load_steps=32 format=3 uid="uid://dcnh0ja2aticr"]
 
 [ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
@@ -44,6 +44,14 @@ script = ExtResource("2_tqs8k")
 [sub_resource type="BTAction" id="BTAction_1kwu6"]
 script = ExtResource("1_hnqba")
 
+[sub_resource type="BBNode" id="BBNode_1kwu6"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTStopAnimation" id="BTStopAnimation_3ccgm"]
+animation_player = SubResource("BBNode_1kwu6")
+animation_name = &"run"
+
 [sub_resource type="BTWait" id="BTWait_xsft4"]
 duration = 0.5
 
@@ -52,7 +60,7 @@ script = ExtResource("5_xsft4")
 
 [sub_resource type="BTSequence" id="BTSequence_ecge8"]
 custom_name = "Attack"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTWait_xsft4"), SubResource("BTAction_4evon")]
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTWait_xsft4"), SubResource("BTAction_4evon")]
 
 [sub_resource type="BTAction" id="BTAction_3ccgm"]
 script = ExtResource("4_tqs8k")

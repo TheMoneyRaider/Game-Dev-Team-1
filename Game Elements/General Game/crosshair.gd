@@ -15,7 +15,7 @@ func _ready():
 	
 func _input(event):
 	if event.is_action_pressed("toggle_mouse_clamp") and debug_mode:
-		mouse_clamping_enabled = mouse_clamping_enabled
+		mouse_clamping_enabled = !mouse_clamping_enabled
 		if mouse_clamping_enabled:
 			Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 		else:
@@ -56,7 +56,7 @@ func _process(_delta: float) -> void:
 			var clamped_offset = direction * CIRCLE_RADIUS
 			global_position = player.global_position + clamped_offset
 			
-			if mouse_clamping_enabled and false:
+			if mouse_clamping_enabled:
 				var unscaled_offset = clamped_offset / mouse_sensitivity
 				var target_mouse_world = player.global_position + unscaled_offset
 				var screen_pos = camera.get_viewport().get_screen_transform() * camera.get_canvas_transform() * target_mouse_world
