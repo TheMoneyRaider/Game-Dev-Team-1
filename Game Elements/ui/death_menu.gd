@@ -4,8 +4,8 @@ extends CanvasLayer
 @export var rewind_time := 10 #can't be smaller than recent_seconds. also the actual rewind time is generally 3 seconds or so greater.
 @export var recent_fps : float = 32.0
 @export var longterm_fps : float = 8.0
-@export var min_shader_intensity = 0.0
-@export	var max_shader_intensity = 1
+@export var min_shader_intensity = 0.1
+@export	var max_shader_intensity = 1.25
 @export	var longterm_buffer_size := 10000
 
 var initial_replay_fps = 12
@@ -87,51 +87,54 @@ func _on_replay_pressed():
 
 func play_replay_reverse():
 	#Variables
-	var running_time = 0.0
-	var recent_len = recent_buffer.size() 
+	var elapsed = 0.0
+	var recent_len = recent_buffer.size()
+	var longterm_len = longterm_buffer.size()
 	var desc = total_time - initial_replay_fps
 
 	#Change rewind time if total time is too low
-	if total_time < 3/float(2) * rewind_time:
-		rewind_time = float(2)/3 * total_time
-	if total_time < initial_replay_fps:
-		initial_replay_fps = total_time / 2
+	if total_time < 5/float(4) * rewind_time:
+		rewind_time = float(4)/5 * total_time
 	
-	while running_time < rewind_time:
-		print("calcing frame and dur")
-		var portion = running_time / rewind_time
+	while elapsed < rewind_time:
+		elapsed += get_process_delta_time()
+		print("calcing frame and dur at %f out of %f" % [elapsed, rewind_time])
+		var portion = elapsed / rewind_time
 		var to_disp = desc * portion * portion + initial_replay_fps * portion # this gives the time stamp of the frame that needs to be displayed
 		var cur_fps = 2 * desc * portion + initial_replay_fps
 		print(to_disp)
 		
 		# to get frame from timestamp, need to check whether it's in the long term buffer or short term buffer
 		if to_disp > recent_seconds:
-			var time_through = recent_seconds - to_disp
-			var idx = time_through * longterm_fps
-			print("got frame %d from the longterm buffer")
-			replay_texture.texture = ImageTexture.create_from_image(longterm_buffer[int(idx)])
+			var time_through = to_disp - recent_seconds
+			var idx = time_through * longterm_fps + 1
+			idx = min(longterm_len,floori(idx))
+			print("got frame %f from the longterm buffer" % idx)
+			idx = longterm_len - idx
+			replay_texture.texture = ImageTexture.create_from_image(longterm_buffer[idx])
 			if cur_fps < longterm_fps:
 				cur_fps = longterm_fps
 		else:
 			var idx = to_disp * recent_fps + 1
-			print("got frame %d from the recent buffer")
+			idx = min(recent_len,floori(idx))
 			idx = recent_len - idx
-			replay_texture.texture = ImageTexture.create_from_image(recent_buffer[int(idx)])
+			if longterm_len > 8 or idx > 3:
+				print("got frame %f from the recent buffer, %f" % [idx, portion])
+				replay_texture.texture = ImageTexture.create_from_image(recent_buffer[idx])
+			else:
+				replay_texture.texture = ImageTexture.create_from_image(final_frame)
 			if cur_fps < recent_fps:
 				cur_fps = recent_fps
 		
-		var disp_time = 1 / cur_fps
-		
-		running_time += disp_time
-		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_time, rewind_time, min_shader_intensity, max_shader_intensity))
-		replay_texture.material.set_shader_parameter("time", running_time)
-		await get_tree().create_timer(disp_time).timeout
+		replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(elapsed, rewind_time, min_shader_intensity, max_shader_intensity))
+		replay_texture.material.set_shader_parameter("time", elapsed)
+		await get_tree().process_frame
 	
 	end_replay()
 
 
 #this function calculates how blurry the screen is for the given frame
-func get_shader_intensity(current_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
+func get_shader_intensity(current_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 3.0) -> float:
 	var t = clamp(current_time / total_time_func, 0.0, 1.0)
 	#Exponential curve: start slow, end fast
 	var exp_curve = pow(t, exponent)

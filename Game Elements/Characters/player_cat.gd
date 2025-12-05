@@ -192,6 +192,8 @@ func die(death : bool , insta_die : bool = false) -> bool:
 		get_tree().get_root().get_node("LayerManager").open_death_menu()
 		return false
 	else:
+		if other_player.current_health <= 0:
+			insta_die = true
 		if insta_die:
 			get_tree().get_root().get_node("LayerManager").open_death_menu()
 			return false
