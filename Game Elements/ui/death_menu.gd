@@ -9,9 +9,6 @@ extends CanvasLayer
 @export	var longterm_buffer_size := 10000
 
 var initial_replay_fps = 12
-#Note, these goals arn't actually achieved. They're more like weights. 
-var recent_target_fps = 5*recent_fps # Seconds per second goal by the recent frame buffer end
-var long_target_fps = 8*longterm_fps # Seconds per second goal by the longterm frame buffer end
 
 @onready var replay_texture: TextureRect = $Control/Replay
 @onready var death_box: VBoxContainer = $Control/VBoxContainer
@@ -87,30 +84,16 @@ func _on_replay_pressed():
 	play_replay_reverse()
 
 func play_replay_reverse():
-	#Concatenate frames
-	var frames = longterm_buffer.duplicate()
-	frames.append_array(recent_buffer)
-	var total_frames = frames.size()
-	var running_time = 0.0
-
 	#Variables
+	var running_time = 0.0
 	var recent_len = recent_buffer.size() 
-	var long_len = longterm_buffer.size()
-	#Remove first few frames(they're bad)
-	if long_len > 0:
-		long_len-=1
-	else:
-		recent_len-=1
-	total_frames-=1
+	var desc = total_time - initial_replay_fps
 
 	#Change rewind time if total time is too low
 	if total_time < 3/float(2) * rewind_time:
 		rewind_time = float(2)/3 * total_time
 	if total_time < initial_replay_fps:
 		initial_replay_fps = total_time / 2
-		
-		
-	var desc = total_time - initial_replay_fps
 	
 	while running_time < rewind_time:
 		print("calcing frame and dur")
@@ -142,50 +125,6 @@ func play_replay_reverse():
 		replay_texture.material.set_shader_parameter("time", running_time)
 		await get_tree().create_timer(disp_time).timeout
 	
-	#past this point is griffin code, will remove after done using as reference
-
-	#var base_recent_wait = 1.0 / recent_fps #slowest recent frame 
-	#var max_recent_wait = 1.0 / recent_target_fps #fastest recent frame
-	#var base_long_wait = max_recent_wait *  recent_fps / longterm_fps #slowest long-term frame 
-	#var max_long_wait = 1.0 / float(long_target_fps) #fastest long-term frame
-	## Set the first wait_time
-	#var wait_time = 1.0 / recent_target_fps
-#
-	#var weights = [] 
-	#var running_times = []
-	#var total_weight = 0.0
-	#for idx in range(total_frames,0,-1):
-		##Determine if frame is recent or long-term
-		#if idx >= long_len:
-			##Recent buffer: exponential acceleration
-			#var local_idx = idx - long_len
-			#var progress = float(local_idx) / float(recent_len) 
-			#wait_time = base_recent_wait * pow(max_recent_wait / base_recent_wait, 1 - progress)
-			#weights.append(wait_time) 
-			#total_weight += wait_time
-		#else:
-			##Long-term buffer: slow frames, but still accelerating
-			#var local_idx = idx
-			#var progress = float(local_idx) / float(long_len) 
-			#wait_time = base_long_wait * pow(max_long_wait / base_long_wait, 1 - progress)
-			#weights.append(wait_time) 
-			#total_weight += wait_time
-		##Set shader value
-		#if idx >= long_len:
-			#running_time+=wait_time
-		#else:
-			#running_time+=wait_time*longterm_fps/recent_fps
-		#running_times.append(running_time)
-#
-	#var weights_len = len(weights)
-#
-	#for idx in range(total_frames,0,-1):
-		#var tex = ImageTexture.create_from_image(frames[idx])
-		#replay_texture.texture = tex
-		#wait_time = (weights[weights_len-1-idx] / total_weight) * rewind_time
-		#replay_texture.material.set_shader_parameter("intensity", get_shader_intensity(running_times[weights_len-1-idx], running_times[weights_len-1], min_shader_intensity, max_shader_intensity))
-		#replay_texture.material.set_shader_parameter("time", running_times[weights_len-1-idx])
-		#await get_tree().create_timer(wait_time).timeout
 	end_replay()
 
 
