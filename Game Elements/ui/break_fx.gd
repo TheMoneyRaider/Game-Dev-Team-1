@@ -34,14 +34,10 @@ func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2):
 	freeze = false
 
 	# Polygon2D
-	var poly = Polygon2D.new()
-	poly.position = Vector2.ZERO
-	poly.offset = Vector2.ZERO
-	poly.texture = tex
-	poly.polygon = local_points
-	poly.uv = frag_data
-	poly.name = "Polygon2D"
-	add_child(poly)
+	var poly_node = get_node("Polygon2D")
+	poly_node.texture = tex
+	poly_node.polygon = local_points
+	poly_node.uv = frag_data
 
 	#highlight_nodes.clear()
 	#Motion
