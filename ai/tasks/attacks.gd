@@ -1,11 +1,12 @@
 extends BTAction
 
+
 func _tick(_delta: float) -> Status: 
-	var player_pos = get_blackboard().get_var("target_pos")
 	
-	if not player_pos:
-		return FAILURE
+	var p_index = blackboard.get_var("player_idx")
+	var players = agent.get_tree().get_nodes_in_group("player")
+	var current_player_pos: Vector2 = players[p_index].global_position if players else Vector2.ZERO
 	
-	agent.handle_attack(player_pos)
+	agent.handle_attack(current_player_pos)
 	
 	return SUCCESS

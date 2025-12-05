@@ -6,7 +6,7 @@ var crosshair_direction = Vector2(1,0)
 var player_input_device = "key"
 var mouse_sensitivity = 1.0
 var debug_mode = false
-var mouse_clamping_enabled = false
+var mouse_clamping_enabled = true
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
