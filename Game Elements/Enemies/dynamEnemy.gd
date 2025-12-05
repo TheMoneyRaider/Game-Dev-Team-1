@@ -3,7 +3,7 @@ extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
 var current_health: int = 10 
-var SPEED: float = 100
+var SPEED: float = 70
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
