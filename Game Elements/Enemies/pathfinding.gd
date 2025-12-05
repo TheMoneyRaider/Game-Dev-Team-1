@@ -31,7 +31,7 @@ func id_to_pos(id: int) -> Vector2i:
 	return Vector2i(local_x + grid_bounds.position.x, local_y + grid_bounds.position.y)
 
 # orgonises all the data from the layer_manager, 
-func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array):
+func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array, trap_cells: Array):
 	clear()
 	
 	# no used cells, return, nothing to do
@@ -57,11 +57,20 @@ func setup_from_room(ground_layer: TileMapLayer, blocked_cells: Array):
 	for cell in blocked_cells: 
 		blocked_dict[cell] = true 
 	
+	var trap_dict = {}
+	for cell in trap_cells:
+		trap_dict[cell] = true
+	
 	for cell in used_cells:
 		if not blocked_dict.has(cell):
 			walkable_cells.append(cell)
 			var id = pos_to_id(cell)
-			astar.add_point(id, Vector2(cell.x * cell_size, cell.y * cell_size))
+			
+			var weight = 0
+			if trap_dict.has(cell):
+				weight = 100
+			
+			astar.add_point(id, Vector2(cell.x * cell_size, cell.y * cell_size), weight)
 			
 	var is_near_wall = func(cell: Vector2i) -> bool:
 		var check_dirs = [

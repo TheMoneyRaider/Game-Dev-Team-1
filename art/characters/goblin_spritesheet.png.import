@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hhgwpqsfv0yj"
-path="res://.godot/imported/goblin_walk.png-13ad214b1f700c4272c4f19319ee9b35.ctex"
+uid="uid://bulthemulnjtu"
+path="res://.godot/imported/goblin_spritesheet.png-8202f5cd55174b3b76d0d5cf668b465c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/characters/goblin_walk.png"
-dest_files=["res://.godot/imported/goblin_walk.png-13ad214b1f700c4272c4f19319ee9b35.ctex"]
+source_file="res://art/characters/goblin_spritesheet.png"
+dest_files=["res://.godot/imported/goblin_spritesheet.png-8202f5cd55174b3b76d0d5cf668b465c.ctex"]
 
 [params]
 

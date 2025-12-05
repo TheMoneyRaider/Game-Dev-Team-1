@@ -109,7 +109,7 @@ func _ready() -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	create_new_rooms()
-	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
 
 func _process(delta: float) -> void:
@@ -150,6 +150,9 @@ func _process(delta: float) -> void:
 	if !room_cleared:
 		for child in room_instance.get_children():
 			if child is DynamEnemy:
+				if child.position.distance_to(player.position) > 1000: #Haphazard fix for the disappearing enemy
+					print("REMOVED ENEMY DUE TO BUG")
+					child.queue_free()
 				return
 		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
 		room_reward()
@@ -1034,7 +1037,10 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
-	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells)
+	pathfinding.setup_from_room(room_instance.get_node("Ground"), 
+		room_instance.blocked_cells,
+		room_instance.trap_cells
+		)
 	
 	
 	room_cleared= false

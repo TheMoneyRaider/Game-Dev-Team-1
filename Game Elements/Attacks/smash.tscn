@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://pq28u7kfjgr4" path="res://Game Elements/Attacks/smash.gd" id="1_tujfn"]
 [ext_resource type="Texture2D" uid="uid://nthwo8m1cl45" path="res://art/smash_attempt2.png" id="2_oynju"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_e1io4"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_oynju"]
+radius = 8.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1ebm2"]
 atlas = ExtResource("2_oynju")
@@ -68,7 +69,7 @@ input_pickable = false
 script = ExtResource("1_tujfn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_e1io4")
+shape = SubResource("CircleShape2D_oynju")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_kdnw2")

@@ -29,7 +29,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time_passed += delta
 	freeze_time += delta
-	if freeze_time < .125:
+	if freeze_time < .2:
 		return
 	
 	if grounded:
