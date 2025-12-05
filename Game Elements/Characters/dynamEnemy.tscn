@@ -25,8 +25,8 @@ tracks/0/keys = {
 
 [sub_resource type="Animation" id="Animation_5lq71"]
 resource_name = "death"
-length = 0.8
-step = 0.1
+length = 1.4
+step = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
