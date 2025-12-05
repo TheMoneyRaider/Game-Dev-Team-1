@@ -150,6 +150,9 @@ func _process(delta: float) -> void:
 	if !room_cleared:
 		for child in room_instance.get_children():
 			if child is DynamEnemy:
+				if child.position.distance_to(player.position) > 1000: #Haphazard fix for the disappearing enemy
+					print("REMOVED ENEMY DUE TO BUG")
+					child.queue_free()
 				return
 		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
 		room_reward()
