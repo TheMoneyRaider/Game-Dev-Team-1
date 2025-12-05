@@ -7,6 +7,8 @@ var SPEED: float = 70
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
+var damage_direction = Vector2(0,-1)
+var damage_taken = 0
 var debug_mode = false 
 
 var effects : Array[Effect] = []
@@ -17,6 +19,7 @@ var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bad_bolt
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
+
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
 	var attack_position = attack_direction * 20 + global_position
@@ -82,11 +85,21 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 				effect.value1 =  rem.variable_1_values[rem.rank-1]
 				effect.gained(self)
 				effects.append(effect)
-				
-		
-	current_health = current_health - damage
-	emit_signal("enemy_took_damage",damage,current_health,self,direction)
-		
+	
+	
+	if current_health - damage <= 0: 
+		current_health = current_health - damage
+		var bt_player = get_node("BTPlayer")
+		bt_player.blackboard.set_var("state", "dead")
+		damage_taken = damage
+		damage_direction = direction
+	else:
+		emit_signal("enemy_took_damage",damage,current_health,self,direction)
+		current_health = current_health - damage
+
+func die():
+	print(current_health)
+	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))

@@ -1,8 +1,9 @@
-[gd_resource type="BehaviorTree" load_steps=39 format=3 uid="uid://dcnh0ja2aticr"]
+[gd_resource type="BehaviorTree" load_steps=48 format=3 uid="uid://dcnh0ja2aticr"]
 
 [ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
+[ext_resource type="Script" uid="uid://br65r6s5nmymb" path="res://ai/tasks/handleDeath.gd" id="2_1kwu6"]
 [ext_resource type="Script" uid="uid://dkrmjd0p1oufy" path="res://ai/tasks/checkDeagro.gd" id="2_llk5e"]
 [ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
 [ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="4_tqs8k"]
@@ -17,6 +18,38 @@ var/state/hint_string = ""
 
 [sub_resource type="BTAction" id="BTAction_tqs8k"]
 script = ExtResource("1_ecge8")
+
+[sub_resource type="BBVariant" id="BBVariant_xsft4"]
+type = 4
+saved_value = "dead"
+resource_name = "dead"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_1kwu6"]
+variable = &"state"
+value = SubResource("BBVariant_xsft4")
+
+[sub_resource type="BBNode" id="BBNode_3jwwk"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_dlyii"]
+animation_player = SubResource("BBNode_3jwwk")
+animation_name = &"death"
+
+[sub_resource type="BBNode" id="BBNode_dlyii"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTAwaitAnimation" id="BTAwaitAnimation_1t8r3"]
+animation_player = SubResource("BBNode_dlyii")
+animation_name = &"death"
+
+[sub_resource type="BTAction" id="BTAction_dlyii"]
+script = ExtResource("2_1kwu6")
+
+[sub_resource type="BTSequence" id="BTSequence_3ccgm"]
+custom_name = "Die"
+children = [SubResource("BTCheckVar_1kwu6"), SubResource("BTPlayAnimation_dlyii"), SubResource("BTAwaitAnimation_1t8r3"), SubResource("BTAction_dlyii")]
 
 [sub_resource type="BBVariant" id="BBVariant_3c6mk"]
 type = 4
@@ -123,7 +156,7 @@ custom_name = "Patrol"
 children = [SubResource("BTFail_xsft4"), SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_3jwwk"), SubResource("BTAction_hnqba")]
 
 [sub_resource type="BTSelector" id="BTSelector_m8x3l"]
-children = [SubResource("BTAction_tqs8k"), SubResource("BTSequence_ecge8"), SubResource("BTSequence_tqs8k"), SubResource("BTSequence_3c6mk")]
+children = [SubResource("BTAction_tqs8k"), SubResource("BTSequence_3ccgm"), SubResource("BTSequence_ecge8"), SubResource("BTSequence_tqs8k"), SubResource("BTSequence_3c6mk")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_ua8f2")
