@@ -75,16 +75,17 @@ func _ready() -> void:
 	_setup_players()
 	hud.set_players(player,player_2)
 	hud.connect_signals(player)
+	hud.set_cross_position()
 	
 	#####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/hunter.tres")
-	var rem2 = load("res://Game Elements/Remnants/trickster.tres")
-	rem.rank = 5
-	rem2.rank = 5
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem2.duplicate(true))
+	#var rem = load("res://Game Elements/Remnants/hunter.tres")
+	#var rem2 = load("res://Game Elements/Remnants/trickster.tres")
+	#rem.rank = 5
+	#rem2.rank = 5
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####
@@ -134,6 +135,7 @@ func _process(delta: float) -> void:
 		_process_terrain_batch()
 				
 	hud.set_timefabric_amount(timefabric_collected)
+	hud.set_cooldowns()
 	
 	if timefabric_rewarded!= 0:
 		for i in range (20):

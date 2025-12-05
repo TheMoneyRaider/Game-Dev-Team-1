@@ -1,5 +1,6 @@
 extends CharacterBody2D
 const attack = preload("res://Game Elements/Attacks/attack.gd")
+var mouse_sensitivity: float = 1.0
 
 @export var move_speed: float = 100
 @export var max_health: float = 10
@@ -32,6 +33,7 @@ var other_player
 var tether_momentum = Vector2.ZERO
 var is_tethered = false
 var tether_gradient
+var tether_width_curve
 
 var is_multiplayer = false
 var input_device = "key"
@@ -63,6 +65,7 @@ func _ready():
 	add_to_group("player")
 	if is_multiplayer:
 		tether_gradient = tether_line.gradient
+		tether_width_curve = tether_line.width_curve
 		tether_line.gradient = null			
 
 func _initialize_state_machine():
@@ -107,6 +110,7 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("special_" + input_device):
 		emit_signal("special",self)
 	adjust_cooldowns(delta)
+	red_flash()
 	#move and slide function
 	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
 		move_and_slide()
@@ -131,7 +135,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if(current_health <= 0):
 			if(die(true)):
-				emit_signal("attack_requested",revive, position, Vector2.ZERO)
+				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
 	emit_signal("swapped_color", self)
@@ -161,12 +165,15 @@ func tether():
 		else:
 			tether_line.gradient = null
 		tether_line.points[0] = position + (other_player.position - position).normalized() * 8
-		tether_line.points[1] = other_player.position + (position - other_player.position).normalized() * 8
+		tether_line.points[2] = other_player.position + (position - other_player.position).normalized() * 8
+		tether_line.points[1] = (tether_line.points[0] + tether_line.points[2]) / 2
 		if ((other_player.position - position) / 25).length() > 8:
 			tether_momentum += (other_player.position - position).normalized() * 8 + (((other_player.position - position) - ((other_player.position - position).normalized() * 8)) / 100)
 		else:
 			tether_momentum += (other_player.position - position) / 25
 		tether_momentum *= .995
+		print(tether_momentum.length())
+		tether_line.width_curve.set_point_value(1, min(max(50 / tether_momentum.length(),.4),1))
 	else:
 		if Input.is_action_just_released("swap_" + input_device):
 			tether_line.visible = false
@@ -278,3 +285,9 @@ func _hunter_percent_boost() -> float:
 				print("boosted")
 				return float(rem.variable_1_values[rem.rank-1])
 	return 0.0
+
+func red_flash() -> void:
+	if(i_frames > 0):
+		sprite.self_modulate = Color(1.0, 0.378, 0.31, 1.0)
+	else:
+		sprite.self_modulate = Color(1.0, 1.0, 1.0)

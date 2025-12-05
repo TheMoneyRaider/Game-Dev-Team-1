@@ -9,6 +9,7 @@ var direction = Vector2.RIGHT
 @export var pierce = 0
 var c_owner: Node = null
 @export var hit_force = 0
+@export var wall_collision = true
 var hit_nodes = {}
 
 func _ready():
@@ -39,7 +40,7 @@ func apply_damage(body : Node) -> bool:
 		elif body.has_method("take_damage"):
 			print("hit enemy?")
 			body.take_damage(damage,c_owner,direction)
-			return true				
+			return true			
 	else:
 		if !body.has_method("swap_color"):
 			return false
@@ -47,7 +48,11 @@ func apply_damage(body : Node) -> bool:
 			print("hit enemy?")
 			body.take_damage(damage,c_owner,direction)
 			return true
-	return false
+	if(wall_collision):
+		queue_free()
+		return false
+	else:
+		return true
 
 func deflect(hit_direction, hit_speed):
 	direction = hit_direction

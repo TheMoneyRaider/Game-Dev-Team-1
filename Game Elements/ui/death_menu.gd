@@ -81,6 +81,8 @@ func _on_menu_pressed():
 func _on_replay_pressed():
 	replay_texture.visible = true
 	death_box.visible = false
+	var now := Time.get_time_dict_from_system()
+	print(now.second)
 	play_replay_reverse()
 
 func play_replay_reverse():
@@ -137,6 +139,8 @@ func get_shader_intensity(current_time: float, total_time_func: float, min_inten
 	return lerp(min_intensity, max_intensity, exp_curve)
 	
 func end_replay():
+	var now := Time.get_time_dict_from_system()
+	print(now.second)
 	capturing = false
 	recent_buffer.clear()
 	longterm_buffer.clear()

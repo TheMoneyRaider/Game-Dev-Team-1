@@ -60,13 +60,8 @@ func _check_if_hitting_wall(delta) -> void:
 	if next_cellx in blocked_cells or next_celly in blocked_cells:
 		velocity = Vector3(0,0,0)
 		grounded=true
-		
-		
-	
-	
-	
-	
-	
+
+
 func set_direction(direction : Vector2):
 	#velocity = Vector2(randf_range(-50,50),randf_range(-150,-50))
 	var base_dir = direction.normalized()

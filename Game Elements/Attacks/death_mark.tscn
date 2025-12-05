@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://b0xynwlx5sgfh"]
 
 [ext_resource type="Script" uid="uid://hkw4267x8wjg" path="res://Game Elements/Attacks/death_mark.gd" id="1_dicqg"]
-[ext_resource type="Texture2D" uid="uid://2uyxh7sy8qny" path="res://demo/assets/weapon_ninja_star.png" id="2_dicqg"]
+[ext_resource type="Texture2D" uid="uid://ctnpkkr0sjs72" path="res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_purple.png" id="2_wkxxy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e1io4"]
 
@@ -14,8 +14,7 @@ script = ExtResource("1_dicqg")
 shape = SubResource("RectangleShape2D_e1io4")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("2_dicqg")
+texture = ExtResource("2_wkxxy")
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

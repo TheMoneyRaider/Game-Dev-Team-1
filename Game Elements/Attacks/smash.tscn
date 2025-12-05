@@ -1,19 +1,80 @@
-[gd_scene load_steps=4 format=3 uid="uid://nb76n4rdxccq"]
+[gd_scene load_steps=12 format=3 uid="uid://nb76n4rdxccq"]
 
-[ext_resource type="Texture2D" uid="uid://1pft32hlrdpu" path="res://art/Sprout Lands - Sprites - Basic pack/Objects/Egg_item.png" id="1_r3qd3"]
 [ext_resource type="Script" uid="uid://pq28u7kfjgr4" path="res://Game Elements/Attacks/smash.gd" id="1_tujfn"]
+[ext_resource type="Texture2D" uid="uid://nthwo8m1cl45" path="res://art/smash_attempt2.png" id="2_oynju"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e1io4"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ebm2"]
+atlas = ExtResource("2_oynju")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qox8m"]
+atlas = ExtResource("2_oynju")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d3rgv"]
+atlas = ExtResource("2_oynju")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_upl13"]
+atlas = ExtResource("2_oynju")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jnp85"]
+atlas = ExtResource("2_oynju")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_582jg"]
+atlas = ExtResource("2_oynju")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qidom"]
+atlas = ExtResource("2_oynju")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kdnw2"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ebm2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qox8m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d3rgv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upl13")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jnp85")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_582jg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qidom")
+}],
+"loop": false,
+"name": &"default",
+"speed": 14.0
+}]
+
 [node name="Smash" type="Area2D"]
+collision_layer = 0
 input_pickable = false
 script = ExtResource("1_tujfn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_e1io4")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("1_r3qd3")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_kdnw2")
+autoplay = "default"
+frame = 6
+frame_progress = 1.0
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

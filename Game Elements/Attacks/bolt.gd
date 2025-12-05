@@ -10,6 +10,8 @@ var direction = Vector2.RIGHT
 var c_owner: Node = null
 @export var hit_force = 0
 var hit_nodes = {}
+@export var wall_collision = true
+
 
 func _ready():
 	rotation = direction.angle() + PI/2
@@ -42,7 +44,11 @@ func apply_damage(body : Node) -> bool:
 			print("hit enemy?")
 			body.take_damage(damage,c_owner,direction)
 			return true
-	return false
+	if(wall_collision):
+		queue_free()
+		return false
+	else:
+		return true
 
 func deflect(hit_direction, hit_speed):
 	direction = hit_direction
