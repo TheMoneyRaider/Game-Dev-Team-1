@@ -70,12 +70,10 @@ func popup_offer(is_multiplayer_in : bool, player1_remnants_in : Array, player2_
 		if i < offered_remnants.size():
 			_place_purple_selectable(slot_nodes[i],offered_remnants[i])
 			_place_orange_selectable(slot_nodes[i],offered_remnants[i])
-
 	visible = true
 	modulate.a = 0.0
 	#Fade in
 	var _tween = create_tween().tween_property(self, "modulate:a", 1.0, 0.5)
-	
 	
 
 func _place_purple_selectable(slot : Node ,remnant : Resource):
