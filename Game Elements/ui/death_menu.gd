@@ -88,14 +88,13 @@ func _on_replay_pressed():
 func play_replay_reverse():
 	#Variables
 	var running_time = 0.0
-	var recent_len = recent_buffer.size() 
+	var recent_len = recent_buffer.size()
+	var longterm_len = longterm_buffer.size()
 	var desc = total_time - initial_replay_fps
 
 	#Change rewind time if total time is too low
 	if total_time < 3/float(2) * rewind_time:
 		rewind_time = float(2)/3 * total_time
-	if total_time < initial_replay_fps:
-		initial_replay_fps = total_time / 2
 	
 	while running_time < rewind_time:
 		print("calcing frame and dur")
