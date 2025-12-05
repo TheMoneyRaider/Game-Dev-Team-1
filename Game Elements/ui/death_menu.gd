@@ -4,8 +4,8 @@ extends CanvasLayer
 @export var rewind_time := 10 #can't be smaller than recent_seconds. also the actual rewind time is generally 3 seconds or so greater.
 @export var recent_fps : float = 32.0
 @export var longterm_fps : float = 8.0
-@export var min_shader_intensity = 0.0
-@export	var max_shader_intensity = 1
+@export var min_shader_intensity = 0.1
+@export	var max_shader_intensity = 1.25
 @export	var longterm_buffer_size := 10000
 
 var initial_replay_fps = 12
@@ -134,7 +134,7 @@ func play_replay_reverse():
 
 
 #this function calculates how blurry the screen is for the given frame
-func get_shader_intensity(current_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 2.0) -> float:
+func get_shader_intensity(current_time: float, total_time_func: float, min_intensity: float, max_intensity: float, exponent: float = 3.0) -> float:
 	var t = clamp(current_time / total_time_func, 0.0, 1.0)
 	#Exponential curve: start slow, end fast
 	var exp_curve = pow(t, exponent)
