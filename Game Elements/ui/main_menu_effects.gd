@@ -105,10 +105,10 @@ func overlaps_any_ui_element(frag_poly: Array, button_bounds: Dictionary) -> boo
 				return true
 	return false
 
-func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, jitter: float = 10.0) -> Array:
+func generate_jittered_grid_fragments(size_tex: Vector2, grid_x: int, grid_y: int, jitter: float = 10.0) -> Array:
 	var fragments = []
-	var cell_w = size.x / grid_x
-	var cell_h = size.y / grid_y
+	var cell_w = size_tex.x / grid_x
+	var cell_h = size_tex.y / grid_y
 	var points = []
 	for x in range(grid_x + 1):
 		points.append([])
@@ -119,27 +119,27 @@ func generate_jittered_grid_fragments(size: Vector2, grid_x: int, grid_y: int, j
 		for x in range(grid_x+1):
 			var px = x * cell_w
 			var py = y * cell_h
-			for vec in [Vector2(0,0),Vector2(0,size.y),Vector2(size.x,0),Vector2(size.x,size.y)]:
+			for vec in [Vector2(0,0),Vector2(0,size_tex.y),Vector2(size_tex.x,0),Vector2(size_tex.x,size_tex.y)]:
 				if Vector2(px,py)==vec:
 					points[x][y]= Vector2(px,py)
 					stop = true
 					break
 			if stop:
 				stop = false
-			elif px == size.x or px == 0:
+			elif px == size_tex.x or px == 0:
 				points[x][y] = Vector2(
 					px,
-					jitter_point(py, jitter, 0, size.y)
+					jitter_point(py, jitter, 0, size_tex.y)
 				)
-			elif py == size.y or py == 0:
+			elif py == size_tex.y or py == 0:
 				points[x][y] = Vector2(
-					jitter_point(px, jitter, 0, size.x),
+					jitter_point(px, jitter, 0, size_tex.x),
 					py
 				)
 			else:
 				points[x][y] = Vector2(
-					jitter_point(px, jitter, 0, size.x),
-					jitter_point(py, jitter, 0, size.y)
+					jitter_point(px, jitter, 0, size_tex.x),
+					jitter_point(py, jitter, 0, size_tex.y)
 				)
 	for y in range(grid_y):
 		for x in range(grid_x):
