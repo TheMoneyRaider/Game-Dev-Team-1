@@ -175,7 +175,7 @@ func tether():
 		print(tether_momentum.length())
 		tether_line.width_curve.set_point_value(1, min(max(50 / tether_momentum.length(),.4),1))
 	else:
-		if Input.is_action_just_released("swap_" + input_device):
+		if tether_line.visible == true:
 			tether_line.visible = false
 			move_speed *= 2
 			is_tethered = false
