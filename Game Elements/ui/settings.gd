@@ -10,7 +10,9 @@ func load_settings():
 	
 	if err == OK:
 		mouse_sensitivity = config.get_value("controls", "mouse_sensitivity", 1.0)
+		print(config.get_value("debug", "enabled", false))
 		debug_mode = config.get_value("debug", "enabled", false)
+		$MarginContainer/VBoxContainer/Volume/Volume.value = config.get_value("audio", "master", 100)
 	else: 
 		save_settings()
 		
@@ -39,13 +41,11 @@ func _ready() -> void:
 	_on_volume_value_changed(value)
 	load_settings()
 
-	if has_node("MouseSensitivity"):
-		$MarginContainer/VBoxContainer/Mouse/MouseSensitivity.value = mouse_sensitivity
-		update_sensitivity_label()
+	$MarginContainer/VBoxContainer/Mouse/MouseSensitivity.value = mouse_sensitivity
+	update_sensitivity_label()
 		
-	if has_node("DebugMode"):
-		$MarginContainer/VBoxContainer/Debug/DebugMode.button_pressed = debug_mode
-		update_debug_menu_label()
+	$MarginContainer/VBoxContainer/Debug/DebugMode.button_pressed = debug_mode
+	update_debug_menu_label()
 	 
 func _on_volume_value_changed(value: float) -> void:
 	var bus_index = AudioServer.get_bus_index(bus_name)
@@ -55,16 +55,15 @@ func _on_volume_value_changed(value: float) -> void:
 	pass # Replace with function body.
 
 func update_label(v: float) -> void:
-	var percent := db_to_percent(v)
-	label.text = str(percent) + "%"
+	label.text = str(int(v)) + "%"
 	
-func db_to_percent(db: float) -> int:
-	# Clamp to avoid weird negative values
-	if db <= -40.0:
-		return 0
-	# Convert dB → linear gain (0.0–1.0)
-	var linear := pow(10, db / 20.0)
-	return int(round(linear * 100))
+#func db_to_percent(db: float) -> int:
+	## Clamp to avoid weird negative values
+	#if db <= -40.0:
+		#return 0
+	## Convert dB → linear gain (0.0–1.0)
+	#var linear := pow(10, db / 20.0)
+	#return int(round(linear * 100))
 
 
 func set_mouse_sensitivity(value: float): 
@@ -73,8 +72,7 @@ func set_mouse_sensitivity(value: float):
 	save_settings()
 
 func update_sensitivity_label():
-	if has_node("MouseSensitivity/SensLabel"):
-		$MarginContainer/VBoxContainer/Mouse/SensLabel.text = "%.2f" % mouse_sensitivity
+	$MarginContainer/VBoxContainer/Mouse/SensLabel.text = "%.2f" % mouse_sensitivity
 
 func _on_mouse_sensitivity_value_changed(value: float) -> void:
 	set_mouse_sensitivity(value)
@@ -86,11 +84,10 @@ func set_debug_value(toggled_on: bool) -> void:
 	save_settings()
 
 func update_debug_menu_label() -> void:
-	if has_node("DebugMode/DebugLabel"):
-		if debug_mode == false: 
-			$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "Off"
-		else:
-			$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "On"
+	if debug_mode == false: 
+		$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "Off"
+	else:
+		$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "On"
 		
 func _on_debug_mode_toggled(toggled_on: bool) -> void:
 	set_debug_value(toggled_on)
