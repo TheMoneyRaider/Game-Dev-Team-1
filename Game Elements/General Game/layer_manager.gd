@@ -3,6 +3,7 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
+@onready var testing_room : Room = room_data.new().testing_room
 enum Reward {TimeFabric, Remnant, RemnantUpgrade}
 ### Temp Multiplayer Fix
 var player = null
@@ -92,7 +93,10 @@ func _ready() -> void:
 	game_root.add_child(pathfinding)
 	preload_rooms()
 	randomize()
-	choose_room()
+	room_instance_data = testing_room
+	room_location = load(room_instance_data.scene_location)
+	room_instance = room_location.instantiate()
+	game_root.add_child(room_instance)
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
@@ -201,7 +205,9 @@ func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> voi
 			if if_node_exists("Trap"+str(trap_num),generated_room):
 				layer_ai[10] += 1   #Trap room
 				break
-
+	if generated_room_data==testing_room:
+		layer_ai = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		time_passed = 0.0
 	print(layer_ai)
 
 func check_pathways(generated_room : Node2D, generated_room_data : Room, player_reference : Node, is_special_action : bool = false) -> int:
