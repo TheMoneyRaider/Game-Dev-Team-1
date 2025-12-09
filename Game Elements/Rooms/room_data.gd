@@ -70,3 +70,26 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 5,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false)]
+
+
+var testing_room : Room = room.Create_Room(
+"res://Game Elements/Rooms/testing_room.tscn", 																								#Scene Location                       
+0,																																#Num Liquids
+[],																																#Liquid Types 
+[],																																#Liquid Chances                     
+2,																																#Num Fillings              
+[0,0],																															#Terrain Set                                      
+[3,4],																															#Terrain ID                       
+[.6,1.0],																														#Threshold            
+randi(),																														#Noise Seed           
+FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+.1,																																#Noise Frequency                        
+0,																																#Num Traps              
+[],																																#Trap Chances                                
+[],																																#Trap Types                         
+2,																																#Num Pathways                   
+[room.Direction.Up,room.Direction.Down],																						#Pathway Directions                                       
+1,																																#Enemy Spawnpoints                     
+1,																																#Enemy Num Goal                               
+0,																																#NPC Spawnpoints   
+false)
