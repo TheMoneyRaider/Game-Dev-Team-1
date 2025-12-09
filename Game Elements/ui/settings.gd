@@ -3,6 +3,9 @@ extends Control
 var mouse_sensitivity: float = 1.0
 const SETTINGS_FILE = "user://settings.cfg"
 var debug_mode: bool = false
+var display_pathways: bool = false
+var mouse_clamping: bool = false
+var toggle_invulnerability: bool = false
 
 func load_settings():
 	var config = ConfigFile.new()
@@ -23,6 +26,9 @@ func save_settings():
 	config.set_value("audio", "master", volslider.value)
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("debug", "enabled", debug_mode)
+	config.set_value("debug", "display_pathways", display_pathways)
+	config.set_value("debug", "mouse_clamping", mouse_clamping)
+	config.set_value("debug", "toggle_invulnerability", toggle_invulnerability)
 	config.save(SETTINGS_FILE)
 
 func _on_back_pressed() -> void:

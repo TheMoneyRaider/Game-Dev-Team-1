@@ -9,7 +9,7 @@ var SPEED: float = 70
 @onready var in_instant_trap: bool = false
 var damage_direction = Vector2(0,-1)
 var damage_taken = 0
-var debug_mode = false 
+var display_pathways = false
 
 var effects : Array[Effect] = []
 
@@ -32,7 +32,7 @@ func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction
 func load_settings():
 	var config = ConfigFile.new()
 	if config.load("user://settings.cfg") == OK:
-		debug_mode = config.get_value("debug", "enabled", false)
+		display_pathways = config.get_value("debug", "display_pathways", false)
 		
 func _ready():
 	current_health = max_health
@@ -65,7 +65,7 @@ func _process(delta):
 	#Trap stuff
 	check_traps(delta)
 	
-	if debug_mode:
+	if display_pathways:
 		queue_redraw()
 	
 

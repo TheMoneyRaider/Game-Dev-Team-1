@@ -1,12 +1,15 @@
 extends CanvasLayer
 
 var is_multiplayer : bool = true
+var debug_mode : bool = false
+
 @onready var health_bar_1 = $RootControl/HealthBar1
 @onready var health_bar_2 = $RootControl/HealthBar2
 @onready var TimeFabric = $RootControl/TimeFabric
 @onready var MaceCooldownBar = $RootControl/MaceCooldownBar
 @onready var CrossCooldownBar = $RootControl/CrossCooldownBar
 @onready var IconSlotScene = preload("res://Game Elements/ui/remnant_icon.tscn")
+
 var player1
 var player2
 
@@ -23,8 +26,7 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array):
 	#add in reverse so GridContainer displays them right->left
 	for i in range(player2_remnants.size() - 1, -1, -1):
 		_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i])
-	
-
+		
 func _add_slot(grid: Node, remnant: Resource):
 	var slot := IconSlotScene.instantiate()
 	var tex := slot.get_node("TextureRect")
@@ -34,8 +36,6 @@ func _add_slot(grid: Node, remnant: Resource):
 	tex.custom_minimum_size = remnant.icon.get_size() * 2
 	label.text = _num_to_roman(remnant.rank)
 	grid.add_child(slot)
-
-
 
 func _num_to_roman(input : int) -> String:
 	match input:
@@ -110,3 +110,15 @@ func _on_max_health_changed(max_health : int, player_node : Node):
 		health_bar_1.set_max_health(max_health)
 	else:
 		health_bar_2.set_max_health(max_health)
+		
+func load_settings():
+	var config = ConfigFile.new()
+	if config.load("user://settings.cfg") == OK:
+		debug_mode = config.get_value("debug", "enabled", false)
+		
+func update_display_paths() -> void:
+	
+	
+	return 
+	
+	
