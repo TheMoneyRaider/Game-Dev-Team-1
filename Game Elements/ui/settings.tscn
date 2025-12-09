@@ -36,7 +36,7 @@ text = "Volume"
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 8
-value = 100.0
+value = 1.0
 
 [node name="VolVal" type="Label" parent="Control/MarginContainer/VBoxContainer/Volume"]
 layout_mode = 2
