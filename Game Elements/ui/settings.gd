@@ -49,7 +49,7 @@ func _ready() -> void:
 	 
 func _on_volume_value_changed(value: float) -> void:
 	var bus_index = AudioServer.get_bus_index(bus_name)
-	AudioServer.set_bus_volume_db(bus_index, value)
+	AudioServer.set_bus_volume_db(bus_index, percent_to_db(value))
 	
 	update_label(value)
 	pass # Replace with function body.
@@ -57,13 +57,14 @@ func _on_volume_value_changed(value: float) -> void:
 func update_label(v: float) -> void:
 	label.text = str(int(v)) + "%"
 	
-#func db_to_percent(db: float) -> int:
-	## Clamp to avoid weird negative values
-	#if db <= -40.0:
-		#return 0
-	## Convert dB → linear gain (0.0–1.0)
-	#var linear := pow(10, db / 20.0)
-	#return int(round(linear * 100))
+func percent_to_db(percent: float) -> int:
+	# Clamp to avoid weird negative values
+	var per = percent / 100
+	if per <= 0.0:
+		return -40
+	# Convert dB → linear gain (0.0–1.0)
+	var db := log(per) / log(10)
+	return int(round(db))
 
 
 func set_mouse_sensitivity(value: float): 
