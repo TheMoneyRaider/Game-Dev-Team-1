@@ -10,10 +10,6 @@ var rewinding: bool = false
 var rewind_time: float = 0.0
 var rewind_duration: float = 1.5
 var assigned_buttons : Array[Button] = []
-#var highlight_nodes: Array = []
-#
-#var normal_color: Color = Color(1,1,1,1)
-#var highlight_color: Color = Color(1,1,1,0.5)
 
 func begin_break(frag_data: Array, tex: Texture2D, ui_pos : Vector2):
 	#Compute fragment's top-left corner (min bounds)
@@ -68,17 +64,22 @@ func begin_rewind(duration := 1.5):
 	freeze = true
 
 
+func apply_force_frag(pos_in : Vector2, len : int = 100):
+	if position.distance_to(pos_in) < len:
+		var move =Vector2(20/clamp((position-pos_in).x,10,200),20/clamp((position-pos_in).y,10,200))
+		if (position-pos_in).x <= 0.0:
+			move.x *= -1
+		if (position-pos_in).y <= 0.0:
+			move.y *= -1
+		velocity+= move
+
+
+func set_display_texture(tex : CompressedTexture2D):
+	get_node("Polygon2D").texture = tex
+	
+
 func _physics_process(delta):
 	if breaking:
-		if get_parent().get_parent().is_disruptive:
-			var mouse_global = get_viewport().get_mouse_position()
-			if position.distance_to(mouse_global) < 100:
-				var move =Vector2(20/clamp((position-mouse_global).x,10,200),20/clamp((position-mouse_global).y,10,200))
-				if (position-mouse_global).x <= 0.0:
-					move.x *= -1
-				if (position-mouse_global).y <= 0.0:
-					move.y *= -1
-				velocity+= move
 		linear_velocity = velocity
 	elif rewinding:
 		rewind_time += delta

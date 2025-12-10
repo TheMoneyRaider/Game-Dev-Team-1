@@ -701,9 +701,9 @@ func _setup_players() -> void:
 		player2.is_multiplayer = true
 		player1.other_player = player2
 		player2.other_player = player1
-		player2.update_input_device(Globals.player2_input)
 		game_root.add_child(player1)
 		game_root.add_child(player2)
+		player2.update_input_device(Globals.player2_input)
 		player2.swap_color()
 		player2.attack_requested.connect(_on_player_attack)
 		player2.player_took_damage.connect(_on_player_take_damage)
