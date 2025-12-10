@@ -92,6 +92,9 @@ func _on_debug_mode_toggled(toggled_on: bool) -> void:
 	
 	
 func refresh_devices(is_purple : bool = true):
+	if Input.get_connected_joypads().size() == 0:
+		Globals.player1_input = "key"
+		Globals.player2_input = "0"
 	var path = "MarginContainer/VBoxContainer/Player"+str(int(!is_purple)+1)+"/Choice"
 	var choice := get_node(path)
 	devices[int(!is_purple)].clear()

@@ -12,12 +12,14 @@ class UIState:
 @onready var BreakFX = $BreakFX
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
 @onready var cooldown : float = 0.0
+@onready var mouse_cooldown : float = 0.0
 @onready var the_ui : Texture2D
 @onready var is_disruptive : bool = true
 @onready var is_purple: bool = true
 @onready var exploaded: bool = false
 @onready var prepared = false
 @export var capture_all_states: bool = false
+var last_mouse_pos : Vector2
 var ui_textures: Dictionary = {}
 
 var UI: UIState = UIState.new()
@@ -60,7 +62,7 @@ func _process(delta):
 			if UI.player1.input != "key":
 				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 			if UI.player2.input != "key":
-				UI.player2.hover_button = UI_Group.get_child(1)
+				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 		if Input.is_action_just_pressed("swap_" + Globals.player1_input):
 			is_purple=!is_purple
 			is_disruptive = !is_disruptive
@@ -69,6 +71,16 @@ func _process(delta):
 		inputs(UI.player2.input)
 		update_ui_display() #SUPER LAGGY FIND BETTER WAY #TODO
 	cooldown -= delta
+	if last_mouse_pos.distance_to(get_viewport().get_mouse_position()) >10:
+		mouse_cooldown -= 1
+		last_mouse_pos = get_viewport().get_mouse_position()
+	if mouse_cooldown ==-1:
+		if UI.player1.input == "key":
+			UI.player1.hover_button = null
+			UI.player1.pressing = false
+		if UI.player2.input == "key":
+			UI.player2.hover_button = null
+			UI.player2.pressing = false
 	if is_disruptive:
 		if get_viewport() != null:
 			var mouse_pos = get_viewport().get_mouse_position()
@@ -79,6 +91,34 @@ func _process(delta):
 		print("rewind")
 		cooldown = 1
 		rewind_ui(cooldown)
+
+func button_pressed(button: Button):
+	if UI.player1.input == "key":
+		UI.player1.hover_button = button
+		UI.player1.pressing = true
+	if UI.player2.input == "key":
+		UI.player2.hover_button = button
+		UI.player2.pressing = true
+		
+	
+func mouse_over(button: Button):
+	mouse_cooldown = 1
+	if UI.player1.input == "key":
+		UI.player1.hover_button = button
+	if UI.player2.input == "key":
+		UI.player2.hover_button = button
+func _input(event):
+	if event is InputEventMouseButton:
+		if not event.pressed:
+			if UI.player1.input == "key":
+				UI.player1.pressing = false
+				if UI.player1.hover_button:
+					UI.player1.hover_button.emit_signal("pressed")
+			if UI.player2.input == "key":
+				UI.player2.pressing = false
+				if UI.player2.hover_button:
+					UI.player2.hover_button.emit_signal("pressed")
+			
 
 func get_button_polygon(button: Button, frag_start_pos: Vector2) -> Array:
 	var rect = button.get_global_rect()
@@ -341,7 +381,14 @@ func normalize_ui_state(state: Dictionary) -> Dictionary:
 			p1_press = p2_press
 			p2_hover = tmp_hover
 			p2_press = tmp_press
-
+	
+	if	p2_hover != null and p2_hover == p1_hover: #If illegal state, resolve it
+		if p2_press:
+			p1_hover=null
+		else:
+			p2_hover=null
+	
+	
 	# Otherwise, leave state as-is
 	return {
 	"p1_hover": p1_hover,

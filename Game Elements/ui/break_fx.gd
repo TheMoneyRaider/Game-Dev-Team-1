@@ -136,5 +136,11 @@ func _on_fragment_input(_viewport, event, _shape_idx):
 		# Iterate over buttons
 		for button in assigned_buttons:
 			if button.get_global_rect().has_point(mouse_original_space):
-				button.emit_signal("pressed")
-				break
+				get_parent().get_parent().button_pressed(button)
+				return
+	if event is InputEventMouseMotion:
+		# Iterate over buttons
+		for button in assigned_buttons:
+			if button.get_global_rect().has_point(mouse_original_space):
+				get_parent().get_parent().mouse_over(button)
+				return
