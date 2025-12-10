@@ -22,7 +22,7 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.Remnant
+var this_room_reward = Reward.RemnantUpgrade
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -80,13 +80,12 @@ func _ready() -> void:
 	
 	#####Remnant Testing
 	
-	#var rem = load("res://Game Elements/Remnants/hunter.tres")
-	#var rem2 = load("res://Game Elements/Remnants/trickster.tres")
-	#rem.rank = 5
-	#rem2.rank = 5
-	#player_1_remnants.append(rem.duplicate(true))
-	#player_2_remnants.append(rem.duplicate(true))
-	#player_2_remnants.append(rem2.duplicate(true))
+	var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	var rem2 = load("res://Game Elements/Remnants/hunter.tres")
+	rem.rank = 1
+	rem2.rank = 1
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####

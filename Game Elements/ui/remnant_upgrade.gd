@@ -24,8 +24,6 @@ func _ready():
 	for i in range(slot_nodes.size()):
 		slot_nodes[i].index = i
 		slot_nodes[i].slot_selected.connect(_on_slot_selected)
-	get_tree().paused = true
-		
 	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	get_tree().paused = true
 	modulate.a = 0.0
@@ -42,8 +40,8 @@ func _process(delta):
 			else:
 				hover_index2 = hover_index1
 				hover_index1 = -1
-	for i in range(upgrade_remnants.size()):
-		slot_nodes[i].outline_remnant(slot_nodes[i].btn_select.get_node("TextureRect"), Color.GREEN, 0.0) #REMOVE #TODO
+	for i in range(slot_nodes.size()):
+		slot_nodes[i].outline_remnant(slot_nodes[i].btn_select.get_node("TextureRect"), Color.GREEN, 0.0)
 	if hover_index2!=-1:
 		slot_nodes[hover_index2].outline_remnant(slot_nodes[hover_index2].btn_select.get_node("TextureRect"), Color.ORANGE, .5)
 	if hover_index1!=-1:
@@ -76,13 +74,19 @@ func popup_upgrade(player1_remnants_in : Array, player2_remnants_in : Array):
 			slot_nodes[i].queue_free()
 	# Wait a frame for layout to update
 	await get_tree().process_frame
+	var tmp_slots = []
+	for slot in slot_nodes:
+		if slot and !slot.is_queued_for_deletion():
+			tmp_slots.append(slot)
+	slot_nodes=tmp_slots
 	for i in range(slot_nodes.size()):
 		if i < upgrade_remnants.size():
 			_place_purple_selectable(slot_nodes[i],upgrade_remnants[i])
 			_place_orange_selectable(slot_nodes[i],upgrade_remnants[i])
 
 	visible = true
-	
+	print(slot_nodes)
+	print(slot_nodes.size()-1)
 	hover_index2 = slot_nodes.size()-1
 	if Globals.is_multiplayer:
 		if Globals.player1_input =="key":

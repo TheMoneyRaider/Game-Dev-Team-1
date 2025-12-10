@@ -43,8 +43,8 @@ func _process(delta):
 			else:
 				hover_index2 = hover_index1
 				hover_index1 = -1
-	for i in range(offered_remnants.size()):
-		slot_nodes[i].outline_remnant(slot_nodes[i].btn_select.get_node("TextureRect"), Color.GREEN, 0.0) #REMOVE #TODO
+	for i in range(slot_nodes.size()):
+		slot_nodes[i].outline_remnant(slot_nodes[i].btn_select.get_node("TextureRect"), Color.GREEN, 0.0)
 	if hover_index2!=-1:
 		slot_nodes[hover_index2].outline_remnant(slot_nodes[hover_index2].btn_select.get_node("TextureRect"), Color.ORANGE, .5)
 	if hover_index1!=-1:
@@ -78,6 +78,11 @@ func popup_offer(player1_remnants_in : Array, player2_remnants_in : Array, rank_
 			slot_nodes[i].queue_free()
 	# Wait a frame for layout to update
 	await get_tree().process_frame
+	var tmp_slots = []
+	for slot in slot_nodes:
+		if slot and !slot.is_queued_for_deletion():
+			tmp_slots.append(slot)
+	slot_nodes=tmp_slots
 	for i in range(slot_nodes.size()):
 		if i < offered_remnants.size():
 			_place_purple_selectable(slot_nodes[i],offered_remnants[i])
