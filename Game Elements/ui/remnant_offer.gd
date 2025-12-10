@@ -64,6 +64,7 @@ func _process(delta):
 func popup_offer(player1_remnants_in : Array, player2_remnants_in : Array, rank_weights : Array = [50,35,10,5,0]):
 	player1_remnants = player1_remnants_in.duplicate()
 	player2_remnants = player2_remnants_in.duplicate()
+	crosshair_sprite.texture = purple_crosshair
 	#query the pool for 4 random remnants(2 from each player)
 	offered_remnants = RemnantManager.get_random_remnants(4,player1_remnants, player2_remnants)
 	selected_index1 = -1

@@ -21,6 +21,7 @@ class UIState:
 @export var capture_all_states: bool = false
 var last_mouse_pos : Vector2
 var ui_textures: Dictionary = {}
+var last_devices : Array = []
 
 var UI: UIState = UIState.new()
 @onready var prev_state = normalize_ui_state({
@@ -66,6 +67,9 @@ func _process(delta):
 				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 			if UI.player2.input != "key":
 				UI.player2.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
+		if Input.get_connected_joypads() != last_devices:
+			last_devices=Input.get_connected_joypads()
+			update_prompt()
 		if Input.is_action_just_pressed("swap_" + Globals.player1_input):
 			disruptive1 = !disruptive1
 			update_prompt()
@@ -100,7 +104,7 @@ func fragment_disruption():
 			var mouse_pos = get_viewport().get_mouse_position()
 			for frag in $BreakFX.get_children():
 				frag.apply_force_frag(mouse_pos)
-		if UI.player1.input != "key" and UI.player1.hover_button != null:
+		if UI.player1.input != "key" and UI.player1.hover_button != null and int(UI.player1.input) in Input.get_connected_joypads():
 			var cont_pos = UI.player1.hover_button.get_global_rect().position + UI.player1.hover_button.get_global_rect().size/2
 			for frag in $BreakFX.get_children():
 				frag.apply_force_frag(cont_pos)
@@ -109,7 +113,7 @@ func fragment_disruption():
 			var mouse_pos = get_viewport().get_mouse_position()
 			for frag in $BreakFX.get_children():
 				frag.apply_force_frag(mouse_pos)
-		if UI.player2.input != "key" and UI.player2.hover_button != null:
+		if UI.player2.input != "key" and UI.player2.hover_button != null and int(UI.player2.input) in Input.get_connected_joypads():
 			var cont_pos = UI.player2.hover_button.get_global_rect().position + UI.player2.hover_button.get_global_rect().size/2
 			for frag in $BreakFX.get_children():
 				frag.apply_force_frag(cont_pos)
@@ -294,7 +298,15 @@ func preload_all_textures():
 	var states = generate_all_valid_ui_states(buttons)
 	for state in states:
 		var fname = generate_filename(state)
-		ui_textures[fname] = load("res://ui_captures/" + fname + ".png")
+		var path = "res://ui_captures/" + fname + ".png"
+		if FileAccess.file_exists(path):
+			ui_textures[fname] = load(path)
+		else:
+			print("Reversed to find correct file")
+			fname = generate_filename(state, true)
+			path = "res://ui_captures/" + fname + ".png"
+			ui_textures[fname] = load(path)
+		
 
 func generate_all_valid_ui_states(buttons: Array) -> Array:
 	var states = []
@@ -354,12 +366,14 @@ func capture_state(state: Dictionary) -> ViewportTexture:
 	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
 	return vp_tex
 	
-func generate_filename(state: Dictionary) -> String:
+func generate_filename(state: Dictionary, reverse: bool = false) -> String:
 	var norm_state = normalize_ui_state(state)
 	var p1_name =  norm_state["p1_hover"].name if norm_state["p1_hover"] != null else "none"
 	var p2_name =  norm_state["p2_hover"].name if norm_state["p2_hover"] != null else "none"
 	var p1_press =  "press" if norm_state["p1_press"] else "hover"
 	var p2_press = "press" if norm_state["p2_press"] else "hover"
+	if reverse:
+		return "p1_%s_%s_p2_%s_%s" % [p2_name, p2_press,p1_name, p1_press]
 	return "p1_%s_%s_p2_%s_%s" % [p1_name, p1_press, p2_name, p2_press]
 
 func set_player_ui_state(state: Dictionary) -> void:
