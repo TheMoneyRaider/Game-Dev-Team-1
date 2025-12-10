@@ -211,23 +211,30 @@ texture_progress = ExtResource("9_gp50j")
 tint_over = Color(0.44313726, 0.44313726, 0.44313726, 0)
 tint_progress = Color(1, 0.64705884, 0, 1)
 
-[node name="Debug Menu" type="Control" parent="RootControl"]
+[node name="DebugMenu" type="Control" parent="RootControl"]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="GridContainer" type="GridContainer" parent="RootControl/Debug Menu"]
+[node name="GridContainer" type="GridContainer" parent="RootControl/DebugMenu"]
 layout_mode = 0
-offset_left = 1832.0
-offset_top = 12.0
-offset_right = 1872.0
-offset_bottom = 89.0
+offset_left = 1708.0
+offset_top = 34.0
+offset_right = 1898.0
+offset_bottom = 138.0
 
-[node name="Invulnerability" type="Label" parent="RootControl/Debug Menu/GridContainer"]
+[node name="MenuIndicator" type="Label" parent="RootControl/DebugMenu/GridContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.8980392, 0.22745098, 1)
 
-[node name="Paths" type="Label" parent="RootControl/Debug Menu/GridContainer"]
+[node name="Invulnerability" type="Label" parent="RootControl/DebugMenu/GridContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.8980392, 0.22745098, 1)
 
-[node name="Clamping" type="Label" parent="RootControl/Debug Menu/GridContainer"]
+[node name="Paths" type="Label" parent="RootControl/DebugMenu/GridContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.8980392, 0.22745098, 1)
+
+[node name="Clamping" type="Label" parent="RootControl/DebugMenu/GridContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.8980392, 0.22745098, 1)

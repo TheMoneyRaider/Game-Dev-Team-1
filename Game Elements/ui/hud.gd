@@ -2,6 +2,10 @@ extends CanvasLayer
 
 var is_multiplayer : bool = true
 var debug_mode : bool = false
+var menu_indicator : bool = false
+var display_paths : bool = false
+var toggle_invulnerability : bool = false 
+var mouse_clamping : bool = false
 
 @onready var health_bar_1 = $RootControl/HealthBar1
 @onready var health_bar_2 = $RootControl/HealthBar2
@@ -12,6 +16,11 @@ var debug_mode : bool = false
 
 var player1
 var player2
+
+func _ready():
+	load_settings()
+	display_debug_setting_header()
+	
 
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
@@ -116,8 +125,38 @@ func load_settings():
 	if config.load("user://settings.cfg") == OK:
 		debug_mode = config.get_value("debug", "enabled", false)
 		
-func update_display_paths() -> void:
+func display_debug_setting_header():
+	$RootControl/DebugMenu/GridContainer.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+	if debug_mode == true: 
+		$RootControl/DebugMenu/GridContainer.visible = true
+		$RootControl/DebugMenu/GridContainer/MenuIndicator.text = "debug menu: H"
+		
+func _input(event):
+	if event.is_action_pressed("display_debug_settings"):
+		menu_indicator = !menu_indicator
+		
+	if menu_indicator:
+		$RootControl/DebugMenu/GridContainer/Paths.text = "toggle paths: P"
+		$RootControl/DebugMenu/GridContainer/Invulnerability.text = "toggle invulnerability: I"
+		$RootControl/DebugMenu/GridContainer/Clamping.text = "toggle mouse clamping: C"
+	else:
+		$RootControl/DebugMenu/GridContainer/Paths.text = ""
+		$RootControl/DebugMenu/GridContainer/Invulnerability.text = ""
+		$RootControl/DebugMenu/GridContainer/Clamping.text = ""
+	return
+			
+func update_menu_indicator() -> void:
 	
+	return
+
+func toggle_menu_items() -> void: 
+	
+	return
+
+func update_display_paths() -> void:
+	if debug_mode == true:
+		#display something 
+		return
 	
 	return 
 	
