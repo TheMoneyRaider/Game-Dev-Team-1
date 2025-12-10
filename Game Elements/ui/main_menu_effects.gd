@@ -392,11 +392,11 @@ func inputs(input_device):
 			UI.player1.hover_button = get_next_button(UI.player1.hover_button, true)
 		if UI.player2.input == input_device:
 			UI.player2.pressing = false
-			UI.player2.hover_button = get_next_button(UI.player1.hover_button, true)
+			UI.player2.hover_button = get_next_button(UI.player2.hover_button, true)
 	if Input.is_action_just_pressed("menu_down_"+input_device):
 		if UI.player1.input == input_device:
 			UI.player1.pressing = false
-			UI.player1.hover_button = get_next_button(UI.player2.hover_button, false)
+			UI.player1.hover_button = get_next_button(UI.player1.hover_button, false)
 		if UI.player2.input == input_device:
 			UI.player2.pressing = false
 			UI.player2.hover_button = get_next_button(UI.player2.hover_button, false)
@@ -416,6 +416,11 @@ func normalize_ui_state(state: Dictionary) -> Dictionary:
 	var p2_hover = state["p2_hover"]
 	var p1_press = state["p1_press"]
 	var p2_press = state["p2_press"]
+	if	p2_hover != null and p2_hover == p1_hover: #If illegal state, resolve it
+		if p2_press:
+			p1_hover=null
+		else:
+			p2_hover=null
 	#If both players hover different buttons, order them by button name
 	if p1_hover != null and p2_hover != null:
 		if p1_hover.name > p2_hover.name:
@@ -426,15 +431,6 @@ func normalize_ui_state(state: Dictionary) -> Dictionary:
 			p1_press = p2_press
 			p2_hover = tmp_hover
 			p2_press = tmp_press
-	
-	if	p2_hover != null and p2_hover == p1_hover: #If illegal state, resolve it
-		if p2_press:
-			p1_hover=null
-		else:
-			p2_hover=null
-	
-	
-	# Otherwise, leave state as-is
 	return {
 	"p1_hover": p1_hover,
 	"p1_press": p1_press,
