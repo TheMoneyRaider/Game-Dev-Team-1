@@ -136,17 +136,19 @@ func _input(event):
 		if event.is_action_pressed("display_debug_settings"):
 			menu_indicator = !menu_indicator
 		
-		if menu_indicator: 
-			if event.is_action_pressed("display_paths"):
-				display_paths = !display_paths
+		if event.is_action_pressed("display_paths"):
+			display_paths = !display_paths
+			if menu_indicator:  
 				update_display_paths()
-				
-			if event.is_action_pressed("toggle_invulnerability"):
-				toggle_invulnerability = !toggle_invulnerability
+			
+		if event.is_action_pressed("toggle_invulnerability"):
+			toggle_invulnerability = !toggle_invulnerability
+			if menu_indicator:  
 				update_invulnerability()
-				
-			if event.is_action_pressed("mouse_clamp"):
-				mouse_clamping = !mouse_clamping
+			
+		if event.is_action_pressed("mouse_clamp"):
+			mouse_clamping = !mouse_clamping
+			if menu_indicator:  
 				update_clamping()
 				
 		update_menu_indicator()

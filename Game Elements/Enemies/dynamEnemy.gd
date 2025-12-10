@@ -10,6 +10,7 @@ var SPEED: float = 70
 var damage_direction = Vector2(0,-1)
 var damage_taken = 0
 var display_pathways = false
+var debug_menu = false
 
 var effects : Array[Effect] = []
 
@@ -19,6 +20,10 @@ var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bad_bolt
 signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
+
+func _input(event):
+	if debug_menu and event.is_action_pressed("display_paths"):
+		display_pathways = !display_pathways
 
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
@@ -32,7 +37,8 @@ func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction
 func load_settings():
 	var config = ConfigFile.new()
 	if config.load("user://settings.cfg") == OK:
-		display_pathways = config.get_value("debug", "display_pathways", false)
+		debug_menu = config.get_value("debug", "enabled", false)
+		
 		
 func _ready():
 	current_health = max_health
@@ -64,9 +70,8 @@ func _process(delta):
 		
 	#Trap stuff
 	check_traps(delta)
-	
-	if display_pathways:
-		queue_redraw()
+
+	queue_redraw()
 	
 
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
@@ -89,7 +94,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 	var bt_player = get_node("BTPlayer")
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
-	
+
 	if current_health - damage <= 0: 
 		current_health = current_health - damage
 		bt_player.blackboard.set_var("state", "dead")
@@ -132,6 +137,9 @@ func check_traps(delta):
 		
 func _draw():
 	# Get path from blackboard if behavior tree exists
+	if not display_pathways:
+		return
+	
 	if not has_node("BTPlayer"):
 		return
 	

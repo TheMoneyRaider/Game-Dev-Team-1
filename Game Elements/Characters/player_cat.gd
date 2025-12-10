@@ -38,6 +38,8 @@ var tether_width_curve
 var is_multiplayer = false
 var input_device = "key"
 var input_direction : Vector2 = Vector2.ZERO
+var invulnerable : bool = false
+var debug_menu : bool = false
 
 
 
@@ -67,6 +69,11 @@ func _ready():
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
 		tether_line.gradient = null			
+
+func load_settings():
+	var config = ConfigFile.new()
+	if config.load("user://settings.cfg") == OK:
+		debug_menu = config.get_value("debug", "enabled", false)
 
 func _initialize_state_machine():
 	#Define State transitions
@@ -103,6 +110,10 @@ func _physics_process(delta):
 		tether()
 	input_direction += (tether_momentum / move_speed)
 	
+	
+	if debug_menu and Input.is_action_just_pressed("toggle_invulnerability"):
+		invulnerable = !invulnerable
+	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
@@ -131,11 +142,12 @@ func request_attack(t_attack : Attack):
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
 	if(i_frames <= 0):
 		i_frames = 20
-		current_health = current_health - damage_amount
-		emit_signal("player_took_damage",damage_amount,current_health,self)
-		if(current_health <= 0):
-			if(die(true)):
-				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
+		if not invulnerable: 
+			current_health = current_health - damage_amount
+			emit_signal("player_took_damage",damage_amount,current_health,self)
+			if(current_health <= 0):
+				if(die(true)):
+					emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
 	emit_signal("swapped_color", self)
