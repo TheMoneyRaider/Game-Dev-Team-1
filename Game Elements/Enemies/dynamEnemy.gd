@@ -22,7 +22,7 @@ signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direec
 
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
-	var attack_position = attack_direction * 20 + global_position
+	var attack_position = attack_direction * 0		 + global_position
 	request_attack(attacks[0], attack_position, attack_direction)
 
 func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction: Vector2):
