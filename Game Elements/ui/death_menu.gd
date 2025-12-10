@@ -51,7 +51,8 @@ func activate():
 		if button is Button:
 			button.disabled = false
 			print
-	$Control/VBoxContainer/Rewind.grab_focus()
+	if Globals.is_multiplayer or Globals.player1_input != "key":
+		$Control/VBoxContainer/Rewind.grab_focus()
 
 func _capture_frame():
 	frame_amount +=1

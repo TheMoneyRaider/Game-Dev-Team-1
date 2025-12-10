@@ -14,6 +14,16 @@ signal slot_selected(index: int)
 func _ready():
 	randomize()
 	btn_select.pressed.connect(_on_button_pressed)
+	btn_select.focus_mode = Control.FOCUS_NONE  # Prevents keyboard focus
+
+	# Intercept input via signal
+	btn_select.gui_input.connect(_on_btn_gui_input)
+
+
+func _on_btn_gui_input(event):
+	if event is InputEventKey:
+		if event.keycode == Key.KEY_SPACE or event.keycode == Key.KEY_ENTER:
+			event.accept()  # Prevents space/enter from clicking the button
 
 func set_remnant(remnant: Resource, is_upgrade : bool) -> void:
 	if remnant == null:

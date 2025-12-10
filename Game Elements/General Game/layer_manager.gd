@@ -832,7 +832,7 @@ func _open_remnant_popup() -> void:
 		remnant_offer_popup = offer_scene.instantiate()
 		hud.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
-		remnant_offer_popup.popup_offer(is_multiplayer, player_1_remnants,player_2_remnants, [50,35,10,5,0])
+		remnant_offer_popup.popup_offer(player_1_remnants,player_2_remnants, [50,35,10,5,0])
 		player1.get_node("Crosshair").visible = false
 		if is_multiplayer:
 			player2.get_node("Crosshair").visible = false
@@ -844,7 +844,7 @@ func _open_upgrade_popup() -> void:
 		remnant_upgrade_popup = upgrade_scene.instantiate()
 		hud.add_child(remnant_upgrade_popup)
 		remnant_upgrade_popup.remnant_upgraded.connect(_on_remnant_upgraded)
-		remnant_upgrade_popup.popup_upgrade(is_multiplayer, player_1_remnants.duplicate(),player_2_remnants.duplicate())
+		remnant_upgrade_popup.popup_upgrade(player_1_remnants.duplicate(),player_2_remnants.duplicate())
 		
 		player1.get_node("Crosshair").visible = false
 		if is_multiplayer:
