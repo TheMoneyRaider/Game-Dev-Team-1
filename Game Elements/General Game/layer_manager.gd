@@ -213,38 +213,23 @@ func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> voi
 	print(layer_ai)
 
 func check_pathways(generated_room : Node2D, generated_room_data : Room, player_reference : Node, is_special_action : bool = false) -> int:
-	var targets_extents: Array = []
-	var targets_position: Array = []
-	var targets_id: Array = []
-	var targets_direction: Array = []
 	var pathway_name= ""
 	var direction_count = [0,0,0,0]
 	for p_direct in generated_room_data.pathway_direction:
 		direction_count[p_direct]+=1
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if not if_node_exists(pathway_name,generated_room):
-			var pathway_detect = generated_room.get_node_or_null(pathway_name+"_Detect/Area2D/CollisionShape2D")
-			if pathway_detect:
-				targets_extents.append(pathway_detect.shape.extents)
-				targets_position.append(pathway_detect.global_position)
-				targets_id.append(pathway_name+"_Detect")
-				targets_direction.append(p_direct)
-
-	var player_shape = player_reference.get_node("CollisionShape2D").shape
-	var player_position = player_reference.global_position
-	var player_rect = player_shape.extents
-	for idx in range(0,len(targets_extents)):
-		var area_rect = targets_extents[idx]
-		if abs(player_position.x - targets_position[idx].x) <= player_rect.x + area_rect.x \
-			and abs(player_position.y - targets_position[idx].y) <= player_rect.y + area_rect.y:
-			var target_id = targets_id[idx]
-			if !generated_room.get_node(target_id).used:
-				if is_special_action:
-					_randomize_room_reward(generated_room.get_node(target_id))
-					return -1
-				this_room_reward = generated_room.get_node(target_id).reward_type
-				_move_to_pathway_room(targets_id[idx])
-				return targets_direction[idx]
+			var pathway_detect = generated_room.get_node_or_null(pathway_name+"_Detect")
+			if pathway_detect and !pathway_detect.used:
+				for body in pathway_detect.get_node("Area2D").get_overlapping_bodies():
+					if body==player_reference:
+						if is_special_action:
+							_randomize_room_reward(pathway_detect)
+							return -1
+						this_room_reward = pathway_detect.reward_type
+						_move_to_pathway_room(pathway_name+"_Detect")
+						print(is_special_action)
+						return p_direct
 	return -1
 
 func choose_room() -> void:
