@@ -64,8 +64,8 @@ func begin_rewind(duration := 1.5):
 	freeze = true
 
 
-func apply_force_frag(pos_in : Vector2, len : int = 100):
-	if position.distance_to(pos_in) < len:
+func apply_force_frag(pos_in : Vector2, ar : int = 100):
+	if position.distance_to(pos_in) < ar:
 		var move =Vector2(20/clamp((position-pos_in).x,10,200),20/clamp((position-pos_in).y,10,200))
 		if (position-pos_in).x <= 0.0:
 			move.x *= -1

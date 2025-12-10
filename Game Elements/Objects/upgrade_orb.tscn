@@ -80,12 +80,12 @@ z_index = 1000
 scale = Vector2(1.5, 1.5)
 
 [node name="Text" type="RichTextLabel" parent="Prompt1"]
-offset_left = -14.666667
-offset_top = -23.333334
-offset_right = 718.6666
-offset_bottom = 151.66667
+offset_left = -26.0
+offset_top = -22.666664
+offset_right = 1274.0
+offset_bottom = 240.33334
 scale = Vector2(0.04, 0.04)
-theme_override_font_sizes/normal_font_size = 128
+theme_override_font_sizes/normal_font_size = 192
 bbcode_enabled = true
 text = ": Enter"
 fit_content = true

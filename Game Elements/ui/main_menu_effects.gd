@@ -14,8 +14,8 @@ class UIState:
 @onready var cooldown : float = 0.0
 @onready var mouse_cooldown : float = 0.0
 @onready var the_ui : Texture2D
-@onready var is_disruptive : bool = true
-@onready var is_purple: bool = true
+@onready var disruptive1 : bool = true
+@onready var disruptive2 : bool = true
 @onready var exploaded: bool = false
 @onready var prepared = false
 @export var capture_all_states: bool = false
@@ -23,7 +23,12 @@ var last_mouse_pos : Vector2
 var ui_textures: Dictionary = {}
 
 var UI: UIState = UIState.new()
-
+@onready var prev_state = normalize_ui_state({
+		"p1_hover": null,
+		"p1_press": false,
+		"p2_hover": null,
+		"p2_press": false
+	})
 
 
 func _ready():
@@ -52,10 +57,11 @@ func _begin_explosion_cooldown():
 		exploaded = true
 
 func _process(delta):
+	print(str(disruptive1)+" "+str(disruptive2))
 	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
 	if Globals.player1_input:
 		if !prepared:
-			_set_display()
+			update_prompt()
 			prepared=true
 			UI.player1.input = Globals.player1_input
 			UI.player2.input = Globals.player2_input
@@ -64,14 +70,17 @@ func _process(delta):
 			if UI.player2.input != "key":
 				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 		if Input.is_action_just_pressed("swap_" + Globals.player1_input):
-			is_purple=!is_purple
-			is_disruptive = !is_disruptive
+			disruptive1 = !disruptive1
+			update_prompt()
+		if Input.is_action_just_pressed("swap_" + Globals.player2_input):
+			disruptive2 = !disruptive2
+			update_prompt()
 	if prepared:
 		inputs(UI.player1.input)
 		inputs(UI.player2.input)
-		update_ui_display() #SUPER LAGGY FIND BETTER WAY #TODO
+		update_ui_display()
 	cooldown -= delta
-	if last_mouse_pos.distance_to(get_viewport().get_mouse_position()) >10:
+	if get_viewport() and last_mouse_pos.distance_to(get_viewport().get_mouse_position()) >10:
 		mouse_cooldown -= 1
 		last_mouse_pos = get_viewport().get_mouse_position()
 	if mouse_cooldown ==-1:
@@ -81,11 +90,26 @@ func _process(delta):
 		if UI.player2.input == "key":
 			UI.player2.hover_button = null
 			UI.player2.pressing = false
-	if is_disruptive:
-		if get_viewport() != null:
+	if disruptive1 and get_viewport():
+		if UI.player1.input == "key":
 			var mouse_pos = get_viewport().get_mouse_position()
 			for frag in $BreakFX.get_children():
 				frag.apply_force_frag(mouse_pos)
+		if UI.player1.input != "key" and UI.player1.hover_button != null:
+			var cont_pos = UI.player1.hover_button.get_global_rect().position + UI.player1.hover_button.get_global_rect().size/2
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(cont_pos)
+	if disruptive2 and get_viewport():
+		if UI.player2.input == "key":
+			var mouse_pos = get_viewport().get_mouse_position()
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(mouse_pos)
+		if UI.player2.input != "key" and UI.player2.hover_button != null:
+			var cont_pos = UI.player2.hover_button.get_global_rect().position + UI.player2.hover_button.get_global_rect().size/2
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(cont_pos)
+			
+		
 	if cooldown < 0 and cooldown > -.9 and exploaded:
 		exploaded = false
 		print("rewind")
@@ -99,14 +123,14 @@ func button_pressed(button: Button):
 	if UI.player2.input == "key":
 		UI.player2.hover_button = button
 		UI.player2.pressing = true
-		
-	
+
 func mouse_over(button: Button):
 	mouse_cooldown = 1
 	if UI.player1.input == "key":
 		UI.player1.hover_button = button
 	if UI.player2.input == "key":
 		UI.player2.hover_button = button
+
 func _input(event):
 	if event is InputEventMouseButton:
 		if not event.pressed:
@@ -118,7 +142,6 @@ func _input(event):
 				UI.player2.pressing = false
 				if UI.player2.hover_button:
 					UI.player2.hover_button.emit_signal("pressed")
-			
 
 func get_button_polygon(button: Button, frag_start_pos: Vector2) -> Array:
 	var rect = button.get_global_rect()
@@ -242,12 +265,29 @@ func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Ar
 				break
 	return overlapping_buttons
 	
-func _set_display():
-	if Globals.player1_input == "key":
-		$RichTextLabel.bbcode_text = "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space[/font]: Enable/Disable Fracturing"
+func update_prompt():
+	if Globals.player1_input == "key" and Input.get_connected_joypads().size() == 0:
+		var text = "[font=res://addons/input_prompt_icon_font/icon.ttf]"
+		if disruptive1:
+			text += "keyboard_space[/font]"
+		else:
+			text += "keyboard_space_outline[/font]"
+		$RichTextLabel.bbcode_text = text+": Enable/Disable Fracturing"
 	else:
-		$RichTextLabel.bbcode_text = "[font=res://addons/input_prompt_icon_font/icon.ttf]playstation_button_triangle_outline[/font]: Enable/Disable Fracturing"
-	
+		var text = ""
+		text += button_state(Globals.player1_input,disruptive1) +"/"
+		text += button_state(Globals.player2_input,disruptive2)
+		$RichTextLabel.bbcode_text = text+": Enable/Disable Fracturing"
+
+
+func button_state(input_type : String, active : bool):
+	if input_type == "key":
+		if active:
+			return "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space[/font]"
+		return "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space_outline[/font]"
+	if active:
+		return "[font=res://addons/input_prompt_icon_font/icon.ttf]playstation_trigger_l2[/font]"
+	return "[font=res://addons/input_prompt_icon_font/icon.ttf]playstation_trigger_l2_outline[/font]"
 
 func preload_all_textures():
 	var buttons = []
@@ -282,15 +322,20 @@ func generate_all_valid_ui_states(buttons: Array) -> Array:
 	return states
 	
 func update_ui_display():
+	if BreakFX.get_child_count() == 0:
+		return
 	var state = normalize_ui_state({
 		"p1_hover": UI.player1.hover_button,
 		"p1_press": UI.player1.pressing,
 		"p2_hover": UI.player2.hover_button,
 		"p2_press": UI.player2.pressing
 	})
-	var fname = generate_filename(state)
-	for frag in $BreakFX.get_children():
-		frag.set_display_texture(ui_textures[fname])
+	if state!=prev_state:
+		prev_state=state
+		print("update")
+		var fname = generate_filename(prev_state)
+		for frag in $BreakFX.get_children():
+			frag.set_display_texture(ui_textures[fname])
 	
 func capture_all_ui_states():		
 	var buttons = []
@@ -345,15 +390,19 @@ func set_player_ui_state(state: Dictionary) -> void:
 func inputs(input_device):
 	if input_device=="key":
 		return
-	if Input.is_action_just_pressed("menu_left_"+input_device):
+	if Input.is_action_just_pressed("menu_up_"+input_device):
 		if UI.player1.input == input_device:
+			UI.player1.pressing = false
 			UI.player1.hover_button = get_next_button(UI.player1.hover_button, true)
 		if UI.player2.input == input_device:
+			UI.player2.pressing = false
 			UI.player2.hover_button = get_next_button(UI.player1.hover_button, true)
-	if Input.is_action_just_pressed("menu_right_"+input_device):
+	if Input.is_action_just_pressed("menu_down_"+input_device):
 		if UI.player1.input == input_device:
+			UI.player1.pressing = false
 			UI.player1.hover_button = get_next_button(UI.player1.hover_button, false)
 		if UI.player2.input == input_device:
+			UI.player2.pressing = false
 			UI.player2.hover_button = get_next_button(UI.player1.hover_button, false)
 	if Input.is_action_just_pressed("activate_"+input_device):
 		if UI.player1.input == input_device:
@@ -361,9 +410,9 @@ func inputs(input_device):
 		if UI.player2.input == input_device:
 			UI.player1.pressing = true
 	if Input.is_action_just_released("activate_"+input_device):
-		if UI.player1.input == input_device:
+		if UI.player1.input == input_device and UI.player1.pressing:
 			UI.player1.hover_button.emit_signal("pressed")
-		if UI.player2.input == input_device:
+		if UI.player2.input == input_device and UI.player2.pressing:
 			UI.player2.hover_button.emit_signal("pressed")
 
 func normalize_ui_state(state: Dictionary) -> Dictionary:

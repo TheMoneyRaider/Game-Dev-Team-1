@@ -2,7 +2,7 @@ shader_type canvas_item;
 
 uniform float time : hint_range(0, 1000) = 0.0;
 uniform int tendril_count : hint_range(1, 100) = 8;
-uniform float tendril_thickness : hint_range(1, 20) = 4.0;
+uniform float tendril_thickness : hint_range(1, 200) = 4.0;
 uniform float tendril_waviness : hint_range(5, 200) = 40.0;
 uniform float tendril_speed : hint_range(0, 10) = 1.5;
 

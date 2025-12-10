@@ -107,9 +107,9 @@ func refresh_devices(is_purple : bool = true):
 	# Add all connected controllers
 	var joypads = Input.get_connected_joypads()
 	for device_id in joypads:
-		var name : String = str(Input.get_joy_name(device_id))
+		var d_name : String = str(Input.get_joy_name(device_id))
 		devices[int(!is_purple)].append(str(device_id))
-		choice.add_item(name)
+		choice.add_item(d_name)
 	var new_device = Globals.player1_input if is_purple else Globals.player2_input
 	for idx in range(devices[int(!is_purple)].size()):
 		if devices[int(!is_purple)][idx]==new_device:
