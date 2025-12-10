@@ -65,6 +65,7 @@ func _ready():
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
+	load_settings()
 	if is_multiplayer:
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
@@ -140,14 +141,13 @@ func request_attack(t_attack : Attack):
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
-	if(i_frames <= 0):
+	if(i_frames <= 0) and not invulnerable:
 		i_frames = 20
-		if not invulnerable: 
-			current_health = current_health - damage_amount
-			emit_signal("player_took_damage",damage_amount,current_health,self)
-			if(current_health <= 0):
-				if(die(true)):
-					emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
+		current_health = current_health - damage_amount
+		emit_signal("player_took_damage",damage_amount,current_health,self)
+		if(current_health <= 0):
+			if(die(true)):
+				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
 	emit_signal("swapped_color", self)
@@ -301,7 +301,7 @@ func _hunter_percent_boost() -> float:
 	return 0.0
 
 func red_flash() -> void:
-	if(i_frames > 0):
+	if(i_frames > 0) and not invulnerable:
 		sprite.self_modulate = Color(1.0, 0.378, 0.31, 1.0)
 	else:
 		sprite.self_modulate = Color(1.0, 1.0, 1.0)

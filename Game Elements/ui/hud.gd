@@ -159,8 +159,8 @@ func _input(event):
 
 func update_menu_indicator() -> void:
 	var paths_string = "  paths: | P | "
-	var invul_string = "  invulnerability | I | "
-	var clamp_string = "  mouse clamping | C | "
+	var invul_string = "  invuln: | I | "
+	var clamp_string = "  clamp: | C | "
 	
 	if menu_indicator:
 		$RootControl/DebugMenu/GridContainer/Paths.text = paths_string
