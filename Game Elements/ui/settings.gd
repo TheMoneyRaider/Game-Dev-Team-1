@@ -49,6 +49,7 @@ func _ready() -> void:
 	
 	refresh_devices(true)
 	refresh_devices(false)
+	$MarginContainer/VBoxContainer/Volume/Volume.grab_focus()
 	 
 func _process(_delta):
 	if Input.get_connected_joypads().size() != (devices[0].size()-1):

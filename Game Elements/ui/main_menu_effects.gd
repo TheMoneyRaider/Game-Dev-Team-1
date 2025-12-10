@@ -44,7 +44,6 @@ func _ready():
 	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
 	the_ui = ImageTexture.create_from_image(vp_tex.get_image())
 	UI_Group.visible = true if capture_all_states else false
-	print("explode")
 	explode_ui()
 	cooldown = -1
 	if capture_all_states:
@@ -52,12 +51,10 @@ func _ready():
 
 func _begin_explosion_cooldown():
 	if cooldown < 0:
-		print("explode")
 		cooldown = randf_range(2,4)
 		exploaded = true
 
 func _process(delta):
-	print(str(disruptive1)+" "+str(disruptive2))
 	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
 	if Globals.player1_input:
 		if !prepared:
@@ -68,7 +65,7 @@ func _process(delta):
 			if UI.player1.input != "key":
 				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 			if UI.player2.input != "key":
-				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
+				UI.player2.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 		if Input.is_action_just_pressed("swap_" + Globals.player1_input):
 			disruptive1 = !disruptive1
 			update_prompt()
@@ -80,9 +77,6 @@ func _process(delta):
 		inputs(UI.player2.input)
 		update_ui_display()
 	cooldown -= delta
-	if get_viewport() and last_mouse_pos.distance_to(get_viewport().get_mouse_position()) >10:
-		mouse_cooldown -= 1
-		last_mouse_pos = get_viewport().get_mouse_position()
 	if mouse_cooldown ==-1:
 		if UI.player1.input == "key":
 			UI.player1.hover_button = null
@@ -90,6 +84,17 @@ func _process(delta):
 		if UI.player2.input == "key":
 			UI.player2.hover_button = null
 			UI.player2.pressing = false
+	fragment_disruption()
+	
+	if cooldown < 0 and cooldown > -.9 and exploaded:
+		exploaded = false
+		cooldown = 1
+		rewind_ui(cooldown)
+
+func fragment_disruption():
+	if get_viewport() and last_mouse_pos.distance_to(get_viewport().get_mouse_position()) >10:
+		mouse_cooldown -= 1
+		last_mouse_pos = get_viewport().get_mouse_position()
 	if disruptive1 and get_viewport():
 		if UI.player1.input == "key":
 			var mouse_pos = get_viewport().get_mouse_position()
@@ -108,13 +113,6 @@ func _process(delta):
 			var cont_pos = UI.player2.hover_button.get_global_rect().position + UI.player2.hover_button.get_global_rect().size/2
 			for frag in $BreakFX.get_children():
 				frag.apply_force_frag(cont_pos)
-			
-		
-	if cooldown < 0 and cooldown > -.9 and exploaded:
-		exploaded = false
-		print("rewind")
-		cooldown = 1
-		rewind_ui(cooldown)
 
 func button_pressed(button: Button):
 	if UI.player1.input == "key":
@@ -190,7 +188,6 @@ func explode_ui():
 		
 		# Add clickable area if belongs to a button
 		frag.add_interactive_area(frag_data,assigned_buttons)
-	print(BreakFX.get_child_count())
 
 func rewind_ui(time : float):
 	for f in BreakFX.get_children():
@@ -332,7 +329,6 @@ func update_ui_display():
 	})
 	if state!=prev_state:
 		prev_state=state
-		print("update")
 		var fname = generate_filename(prev_state)
 		for frag in $BreakFX.get_children():
 			frag.set_display_texture(ui_textures[fname])
@@ -400,15 +396,15 @@ func inputs(input_device):
 	if Input.is_action_just_pressed("menu_down_"+input_device):
 		if UI.player1.input == input_device:
 			UI.player1.pressing = false
-			UI.player1.hover_button = get_next_button(UI.player1.hover_button, false)
+			UI.player1.hover_button = get_next_button(UI.player2.hover_button, false)
 		if UI.player2.input == input_device:
 			UI.player2.pressing = false
-			UI.player2.hover_button = get_next_button(UI.player1.hover_button, false)
+			UI.player2.hover_button = get_next_button(UI.player2.hover_button, false)
 	if Input.is_action_just_pressed("activate_"+input_device):
 		if UI.player1.input == input_device:
 			UI.player1.pressing = true
 		if UI.player2.input == input_device:
-			UI.player1.pressing = true
+			UI.player2.pressing = true
 	if Input.is_action_just_released("activate_"+input_device):
 		if UI.player1.input == input_device and UI.player1.pressing:
 			UI.player1.hover_button.emit_signal("pressed")
