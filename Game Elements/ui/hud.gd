@@ -132,32 +132,61 @@ func display_debug_setting_header():
 		$RootControl/DebugMenu/GridContainer/MenuIndicator.text = "debug menu: H"
 		
 func _input(event):
-	if event.is_action_pressed("display_debug_settings"):
-		menu_indicator = !menu_indicator
+	if debug_mode:
+		if event.is_action_pressed("display_debug_settings"):
+			menu_indicator = !menu_indicator
 		
+		if menu_indicator: 
+			if event.is_action_pressed("display_paths"):
+				display_paths = !display_paths
+				update_display_paths()
+				
+			if event.is_action_pressed("toggle_invulnerability"):
+				toggle_invulnerability = !toggle_invulnerability
+				update_invulnerability()
+				
+			if event.is_action_pressed("mouse_clamp"):
+				mouse_clamping = !mouse_clamping
+				update_clamping()
+				
+		update_menu_indicator()
+	return
+
+# all of these have to be signals. settings menu items don't make sense because individual components 
+# update settings at different periods, mostly on load, 
+
+func update_menu_indicator() -> void:
+	var paths_string = "  paths: | P | "
+	var invul_string = "  invulnerability | I | "
+	var clamp_string = "  mouse clamping | C | "
+	
 	if menu_indicator:
-		$RootControl/DebugMenu/GridContainer/Paths.text = "toggle paths: P"
-		$RootControl/DebugMenu/GridContainer/Invulnerability.text = "toggle invulnerability: I"
-		$RootControl/DebugMenu/GridContainer/Clamping.text = "toggle mouse clamping: C"
+		$RootControl/DebugMenu/GridContainer/Paths.text = paths_string
+		update_display_paths()
+		$RootControl/DebugMenu/GridContainer/Invulnerability.text = invul_string
+		update_invulnerability()
+		$RootControl/DebugMenu/GridContainer/Clamping.text = clamp_string
+		update_clamping()
 	else:
 		$RootControl/DebugMenu/GridContainer/Paths.text = ""
 		$RootControl/DebugMenu/GridContainer/Invulnerability.text = ""
 		$RootControl/DebugMenu/GridContainer/Clamping.text = ""
 	return
-			
-func update_menu_indicator() -> void:
-	
-	return
-
-func toggle_menu_items() -> void: 
-	
-	return
 
 func update_display_paths() -> void:
-	if debug_mode == true:
-		#display something 
-		return
-	
-	return 
-	
-	
+	if display_paths:
+		$RootControl/DebugMenu/GridContainer/Paths.text += "ON"
+	else:
+		$RootControl/DebugMenu/GridContainer/Paths.text += "OFF"
+
+func update_invulnerability():
+	if toggle_invulnerability:
+		$RootControl/DebugMenu/GridContainer/Invulnerability.text += "ON"
+	else:
+		$RootControl/DebugMenu/GridContainer/Invulnerability.text += "OFF"
+
+func update_clamping():
+	if mouse_clamping:
+		$RootControl/DebugMenu/GridContainer/Clamping.text += "ON"
+	else:
+		$RootControl/DebugMenu/GridContainer/Clamping.text += "OFF"
