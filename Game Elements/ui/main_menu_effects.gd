@@ -317,6 +317,11 @@ func inputs(input_device):
 			UI.player2.hover_button = get_next_button(UI.player1.hover_button, false)
 	if Input.is_action_just_pressed("activate_"+input_device):
 		if UI.player1.input == input_device:
+			UI.player1.pressing = true
+		if UI.player2.input == input_device:
+			UI.player1.pressing = true
+	if Input.is_action_just_released("activate_"+input_device):
+		if UI.player1.input == input_device:
 			UI.player1.hover_button.emit_signal("pressed")
 		if UI.player2.input == input_device:
 			UI.player2.hover_button.emit_signal("pressed")
