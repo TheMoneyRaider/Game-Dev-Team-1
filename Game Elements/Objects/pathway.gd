@@ -37,7 +37,7 @@ func _ready():
 	_slice_frames()
 	
 	if !Globals.is_multiplayer:
-		get_tree().get_root().get_node("LayerManager").player.swapped_color.connect(_swapped_color)
+		get_tree().get_root().get_node("LayerManager").player1.swapped_color.connect(_swapped_color)
 
 
 func _process(delta):

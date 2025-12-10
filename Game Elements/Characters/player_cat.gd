@@ -36,7 +36,7 @@ var tether_gradient
 var tether_width_curve
 
 var is_multiplayer = false
-var input_device = "key"
+var input_device = "-1"
 var input_direction : Vector2 = Vector2.ZERO
 
 
@@ -67,6 +67,11 @@ func _ready():
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
 		tether_line.gradient = null			
+
+
+func update_input_device(in_dev : String):
+	input_device = in_dev
+	crosshair.player_input_device = input_device
 
 func _initialize_state_machine():
 	#Define State transitions

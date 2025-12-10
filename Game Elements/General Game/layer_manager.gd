@@ -6,8 +6,8 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var testing_room : Room = room_data.new().testing_room
 enum Reward {TimeFabric, Remnant, RemnantUpgrade}
 ### Temp Multiplayer Fix
-var player = null
-var player_2 = null
+var player1 = null
+var player2 = null
 ###
 @onready var room_cleared: bool = false
 @onready var reward_claimed: bool = false
@@ -74,8 +74,8 @@ var time_passed := 0.0
 func _ready() -> void:
 	var conflict_cells : Array[Vector2i] = []
 	_setup_players()
-	hud.set_players(player,player_2)
-	hud.connect_signals(player)
+	hud.set_players(player1,player2)
+	hud.connect_signals(player1)
 	hud.set_cross_position()
 	
 	#####Remnant Testing
@@ -98,10 +98,12 @@ func _ready() -> void:
 	room_instance = room_location.instantiate()
 	game_root.add_child(room_instance)
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
-	player.global_position =  generated_room_entrance[room_instance.name]
+	player1.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
-		player_2.global_position =  generated_room_entrance[room_instance.name] + Vector2(16,0)
-		player.global_position -= Vector2(16,0)
+		player2.global_position =  generated_room_entrance[room_instance.name] + Vector2(16,0)
+		player1.global_position -= Vector2(16,0)
+		player2.is_purple = false
+	
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
 	place_enemy_spawners(room_instance, room_instance_data,conflict_cells)
@@ -119,9 +121,9 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time_passed += delta
 	if is_multiplayer:
-		camera.global_position = (player.global_position + player_2.global_position) / 2
+		camera.global_position = (player1.global_position + player2.global_position) / 2
 	else:
-		camera.position = player.global_position
+		camera.position = player1.global_position
 	
 	# Thread check
 	if thread_running and not room_gen_thread.is_alive():
@@ -154,7 +156,7 @@ func _process(delta: float) -> void:
 	if !room_cleared:
 		for child in room_instance.get_children():
 			if child is DynamEnemy:
-				if child.position.distance_to(player.position) > 1000: #Haphazard fix for the disappearing enemy
+				if child.position.distance_to(player1.position) > 1000: #Haphazard fix for the disappearing enemy
 					print("REMOVED ENEMY DUE TO BUG")
 					child.queue_free()
 				return
@@ -484,9 +486,9 @@ func room_reward() -> void:
 	var reward_location
 	var reward = null
 	if is_multiplayer:
-		reward_location = _find_2x2_open_area([Vector2i(floor(player.global_position.x / 16), floor(player.global_position.y / 16)),Vector2i(floor(player_2.global_position.x / 16), floor(player_2.global_position.y / 16))])
+		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16)),Vector2i(floor(player2.global_position.x / 16), floor(player2.global_position.y / 16))])
 	else:
-		reward_location = _find_2x2_open_area([Vector2i(floor(player.global_position.x / 16), floor(player.global_position.y / 16))])
+		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16))])
 	while reward == null:
 		match this_room_reward:
 			Reward.Remnant:
@@ -708,35 +710,30 @@ func _setup_players() -> void:
 	var player_scene = load("res://Game Elements/Characters/player_cat.tscn")
 	#Needs integration with main_menu
 	if(is_multiplayer):
-		var player1 = player_scene.instantiate()
+		player1 = player_scene.instantiate()
 		player1.is_multiplayer = true
-		player1.input_device = "key"
-		var player2 = player_scene.instantiate()
+		player2 = player_scene.instantiate()
 		player2.is_multiplayer = true
-		player2.input_device = "0"
 		player1.other_player = player2
 		player2.other_player = player1
+		player2.update_input_device(Globals.player2_input)
 		game_root.add_child(player1)
 		game_root.add_child(player2)
 		player2.swap_color()
-		#Temp Multiplayer Fix
-		player = player1
-		player_2 = player2
-		player_2.attack_requested.connect(_on_player_attack)
-		player_2.player_took_damage.connect(_on_player_take_damage)
-		player_2.activate.connect(_on_activate)
-		player_2.special.connect(_on_special)
-		hud.connect_signals(player_2)
+		player2.attack_requested.connect(_on_player_attack)
+		player2.player_took_damage.connect(_on_player_take_damage)
+		player2.activate.connect(_on_activate)
+		player2.special.connect(_on_special)
+		hud.connect_signals(player2)
 	else:
-		var player1 = player_scene.instantiate()
+		player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
-		player1.input_device = "key"
 		game_root.add_child(player1)
-		player = player1
-	player.attack_requested.connect(_on_player_attack)
-	player.player_took_damage.connect(_on_player_take_damage)
-	player.activate.connect(_on_activate)
-	player.special.connect(_on_special)
+	player1.update_input_device(Globals.player1_input)
+	player1.attack_requested.connect(_on_player_attack)
+	player1.player_took_damage.connect(_on_player_take_damage)
+	player1.activate.connect(_on_activate)
+	player1.special.connect(_on_special)
 
 func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vector2) -> void:
 	var sprite = enemy.get_node("Sprite2D")
@@ -851,9 +848,9 @@ func _open_remnant_popup() -> void:
 		hud.add_child(remnant_offer_popup)
 		remnant_offer_popup.remnant_chosen.connect(_on_remnant_chosen)
 		remnant_offer_popup.popup_offer(is_multiplayer, player_1_remnants,player_2_remnants, [50,35,10,5,0])
-		player.get_node("Crosshair").visible = false
+		player1.get_node("Crosshair").visible = false
 		if is_multiplayer:
-			player_2.get_node("Crosshair").visible = false
+			player2.get_node("Crosshair").visible = false
 
 func _open_upgrade_popup() -> void:
 	if room_instance and !remnant_upgrade_popup:
@@ -864,9 +861,9 @@ func _open_upgrade_popup() -> void:
 		remnant_upgrade_popup.remnant_upgraded.connect(_on_remnant_upgraded)
 		remnant_upgrade_popup.popup_upgrade(is_multiplayer, player_1_remnants.duplicate(),player_2_remnants.duplicate())
 		
-		player.get_node("Crosshair").visible = false
+		player1.get_node("Crosshair").visible = false
 		if is_multiplayer:
-			player_2.get_node("Crosshair").visible = false
+			player2.get_node("Crosshair").visible = false
 
 func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vector2i:
 	var candidates := []
@@ -1020,12 +1017,12 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	room_instance = next_room
 	
 	# Teleport player to the entrance of the next room
-	player.global_position =  generated_room_entrance[next_room.name]
-	player.disabled_countdown=3
+	player1.global_position =  generated_room_entrance[next_room.name]
+	player1.disabled_countdown=3
 	if(is_multiplayer):
-		player_2.global_position = generated_room_entrance[next_room.name] + Vector2(16,0)
-		player_2.disabled_countdown=3
-		player.global_position -= Vector2(16,0)
+		player2.global_position = generated_room_entrance[next_room.name] + Vector2(16,0)
+		player2.disabled_countdown=3
+		player1.global_position -= Vector2(16,0)
 		
 	
 	room_instance.name = "Root"
@@ -1142,9 +1139,9 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	player_1_remnants.append(remnant1.duplicate(true))
 	player_2_remnants.append(remnant2.duplicate(true))
 	remnant_offer_popup.queue_free()
-	player.get_node("Crosshair").visible = true
+	player1.get_node("Crosshair").visible = true
 	if is_multiplayer:
-		player_2.get_node("Crosshair").visible = true
+		player2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 
 func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
@@ -1155,9 +1152,9 @@ func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 		if player_2_remnants[i] == remnant2:
 			player_2_remnants[i].rank +=1
 	remnant_upgrade_popup.queue_free()
-	player.get_node("Crosshair").visible = true
+	player1.get_node("Crosshair").visible = true
 	if is_multiplayer:
-		player_2.get_node("Crosshair").visible = true
+		player2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 
 func _on_timefabric_absorbed(timefabric_node : Node):

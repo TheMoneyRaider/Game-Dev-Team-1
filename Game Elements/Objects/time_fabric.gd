@@ -83,10 +83,10 @@ func move_towards_player():
 	var layer_manager = get_tree().get_root().get_node("LayerManager")
 	var is_multiplayer = layer_manager.is_multiplayer
 	if is_multiplayer:
-		check_player(layer_manager.player)
-		check_player(layer_manager.player_2)
+		check_player(layer_manager.player1)
+		check_player(layer_manager.player2)
 	else:
-		check_player(layer_manager.player)
+		check_player(layer_manager.player1)
 	
 func check_player(player : Node):
 	var dir = (player.position - position) #direction to the player
