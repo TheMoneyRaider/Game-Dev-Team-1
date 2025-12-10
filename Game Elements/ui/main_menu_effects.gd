@@ -342,6 +342,10 @@ func update_ui_display():
 	if state!=prev_state:
 		prev_state=state
 		var fname = generate_filename(prev_state)
+		if !ui_textures.has(fname):
+			fname = generate_filename(state, true)
+			
+			
 		for frag in $BreakFX.get_children():
 			frag.set_display_texture(ui_textures[fname])
 	
