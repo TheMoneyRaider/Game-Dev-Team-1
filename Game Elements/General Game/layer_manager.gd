@@ -695,7 +695,6 @@ func _upgradable_remnants() -> bool:
 
 func _setup_players() -> void:
 	var player_scene = load("res://Game Elements/Characters/player_cat.tscn")
-	#Needs integration with main_menu
 	if(is_multiplayer):
 		player1 = player_scene.instantiate()
 		player1.is_multiplayer = true

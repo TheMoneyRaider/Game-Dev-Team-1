@@ -109,6 +109,25 @@ custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 
+[node name="Fragmenting" type="HBoxContainer" parent="Control/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Label" type="Label" parent="Control/MarginContainer/VBoxContainer/Fragmenting"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Menu Fragmentation"
+
+[node name="FragMode" type="CheckButton" parent="Control/MarginContainer/VBoxContainer/Fragmenting"]
+layout_mode = 2
+focus_neighbor_top = NodePath("../../Mouse/MouseSensitivity")
+focus_neighbor_bottom = NodePath("../../Debug/DebugMode")
+
+[node name="FragLabel" type="Label" parent="Control/MarginContainer/VBoxContainer/Fragmenting"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+
 [node name="Debug" type="HBoxContainer" parent="Control/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
@@ -120,7 +139,7 @@ text = "Debug Mode"
 
 [node name="DebugMode" type="CheckButton" parent="Control/MarginContainer/VBoxContainer/Debug"]
 layout_mode = 2
-focus_neighbor_top = NodePath("../../Mouse/MouseSensitivity")
+focus_neighbor_top = NodePath("../../Fragmenting/FragMode")
 focus_neighbor_bottom = NodePath("../../Player1/Choice")
 
 [node name="DebugLabel" type="Label" parent="Control/MarginContainer/VBoxContainer/Debug"]
@@ -221,6 +240,7 @@ texture = ExtResource("9_xt5ys")
 
 [connection signal="value_changed" from="Control/MarginContainer/VBoxContainer/Volume/Volume" to="Control" method="_on_volume_value_changed"]
 [connection signal="value_changed" from="Control/MarginContainer/VBoxContainer/Mouse/MouseSensitivity" to="Control" method="_on_mouse_sensitivity_value_changed"]
+[connection signal="toggled" from="Control/MarginContainer/VBoxContainer/Fragmenting/FragMode" to="Control" method="_on_frag_mode_toggled"]
 [connection signal="toggled" from="Control/MarginContainer/VBoxContainer/Debug/DebugMode" to="Control" method="_on_debug_mode_toggled"]
 [connection signal="item_selected" from="Control/MarginContainer/VBoxContainer/Player1/Choice" to="Control" method="_on_p1_selected"]
 [connection signal="item_selected" from="Control/MarginContainer/VBoxContainer/Player2/Choice" to="Control" method="_on_p2_selected"]

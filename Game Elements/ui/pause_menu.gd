@@ -32,4 +32,4 @@ func _on_return_pressed():
 
 func _on_menu_pressed():
 	get_tree().paused = false
-	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
+	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu/main_menu.tscn")
