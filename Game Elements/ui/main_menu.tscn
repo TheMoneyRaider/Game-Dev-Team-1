@@ -70,7 +70,6 @@ offset_bottom = 40.0
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
 disable_3d = true
 transparent_bg = true
-handle_input_locally = false
 size = Vector2i(1920, 1000)
 render_target_update_mode = 4
 
@@ -113,7 +112,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-focus_mode = 0
+focus_neighbor_bottom = NodePath("../StartMPlayer")
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("5_5lttq")
 theme_override_styles/pressed = ExtResource("6_a412y")
@@ -125,7 +124,8 @@ text = "Start Singleplayer"
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-focus_mode = 0
+focus_neighbor_top = NodePath("../StartSinglePlayer")
+focus_neighbor_bottom = NodePath("../SettingsButton")
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("5_5lttq")
 theme_override_styles/pressed = ExtResource("6_a412y")
@@ -137,7 +137,8 @@ text = "Start Multiplayer"
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-focus_mode = 0
+focus_neighbor_top = NodePath("../StartMPlayer")
+focus_neighbor_bottom = NodePath("../QuitButton")
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
 theme_override_styles/pressed = ExtResource("9_odps5")
@@ -149,7 +150,7 @@ text = "Settings"
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 4
-focus_mode = 0
+focus_neighbor_top = NodePath("../SettingsButton")
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
 theme_override_styles/pressed = ExtResource("9_odps5")
@@ -185,6 +186,7 @@ offset_right = 281.0
 offset_bottom = 268.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("10_a412y")
 
 [node name="Light_texture2" type="TextureRect" parent="."]
@@ -202,6 +204,7 @@ offset_right = 281.0
 offset_bottom = 268.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 texture = ExtResource("10_a412y")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]

@@ -30,7 +30,6 @@ func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction
 # import like, takes damage or something like that
 
 func load_settings():
-	print("settings changed")
 	if Globals.config_safe:
 		debug_mode = Globals.config.get_value("debug", "enabled", false)
 	
