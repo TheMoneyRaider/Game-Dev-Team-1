@@ -75,8 +75,8 @@ false)]
 var testing_room : Room = room.Create_Room(
 "res://Game Elements/Rooms/testing_room.tscn", 																								#Scene Location                       
 0,																																#Num Liquids
-[],																																#Liquid Types 
-[],																																#Liquid Chances                     
+[room.Liquid.Water],																											#Liquid Types 
+[1.0],																															#Liquid Chances                     
 2,																																#Num Fillings              
 [0,0],																															#Terrain Set                                      
 [3,4],																															#Terrain ID                       
