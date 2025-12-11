@@ -28,7 +28,7 @@ func _ready():
 	get_tree().paused = true
 	modulate.a = 0.0
 
-func _process(delta):
+func _process(_delta):
 	if !Globals.is_multiplayer and Input.is_action_just_pressed("swap_" + Globals.player1_input):
 		is_purple=!is_purple
 		if Globals.player1_input== "key":

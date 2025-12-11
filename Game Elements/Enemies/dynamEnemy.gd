@@ -3,7 +3,7 @@ extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
 var current_health: int = 10 
-var SPEED: float = 70
+var move_speed: float = 70
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
@@ -48,7 +48,7 @@ func move(target_pos: Vector2, _delta: float):
 	
 	var direction = (target_pos - global_position).normalized()
 	
-	var target_velocity = direction * SPEED
+	var target_velocity = direction * move_speed
 	velocity = velocity.lerp(target_velocity, 0.05)
 	
 	update_flip(direction.x)
@@ -56,15 +56,17 @@ func move(target_pos: Vector2, _delta: float):
 	move_and_slide()
 	
 func _process(delta):
+		
+	#Trap stuff
+	check_traps(delta)
+	
 	var idx = 0
 	for effect in effects:
 		effect.tick(delta,self)
 		if effect.cooldown == 0:
 			effects.remove_at(idx)
 		idx +=1
-		
-	#Trap stuff
-	check_traps(delta)
+	check_liquids(delta)
 	
 	if debug_mode:
 		queue_redraw()
@@ -130,7 +132,25 @@ func check_traps(delta):
 	else:
 		current_dmg_time = 0
 		in_instant_trap = false
-		
+
+func check_liquids(delta):
+	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
+	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells:
+		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
+		if tile_data:
+			var type = tile_data.get_custom_data("liquid")
+			match type:
+				1:
+					var effect = load("res://Game Elements/Effects/slow_down.tres").duplicate(true)
+					for cur_effect in effects:
+						if cur_effect.type==effect.type:
+							return
+					effect.cooldown = 2*delta
+					effect.value1 = .5
+					effect.gained(self)
+					effects.append(effect)
+
+
 func _draw():
 	# Get path from blackboard if behavior tree exists
 	if not has_node("BTPlayer"):

@@ -39,6 +39,8 @@ var is_multiplayer = false
 var input_device = "-1"
 var input_direction : Vector2 = Vector2.ZERO
 
+var effects : Array[Effect] = []
+
 
 
 #The scripts for loading default values into the attack
@@ -86,10 +88,21 @@ func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
 func _physics_process(delta):
+	print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1
 	#Trap stuff
 	check_traps(delta)
+	#Liquid stuff
+	
+	var idx = 0
+	for effect in effects:
+		effect.tick(delta,self)
+		if effect.cooldown == 0:
+			effects.remove_at(idx)
+		idx +=1
+	check_liquids(delta)
+	
 	#Cat input detection
 	input_direction = Vector2(
 		Input.get_action_strength("right_" + input_device) - Input.get_action_strength("left_" + input_device),
@@ -256,6 +269,28 @@ func check_traps(delta):
 	else:
 		current_dmg_time = 0
 		in_instant_trap = false
+
+
+func check_liquids(delta):
+	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
+	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells:
+		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
+		if tile_data:
+			var type = tile_data.get_custom_data("liquid")
+			match type:
+				1:
+					var effect = load("res://Game Elements/Effects/slow_down.tres").duplicate(true)
+					for cur_effect in effects:
+						if cur_effect.type==effect.type:
+							return
+					effect.cooldown = 2*delta
+					effect.value1 = .5
+					effect.gained(self)
+					effects.append(effect)
+
+
+
+
 func _crafter_chance() -> bool:
 	randomize()
 	var remnants : Array[Remnant]

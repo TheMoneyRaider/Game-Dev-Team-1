@@ -51,6 +51,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
+@export var liquid_cells := []
 @export var is_multiplayer = Globals.is_multiplayer
 #
 @export var layer_ai := [
@@ -113,6 +114,7 @@ func _ready() -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
+	liquid_cells = room_instance.liquid_cells
 	create_new_rooms()
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
@@ -437,7 +439,8 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
-	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells) #remove duplicates
+	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells)
+	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells)
 
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
@@ -943,6 +946,25 @@ func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 			if tile_pos in room_instance.get_node("Trap"+str(trap_num)).get_used_cells():
 				return room_instance.get_node("Trap"+str(trap_num))
 	return null
+	
+func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
+	var types = [0,0,0,0,0]
+	for liquid in room_instance_data.liquid_types:
+		types[liquid] +=1
+		match liquid:
+			room.Liquid.Water:
+				if if_node_exists("Water"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Water"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Water"+str(types[liquid]))
+			room.Liquid.Lava:
+				if if_node_exists("Lava"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Lava"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Lava"+str(types[liquid]))
+			room.Liquid.Acid:
+				if if_node_exists("Acid"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Acid"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Acid"+str(types[liquid]))
+	return null
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
 	
@@ -1025,6 +1047,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
+	liquid_cells = room_instance.liquid_cells
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), 
 		room_instance.blocked_cells,
 		room_instance.trap_cells
