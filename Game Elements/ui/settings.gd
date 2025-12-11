@@ -3,11 +3,13 @@ var is_pause_settings = false
 var mouse_sensitivity: float = 1.0
 const SETTINGS_FILE = "user://settings.cfg"
 var debug_mode: bool = false
+var frag_mode: bool = false
 var devices : Array[Array]=[[],[]]
 func load_settings():
 	if Globals.config_safe:
 		mouse_sensitivity = Globals.config.get_value("controls", "mouse_sensitivity", 1.0)
 		debug_mode = Globals.config.get_value("debug", "enabled", false)
+		frag_mode = Globals.config.get_value("fragmentation", "enabled", true)
 		$MarginContainer/VBoxContainer/Volume/Volume.value = Globals.config.get_value("audio", "master", 100)
 		Globals.player1_input = Globals.config.get_value("inputs","player1_input", "key")
 		Globals.player2_input = Globals.config.get_value("inputs","player2_input", "0")
@@ -18,7 +20,7 @@ func _on_back_pressed() -> void:
 		if Globals.is_multiplayer or Globals.player1_input != "key":
 			get_parent().get_parent().get_node("Control/VBoxContainer/Return").grab_focus()
 	else:
-		get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
+		get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu/main_menu.tscn")
 
 
 func _on_apply_settings()-> void:
@@ -27,6 +29,7 @@ func _on_apply_settings()-> void:
 	Globals.config.set_value("audio", "master", volslider.value)
 	Globals.config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	Globals.config.set_value("debug", "enabled", debug_mode)
+	Globals.config.set_value("fragmentation", "enabled", frag_mode)
 	Globals.config.set_value("inputs","player1_input", Globals.player1_input)
 	Globals.config.set_value("inputs","player2_input", Globals.player2_input)
 	Globals.save_config()
@@ -47,6 +50,9 @@ func _ready() -> void:
 		
 	$MarginContainer/VBoxContainer/Debug/DebugMode.button_pressed = debug_mode
 	update_debug_menu_label()
+	
+	$MarginContainer/VBoxContainer/Fragmenting/FragMode.button_pressed = frag_mode
+	update_frag_menu_label()
 	
 	refresh_devices(true)
 	refresh_devices(false)
@@ -89,10 +95,6 @@ func _on_mouse_sensitivity_value_changed(value: float) -> void:
 	set_mouse_sensitivity(value)
 	pass # Replace with function body.
 
-func set_debug_value(toggled_on: bool) -> void:
-	debug_mode = toggled_on
-	update_debug_menu_label()
-
 func update_debug_menu_label() -> void:
 	if debug_mode == false: 
 		$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "Off"
@@ -100,8 +102,18 @@ func update_debug_menu_label() -> void:
 		$MarginContainer/VBoxContainer/Debug/DebugLabel.text = "On"
 		
 func _on_debug_mode_toggled(toggled_on: bool) -> void:
-	set_debug_value(toggled_on)
-	pass # Replace with function body.
+	debug_mode = toggled_on
+	update_debug_menu_label()
+	
+func update_frag_menu_label() -> void:
+	if frag_mode == false: 
+		$MarginContainer/VBoxContainer/Fragmenting/FragLabel.text = "Off"
+	else:
+		$MarginContainer/VBoxContainer/Fragmenting/FragLabel.text = "On"
+		
+func _on_frag_mode_toggled(toggled_on: bool) -> void:
+	frag_mode = toggled_on
+	update_frag_menu_label()
 	
 	
 func refresh_devices(is_purple : bool = true):
