@@ -6,18 +6,23 @@ extends Node2D
 @onready var trap_cells := []
 @onready var blocked_cells := []
 @onready var wall_cells := []
-@onready var z_floor = 0.0
-@onready var velocity : Vector3 = Vector3(0.0,0.0,0.0)
-@onready var position_z : = 0.0
-@onready var z_ratio = .66
+var velocity := Vector3.ZERO
+var position_z := 0.0
+var grounded := false
+var rotation_speed := 0.0
+var jump_cooldown := 0.0
+var time_passed = 0.0
+var freeze_time = 0.0
 
-@onready var sprite := $Sprite2D  # Your visual node
-var time_passed := 0.0
-var freeze_time := 0.0
-@export var bob_amplitude := 0.03
-@export var bob_speed := 2.0       #Speed of bobbing
-@export var gravity := 300.0       # Pixels per second²
-var grounded : bool = false
+# Exported variables to tweak behavior
+@export var gravity := 300.0           # Pixels/sec² downward
+@export var bounce_damping := 0.5      # Vertical bounce loss
+@export var horizontal_damping := 0.8  # Horizontal speed lost on bounce
+@export var max_rotation_speed := 720  # Degrees/sec
+@export var bob_amplitude := 4.0       # Pixels of jitter when grounded
+@export var bob_speed := 10.0          # Frequency of jitter
+@export var min_jump_interval := 0.3   # Minimum seconds between automatic hops
+@export var max_jump_interval := 1.2   # Maximum seconds between automatic hops
 
 signal absorbed_by_player(timefabric : Node)
 func _ready() -> void:
@@ -25,35 +30,60 @@ func _ready() -> void:
 	set_process(false)
 	time_passed = randf() * 5
 	return
-
 func _process(delta: float) -> void:
 	time_passed += delta
 	freeze_time += delta
-	if freeze_time < .2:
+	if freeze_time < 0.2:
 		return
-	
-	if grounded:
-		sprite.offset.y += sin(time_passed * bob_speed) * bob_amplitude
-		move_towards_player()
+
+	if not grounded:
+		# --- In air: apply gravity ---
+		velocity.z += gravity * delta
 		position += Vector2(velocity.x, velocity.y) * delta
-		return
+		position_z += velocity.z * delta
+
+		# Rotate sprite while in air
+		$Sprite2D.rotation += deg_to_rad(rotation_speed * delta)
+
+		# Ground collision
+		if position_z >= 0.0:
+			position_z = 0.0
+			if abs(velocity.z) > 20:
+				# Bounce slightly on impact
+				velocity.z *= -bounce_damping
+				velocity.x *= horizontal_damping
+				velocity.y *= horizontal_damping
+				rotation_speed = randf_range(-max_rotation_speed, max_rotation_speed)
+			else:
+				# Landed fully, start hopping phase
+				grounded = true
+				velocity = Vector3.ZERO
+				rotation_speed = 0.0
+				jump_cooldown = randf_range(min_jump_interval, max_jump_interval)
+
+	else:
+		# --- Grounded: jitter + automatic hops ---
+		$Sprite2D.position.y = sin(time_passed / 100.0 * bob_speed) * bob_amplitude
+
+		jump_cooldown -= delta
+		if jump_cooldown <= 0.0:
+			perform_random_hop()
 		
-	# Apply gravity
-	velocity.y += gravity * delta
-	velocity.z += gravity * delta
-	
-	
-	_check_if_hitting_wall(delta)
 		
-	#Apply velocity
-	position += Vector2(velocity.x, velocity.y) * delta
-	position_z += velocity.z * delta
-	
-	#Stop all movement if timefabric landed.
-	if position_z >= 0 and velocity.y > 0.0:
-		velocity = Vector3(0,0,0)
-		grounded = true
 		
+func perform_random_hop():
+	# Small random horizontal velocity
+	var angle = randf() * TAU
+	var speed = randf_range(40, 100)  # smaller than initial toss
+	var dir = Vector2(cos(angle), sin(angle))
+	velocity.x = dir.x * speed
+	velocity.y = dir.y * speed
+	velocity.z = -randf_range(80, 150)  # small hop upward
+
+	# Random rotation
+	rotation_speed = randf_range(-max_rotation_speed, max_rotation_speed)
+	grounded = false
+	
 func _check_if_hitting_wall(delta) -> void:
 	var next_cellx := Vector2i(floor((position.x+velocity.x* delta) / 16), floor(position.y / 16))
 	var next_celly := Vector2i(floor(position.x / 16), floor((position.y+velocity.y* delta) / 16))
