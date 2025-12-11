@@ -30,14 +30,16 @@ func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction
 # import like, takes damage or something like that
 
 func load_settings():
-	var config = ConfigFile.new()
-	if config.load("user://settings.cfg") == OK:
-		debug_mode = config.get_value("debug", "enabled", false)
-		
+	print("settings changed")
+	if Globals.config_safe:
+		debug_mode = Globals.config.get_value("debug", "enabled", false)
+	
+
 func _ready():
 	current_health = max_health
 	add_to_group("enemy")
 	load_settings()
+	Globals.config_changed.connect(load_settings)
 
 #need this for flipping the sprite movement
 func update_flip(dir: float): 

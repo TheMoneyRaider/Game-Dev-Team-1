@@ -302,7 +302,6 @@ func preload_all_textures():
 		if FileAccess.file_exists(path):
 			ui_textures[fname] = load(path)
 		else:
-			print("Reversed to find correct file")
 			fname = generate_filename(state, true)
 			path = "res://ui_captures/" + fname + ".png"
 			ui_textures[fname] = load(path)

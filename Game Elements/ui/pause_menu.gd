@@ -20,7 +20,9 @@ func _process(_delta):
 	pass
 
 func _on_settings_pressed():
-	print("settings")
+	var setting = load("res://Game Elements/ui/settings.tscn").instantiate()
+	add_child(setting)
+	setting.get_child(0).is_pause_settings=true
 
 func _on_return_pressed():
 	Input.set_mouse_mode(mouse_mode)
