@@ -1,16 +1,42 @@
 extends Control
 
+class PlayerState:
+	var hover_button: Button = null
+	var pressing: bool = false
+	var input: String = "-1"
+
+class UIState:
+	var player1: PlayerState
+	var player2: PlayerState	
+	
 @onready var BreakFX = $BreakFX
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
 @onready var cooldown : float = 0.0
+@onready var mouse_cooldown : float = 0.0
 @onready var the_ui : Texture2D
-@onready var is_disruptive : bool = true
-@onready var is_purple: bool = true
+@onready var disruptive1 : bool = true
+@onready var disruptive2 : bool = true
 @onready var exploaded: bool = false
-var input_device = "key"
+@onready var prepared = false
+@export var capture_all_states: bool = false
+var last_mouse_pos : Vector2
+var ui_textures: Dictionary = {}
+var last_devices : Array = []
+
+var UI: UIState = UIState.new()
+@onready var prev_state = normalize_ui_state({
+		"p1_hover": null,
+		"p1_press": false,
+		"p2_hover": null,
+		"p2_press": false
+	})
 
 
 func _ready():
+	if !capture_all_states:
+		preload_all_textures()
+	UI.player1 = PlayerState.new()
+	UI.player2 = PlayerState.new()
 	randomize()
 	cooldown = 10.0
 	await get_tree().process_frame
@@ -18,30 +44,106 @@ func _ready():
 	# Capture the UI once
 	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
 	the_ui = ImageTexture.create_from_image(vp_tex.get_image())
-	UI_Group.visible = false
-	print("explode")
+	UI_Group.visible = true if capture_all_states else false
 	explode_ui()
 	cooldown = -1
+	if capture_all_states:
+		capture_all_ui_states()
 
 func _begin_explosion_cooldown():
 	if cooldown < 0:
-		print("explode")
 		cooldown = randf_range(2,4)
 		exploaded = true
 
 func _process(delta):
 	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
-	if Input.is_action_just_pressed("swap_" + input_device):
-		is_purple=!is_purple
-		is_disruptive = !is_disruptive
-
+	if Globals.player1_input:
+		if !prepared:
+			update_prompt()
+			prepared=true
+			UI.player1.input = Globals.player1_input
+			UI.player2.input = Globals.player2_input
+			if UI.player1.input != "key":
+				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
+			if UI.player2.input != "key":
+				UI.player2.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
+		if Input.get_connected_joypads() != last_devices:
+			last_devices=Input.get_connected_joypads()
+			update_prompt()
+		if Input.is_action_just_pressed("swap_" + Globals.player1_input):
+			disruptive1 = !disruptive1
+			update_prompt()
+		if Input.is_action_just_pressed("swap_" + Globals.player2_input):
+			disruptive2 = !disruptive2
+			update_prompt()
+	if prepared:
+		inputs(UI.player1.input)
+		inputs(UI.player2.input)
+		update_ui_display()
 	cooldown -= delta
+	if mouse_cooldown ==-1:
+		if UI.player1.input == "key":
+			UI.player1.hover_button = null
+			UI.player1.pressing = false
+		if UI.player2.input == "key":
+			UI.player2.hover_button = null
+			UI.player2.pressing = false
+	fragment_disruption()
 	
 	if cooldown < 0 and cooldown > -.9 and exploaded:
 		exploaded = false
-		print("rewind")
 		cooldown = 1
 		rewind_ui(cooldown)
+
+func fragment_disruption():
+	if get_viewport() and last_mouse_pos.distance_to(get_viewport().get_mouse_position()) >10:
+		mouse_cooldown -= 1
+		last_mouse_pos = get_viewport().get_mouse_position()
+	if disruptive1 and get_viewport():
+		if UI.player1.input == "key":
+			var mouse_pos = get_viewport().get_mouse_position()
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(mouse_pos)
+		if UI.player1.input != "key" and UI.player1.hover_button != null and int(UI.player1.input) in Input.get_connected_joypads():
+			var cont_pos = UI.player1.hover_button.get_global_rect().position + UI.player1.hover_button.get_global_rect().size/2
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(cont_pos)
+	if disruptive2 and get_viewport():
+		if UI.player2.input == "key":
+			var mouse_pos = get_viewport().get_mouse_position()
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(mouse_pos)
+		if UI.player2.input != "key" and UI.player2.hover_button != null and int(UI.player2.input) in Input.get_connected_joypads():
+			var cont_pos = UI.player2.hover_button.get_global_rect().position + UI.player2.hover_button.get_global_rect().size/2
+			for frag in $BreakFX.get_children():
+				frag.apply_force_frag(cont_pos)
+
+func button_pressed(button: Button):
+	if UI.player1.input == "key":
+		UI.player1.hover_button = button
+		UI.player1.pressing = true
+	if UI.player2.input == "key":
+		UI.player2.hover_button = button
+		UI.player2.pressing = true
+
+func mouse_over(button: Button):
+	mouse_cooldown = 1
+	if UI.player1.input == "key":
+		UI.player1.hover_button = button
+	if UI.player2.input == "key":
+		UI.player2.hover_button = button
+
+func _input(event):
+	if event is InputEventMouseButton:
+		if not event.pressed:
+			if UI.player1.input == "key":
+				UI.player1.pressing = false
+				if UI.player1.hover_button:
+					UI.player1.hover_button.emit_signal("pressed")
+			if UI.player2.input == "key":
+				UI.player2.pressing = false
+				if UI.player2.hover_button:
+					UI.player2.hover_button.emit_signal("pressed")
 
 func get_button_polygon(button: Button, frag_start_pos: Vector2) -> Array:
 	var rect = button.get_global_rect()
@@ -90,7 +192,6 @@ func explode_ui():
 		
 		# Add clickable area if belongs to a button
 		frag.add_interactive_area(frag_data,assigned_buttons)
-	print(BreakFX.get_child_count())
 
 func rewind_ui(time : float):
 	for f in BreakFX.get_children():
@@ -165,5 +266,214 @@ func find_button_for_fragment(frag_poly: Array, button_bounds: Dictionary) -> Ar
 				break
 	return overlapping_buttons
 	
+func update_prompt():
+	if Globals.player1_input == "key" and Input.get_connected_joypads().size() == 0:
+		var text = "[font=res://addons/input_prompt_icon_font/icon.ttf]"
+		if disruptive1:
+			text += "keyboard_space[/font]"
+		else:
+			text += "keyboard_space_outline[/font]"
+		$RichTextLabel.bbcode_text = text+": Enable/Disable Fracturing"
+	else:
+		var text = ""
+		text += button_state(Globals.player1_input,disruptive1) +"/"
+		text += button_state(Globals.player2_input,disruptive2)
+		$RichTextLabel.bbcode_text = text+": Enable/Disable Fracturing"
+
+
+func button_state(input_type : String, active : bool):
+	if input_type == "key":
+		if active:
+			return "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space[/font]"
+		return "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space_outline[/font]"
+	if active:
+		return "[font=res://addons/input_prompt_icon_font/icon.ttf]playstation_trigger_l2[/font]"
+	return "[font=res://addons/input_prompt_icon_font/icon.ttf]playstation_trigger_l2_outline[/font]"
+
+func preload_all_textures():
+	var buttons = []
+	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
+		if button is Button:
+			buttons.append(button)
+	var states = generate_all_valid_ui_states(buttons)
+	for state in states:
+		var fname = generate_filename(state)
+		var path = "res://ui_captures/" + fname + ".png"
+		if FileAccess.file_exists(path):
+			ui_textures[fname] = load(path)
+		else:
+			print("Reversed to find correct file")
+			fname = generate_filename(state, true)
+			path = "res://ui_captures/" + fname + ".png"
+			ui_textures[fname] = load(path)
+		
+
+func generate_all_valid_ui_states(buttons: Array) -> Array:
+	var states = []
+	for p1_hover in [null] + buttons:
+		for p1_press in [false, true]:
+			if p1_press and p1_hover == null:
+				continue
+			for p2_hover in [null] + buttons:
+				# Avoid duplicate hover (both players on same button)
+				if p2_hover != null and p2_hover == p1_hover:
+					continue
+				for p2_press in [false, true]:
+					if p2_press and p2_hover == null:
+						continue
+					var state = {
+						"p1_hover": p1_hover,
+						"p1_press": p1_press,
+						"p2_hover": p2_hover,
+						"p2_press": p2_press
+					}
+					states.append(state)
+	return states
 	
+func update_ui_display():
+	if BreakFX.get_child_count() == 0:
+		return
+	var state = normalize_ui_state({
+		"p1_hover": UI.player1.hover_button,
+		"p1_press": UI.player1.pressing,
+		"p2_hover": UI.player2.hover_button,
+		"p2_press": UI.player2.pressing
+	})
+	if state!=prev_state:
+		prev_state=state
+		var fname = generate_filename(prev_state)
+		if !ui_textures.has(fname):
+			fname = generate_filename(state, true)
+			
+			
+		for frag in $BreakFX.get_children():
+			frag.set_display_texture(ui_textures[fname])
 	
+func capture_all_ui_states():		
+	var buttons = []
+	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
+		if button is Button:
+			buttons.append(button)
+	
+	var valid_states = generate_all_valid_ui_states(buttons)
+	for state in valid_states:
+		var img = await capture_state(state)
+		var filename = generate_filename(state)
+		img.get_image().save_png("res://ui_captures/"+filename+".png")
+
+func capture_state(state: Dictionary) -> ViewportTexture:
+	# Update UI: apply hover/press for each player
+	set_player_ui_state(state)
+	
+	await get_tree().process_frame
+
+	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
+	return vp_tex
+	
+func generate_filename(state: Dictionary, reverse: bool = false) -> String:
+	var norm_state = normalize_ui_state(state)
+	var p1_name =  norm_state["p1_hover"].name if norm_state["p1_hover"] != null else "none"
+	var p2_name =  norm_state["p2_hover"].name if norm_state["p2_hover"] != null else "none"
+	var p1_press =  "press" if norm_state["p1_press"] else "hover"
+	var p2_press = "press" if norm_state["p2_press"] else "hover"
+	if reverse:
+		return "p1_%s_%s_p2_%s_%s" % [p2_name, p2_press,p1_name, p1_press]
+	return "p1_%s_%s_p2_%s_%s" % [p1_name, p1_press, p2_name, p2_press]
+
+func set_player_ui_state(state: Dictionary) -> void:
+	#Reset all buttons
+	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
+		if button is Button:
+			button.button_pressed = false
+			button.add_theme_stylebox_override("normal", button.get_theme_stylebox("focus"))
+
+	# Set P1
+	if state["p1_hover"] != null:
+		var b = state["p1_hover"]
+		b.add_theme_stylebox_override("normal", b.get_theme_stylebox("hover"))
+		if state["p1_press"]:
+			b.add_theme_stylebox_override("normal", b.get_theme_stylebox("pressed"))
+
+	# Set P2
+	if state["p2_hover"] != null:
+		var b = state["p2_hover"]
+		b.add_theme_stylebox_override("normal", b.get_theme_stylebox("hover"))
+		if state["p2_press"]:
+			b.add_theme_stylebox_override("normal", b.get_theme_stylebox("pressed"))
+
+func inputs(input_device):
+	if input_device=="key":
+		return
+	if Input.is_action_just_pressed("menu_up_"+input_device):
+		if UI.player1.input == input_device:
+			UI.player1.pressing = false
+			UI.player1.hover_button = get_next_button(UI.player1.hover_button, true)
+		if UI.player2.input == input_device:
+			UI.player2.pressing = false
+			UI.player2.hover_button = get_next_button(UI.player2.hover_button, true)
+	if Input.is_action_just_pressed("menu_down_"+input_device):
+		if UI.player1.input == input_device:
+			UI.player1.pressing = false
+			UI.player1.hover_button = get_next_button(UI.player1.hover_button, false)
+		if UI.player2.input == input_device:
+			UI.player2.pressing = false
+			UI.player2.hover_button = get_next_button(UI.player2.hover_button, false)
+	if Input.is_action_just_pressed("activate_"+input_device):
+		if UI.player1.input == input_device:
+			UI.player1.pressing = true
+		if UI.player2.input == input_device:
+			UI.player2.pressing = true
+	if Input.is_action_just_released("activate_"+input_device):
+		if UI.player1.input == input_device and UI.player1.pressing:
+			UI.player1.hover_button.emit_signal("pressed")
+		if UI.player2.input == input_device and UI.player2.pressing:
+			UI.player2.hover_button.emit_signal("pressed")
+
+func normalize_ui_state(state: Dictionary) -> Dictionary:
+	var p1_hover = state["p1_hover"]
+	var p2_hover = state["p2_hover"]
+	var p1_press = state["p1_press"]
+	var p2_press = state["p2_press"]
+	if	p2_hover != null and p2_hover == p1_hover: #If illegal state, resolve it
+		if p2_press:
+			p1_hover=null
+		else:
+			p2_hover=null
+	#If both players hover different buttons, order them by button name
+	if p1_hover != null and p2_hover != null:
+		if p1_hover.name > p2_hover.name:
+			# Swap players
+			var tmp_hover = p1_hover
+			var tmp_press = p1_press
+			p1_hover = p2_hover
+			p1_press = p2_press
+			p2_hover = tmp_hover
+			p2_press = tmp_press
+	return {
+	"p1_hover": p1_hover,
+	"p1_press": p1_press,
+	"p2_hover": p2_hover,
+	"p2_press": p2_press
+	}
+
+
+func get_next_button(current_button: Button, reverse_order : bool, container: VBoxContainer = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer) -> Button:
+	var children = container.get_children()
+
+	#Reverse the list if needed
+	if reverse_order:
+		children.reverse()
+
+	var found_current = false
+	for child in children:
+		if child is Button:
+			if found_current:
+				return child  #Next button found
+			if child == current_button:
+				found_current = true
+
+	#Wrap around: return the first button in the (possibly reversed) list
+	for child in children:
+		if child is Button:
+			return child
+	return null  #No buttons found

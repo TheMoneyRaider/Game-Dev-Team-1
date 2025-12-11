@@ -3,33 +3,33 @@ extends Control
 var mouse_sensitivity: float = 1.0
 const SETTINGS_FILE = "user://settings.cfg"
 var debug_mode: bool = false
-
+var devices : Array[Array]=[[],[]]
 func load_settings():
 	var config = ConfigFile.new()
 	var err = config.load(SETTINGS_FILE)
 	
 	if err == OK:
 		mouse_sensitivity = config.get_value("controls", "mouse_sensitivity", 1.0)
-		print(config.get_value("debug", "enabled", false))
 		debug_mode = config.get_value("debug", "enabled", false)
 		$MarginContainer/VBoxContainer/Volume/Volume.value = config.get_value("audio", "master", 100)
-	else: 
-		save_settings()
-		
-func save_settings():
+		Globals.player1_input = config.get_value("inputs","player1_input", "key")
+		Globals.player2_input = config.get_value("inputs","player2_input", "0")
+
+func _on_back_pressed() -> void:
+	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
+
+
+func _on_apply_settings()-> void:
 	var config = ConfigFile.new()
 	
 	var volslider = $MarginContainer/VBoxContainer/Volume/Volume
 	config.set_value("audio", "master", volslider.value)
 	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
 	config.set_value("debug", "enabled", debug_mode)
+	config.set_value("inputs","player1_input", Globals.player1_input)
+	config.set_value("inputs","player2_input", Globals.player2_input)
 	config.save(SETTINGS_FILE)
-
-func _on_back_pressed() -> void:
-	#first save config, then return to main menu
-	save_settings()	
-	get_tree().change_scene_to_file("res://Game Elements/ui/main_menu.tscn")
-	pass # Replace with function body.
+	
 
 @onready var label := $MarginContainer/VBoxContainer/Volume/VolVal
 @export var bus_name: String = "Master"
@@ -46,7 +46,16 @@ func _ready() -> void:
 		
 	$MarginContainer/VBoxContainer/Debug/DebugMode.button_pressed = debug_mode
 	update_debug_menu_label()
+	
+	refresh_devices(true)
+	refresh_devices(false)
+	$MarginContainer/VBoxContainer/Volume/Volume.grab_focus()
 	 
+func _process(_delta):
+	if Input.get_connected_joypads().size() != (devices[0].size()-1):
+		refresh_devices(true)
+		refresh_devices(false)
+	
 func _on_volume_value_changed(value: float) -> void:
 	var bus_index = AudioServer.get_bus_index(bus_name)
 	AudioServer.set_bus_volume_db(bus_index, percent_to_db(value))
@@ -70,7 +79,6 @@ func percent_to_db(percent: float) -> int:
 func set_mouse_sensitivity(value: float): 
 	mouse_sensitivity = clamp(value, .1, 2.0)
 	update_sensitivity_label()
-	save_settings()
 
 func update_sensitivity_label():
 	$MarginContainer/VBoxContainer/Mouse/SensLabel.text = "%.2f" % mouse_sensitivity
@@ -82,7 +90,6 @@ func _on_mouse_sensitivity_value_changed(value: float) -> void:
 func set_debug_value(toggled_on: bool) -> void:
 	debug_mode = toggled_on
 	update_debug_menu_label()
-	save_settings()
 
 func update_debug_menu_label() -> void:
 	if debug_mode == false: 
@@ -93,3 +100,52 @@ func update_debug_menu_label() -> void:
 func _on_debug_mode_toggled(toggled_on: bool) -> void:
 	set_debug_value(toggled_on)
 	pass # Replace with function body.
+	
+	
+func refresh_devices(is_purple : bool = true):
+	if Input.get_connected_joypads().size() == 0:
+		Globals.player1_input = "key"
+		Globals.player2_input = "0"
+	var path = "MarginContainer/VBoxContainer/Player"+str(int(!is_purple)+1)+"/Choice"
+	var choice := get_node(path)
+	devices[int(!is_purple)].clear()
+	choice.clear()
+
+	# Add keyboard as a selectable option
+	devices[int(!is_purple)].append("key")
+	choice.add_item("Keyboard")
+
+	# Add all connected controllers
+	var joypads = Input.get_connected_joypads()
+	for device_id in joypads:
+		var d_name : String = str(Input.get_joy_name(device_id))
+		devices[int(!is_purple)].append(str(device_id))
+		choice.add_item(d_name)
+	var new_device = Globals.player1_input if is_purple else Globals.player2_input
+	for idx in range(devices[int(!is_purple)].size()):
+		if devices[int(!is_purple)][idx]==new_device:
+			choice.selected = idx
+			return
+	choice.selected = -1
+
+func _on_p1_selected(index : int):
+	if devices[0][index]==Globals.player2_input:
+		if Globals.player2_input=="key":
+			Globals.player2_input = "0"
+		else:
+			Globals.player2_input = "key"
+	Globals.player1_input = devices[0][index]
+	refresh_devices(true)
+	refresh_devices(false)
+	
+
+func _on_p2_selected(index : int):
+	if devices[1][index]==Globals.player1_input:
+		if Globals.player1_input=="key":
+			Globals.player1_input = "0"
+		else:
+			Globals.player1_input = "key"
+	Globals.player2_input = devices[0][index]
+	refresh_devices(true)
+	refresh_devices(false)
+	

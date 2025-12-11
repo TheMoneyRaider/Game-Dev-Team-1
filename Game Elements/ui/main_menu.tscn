@@ -1,26 +1,22 @@
-[gd_scene load_steps=13 format=3 uid="uid://dfus7yvwe8o0w"]
+[gd_scene load_steps=15 format=3 uid="uid://dfus7yvwe8o0w"]
 
 [ext_resource type="Script" uid="uid://c4n53rkbitwny" path="res://Game Elements/ui/main_menu_effects.gd" id="1_6am0n"]
 [ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Game Elements/ui/main_menu.gd" id="1_28flt"]
 [ext_resource type="Texture2D" uid="uid://rawhoxpikpyp" path="res://art/title_assets/grainy_background_visual.png" id="1_l8pfx"]
 [ext_resource type="Texture2D" uid="uid://ci51uf2w36bgw" path="res://art/title_assets/grainy_purple_and_orange_hourglass.png" id="2_6am0n"]
-[ext_resource type="StyleBox" uid="uid://dobyvfqwbwfh0" path="res://Game Elements/ui/7-1_button.tres" id="5_5lttq"]
-[ext_resource type="Texture2D" uid="uid://bqpms85vwcukf" path="res://art/UI Package/Elements/7-1.png" id="5_8qedp"]
-[ext_resource type="StyleBox" uid="uid://duatvi4nhndpj" path="res://Game Elements/ui/4-1_button.tres" id="7_6wjqi"]
-[ext_resource type="Shader" uid="uid://df6is5vss0kty" path="res://Game Elements/ui/timelines.gdshader" id="9_6wjqi"]
+[ext_resource type="StyleBox" uid="uid://dobyvfqwbwfh0" path="res://Game Elements/ui/resources/7-1_button.tres" id="5_5lttq"]
+[ext_resource type="StyleBox" uid="uid://gpahke45chv" path="res://Game Elements/ui/resources/7-3_button.tres" id="6_a412y"]
+[ext_resource type="StyleBox" uid="uid://duatvi4nhndpj" path="res://Game Elements/ui/resources/4-1_button.tres" id="7_6wjqi"]
+[ext_resource type="StyleBox" uid="uid://7c2wqv48pg7x" path="res://Game Elements/ui/resources/7-2_button.tres" id="7_odps5"]
+[ext_resource type="Shader" uid="uid://df6is5vss0kty" path="res://Game Elements/ui/resources/timelines.gdshader" id="9_6wjqi"]
+[ext_resource type="StyleBox" uid="uid://bl5m86jryhcbv" path="res://Game Elements/ui/resources/4-3_button.tres" id="9_odps5"]
 [ext_resource type="Texture2D" uid="uid://eifbgnatdh4i" path="res://art/gradiant_dot3.png" id="10_a412y"]
+[ext_resource type="StyleBox" uid="uid://4eubuwqyfxh3" path="res://Game Elements/ui/resources/4-2_button.tres" id="10_c3jtu"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
 font_size = 200
 outline_size = 30
 outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8qedp"]
-texture = ExtResource("5_8qedp")
-texture_margin_left = 10.0
-texture_margin_top = 10.0
-texture_margin_right = 10.0
-texture_margin_bottom = 10.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qvtd8"]
 shader = ExtResource("9_6wjqi")
@@ -117,7 +113,9 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("5_5lttq")
-theme_override_styles/hover = ExtResource("5_5lttq")
+theme_override_styles/pressed = ExtResource("6_a412y")
+theme_override_styles/hover = ExtResource("7_odps5")
+theme_override_styles/focus = ExtResource("5_5lttq")
 text = "Start Singleplayer"
 
 [node name="StartMPlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -126,8 +124,10 @@ layout_mode = 2
 size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = SubResource("StyleBoxTexture_8qedp")
-theme_override_styles/hover = ExtResource("5_5lttq")
+theme_override_styles/normal = ExtResource("5_5lttq")
+theme_override_styles/pressed = ExtResource("6_a412y")
+theme_override_styles/hover = ExtResource("7_odps5")
+theme_override_styles/focus = ExtResource("5_5lttq")
 text = "Start Multiplayer"
 
 [node name="SettingsButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -137,7 +137,9 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
-theme_override_styles/hover = ExtResource("7_6wjqi")
+theme_override_styles/pressed = ExtResource("9_odps5")
+theme_override_styles/hover = ExtResource("10_c3jtu")
+theme_override_styles/focus = ExtResource("7_6wjqi")
 text = "Settings"
 
 [node name="QuitButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -147,7 +149,9 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
-theme_override_styles/hover = ExtResource("7_6wjqi")
+theme_override_styles/pressed = ExtResource("9_odps5")
+theme_override_styles/hover = ExtResource("10_c3jtu")
+theme_override_styles/focus = ExtResource("7_6wjqi")
 text = "Quit Game"
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -204,13 +208,14 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -682.0
+offset_left = -963.0
 offset_top = -81.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_font_sizes/normal_font_size = 48
 bbcode_enabled = true
 text = "[font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_space[/font]: Enable/Disable Fracturing"
+horizontal_alignment = 2
 
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartSinglePlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_start_button_pressed"]
 [connection signal="pressed" from="SubViewportContainer/SubViewport/UI_Group/VBoxContainer/StartMPlayer" to="SubViewportContainer/SubViewport/UI_Group" method="_on_start_m_button_pressed"]

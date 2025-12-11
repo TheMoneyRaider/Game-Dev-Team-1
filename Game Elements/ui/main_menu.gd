@@ -68,5 +68,4 @@ func _on_settings_button_pressed() -> void:
 	pass # Replace with function body.
 
 func _on_quit_button_pressed() -> void:
-	print("ARGGG")
 	get_tree().quit()

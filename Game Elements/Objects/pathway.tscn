@@ -75,8 +75,8 @@ scale_max = 2.0
 scale_curve = SubResource("CurveTexture_ccisr")
 color_ramp = SubResource("GradientTexture1D_5ec6i")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wj84b"]
-size = Vector2(50, 50)
+[sub_resource type="CircleShape2D" id="CircleShape2D_okald"]
+radius = 32.0
 
 [sub_resource type="Gradient" id="Gradient_rjdqg"]
 offsets = PackedFloat32Array(0.2647059, 0.5392157, 1)
@@ -147,7 +147,7 @@ process_material = SubResource("ParticleProcessMaterial_1vvwv")
 collision_mask = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-shape = SubResource("RectangleShape2D_wj84b")
+shape = SubResource("CircleShape2D_okald")
 
 [node name="RiftWisps_OrangeOld" type="GPUParticles2D" parent="."]
 visible = false
