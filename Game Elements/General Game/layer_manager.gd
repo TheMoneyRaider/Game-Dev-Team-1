@@ -142,6 +142,9 @@ func _process(delta: float) -> void:
 	hud.set_timefabric_amount(timefabric_collected)
 	hud.set_cooldowns()
 	
+	if Input.is_action_just_pressed("pause"):
+		hud.get_node("PauseMenu").activate()
+	
 	if timefabric_rewarded!= 0:
 		for i in range (20):
 			timefabric_rewarded -=1

@@ -1,5 +1,5 @@
 extends Control
-
+var is_pause_settings = false
 var mouse_sensitivity: float = 1.0
 const SETTINGS_FILE = "user://settings.cfg"
 var debug_mode: bool = false
