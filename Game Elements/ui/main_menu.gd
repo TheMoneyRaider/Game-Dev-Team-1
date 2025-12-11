@@ -1,48 +1,4 @@
 extends Control
-#
-#enum ButtonsHere {
-	#START,
-	#SETTINGS,
-	#QUIT
-#}
-#
-#var active = ButtonsHere.START
-#
-#func press():
-	#print(active)
-	#match active:
-		#ButtonsHere.START:
-			#_on_start_button_pressed()
-		#ButtonsHere.SETTINGS:
-			#_on_settings_button_pressed()
-		#ButtonsHere.QUIT:
-			#_on_quit_button_pressed()
-			#
-			#
-#
-#func next_button():
-	#active = (active + 1) % ButtonsHere.size() as ButtonsHere
-#func prev_button():
-	#active = (active + ButtonsHere.size() - 1) % ButtonsHere.size() as ButtonsHere
-	#
-#
-#const HANDLED_ACTIONS = ["ui_accept", "ui_up", "ui_down"]
-#
-#func _input(event):
-	#if event.is_pressed():
-		#var occ = ""
-		#for action in HANDLED_ACTIONS:
-			#if event.is_action_pressed(action):
-				#occ = action
-		#match occ:
-			#"ui_accept":
-				#press()
-			#"ui_up":
-				#prev_button()
-			#"ui_down":
-				#next_button()
-			
-
 
 func _ready() -> void:
 	#check if there's a settings file, if there isn't create it and put in "volume", if there is, check if "volume" is there

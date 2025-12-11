@@ -63,9 +63,9 @@ func _process(delta):
 			prepared=true
 			UI.player1.input = Globals.player1_input
 			UI.player2.input = Globals.player2_input
-			if UI.player1.input != "key":
+			if UI.player1.input != "key" and int(UI.player1.input) in Input.get_connected_joypads():
 				UI.player1.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
-			if UI.player2.input != "key":
+			if UI.player2.input != "key" and int(UI.player2.input) in Input.get_connected_joypads():
 				UI.player2.hover_button = $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_child(2)
 		if Input.get_connected_joypads() != last_devices:
 			last_devices=Input.get_connected_joypads()
@@ -302,7 +302,6 @@ func preload_all_textures():
 		if FileAccess.file_exists(path):
 			ui_textures[fname] = load(path)
 		else:
-			print("Reversed to find correct file")
 			fname = generate_filename(state, true)
 			path = "res://ui_captures/" + fname + ".png"
 			ui_textures[fname] = load(path)

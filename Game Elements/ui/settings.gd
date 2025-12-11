@@ -1,34 +1,35 @@
 extends Control
-
+var is_pause_settings = false
 var mouse_sensitivity: float = 1.0
 const SETTINGS_FILE = "user://settings.cfg"
 var debug_mode: bool = false
 var devices : Array[Array]=[[],[]]
 func load_settings():
-	var config = ConfigFile.new()
-	var err = config.load(SETTINGS_FILE)
-	
-	if err == OK:
-		mouse_sensitivity = config.get_value("controls", "mouse_sensitivity", 1.0)
-		debug_mode = config.get_value("debug", "enabled", false)
-		$MarginContainer/VBoxContainer/Volume/Volume.value = config.get_value("audio", "master", 100)
-		Globals.player1_input = config.get_value("inputs","player1_input", "key")
-		Globals.player2_input = config.get_value("inputs","player2_input", "0")
+	if Globals.config_safe:
+		mouse_sensitivity = Globals.config.get_value("controls", "mouse_sensitivity", 1.0)
+		debug_mode = Globals.config.get_value("debug", "enabled", false)
+		$MarginContainer/VBoxContainer/Volume/Volume.value = Globals.config.get_value("audio", "master", 100)
+		Globals.player1_input = Globals.config.get_value("inputs","player1_input", "key")
+		Globals.player2_input = Globals.config.get_value("inputs","player2_input", "0")
 
 func _on_back_pressed() -> void:
-	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
+	if is_pause_settings:
+		queue_free()
+		if Globals.is_multiplayer or Globals.player1_input != "key":
+			get_parent().get_parent().get_node("Control/VBoxContainer/Return").grab_focus()
+	else:
+		get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu.tscn")
 
 
 func _on_apply_settings()-> void:
-	var config = ConfigFile.new()
 	
 	var volslider = $MarginContainer/VBoxContainer/Volume/Volume
-	config.set_value("audio", "master", volslider.value)
-	config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
-	config.set_value("debug", "enabled", debug_mode)
-	config.set_value("inputs","player1_input", Globals.player1_input)
-	config.set_value("inputs","player2_input", Globals.player2_input)
-	config.save(SETTINGS_FILE)
+	Globals.config.set_value("audio", "master", volslider.value)
+	Globals.config.set_value("controls", "mouse_sensitivity", mouse_sensitivity)
+	Globals.config.set_value("debug", "enabled", debug_mode)
+	Globals.config.set_value("inputs","player1_input", Globals.player1_input)
+	Globals.config.set_value("inputs","player2_input", Globals.player2_input)
+	Globals.save_config()
 	
 
 @onready var label := $MarginContainer/VBoxContainer/Volume/VolVal
@@ -51,7 +52,8 @@ func _ready() -> void:
 	refresh_devices(false)
 	$MarginContainer/VBoxContainer/Volume/Volume.grab_focus()
 	 
-func _process(_delta):
+func _process(delta):
+	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
 	if Input.get_connected_joypads().size() != (devices[0].size()-1):
 		refresh_devices(true)
 		refresh_devices(false)

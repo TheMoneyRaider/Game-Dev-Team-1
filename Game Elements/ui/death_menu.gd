@@ -50,7 +50,6 @@ func activate():
 	for button in death_box.get_children():
 		if button is Button:
 			button.disabled = false
-			print
 	if Globals.is_multiplayer or Globals.player1_input != "key":
 		$Control/VBoxContainer/Rewind.grab_focus()
 

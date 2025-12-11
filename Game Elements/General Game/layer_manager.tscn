@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=6 format=3 uid="uid://bjlqt0ad4do23"]
 
 [ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Game Elements/General Game/layer_manager.gd" id="1_gynnh"]
 [ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
 [ext_resource type="PackedScene" uid="uid://bmb5ip00tidvr" path="res://Game Elements/ui/death_menu.tscn" id="3_aya3e"]
+[ext_resource type="PackedScene" uid="uid://dx87pme08xv7f" path="res://Game Elements/ui/pause_menu.tscn" id="4_qhni4"]
 
 [sub_resource type="GDScript" id="GDScript_n323y"]
 script/source = "extends SubViewport
@@ -37,6 +38,8 @@ script = SubResource("GDScript_n323y")
 [node name="Hud" parent="game_container/game_viewport" instance=ExtResource("2_4xk7e")]
 scale = Vector2(1, 1)
 transform = Transform2D(1, 0, 0, 1, 0, 0)
+
+[node name="PauseMenu" parent="game_container/game_viewport/Hud" instance=ExtResource("4_qhni4")]
 
 [node name="game_root" type="Node2D" parent="game_container/game_viewport"]
 process_mode = 1
