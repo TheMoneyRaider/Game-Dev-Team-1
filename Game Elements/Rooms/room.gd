@@ -47,8 +47,6 @@ var trap_types : Array[Trap] = []
 var num_pathways : int = 0
 #direction for each pathway/pathway patch
 var pathway_direction : Array[Direction] = []
-#enemy spawnpoints. Node to be labeled Enemy#
-var num_enemy_spawnpoints : int
 #enemy goal number.
 var num_enemy_goal : int
 #NPC spawnpoints. Node to be labeled NPC#
@@ -72,7 +70,6 @@ t_trap_chances : Array[float],
 t_trap_types : Array[Trap], 
 t_num_pathways : int, 
 t_pathway_direction : Array[Direction], 
-t_num_enemy_spawnpoints : int, 
 t_num_enemy_goal : int, 
 t_num_npc_spawnpoints : int, 
 t_has_shop : bool
@@ -97,7 +94,6 @@ t_has_shop : bool
 	new_room.trap_types = t_trap_types
 	new_room.num_pathways = t_num_pathways
 	new_room.pathway_direction = t_pathway_direction
-	new_room.num_enemy_spawnpoints = t_num_enemy_spawnpoints
 	new_room.num_enemy_goal = t_num_enemy_goal
 	new_room.num_npc_spawnpoints = t_num_npc_spawnpoints
 	new_room.has_shop = t_has_shop

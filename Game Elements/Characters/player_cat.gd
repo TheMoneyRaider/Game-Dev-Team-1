@@ -87,8 +87,8 @@ func _initialize_state_machine():
 func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
+
 func _physics_process(delta):
-	print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1
 	#Trap stuff
@@ -116,6 +116,7 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
+			get_tree().change_scene_to_file("res://Game Elements/General Game/layer_manager.tscn") #REMOVE
 			swap_color()
 	else:
 		tether()
