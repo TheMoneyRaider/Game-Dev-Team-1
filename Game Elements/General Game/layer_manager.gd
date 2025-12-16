@@ -51,6 +51,7 @@ var time_passed := 0.0
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
+@export var liquid_cells := []
 @export var is_multiplayer = Globals.is_multiplayer
 #
 @export var layer_ai := [
@@ -102,10 +103,19 @@ func _ready() -> void:
 		player2.global_position =  generated_room_entrance[room_instance.name] + Vector2(16,0)
 		player1.global_position -= Vector2(16,0)
 		player2.is_purple = false
-	
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
-	place_enemy_spawners(room_instance, room_instance_data,conflict_cells)
+	var filling = room_instance.get_node("Filling").get_used_cells().map(func(c): return Vector2i(c.x, c.y))
+	var placable_locations : Array[Vector2i]
+	for cell in room_instance.get_node("Ground").get_used_cells():
+		var c = Vector2i(cell.x, cell.y)
+		if c not in conflict_cells and c not in filling:
+			placable_locations.append(c)
+	if Globals.is_multiplayer:
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+	else:
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	water_cells = room_instance.water_cells
@@ -113,6 +123,7 @@ func _ready() -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
+	liquid_cells = room_instance.liquid_cells
 	create_new_rooms()
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
@@ -300,6 +311,7 @@ func place_liquids(generated_room : Node2D, generated_room_data : Room, conflict
 			else:
 				conflict_cells.append_array(cells)
 
+
 func place_traps(generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:
 	#For each trap check if you should place it and then check if there's room
 	var trap_num = 0
@@ -320,33 +332,6 @@ func place_traps(generated_room : Node2D, generated_room_data : Room, conflict_c
 				if(generated_room_data.trap_types[trap_num-1]!=room.Trap.Tile):
 					_add_trap(generated_room, generated_room_data, trap_num)
 
-func place_enemy_spawners(generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:
-	#For each enemy check if there's room
-	var enemy_num = 0
-	while enemy_num < generated_room_data.num_enemy_spawnpoints:
-		enemy_num+=1
-		var cell =  Vector2i(floor(generated_room.get_node("Enemy"+str(enemy_num)).position.x / 16), floor(generated_room.get_node("Enemy"+str(enemy_num)).position.y / 16))
-
-		if cell in conflict_cells:
-			generated_room.get_node("Enemy"+str(enemy_num)).queue_free()
-			#DEBUG
-			_debug_message("Layer collision removed")
-	while enemy_num > generated_room_data.num_enemy_goal:
-		var curr_en = int(randf()*generated_room_data.num_enemy_spawnpoints)+1
-		if if_node_exists("Enemy"+str(curr_en),generated_room):
-			generated_room.get_node("Enemy"+str(curr_en)).queue_free()
-			_debug_message("Deleted enemy")
-			enemy_num-=1
-	# Temporary Enemey creation   UPDATE TODO
-	enemy_num = 0
-	while enemy_num < generated_room_data.num_enemy_spawnpoints:
-		enemy_num+=1
-		if if_node_exists("Enemy"+str(enemy_num),generated_room):
-			var enemy = load("res://Game Elements/Characters/dynamEnemy.tscn").instantiate()
-			enemy.position = generated_room.get_node("Enemy"+str(enemy_num)).position
-			enemy.enemy_took_damage.connect(_on_enemy_take_damage)
-			generated_room.get_node("Enemy"+str(enemy_num)).queue_free()
-			generated_room.add_child(enemy)
 			
 func floor_noise_sync(generated_room : Node2D, generated_room_data : Room) -> void:
 	#If there's no noise fillings, don't do the work
@@ -437,7 +422,8 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		pathway_name = _get_pathway_name(p_direct,direction_count[p_direct])
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
-	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells) #remove duplicates
+	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells)
+	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells)
 
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
@@ -943,6 +929,25 @@ func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 			if tile_pos in room_instance.get_node("Trap"+str(trap_num)).get_used_cells():
 				return room_instance.get_node("Trap"+str(trap_num))
 	return null
+	
+func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
+	var types = [0,0,0,0,0]
+	for liquid in room_instance_data.liquid_types:
+		types[liquid] +=1
+		match liquid:
+			room.Liquid.Water:
+				if if_node_exists("Water"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Water"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Water"+str(types[liquid]))
+			room.Liquid.Lava:
+				if if_node_exists("Lava"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Lava"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Lava"+str(types[liquid]))
+			room.Liquid.Acid:
+				if if_node_exists("Acid"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Acid"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Acid"+str(types[liquid]))
+	return null
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
 	
@@ -950,7 +955,11 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	choose_pathways(direction, next_room_instance, next_room_data, conflict_cells)
 	place_liquids(next_room_instance, next_room_data, conflict_cells)
 	place_traps(next_room_instance, next_room_data, conflict_cells)
-	place_enemy_spawners(next_room_instance, next_room_data, conflict_cells)
+	var placable_locations = next_room_instance.get_node("Ground").get_used_cells().filter(func(c): return c not in conflict_cells)
+	if Globals.is_multiplayer:
+		Spawner.spawn_enemies(next_room_data.num_enemy_goal, [player1,player2], next_room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+	else:
+		Spawner.spawn_enemies(next_room_data.num_enemy_goal, [player1], next_room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
 	
 	# Async floor noise
 	var ground = next_room_instance.get_node("Ground")
@@ -1025,6 +1034,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	acid_cells = room_instance.acid_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
+	liquid_cells = room_instance.liquid_cells
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), 
 		room_instance.blocked_cells,
 		room_instance.trap_cells

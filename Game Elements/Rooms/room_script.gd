@@ -6,3 +6,4 @@ extends Node2D
 @export var acid_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
+@export var liquid_cells := []

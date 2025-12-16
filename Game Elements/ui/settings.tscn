@@ -22,6 +22,7 @@ shader_parameter/range_start = 1.50000007125
 shader_parameter/range_end = 2.50000011875
 
 [node name="Settings" type="Node2D"]
+z_index = 1000
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -183,7 +184,7 @@ size_flags_horizontal = 0
 theme_override_constants/separation = 20
 
 [node name="Back" type="Button" parent="Control/MarginContainer/VBoxContainer/EnterExit"]
-custom_minimum_size = Vector2(300, 60)
+custom_minimum_size = Vector2(150, 60)
 layout_mode = 2
 size_flags_horizontal = 0
 focus_neighbor_top = NodePath("../../Player2/Choice")
@@ -193,7 +194,7 @@ theme_override_styles/normal = ExtResource("2_xrwt4")
 theme_override_styles/pressed = ExtResource("3_27vsl")
 theme_override_styles/hover = ExtResource("2_xrwt4")
 theme_override_styles/hover_pressed = ExtResource("3_27vsl")
-text = "Back to Main Menu"
+text = "Return"
 
 [node name="Apply" type="Button" parent="Control/MarginContainer/VBoxContainer/EnterExit"]
 custom_minimum_size = Vector2(120, 0)

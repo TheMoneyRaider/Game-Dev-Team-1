@@ -17,14 +17,22 @@ func tick(delta : float, node_to_change : Node):
 		lost(node_to_change)
 	
 func gained(node_to_change : Node):
-	if type == "winter":
-		node_to_change.SPEED = ((100-value1)/100 * node_to_change.SPEED)
-		var particle =  load("res://Game Elements/Effects/winter_particles.tscn").instantiate()
-		particle.position = node_to_change.position
-		node_to_change.get_parent().add_child(particle)
-	pass
+	match type:
+		"winter":
+			node_to_change.move_speed = ((100-value1)/100 * node_to_change.move_speed)
+			var particle =  load("res://Game Elements/Effects/winter_particles.tscn").instantiate()
+			particle.position = node_to_change.position
+			node_to_change.get_parent().add_child(particle)
+		"slow":
+			node_to_change.move_speed = ((1-value1) * node_to_change.move_speed)
+			var particle =  load("res://Game Elements/Effects/water_particles.tscn").instantiate()
+			particle.position = node_to_change.position
+			node_to_change.get_parent().add_child(particle)
+			
 
 func lost(node_to_change : Node):
-	if type == "winter":
-		node_to_change.SPEED = node_to_change.SPEED * 100 / (100-value1)
-	pass
+	match type:
+		"winter":
+			node_to_change.move_speed = node_to_change.move_speed * 100 / (100-value1)
+		"slow":
+			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)

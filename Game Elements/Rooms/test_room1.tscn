@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=4 uid="uid://4lxf8ki5yws5"]
+[gd_scene load_steps=4 format=4 uid="uid://4lxf8ki5yws5"]
 
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_ti0fa"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://Game Elements/tilesets/medival_tileset.tres" id="2_7beax"]
-[ext_resource type="PackedScene" uid="uid://b2lyldgavuns4" path="res://Game Elements/Characters/enemy.tscn" id="3_kmmw2"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="4_0yc5f"]
 
 [node name="Root" type="Node2D"]
@@ -39,27 +38,6 @@ tile_set = ExtResource("2_7beax")
 [node name="Trap3" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AAD8/wgAAAAAAAMAAAD8/wkAAAAAAAMAAAD8/woAAAAAAAMAAAD9/wgAAAAAAAMAAAD9/wkAAAAAAAMAAAD9/woAAAAAAAMAAAD+/wgAAAAAAAMAAAD+/wkAAAAAAAMAAAD+/woAAAAAAAMAAAD//wgAAAAAAAMAAAD//wkAAAAAAAMAAAD//woAAAAAAAMAAAD+/wYAAAAAAAMAAAD+/wcAAAAAAAMAAAD//wYAAAAAAAMAAAD//wcAAAAAAAMAAAA=")
 tile_set = ExtResource("2_7beax")
-
-[node name="Enemy1" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(-46, 201)
-
-[node name="Enemy2" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(30, 234)
-
-[node name="Enemy3" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(293, 247)
-
-[node name="Enemy4" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(255, 147)
-
-[node name="Enemy5" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(42, 110)
-
-[node name="Enemy6" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(105, 240)
-
-[node name="Enemy7" parent="." instance=ExtResource("3_kmmw2")]
-position = Vector2(144, 158)
 
 [node name="Walls" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AAD6/woAAAADAAQAAAD7/woAAAADAAQAAAD8/wcAAAADAAQAAAD9/wcAAAADAAQAAAD+/wUAAAADAAQAAAD//wUAAAADAAQAAAAAAAUAAAADAAQAAAABAAUAAAADAAQAAAACAAEAAAADAAQAAAADAAEAAAADAAQAAAAEAAEAAAADAAQAAAAFAAEAAAADAAQAAAAGAAUAAAADAAQAAAAHAAUAAAADAAQAAAAIAAUAAAADAAQAAAAJAAUAAAADAAQAAAAKAAYAAAADAAQAAAALAAYAAAADAAQAAAAMAAYAAAADAAQAAAANAAYAAAADAAQAAAAOAAYAAAADAAQAAAAPAAYAAAADAAQAAAD5/woAAAADAAQAAAAUAAoAAAADAAQAAAAVAAoAAAADAAQAAAAWAAoAAAADAAQAAAACAAQAAAADAAQAAAAFAAQAAAADAAQAAAAQAAAAAAADAAQAAAARAAAAAAADAAQAAAASAAAAAAADAAQAAAATAAAAAAADAAQAAAAUAAAAAAADAAQAAAAVAAAAAAADAAQAAAAWAAAAAAADAAQAAAA=")

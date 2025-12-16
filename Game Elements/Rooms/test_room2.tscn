@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=4 uid="uid://j26fdqsuqxrt"]
+[gd_scene load_steps=4 format=4 uid="uid://j26fdqsuqxrt"]
 
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_1r10n"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://Game Elements/tilesets/medival_tileset.tres" id="2_1kwfs"]
-[ext_resource type="PackedScene" uid="uid://b2lyldgavuns4" path="res://Game Elements/Characters/enemy.tscn" id="3_vr0qp"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="4_noidg"]
 
 [node name="Root" type="Node2D"]
@@ -27,39 +26,6 @@ tile_set = ExtResource("2_1kwfs")
 [node name="Trap2" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AAD5/xEAAAAAAAQAAAD6/xAAAAAAAAQAAAD6/w8AAAAAAAQAAAD7/w8AAAAAAAQAAAD7/xAAAAAAAAQAAAD7/xEAAAAAAAQAAAD6/xEAAAAAAAQAAAD5/xAAAAAAAAQAAAD5/w8AAAAAAAQAAAD5/wUAAAAAAAQAAAD5/wYAAAAAAAQAAAD6/wYAAAAAAAQAAAD6/wcAAAAAAAQAAAD7/wYAAAAAAAQAAAD7/wUAAAAAAAQAAAD6/wUAAAAAAAQAAAD5/wcAAAAAAAQAAAD7/wcAAAAAAAQAAAADAAoAAAAAAAQAAAADAAsAAAAAAAQAAAADAAwAAAAAAAQAAAAEAAwAAAAAAAQAAAAEAAsAAAAAAAQAAAAEAAoAAAAAAAQAAAAFAAoAAAAAAAQAAAAFAAsAAAAAAAQAAAAFAAwAAAAAAAQAAAAHAAIAAAAAAAQAAAAHAAMAAAAAAAQAAAAHAAQAAAAAAAQAAAAIAAQAAAAAAAQAAAAIAAMAAAAAAAQAAAAIAAIAAAAAAAQAAAAJAAIAAAAAAAQAAAAJAAMAAAAAAAQAAAAJAAQAAAAAAAQAAAAFABcAAAAAAAQAAAAFABYAAAAAAAQAAAAFABUAAAAAAAQAAAAGABUAAAAAAAQAAAAGABYAAAAAAAQAAAAHABUAAAAAAAQAAAAHABYAAAAAAAQAAAA=")
 tile_set = ExtResource("2_1kwfs")
-
-[node name="Enemy1" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(-128, 188)
-
-[node name="Enemy2" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(-142, 293)
-
-[node name="Enemy3" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(161, 265)
-
-[node name="Enemy11" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(264, 229)
-
-[node name="Enemy8" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(-510, 127)
-
-[node name="Enemy9" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(-590, 231)
-
-[node name="Enemy10" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(-441, 275)
-
-[node name="Enemy4" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(198, 85)
-
-[node name="Enemy5" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(-45, 109)
-
-[node name="Enemy6" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(16, 263)
-
-[node name="Enemy7" parent="." instance=ExtResource("3_vr0qp")]
-position = Vector2(55, 58)
 
 [node name="Walls" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AAAOAAIAAAADAAQAAAANAAEAAAADAAQAAAAMAAEAAAADAAQAAAALAAEAAAADAAQAAAAKAAAAAAADAAQAAAAJAAAAAAADAAQAAAAIAP//AAADAAQAAAAHAP7/AAADAAQAAAAFAPz/AAADAAQAAAAEAPz/AAADAAQAAAACAP3/AAADAAQAAAABAP7/AAADAAQAAAAAAP//AAADAAQAAAD/////AAADAAQAAAD+////AAADAAQAAAD9/wAAAAADAAQAAAD8/wEAAAADAAQAAAD7/wIAAAADAAQAAAD6/wIAAAADAAQAAAD5/wMAAAADAAQAAAD4/wQAAAADAAQAAAD3/wUAAAADAAQAAAD2/wYAAAADAAQAAAD1/wcAAAADAAQAAAD0/wkAAAADAAQAAADz/wkAAAADAAQAAADy/wkAAAADAAQAAADx/wkAAAADAAQAAADw/wkAAAADAAQAAADv/wkAAAADAAQAAADu/wkAAAADAAQAAADt/wkAAAADAAQAAADs/wkAAAADAAQAAADr/wkAAAADAAQAAADq/wgAAAADAAQAAADp/wcAAAADAAQAAADo/wcAAAADAAQAAADn/wcAAAADAAQAAADm/wcAAAADAAQAAADl/wgAAAADAAQAAADk/wgAAAADAAQAAADj/wUAAAADAAQAAADi/wUAAAADAAQAAADd/wUAAAADAAQAAADc/wYAAAADAAQAAADb/wYAAAADAAQAAADa/wgAAAADAAQAAADZ/wgAAAADAAQAAADY/wkAAAADAAQAAADy/w8AAAADAAQAAADz/w4AAAADAAQAAADe/wMAAAADAAQAAADf/wMAAAADAAQAAADg/wMAAAADAAQAAADh/wMAAAADAAQAAAAPAAIAAAADAAQAAADu/xMAAAADAAQAAADv/xMAAAADAAQAAADw/xIAAAADAAQAAADx/xIAAAADAAQAAAAQAAIAAAADAAQAAAARAAEAAAADAAQAAAASAAEAAAADAAQAAAATAAEAAAADAAQAAAAUAAEAAAADAAQAAAAVAAEAAAADAAQAAADh/wQAAAADAAQAAADe/wQAAAADAAQAAAADAP3/AAADAAQAAAAGAP3/AAADAAQAAAA=")
