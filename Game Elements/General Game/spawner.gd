@@ -13,7 +13,14 @@ static func spawn_enemies(count: int, players: Array[Node],scene : Node, availab
 	var chosen_positions: Array[Vector2i] = []
 	var weights: Array[float] = []
 	for i in count:
-		var best = _choose_best_cell(available_cells, chosen_positions, players,edges,scene)
+		var cells_needed := _cells_needed(_enemy_half_extents(enemy_scenes[randi() %enemy_scenes.size()]))
+		var best = _choose_best_cell(
+			available_cells,
+			chosen_positions,
+			players,
+			edges,
+			scene,
+			cells_needed)
 		
 		if best[0] == null:
 			push_warning("No valid cell left to place enemy")
@@ -24,16 +31,20 @@ static func spawn_enemies(count: int, players: Array[Node],scene : Node, availab
 		weights.append(best[1])
 	
 		_spawn_enemy(best[0],scene,enemy_scenes,layer_manager)
-		
-	_choose_best_cell(available_cells, chosen_positions, players,edges,scene, true)
+	if Globals.config_safe:
+		if Globals.config.get_value("debug", "enabled", false):
+			_choose_best_cell(available_cells, chosen_positions, players,edges,scene, Vector2i.ZERO, true)
 
-static func _choose_best_cell(available_cells : Array[Vector2i], chosen_positions : Array[Vector2i], players : Array[Node],edges : Array[Vector2i],scene : Node, is_debug : bool = false) -> Array:
+static func _choose_best_cell(available_cells : Array[Vector2i], chosen_positions : Array[Vector2i], players : Array[Node],edges : Array[Vector2i],scene : Node, cells_needed : Vector2i, is_debug : bool = false) -> Array:
 	var best_weight := -INF
 	var best_cell = null
 	var weights = []
 	var total_weight = 0.0
 
 	for cell in available_cells:
+		if not _can_fit(cell, cells_needed, available_cells):
+			weights.append(0.0)
+			continue
 		var score := _score_cell(cell, chosen_positions, players,edges)
 		total_weight+=score
 		weights.append(score)
@@ -49,8 +60,52 @@ static func _choose_best_cell(available_cells : Array[Vector2i], chosen_position
 		i+=1
 		
 	
-	_debug_tiles(available_cells,scene,weights)
+	if Globals.config_safe:
+		if Globals.config.get_value("debug", "enabled", false) and is_debug:
+			_debug_tiles(available_cells,scene,weights)
 	return [best_cell,best_weight]
+
+
+static func _enemy_half_extents(enemy_scene: PackedScene) -> Vector2:
+	var inst = enemy_scene.instantiate()
+
+	var shape_node := inst.get_node_or_null("CollisionShape2D")
+	if shape_node == null:
+		inst.queue_free()
+		push_error("Enemy has no CollisionShape2D")
+		return Vector2.ZERO
+
+	var shape = shape_node.shape
+	var half_extents := Vector2.ZERO
+
+	if shape is RectangleShape2D:
+		half_extents = shape.extents
+	elif shape is CapsuleShape2D:
+		half_extents = Vector2(shape.radius, shape.height * 0.5)
+	elif shape is CircleShape2D:
+		half_extents = Vector2.ONE * shape.radius
+	else:
+		push_error("Unsupported collision shape")
+
+	inst.queue_free()
+	return half_extents
+
+static func _cells_needed(half_extents: Vector2) -> Vector2i:
+	return Vector2i(
+		ceil(half_extents.x / cell_world_size),
+		ceil(half_extents.y / cell_world_size)
+	)
+
+static func _can_fit(
+	cell: Vector2i,
+	cells_needed: Vector2i,
+	available_cells: Array[Vector2i]
+) -> bool:
+	for x in range(-cells_needed.x, cells_needed.x + 1):
+		for y in range(-cells_needed.y, cells_needed.y + 1):
+			if Vector2i(cell.x + x, cell.y + y) not in available_cells:
+				return false
+	return true
 
 
 static func _score_cell(cell: Vector2, chosen_positions : Array[Vector2i], players : Array[Node],edges : Array[Vector2i]) -> float:

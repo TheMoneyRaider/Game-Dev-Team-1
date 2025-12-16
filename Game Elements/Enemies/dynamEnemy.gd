@@ -92,13 +92,11 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 	var bt_player = get_node("BTPlayer")
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
-	
 	if current_health - damage <= 0: 
 		current_health = current_health - damage
 		bt_player.blackboard.set_var("state", "dead")
 		damage_taken = damage
 		damage_direction = direction
-
 	else:
 		emit_signal("enemy_took_damage",damage,current_health,self,direction)
 		current_health = current_health - damage
