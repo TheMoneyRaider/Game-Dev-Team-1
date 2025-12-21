@@ -434,34 +434,37 @@ func preload_rooms() -> void:
 func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
 	#Remnant Orb
 	if(if_node_exists("RemnantOrb",generated_room)):
-		var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
-		if remnant_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("RemnantOrb") as Area2D
+		if orb.overlaps_body(player_reference):
 			_open_remnant_popup()
 			_enable_pathways()
 			reward_claimed = true
 			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
-		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
-		if remnant_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("TimeFabricOrb") as Area2D
+		if orb.overlaps_body(player_reference):
 			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
 			_enable_pathways()
 			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
-		var upgrade_orb = generated_room.get_node("UpgradeOrb") as Area2D
-		if upgrade_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("UpgradeOrb") as Area2D
+		if orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 			_enable_pathways()
 			reward_claimed = true
 			return true
 	if(if_node_exists("HealthUpgrade",generated_room)):
-		var upgrade_orb = generated_room.get_node("HealthUpgrade") as Area2D
-		if upgrade_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("HealthUpgrade") as Area2D
+		if orb.overlaps_body(player_reference):
 			_enable_pathways()
 			reward_claimed = true
-			upgrade_orb.queue_free()
 			if is_multiplayer:
 				player2.change_health(5,5)
 			player1.change_health(5,5)
+			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			particle.position = orb.position
+			generated_room.add_child(particle)
+			orb.queue_free()
 			return true
 	return false
 
