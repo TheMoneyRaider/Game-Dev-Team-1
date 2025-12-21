@@ -10,6 +10,7 @@ var is_multiplayer : bool = true
 var player1
 var player2
 
+
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 

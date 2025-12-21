@@ -116,7 +116,7 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
-			#get_tree().change_scene_to_file("res://Game Elements/General Game/layer_manager.tscn") #REMOVE
+			change_health(5,5)
 			swap_color()
 	else:
 		tether()

@@ -6,6 +6,9 @@ var current_health = 10
 var max_health = 10
 @export var is_purple : bool
 
+@export var width_scale := 100
+@export var exponent := 0.247
+
 func _ready() -> void:
 	update_text()
 	set_color()
@@ -13,6 +16,8 @@ func _ready() -> void:
 func set_max_health(health_value : int):
 	max_health = health_value
 	progress_bar.max_value = max_health
+	var width =  width_scale * pow(health_value, exponent)
+	progress_bar.custom_minimum_size.x = width
 	update_text()
 
 func set_current_health(health_value : int):
