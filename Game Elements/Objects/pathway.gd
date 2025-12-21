@@ -5,7 +5,7 @@ extends Node2D
 @export var reward_type = Reward.Remnant
 @export var reward_texture = null
 @export var reward_material = null
-enum Reward {TimeFabric, Remnant, RemnantUpgrade}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 
 @export var interact_key := "activate"
 @onready var prompt1 := $Prompt1

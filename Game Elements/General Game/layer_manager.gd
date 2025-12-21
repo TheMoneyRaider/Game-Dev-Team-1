@@ -4,7 +4,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
@@ -22,7 +22,7 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.RemnantUpgrade
+var this_room_reward = Reward.Remnant
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -81,13 +81,13 @@ func _ready() -> void:
 	
 	#####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	var rem2 = load("res://Game Elements/Remnants/hunter.tres")
-	rem.rank = 1
-	rem2.rank = 1
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem2.duplicate(true))
-	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	#var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#var rem2 = load("res://Game Elements/Remnants/hunter.tres")
+	#rem.rank = 1
+	#rem2.rank = 1
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem2.duplicate(true))
+	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####
 	game_root.add_child(pathfinding)
@@ -453,6 +453,13 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			_enable_pathways()
 			reward_claimed = true
 			return true
+	if(if_node_exists("HealthUpgrade",generated_room)):
+		var upgrade_orb = generated_room.get_node("HealthUpgrade") as Area2D
+		if upgrade_orb.overlaps_body(player_reference):
+			_enable_pathways()
+			reward_claimed = true
+			upgrade_orb.queue_free()
+			return true
 	return false
 
 func room_reward() -> void:
@@ -470,6 +477,8 @@ func room_reward() -> void:
 				reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 			Reward.RemnantUpgrade:
 				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+			Reward.HealthUpgrade:
+				reward = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	
@@ -602,7 +611,7 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var prev_reward_type = pathway_to_randomize.reward_type
 	var reward_texture : Node = null
 	while reward_type == null:
-		match randi() % 3:
+		match randi() % 4:
 			0:
 				reward_type = Reward.Remnant
 				if reward_type == prev_reward_type:
@@ -610,7 +619,6 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 				else:
 					var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
 					reward_texture = inst.get_node("Image")
-
 			1:
 				reward_type = Reward.TimeFabric
 				if reward_type == prev_reward_type:
@@ -618,7 +626,6 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 				else:
 					var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 					reward_texture = inst.get_node("Image")
-
 			2:
 				if _upgradable_remnants():
 					reward_type = Reward.RemnantUpgrade
@@ -627,6 +634,16 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 					else:
 						var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 						reward_texture = inst.get_node("Image")
+			3:
+				reward_type = Reward.HealthUpgrade
+				#if is_multiplayer:  ###Only for normal health reward
+					#if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
+						#reward_type = null	
+				#elif player1.current_health == player1.max_health:
+					#reward_type = null
+				if reward_type!= null:
+					var inst = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+					reward_texture = inst.get_node("Image")
 	#Pass the icon & type to the pathway node
 	pathway_to_randomize.set_reward(reward_texture, reward_type)
 
