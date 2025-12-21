@@ -1,7 +1,5 @@
 extends Area2D
 
-
-
 @export var interact_key := "activate"
 @onready var prompt1 := $Prompt1
 var tracked_bodies: Array = []

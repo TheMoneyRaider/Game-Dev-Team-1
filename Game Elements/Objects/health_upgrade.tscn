@@ -16,6 +16,7 @@ shader_parameter/color_shift_time_scale = 1.5
 shader_parameter/shift_wave_enabled = 1
 
 [node name="HealthUpgrade" type="Area2D"]
+collision_mask = 3
 script = ExtResource("1_5ut40")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

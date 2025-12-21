@@ -105,8 +105,10 @@ func _on_player_take_damage(_damage_amount : int, current_health : int, player_n
 	else:
 		health_bar_2.set_current_health(current_health)
 
-func _on_max_health_changed(max_health : int, player_node : Node):
+func _on_max_health_changed(max_health : int, current_health : int,player_node : Node):
 	if(player_node == player1):
 		health_bar_1.set_max_health(max_health)
+		health_bar_1.set_current_health(current_health)
 	else:
 		health_bar_2.set_max_health(max_health)
+		health_bar_2.set_current_health(current_health)

@@ -22,7 +22,7 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.Remnant
+var this_room_reward = Reward.HealthUpgrade
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -459,6 +459,9 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			_enable_pathways()
 			reward_claimed = true
 			upgrade_orb.queue_free()
+			if is_multiplayer:
+				player2.change_health(5,5)
+			player1.change_health(5,5)
 			return true
 	return false
 
