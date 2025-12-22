@@ -162,16 +162,7 @@ visible = false
 material = SubResource("ShaderMaterial_hgkmx")
 texture = SubResource("ViewportTexture_dp20r")
 
-[node name="PathwayIcon" type="TextureRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -15.5
-offset_top = -15.5
-offset_right = 15.5
-offset_bottom = 15.5
-grow_horizontal = 2
-grow_vertical = 2
+[node name="PathwayIcon" type="Sprite2D" parent="."]
 texture = ExtResource("2_okald")
 
 [node name="Prompt2" type="Node2D" parent="."]

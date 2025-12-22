@@ -4,6 +4,9 @@ extends Node2D
 @export var active := false
 @export var reward_type = Reward.Remnant
 @export var reward_texture = null
+@export var reward_frame = null
+@export var reward_hframes = null
+@export var reward_vframes = null
 @export var reward_material = null
 enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 
@@ -91,14 +94,23 @@ func enable_pathway():
 	$ShaderSprite.visible = true
 	active = true
 	$PathwayIcon.texture = reward_texture
+	$PathwayIcon.hframes = reward_hframes
+	$PathwayIcon.vframes = reward_vframes
+	$PathwayIcon.frame = reward_frame
 	$PathwayIcon.material = reward_material
 
 func set_reward(new_icon : Node, reward : Reward):
 	reward_type = reward
 	reward_texture = new_icon.texture
+	reward_frame = new_icon.frame
+	reward_hframes = new_icon.hframes
+	reward_vframes = new_icon.vframes
 	reward_material = new_icon.material
 	if active:
 		$PathwayIcon.texture = reward_texture
+		$PathwayIcon.frame = reward_frame
+		$PathwayIcon.hframes = reward_hframes
+		$PathwayIcon.vframes = reward_vframes
 		$PathwayIcon.material = reward_material
 
 func _on_body_entered(body):
