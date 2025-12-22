@@ -140,11 +140,8 @@ func check_liquids(delta):
 			match type:
 				1:
 					var effect = load("res://Game Elements/Effects/slow_down.tres").duplicate(true)
-					for cur_effect in effects:
-						if cur_effect.type==effect.type:
-							return
-					effect.cooldown = 2*delta
-					effect.value1 = .5
+					effect.cooldown = 20*delta
+					effect.value1 = 0.023
 					effect.gained(self)
 					effects.append(effect)
 
