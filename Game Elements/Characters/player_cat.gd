@@ -59,7 +59,7 @@ signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
 signal special(player_node : Node)
 signal swapped_color(player_node : Node)
-signal max_health_changed(new_max_health : int, player_node : Node)
+signal max_health_changed(new_max_health : int, new_current_health : int, player_node : Node)
 
 func _ready():
 	_initialize_state_machine()
@@ -116,7 +116,6 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
-			#get_tree().change_scene_to_file("res://Game Elements/General Game/layer_manager.tscn") #REMOVE
 			swap_color()
 	else:
 		tether()
@@ -218,7 +217,7 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			return false
 		if death:
 			max_health = max_health - 2
-			emit_signal("max_health_changed",max_health,self)
+			emit_signal("max_health_changed",max_health,current_health, self)
 			self.process_mode = PROCESS_MODE_DISABLED
 			visible = false
 			if(max_health <= 0):
@@ -281,16 +280,10 @@ func check_liquids(delta):
 			match type:
 				1:
 					var effect = load("res://Game Elements/Effects/slow_down.tres").duplicate(true)
-					for cur_effect in effects:
-						if cur_effect.type==effect.type:
-							return
-					effect.cooldown = 2*delta
-					effect.value1 = .5
+					effect.cooldown = 20*delta
+					effect.value1 = 0.023
 					effect.gained(self)
 					effects.append(effect)
-
-
-
 
 func _crafter_chance() -> bool:
 	randomize()
@@ -328,6 +321,12 @@ func _hunter_percent_boost() -> float:
 				print("boosted")
 				return float(rem.variable_1_values[rem.rank-1])
 	return 0.0
+
+func change_health(add_to_current : int, add_to_max : int = 0):
+	current_health+=add_to_current
+	max_health+=add_to_max
+	current_health = clamp(current_health,0,max_health)
+	emit_signal("max_health_changed",max_health,current_health,self)
 
 func red_flash() -> void:
 	if(i_frames > 0):

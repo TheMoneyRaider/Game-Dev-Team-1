@@ -41,6 +41,7 @@ script = ExtResource("1_6fbih")
 [node name="RootControl" type="Control" parent="."]
 process_mode = 1
 layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -100,7 +101,7 @@ theme_override_font_sizes/font_size = 16
 text = "Num:"
 label_settings = SubResource("LabelSettings_t1xeu")
 
-[node name="HealthBar1" type="Control" parent="RootControl"]
+[node name="HealthBar1" type="HBoxContainer" parent="RootControl"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -113,25 +114,18 @@ script = ExtResource("1_e0onf")
 is_purple = true
 
 [node name="ProgressBar" type="ProgressBar" parent="RootControl/HealthBar1"]
-layout_mode = 1
-offset_right = 175.0
-offset_bottom = 37.0
+custom_minimum_size = Vector2(175, 37)
+layout_mode = 2
 max_value = 10.0
 value = 10.0
 show_percentage = false
 
 [node name="Label" type="Label" parent="RootControl/HealthBar1"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -83.0
-offset_bottom = 37.0
-grow_horizontal = 0
+layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "5/10 HP"
 
-[node name="HealthBar2" type="Control" parent="RootControl"]
+[node name="HealthBar2" type="HBoxContainer" parent="RootControl"]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -145,25 +139,18 @@ grow_vertical = 0
 theme = SubResource("Theme_t1xeu")
 script = ExtResource("1_e0onf")
 
-[node name="ProgressBar" type="ProgressBar" parent="RootControl/HealthBar2"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -175.0
-offset_bottom = 37.0
-grow_horizontal = 0
-max_value = 10.0
-value = 10.0
-show_percentage = false
-
 [node name="Label" type="Label" parent="RootControl/HealthBar2"]
-layout_mode = 1
-offset_right = 79.0
-offset_bottom = 37.0
+layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "5/10 HP"
 horizontal_alignment = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="RootControl/HealthBar2"]
+custom_minimum_size = Vector2(175, 37)
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+show_percentage = false
 
 [node name="MaceCooldownBar" type="Control" parent="RootControl"]
 layout_mode = 1

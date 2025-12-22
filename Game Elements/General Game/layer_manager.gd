@@ -4,7 +4,8 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
+@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
@@ -22,7 +23,7 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.RemnantUpgrade
+var this_room_reward = Reward.HealthUpgrade
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -81,13 +82,13 @@ func _ready() -> void:
 	
 	#####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	var rem2 = load("res://Game Elements/Remnants/hunter.tres")
-	rem.rank = 1
-	rem2.rank = 1
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem2.duplicate(true))
-	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	#var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#var rem2 = load("res://Game Elements/Remnants/hunter.tres")
+	#rem.rank = 1
+	#rem2.rank = 1
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem2.duplicate(true))
+	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	
 	#####
 	game_root.add_child(pathfinding)
@@ -434,24 +435,50 @@ func preload_rooms() -> void:
 func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
 	#Remnant Orb
 	if(if_node_exists("RemnantOrb",generated_room)):
-		var remnant_orb = generated_room.get_node("RemnantOrb") as Area2D
-		if remnant_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("RemnantOrb") as Area2D
+		if orb.overlaps_body(player_reference):
 			_open_remnant_popup()
 			_enable_pathways()
 			reward_claimed = true
 			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
-		var remnant_orb = generated_room.get_node("TimeFabricOrb") as Area2D
-		if remnant_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("TimeFabricOrb") as Area2D
+		if orb.overlaps_body(player_reference):
 			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
 			_enable_pathways()
 			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
-		var upgrade_orb = generated_room.get_node("UpgradeOrb") as Area2D
-		if upgrade_orb.overlaps_body(player_reference):
+		var orb = generated_room.get_node("UpgradeOrb") as Area2D
+		if orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
 			_enable_pathways()
 			reward_claimed = true
+			return true
+	if(if_node_exists("HealthUpgrade",generated_room)):
+		var orb = generated_room.get_node("HealthUpgrade") as Area2D
+		if orb.overlaps_body(player_reference):
+			_enable_pathways()
+			reward_claimed = true
+			if is_multiplayer:
+				player2.change_health(5,5)
+			player1.change_health(5,5)
+			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			particle.position = orb.position
+			generated_room.add_child(particle)
+			orb.queue_free()
+			return true
+	if(if_node_exists("Health",generated_room)):
+		var orb = generated_room.get_node("Health") as Area2D
+		if orb.overlaps_body(player_reference):
+			_enable_pathways()
+			reward_claimed = true
+			if is_multiplayer:
+				player2.change_health(5)
+			player1.change_health(5)
+			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			particle.position = orb.position
+			generated_room.add_child(particle)
+			orb.queue_free()
 			return true
 	return false
 
@@ -470,6 +497,10 @@ func room_reward() -> void:
 				reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 			Reward.RemnantUpgrade:
 				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+			Reward.HealthUpgrade:
+				reward = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+			Reward.Health:
+				reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	
@@ -600,25 +631,23 @@ func open_death_menu() -> void:
 func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var reward_type = null
 	var prev_reward_type = pathway_to_randomize.reward_type
-	var reward_texture : Node = null
+	var reward_sprite : Node = null
 	while reward_type == null:
-		match randi() % 3:
+		match randi() % 4:
 			0:
 				reward_type = Reward.Remnant
 				if reward_type == prev_reward_type:
 					reward_type = null
 				else:
 					var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-					reward_texture = inst.get_node("Image")
-
+					reward_sprite = inst.get_node("Image")
 			1:
 				reward_type = Reward.TimeFabric
 				if reward_type == prev_reward_type:
 					reward_type = null
 				else:
 					var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
-					reward_texture = inst.get_node("Image")
-
+					reward_sprite = inst.get_node("Image")
 			2:
 				if _upgradable_remnants():
 					reward_type = Reward.RemnantUpgrade
@@ -626,33 +655,72 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 						reward_type = null
 					else:
 						var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
-						reward_texture = inst.get_node("Image")
+						reward_sprite = inst.get_node("Image")
+			3:
+				reward_type = Reward.HealthUpgrade
+				if reward_type!= null:
+					var inst = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+					reward_sprite = inst.get_node("Image")
+			4:
+				print("health denied?")
+				print(reward_num)
+				reward_type = Reward.Health
+				if is_multiplayer:
+					if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
+						reward_type = null	
+				elif player1.current_health == player1.max_health:
+					reward_type = null
+				if reward_type!= null:
+					print("health")
+					var inst = load("res://Game Elements/Objects/health.tscn").instantiate()
+					reward_sprite = inst.get_node("Image")
 	#Pass the icon & type to the pathway node
-	pathway_to_randomize.set_reward(reward_texture, reward_type)
+	pathway_to_randomize.set_reward(reward_sprite, reward_type)
 
 func _choose_reward(pathway_name : String) -> void:
 	var reward_type = null
-	var reward_texture : Node = null
+	var reward_sprite : Node = null
+	
 	while reward_type == null:
-		match randi() % 3:
+		var reward_value = calculate_reward()
+		match reward_value:
 			0:
 				reward_type = Reward.Remnant
 				var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-				reward_texture = inst.get_node("Image")
+				reward_sprite = inst.get_node("Image")
+				reward_num[reward_value] = reward_num[reward_value]/2.0
 
 			1:
 				reward_type = Reward.TimeFabric
 				var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
-				reward_texture = inst.get_node("Image")
+				reward_sprite = inst.get_node("Image")
+				reward_num[reward_value] = reward_num[reward_value]/2.0
 
 			2:
 				if _upgradable_remnants():
 					reward_type = Reward.RemnantUpgrade
 					var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
-					reward_texture = inst.get_node("Image")
+					reward_sprite = inst.get_node("Image")
+					reward_num[reward_value] = reward_num[reward_value]/2.0
+			3:
+				reward_type = Reward.HealthUpgrade
+				var inst = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+				reward_sprite = inst.get_node("Image")
+				reward_num[reward_value] = reward_num[reward_value]/2.0
+			4:
+				reward_type = Reward.Health
+				if is_multiplayer:
+					if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
+						reward_type = null	
+				elif player1.current_health == player1.max_health:
+					reward_type = null
+				if reward_type!= null:
+					var inst = load("res://Game Elements/Objects/health.tscn").instantiate()
+					reward_sprite = inst.get_node("Image")
+					reward_num[reward_value] = reward_num[reward_value]/2.0
 
 	#Pass the icon & type to the pathway node
-	room_instance.get_node(pathway_name).set_reward(reward_texture, reward_type)
+	room_instance.get_node(pathway_name).set_reward(reward_sprite, reward_type)
 
 func _enable_pathways() -> void:
 	var pathway_name= ""
@@ -998,6 +1066,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 			generated_rooms[key].queue_free()
 	generated_rooms.clear()
 	generated_room_metadata.clear()
+	reward_num = [1.0,1.0,1.0,1.0,1.0]
 	
 	# Delete the current room
 	if is_instance_valid(room_instance):
@@ -1190,3 +1259,18 @@ func _debug_tiles(array_of_tiles) -> void:
 		debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
 		debug.position = tile*16
 		room_instance.add_child(debug)
+
+func calculate_reward() -> int:
+	var total = 0.0
+	for val in reward_num:
+		total+= val
+	var float_point = randf() * total
+	var idx=0
+	var running_weight = 0.0
+	print(reward_num)
+	while idx < reward_num.size():
+		running_weight+=reward_num[idx]
+		if running_weight >= float_point:
+			return idx
+		idx+=1
+	return 0
