@@ -1195,6 +1195,7 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
+		hud.display_notification("Enemy Killed")
 		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
 		enemy.visible=false
 		enemy.queue_free()
