@@ -126,23 +126,18 @@ func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = 
 	is_wave = in_is_wave
 	match reward1:
 		Reward.Remnant:
-			print("REM")
 			var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 		Reward.TimeFabric:
-			print("TIME")
 			var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 		Reward.RemnantUpgrade:
-			print("UP")
 			var inst =load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 		Reward.HealthUpgrade:
-			print("HUP")
 			var inst =load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 		Reward.Health:
-			print("HEALTH")
 			var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 	if !is_wave:

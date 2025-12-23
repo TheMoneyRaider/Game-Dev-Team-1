@@ -668,7 +668,6 @@ func _choose_reward(pathway_name : String) -> void:
 	
 	while reward_type1 == null:
 		var reward_value = calculate_reward()
-		print(reward_value)
 		var last_reward_num = reward_num.duplicate()
 		if reward_value!= 5 or !wave:
 			match reward_value:
@@ -914,6 +913,13 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 		if if_node_exists(pathway_name+"_Detect",room_instance):
 			temp_pos = room_instance.get_node(pathway_name+"_Detect").position
 			pathway_positions.append(Vector2i(floor(temp_pos.x / 16), floor(temp_pos.y / 16)))
+			
+	#List all other reward locations(if in a wave room)
+	var reward_positions = []
+	for node in room_instance.get_children():
+		if node.is_in_group("reward"):
+			temp_pos = node.position
+			reward_positions.append(Vector2i(floor(temp_pos.x / 16), floor(temp_pos.y / 16)))
 	#Generate candidate 2x2 positions around each player
 	for player_pos in player_positions:
 		for dx in range(-max_distance, max_distance):
@@ -936,6 +942,11 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 				if all_free:
 					for path_position in pathway_positions:
 						if path_position.distance_to(candidate) < 3:
+							all_free = false
+							break
+				if all_free:
+					for rew_position in reward_positions:
+						if rew_position.distance_to(candidate) < 3:
 							all_free = false
 							break
 				if all_free:
@@ -1255,7 +1266,6 @@ func calculate_reward() -> int:
 	var float_point = randf() * total
 	var idx=0
 	var running_weight = 0.0
-	print(reward_num)
 	while idx < reward_num.size():
 		running_weight+=reward_num[idx]
 		if running_weight >= float_point:

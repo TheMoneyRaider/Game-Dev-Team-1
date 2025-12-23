@@ -13,7 +13,7 @@ shader = ExtResource("1_pmuwy")
 shader_parameter/upper_left = true
 shader_parameter/split = false
 shader_parameter/x_y_ratio = 5.2780000000000005
-shader_parameter/frame_offset = Vector2(0, 0)
+shader_parameter/band_width = 0.05
 
 [sub_resource type="Animation" id="Animation_wql4o"]
 length = 0.001
