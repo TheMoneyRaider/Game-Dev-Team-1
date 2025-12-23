@@ -168,7 +168,6 @@ func _process(delta: float) -> void:
 			Vector2(0,-1))
 			if timefabric_rewarded== 0:
 				room_instance.get_node("TimeFabricOrb").queue_free()
-				reward_claimed = true
 	if !room_cleared:
 		for child in room_instance.get_children():
 			if child is DynamEnemy:
@@ -181,6 +180,13 @@ func _process(delta: float) -> void:
 		if is_wave_room:
 			room_reward(this_room_reward2)
 		room_cleared= true
+	else:
+		if !reward_claimed:
+			for node in room_instance.get_children():
+				if node.is_in_group("reward"):
+					return
+			_enable_pathways()
+			reward_claimed=true
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -444,27 +450,20 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		var orb = generated_room.get_node("RemnantOrb") as Area2D
 		if orb.overlaps_body(player_reference):
 			_open_remnant_popup()
-			_enable_pathways()
-			reward_claimed = true
 			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var orb = generated_room.get_node("TimeFabricOrb") as Area2D
 		if orb.overlaps_body(player_reference):
 			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
-			_enable_pathways()
 			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
 		var orb = generated_room.get_node("UpgradeOrb") as Area2D
 		if orb.overlaps_body(player_reference):
 			_open_upgrade_popup()
-			_enable_pathways()
-			reward_claimed = true
 			return true
 	if(if_node_exists("HealthUpgrade",generated_room)):
 		var orb = generated_room.get_node("HealthUpgrade") as Area2D
 		if orb.overlaps_body(player_reference):
-			_enable_pathways()
-			reward_claimed = true
 			if is_multiplayer:
 				player2.change_health(5,5)
 			player1.change_health(5,5)
@@ -476,8 +475,6 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 	if(if_node_exists("Health",generated_room)):
 		var orb = generated_room.get_node("Health") as Area2D
 		if orb.overlaps_body(player_reference):
-			_enable_pathways()
-			reward_claimed = true
 			if is_multiplayer:
 				player2.change_health(5)
 			player1.change_health(5)
@@ -672,6 +669,7 @@ func _choose_reward(pathway_name : String) -> void:
 	while reward_type1 == null:
 		var reward_value = calculate_reward()
 		print(reward_value)
+		var last_reward_num = reward_num.duplicate()
 		if reward_value!= 5 or !wave:
 			match reward_value:
 				0:
@@ -699,12 +697,14 @@ func _choose_reward(pathway_name : String) -> void:
 					if reward_type1!= null:
 						reward_num[reward_value] = reward_num[reward_value]/2.0
 				5:
-					print("WAVVVVVVE")
 					wave = true
 					reward_num[reward_value] = reward_num[reward_value]/2.0
 		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
 			reward_type2 = reward_type1
 			reward_type1 = null
+		if reward_type1 == reward_type2: #if a enemy wave room is being made, don't let both rewards be the same
+			reward_type1 = null
+			reward_num = last_reward_num
 	if reward_type2 == null:
 		reward_type2 = Reward.Remnant
 	#Pass the icon & type to the pathway node

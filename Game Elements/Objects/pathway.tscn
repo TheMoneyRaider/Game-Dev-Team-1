@@ -209,8 +209,10 @@ horizontal_alignment = 1
 [node name="Icons" type="Node2D" parent="."]
 
 [node name="PathwayIcon1" type="Sprite2D" parent="Icons"]
+z_index = -1
 texture = ExtResource("2_okald")
 
 [node name="PathwayIcon2" type="Sprite2D" parent="Icons"]
+z_index = -1
 material = SubResource("ShaderMaterial_okald")
 texture = ExtResource("2_okald")

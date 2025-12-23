@@ -98,6 +98,8 @@ func disable_pathway():
 	$ShaderSprite.visible = false
 	active = false
 func enable_pathway():
+	$Icons/PathwayIcon1.z_index=0
+	$Icons/PathwayIcon2.z_index=0
 	$ShaderSprite.visible = true
 	active = true
 	$Icons/PathwayIcon1.texture = reward1_texture

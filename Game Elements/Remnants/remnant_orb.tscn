@@ -89,7 +89,7 @@ shader_parameter/upper_left = true
 shader_parameter/split = false
 shader_parameter/shift_wave_enabled = 1
 
-[node name="RemnantOrb" type="Area2D"]
+[node name="RemnantOrb" type="Area2D" groups=["reward"]]
 collision_mask = 3
 script = ExtResource("1_v3beo")
 

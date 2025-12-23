@@ -27,6 +27,10 @@ window/size/viewport_height=1000
 window/stretch/mode="viewport"
 window/stretch/aspect="ignore"
 
+[global_group]
+
+reward=""
+
 [input]
 
 ui_accept={
