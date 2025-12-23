@@ -5,6 +5,14 @@ uniform float distortion_amount = 3;
 uniform float color_shift = 1.0;
 uniform float color_shift_time_scale = .1;
 
+uniform bool upper_left = true;
+uniform bool split = false;
+
+bool diagonal_mask(vec2 uv) {
+    return upper_left
+        ? (uv.x + uv.y <= 1.0)
+        : (uv.x + uv.y > 1.0);
+}
 // 0 = off, 1 = on
 uniform int shift_wave_enabled = 0;
 
@@ -13,8 +21,11 @@ float rand(vec2 co) {
 }
 
 void fragment() {
-      float t = TIME * time_scale;
-      float t_cs = TIME * color_shift_time_scale;
+    if (split && !diagonal_mask(UV)) {
+        discard;
+    }
+    float t = TIME * time_scale;
+    float t_cs = TIME * color_shift_time_scale;
 
     // STATIC NOISE
     float noise = rand(UV * (t + 50.0));

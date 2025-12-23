@@ -1,19 +1,18 @@
 [gd_scene load_steps=6 format=3 uid="uid://c3fxh58bfhgcg"]
 
 [ext_resource type="Script" uid="uid://bn7wc23ktk2ry" path="res://Game Elements/Objects/orb.gd" id="1_5ut40"]
-[ext_resource type="Shader" uid="uid://bcbula2hj7vua" path="res://Game Elements/Remnants/remnant_orb.gdshader" id="2_3ewb5"]
+[ext_resource type="Shader" uid="uid://b6t7bv08io6o3" path="res://Game Elements/Objects/pathway.gdshader" id="2_5ut40"]
 [ext_resource type="Texture2D" uid="uid://yq4o7vgkkwsr" path="res://art/health_up.png" id="3_8gkx4"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8365d"]
 radius = 36.138622
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_oeecv"]
-shader = ExtResource("2_3ewb5")
-shader_parameter/time_scale = 0.0
-shader_parameter/distortion_amount = 0.0
-shader_parameter/color_shift = 0.0
-shader_parameter/color_shift_time_scale = 1.5
-shader_parameter/shift_wave_enabled = 1
+shader = ExtResource("2_5ut40")
+shader_parameter/upper_left = true
+shader_parameter/split = false
+shader_parameter/x_y_ratio = 1.0
+shader_parameter/frame_offset = Vector2(0, 0)
 
 [node name="HealthUpgrade" type="Area2D"]
 collision_mask = 3

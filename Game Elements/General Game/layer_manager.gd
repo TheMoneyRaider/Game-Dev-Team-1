@@ -5,7 +5,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
 enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
-@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0]
+@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,4]
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
@@ -23,7 +23,9 @@ var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
 var generated_room_entrance : = {}
-var this_room_reward = Reward.HealthUpgrade
+var this_room_reward1 = Reward.HealthUpgrade
+var this_room_reward2 = Reward.HealthUpgrade
+var is_wave_room = false
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -175,7 +177,9 @@ func _process(delta: float) -> void:
 					child.queue_free()
 				return
 		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
-		room_reward()
+		room_reward(this_room_reward1)
+		if is_wave_room:
+			room_reward(this_room_reward2)
 		room_cleared= true
 
 func create_new_rooms() -> void:
@@ -240,7 +244,9 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 						if is_special_action:
 							_randomize_room_reward(pathway_detect)
 							return -1
-						this_room_reward = pathway_detect.reward_type
+						is_wave_room  = pathway_detect.is_wave
+						this_room_reward1 = pathway_detect.reward1_type
+						this_room_reward2 = pathway_detect.reward2_type
 						_move_to_pathway_room(pathway_name+"_Detect")
 						print(is_special_action)
 						return p_direct
@@ -482,7 +488,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			return true
 	return false
 
-func room_reward() -> void:
+func room_reward(reward_type : Reward) -> void:
 	var reward_location
 	var reward = null
 	if is_multiplayer:
@@ -490,7 +496,7 @@ func room_reward() -> void:
 	else:
 		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16))])
 	while reward == null:
-		match this_room_reward:
+		match reward_type:
 			Reward.Remnant:
 				reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
 			Reward.TimeFabric:
@@ -631,96 +637,78 @@ func open_death_menu() -> void:
 func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var reward_type = null
 	var prev_reward_type = pathway_to_randomize.reward_type
-	var reward_sprite : Node = null
 	while reward_type == null:
 		match randi() % 4:
 			0:
 				reward_type = Reward.Remnant
 				if reward_type == prev_reward_type:
 					reward_type = null
-				else:
-					var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-					reward_sprite = inst.get_node("Image")
 			1:
 				reward_type = Reward.TimeFabric
 				if reward_type == prev_reward_type:
 					reward_type = null
-				else:
-					var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
-					reward_sprite = inst.get_node("Image")
 			2:
 				if _upgradable_remnants():
 					reward_type = Reward.RemnantUpgrade
 					if reward_type == prev_reward_type:
 						reward_type = null
-					else:
-						var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
-						reward_sprite = inst.get_node("Image")
 			3:
 				reward_type = Reward.HealthUpgrade
-				if reward_type!= null:
-					var inst = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
-					reward_sprite = inst.get_node("Image")
 			4:
-				print("health denied?")
-				print(reward_num)
 				reward_type = Reward.Health
 				if is_multiplayer:
 					if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
 						reward_type = null	
 				elif player1.current_health == player1.max_health:
 					reward_type = null
-				if reward_type!= null:
-					print("health")
-					var inst = load("res://Game Elements/Objects/health.tscn").instantiate()
-					reward_sprite = inst.get_node("Image")
 	#Pass the icon & type to the pathway node
-	pathway_to_randomize.set_reward(reward_sprite, reward_type)
+	pathway_to_randomize.set_reward(reward_type)
 
 func _choose_reward(pathway_name : String) -> void:
-	var reward_type = null
-	var reward_sprite : Node = null
+	var reward_type1 = null
+	var reward_type2 = null
+	var wave = false
 	
-	while reward_type == null:
+	while reward_type1 == null:
 		var reward_value = calculate_reward()
-		match reward_value:
-			0:
-				reward_type = Reward.Remnant
-				var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-				reward_sprite = inst.get_node("Image")
-				reward_num[reward_value] = reward_num[reward_value]/2.0
-
-			1:
-				reward_type = Reward.TimeFabric
-				var inst = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
-				reward_sprite = inst.get_node("Image")
-				reward_num[reward_value] = reward_num[reward_value]/2.0
-
-			2:
-				if _upgradable_remnants():
-					reward_type = Reward.RemnantUpgrade
-					var inst = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
-					reward_sprite = inst.get_node("Image")
-					reward_num[reward_value] = reward_num[reward_value]/2.0
-			3:
-				reward_type = Reward.HealthUpgrade
-				var inst = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
-				reward_sprite = inst.get_node("Image")
-				reward_num[reward_value] = reward_num[reward_value]/2.0
-			4:
-				reward_type = Reward.Health
-				if is_multiplayer:
-					if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
-						reward_type = null	
-				elif player1.current_health == player1.max_health:
-					reward_type = null
-				if reward_type!= null:
-					var inst = load("res://Game Elements/Objects/health.tscn").instantiate()
-					reward_sprite = inst.get_node("Image")
+		print(reward_value)
+		if reward_value!= 5 or !wave:
+			match reward_value:
+				0:
+					reward_type1 = Reward.Remnant
 					reward_num[reward_value] = reward_num[reward_value]/2.0
 
+				1:
+					reward_type1 = Reward.TimeFabric
+					reward_num[reward_value] = reward_num[reward_value]/2.0
+
+				2:
+					if _upgradable_remnants():
+						reward_type1 = Reward.RemnantUpgrade
+						reward_num[reward_value] = reward_num[reward_value]/2.0
+				3:
+					reward_type1 = Reward.HealthUpgrade
+					reward_num[reward_value] = reward_num[reward_value]/2.0
+				4:
+					reward_type1 = Reward.Health
+					if is_multiplayer:
+						if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
+							reward_type1 = null	
+					elif player1.current_health == player1.max_health:
+						reward_type1 = null
+					if reward_type1!= null:
+						reward_num[reward_value] = reward_num[reward_value]/2.0
+				5:
+					print("WAVVVVVVE")
+					wave = true
+					reward_num[reward_value] = reward_num[reward_value]/2.0
+		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
+			reward_type2 = reward_type1
+			reward_type1 = null
+	if reward_type2 == null:
+		reward_type2 = Reward.Remnant
 	#Pass the icon & type to the pathway node
-	room_instance.get_node(pathway_name).set_reward(reward_sprite, reward_type)
+	room_instance.get_node(pathway_name).set_reward(reward_type1,wave,reward_type2)
 
 func _enable_pathways() -> void:
 	var pathway_name= ""
@@ -1066,7 +1054,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 			generated_rooms[key].queue_free()
 	generated_rooms.clear()
 	generated_room_metadata.clear()
-	reward_num = [1.0,1.0,1.0,1.0,1.0]
+	reward_num = [1.0,1.0,1.0,1.0,1.0,4]
 	
 	# Delete the current room
 	if is_instance_valid(room_instance):
@@ -1195,7 +1183,6 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
-		hud.display_notification("Enemy Killed")
 		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
 		enemy.visible=false
 		enemy.queue_free()

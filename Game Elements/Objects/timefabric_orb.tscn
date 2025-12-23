@@ -14,6 +14,8 @@ shader_parameter/time_scale = 0.4
 shader_parameter/distortion_amount = 0.3
 shader_parameter/color_shift = 2.0
 shader_parameter/color_shift_time_scale = 1.5
+shader_parameter/upper_left = true
+shader_parameter/split = false
 shader_parameter/shift_wave_enabled = 1
 
 [node name="TimeFabricOrb" type="Area2D"]
