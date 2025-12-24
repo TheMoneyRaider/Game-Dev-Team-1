@@ -60,6 +60,7 @@ position = Vector2(-12, 204)
 shape = SubResource("CircleShape2D_lfc25")
 
 [node name="Background" type="Sprite2D" parent="VisionNPC"]
+visible = false
 material = SubResource("ShaderMaterial_4bpw4")
 scale = Vector2(0.15, 0.15)
 texture = ExtResource("4_voql5")
