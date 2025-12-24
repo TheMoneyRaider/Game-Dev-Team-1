@@ -22,10 +22,14 @@ var player2 = null
 var room_instance_data : Room
 var generated_rooms : = {}
 var generated_room_metadata : = {}
+var generated_room_conflict : = {}
 var generated_room_entrance : = {}
+var global_conflict_cells= []
 var this_room_reward1 = Reward.HealthUpgrade
 var this_room_reward2 = Reward.HealthUpgrade
 var is_wave_room = false
+var total_waves = 0
+var current_wave = 0
 
 #Thread Stuff
 var pending_room_creations: Array = []
@@ -84,14 +88,14 @@ func _ready() -> void:
 	
 	#####Remnant Testing
 	
-	#var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	#var rem2 = load("res://Game Elements/Remnants/hunter.tres")
-	#rem.rank = 1
-	#rem2.rank = 1
-	#player_1_remnants.append(rem.duplicate(true))
-	#player_2_remnants.append(rem2.duplicate(true))
-	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
-	
+	var rem = load("res://Game Elements/Remnants/trickster.tres")
+	var rem2 = load("res://Game Elements/Remnants/trickster.tres")
+	rem.rank = 4
+	rem2.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem2.duplicate(true))
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	timefabric_collected = 1000000
 	#####
 	game_root.add_child(pathfinding)
 	preload_rooms()
@@ -172,9 +176,18 @@ func _process(delta: float) -> void:
 		for child in room_instance.get_children():
 			if child is DynamEnemy:
 				if child.position.distance_to(player1.position) > 1000: #Haphazard fix for the disappearing enemy
-					print("REMOVED ENEMY DUE TO BUG")
+					push_warning("REMOVED ENEMY DUE TO BUG")
 					child.queue_free()
 				return
+		if is_wave_room and total_waves > current_wave:
+			current_wave+=1
+			hud.display_notification("Wave "+str(current_wave)+" / "+str(total_waves))
+			var placable_locations = room_instance.get_node("Ground").get_used_cells().filter(func(c): return c not in global_conflict_cells)
+			if Globals.is_multiplayer:
+				Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+			else:
+				Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+			return
 		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
 		room_reward(this_room_reward1)
 		if is_wave_room:
@@ -197,6 +210,7 @@ func create_new_rooms() -> void:
 			gen_room.queue_free()
 	generated_rooms.clear()
 	generated_room_metadata.clear()
+	generated_room_conflict.clear()
 
 	# Start async generation thread
 	thread_running = true
@@ -254,6 +268,10 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 						this_room_reward1 = pathway_detect.reward1_type
 						this_room_reward2 = pathway_detect.reward2_type
 						_move_to_pathway_room(pathway_name+"_Detect")
+						if is_wave_room:
+							total_waves = 2 #TODO make dynamic
+							current_wave = 1
+							hud.display_notification("Wave "+str(current_wave)+" / "+str(total_waves))
 						print(is_special_action)
 						return p_direct
 	return -1
@@ -632,34 +650,52 @@ func open_death_menu() -> void:
 	
 
 func _randomize_room_reward(pathway_to_randomize : Node) -> void:
-	var reward_type = null
-	var prev_reward_type = pathway_to_randomize.reward_type
-	while reward_type == null:
-		match randi() % 4:
-			0:
-				reward_type = Reward.Remnant
-				if reward_type == prev_reward_type:
-					reward_type = null
-			1:
-				reward_type = Reward.TimeFabric
-				if reward_type == prev_reward_type:
-					reward_type = null
-			2:
-				if _upgradable_remnants():
-					reward_type = Reward.RemnantUpgrade
-					if reward_type == prev_reward_type:
-						reward_type = null
-			3:
-				reward_type = Reward.HealthUpgrade
-			4:
-				reward_type = Reward.Health
-				if is_multiplayer:
-					if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
-						reward_type = null	
-				elif player1.current_health == player1.max_health:
-					reward_type = null
+	var reward_type1 = null
+	var reward_type2 = null
+	var wave = false
+	var prev_reward_type = pathway_to_randomize.reward1_type
+	
+	while reward_type1 == null:
+		var reward_val = randi() % 6
+		if reward_val!= 5 or !wave:
+				match reward_val:
+					0:
+						reward_type1 = Reward.Remnant
+						if reward_type1 == prev_reward_type:
+							reward_type1 = null
+					1:
+						reward_type1 = Reward.TimeFabric
+						if reward_type1 == prev_reward_type:
+							reward_type1 = null
+					2:
+						if _upgradable_remnants():
+							reward_type1 = Reward.RemnantUpgrade
+							if reward_type1 == prev_reward_type:
+								reward_type1 = null
+					3:
+						reward_type1 = Reward.HealthUpgrade
+						if reward_type1 == prev_reward_type:
+							reward_type1 = null
+					4:
+						reward_type1 = Reward.Health
+						if reward_type1 == prev_reward_type:
+							reward_type1 = null
+						if is_multiplayer:
+							if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
+								reward_type1 = null	
+						elif player1.current_health == player1.max_health:
+							reward_type1 = null
+					5:
+						wave = true
+		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
+			reward_type2 = reward_type1
+			reward_type1 = null
+		if reward_type1 == reward_type2: #if a enemy wave room is being made, don't let both rewards be the same
+			reward_type1 = null
+	if reward_type2 == null:
+		reward_type2 = Reward.Remnant
 	#Pass the icon & type to the pathway node
-	pathway_to_randomize.set_reward(reward_type)
+	pathway_to_randomize.set_reward(reward_type1,wave,reward_type2)
 
 func _choose_reward(pathway_name : String) -> void:
 	var reward_type1 = null
@@ -1046,6 +1082,7 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 
 	generated_room_metadata[pathway_detect.name] = next_room_data
 	generated_rooms[pathway_detect.name] = next_room_instance
+	generated_room_conflict[pathway_detect.name] = conflict_cells.duplicate()
 	
 	_choose_reward(pathway_detect.name)
 	
@@ -1054,6 +1091,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 		push_warning("No linked room for pathway " + pathway_id)
 		return
 	var next_room_data = generated_room_metadata[pathway_id]
+	global_conflict_cells = generated_room_conflict[pathway_id]
 	var next_room = generated_rooms[pathway_id]
 	if not is_instance_valid(next_room):
 		push_warning("Linked room instance invalid for " + pathway_id)
@@ -1065,6 +1103,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 			generated_rooms[key].queue_free()
 	generated_rooms.clear()
 	generated_room_metadata.clear()
+	generated_room_conflict.clear()
 	reward_num = [1.0,1.0,1.0,1.0,1.0,4]
 	
 	# Delete the current room
