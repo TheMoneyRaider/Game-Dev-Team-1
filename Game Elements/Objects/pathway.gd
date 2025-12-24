@@ -2,12 +2,19 @@ extends Node2D
 
 @export var used := false
 @export var active := false
-@export var reward_type = Reward.Remnant
-@export var reward_texture = null
-@export var reward_frame = null
-@export var reward_hframes = null
-@export var reward_vframes = null
-@export var reward_material = null
+@export var is_wave = false
+@export var reward1_type = Reward.Remnant
+@export var reward1_texture = null
+@export var reward1_frame = null
+@export var reward1_hframes = null
+@export var reward1_vframes = null
+@export var reward1_material = null
+@export var reward2_type = Reward.Remnant
+@export var reward2_texture = null
+@export var reward2_frame = null
+@export var reward2_hframes = null
+@export var reward2_vframes = null
+@export var reward2_material = null
 enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 
 @export var interact_key := "activate"
@@ -91,27 +98,81 @@ func disable_pathway():
 	$ShaderSprite.visible = false
 	active = false
 func enable_pathway():
+	$Icons/PathwayIcon1.z_index=0
+	$Icons/PathwayIcon2.z_index=0
 	$ShaderSprite.visible = true
 	active = true
-	$PathwayIcon.texture = reward_texture
-	$PathwayIcon.hframes = reward_hframes
-	$PathwayIcon.vframes = reward_vframes
-	$PathwayIcon.frame = reward_frame
-	$PathwayIcon.material = reward_material
+	$Icons/PathwayIcon1.texture = reward1_texture
+	$Icons/PathwayIcon1.hframes = reward1_hframes
+	$Icons/PathwayIcon1.vframes = reward1_vframes
+	$Icons/PathwayIcon1.frame = reward1_frame
+	$Icons/PathwayIcon1.material = reward1_material
+	$Icons/PathwayIcon2.texture = reward2_texture
+	$Icons/PathwayIcon2.hframes = reward2_hframes
+	$Icons/PathwayIcon2.vframes = reward2_vframes
+	$Icons/PathwayIcon2.frame = reward2_frame
+	$Icons/PathwayIcon2.material = reward2_material
+	if is_wave:
+		$Icons/PathwayIcon1.material = reward1_material.duplicate()
+		$Icons/PathwayIcon2.material = reward2_material.duplicate()
+		$Icons/PathwayIcon1.material.set_shader_parameter("split", true)
+		$Icons/PathwayIcon2.material.set_shader_parameter("split", true)
+		$Icons/PathwayIcon1.material.set_shader_parameter("upper_left", true)
+		$Icons/PathwayIcon2.material.set_shader_parameter("upper_left", false)
 
-func set_reward(new_icon : Node, reward : Reward):
-	reward_type = reward
-	reward_texture = new_icon.texture
-	reward_frame = new_icon.frame
-	reward_hframes = new_icon.hframes
-	reward_vframes = new_icon.vframes
-	reward_material = new_icon.material
+func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = Reward.Remnant):
+	var new_icon1 = null
+	var new_icon2 = null
+	is_wave = in_is_wave
+	match reward1:
+		Reward.Remnant:
+			var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			new_icon1 = inst.get_node("Image")
+		Reward.TimeFabric:
+			var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+			new_icon1 = inst.get_node("Image")
+		Reward.RemnantUpgrade:
+			var inst =load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+			new_icon1 = inst.get_node("Image")
+		Reward.HealthUpgrade:
+			var inst =load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+			new_icon1 = inst.get_node("Image")
+		Reward.Health:
+			var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
+			new_icon1 = inst.get_node("Image")
+	if !is_wave:
+		new_icon2 = new_icon1
+	else:
+		match reward2:
+			Reward.Remnant:
+				var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+				new_icon2 = inst.get_node("Image")
+			Reward.TimeFabric:
+				var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+				new_icon2 = inst.get_node("Image")
+			Reward.RemnantUpgrade:
+				var inst =load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+				new_icon2 = inst.get_node("Image")
+			Reward.HealthUpgrade:
+				var inst =load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+				new_icon2 = inst.get_node("Image")
+			Reward.Health:
+				var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
+				new_icon2 = inst.get_node("Image")
+	reward1_type = reward1
+	reward1_texture = new_icon1.texture
+	reward1_frame = new_icon1.frame
+	reward1_hframes = new_icon1.hframes
+	reward1_vframes = new_icon1.vframes
+	reward1_material = new_icon1.material
+	reward2_type = reward2
+	reward2_texture = new_icon2.texture
+	reward2_frame = new_icon2.frame
+	reward2_hframes = new_icon2.hframes
+	reward2_vframes = new_icon2.vframes
+	reward2_material = new_icon2.material
 	if active:
-		$PathwayIcon.texture = reward_texture
-		$PathwayIcon.frame = reward_frame
-		$PathwayIcon.hframes = reward_hframes
-		$PathwayIcon.vframes = reward_vframes
-		$PathwayIcon.material = reward_material
+		enable_pathway()
 
 func _on_body_entered(body):
 	if !active:

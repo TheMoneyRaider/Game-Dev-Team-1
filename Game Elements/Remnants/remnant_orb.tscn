@@ -85,9 +85,12 @@ shader_parameter/time_scale = 0.1
 shader_parameter/distortion_amount = 3.0
 shader_parameter/color_shift = 3.0
 shader_parameter/color_shift_time_scale = 1.0
+shader_parameter/upper_left = true
+shader_parameter/split = false
+shader_parameter/band_width = 0.05
 shader_parameter/shift_wave_enabled = 1
 
-[node name="RemnantOrb" type="Area2D"]
+[node name="RemnantOrb" type="Area2D" groups=["reward"]]
 collision_mask = 3
 script = ExtResource("1_v3beo")
 

@@ -11,6 +11,9 @@ var player1
 var player2
 
 
+func _ready():
+	$RootControl/Notification.modulate.a = 0.0
+
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 
@@ -113,3 +116,20 @@ func _on_max_health_changed(max_health : int, current_health : int,player_node :
 	else:
 		health_bar_2.set_max_health(max_health)
 		health_bar_2.set_current_health(current_health)
+		
+func display_notification(text : String, fade_in : float = 1.0, hold : float= 1.0, fade_out : float= 1.0):
+	var hud_notification := $RootControl/Notification
+	var label := $RootControl/Notification/Noti/RichTextLabel
+
+	label.text = text
+	hud_notification.modulate.a = 0.0
+	hud_notification.visible = true
+	if hud_notification.has_meta("tween"):
+		hud_notification.get_meta("tween").kill()
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_OUT)
+
+	tween.tween_property(hud_notification, "modulate:a", 1.0, fade_in)
+	tween.tween_interval(hold)
+	tween.tween_property(hud_notification, "modulate:a", 0.0, fade_out)

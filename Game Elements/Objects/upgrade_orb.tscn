@@ -48,9 +48,11 @@ shader_parameter/time_scale = 2.0
 shader_parameter/distortion_amount = 0.2
 shader_parameter/color_shift = 0.0
 shader_parameter/color_shift_time_scale = 0.0
+shader_parameter/upper_left = true
+shader_parameter/split = false
 shader_parameter/shift_wave_enabled = 0
 
-[node name="UpgradeOrb" type="Area2D"]
+[node name="UpgradeOrb" type="Area2D" groups=["reward"]]
 collision_mask = 3
 script = ExtResource("1_qixjf")
 
@@ -66,13 +68,8 @@ process_material = SubResource("ParticleProcessMaterial_oyqiy")
 [node name="Feet" type="Sprite2D" parent="."]
 texture = ExtResource("1_1fi3s")
 
-[node name="Image" type="TextureRect" parent="."]
+[node name="Image" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_3b7d0")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 texture = ExtResource("4_qixjf")
 
 [node name="Prompt1" type="Node2D" parent="."]
