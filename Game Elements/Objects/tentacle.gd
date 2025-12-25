@@ -135,6 +135,9 @@ func solve_ik(target_position: Vector2) -> void:
 			var vec: Vector2 = _segments[i] - _segments[i + 1]
 			var direction: Vector2 = vec.normalized()
 			_segments[i] = _segments[i + 1] + direction * _segment_lengths[i]
+			
+			# Clamp to hole if under ground
+			_segments[i] = constrain_to_hole_mask(_segments[i])
 
 		# Forward: Re-anchor the base and propagate correct lengths forward
 		# After this pass, base is correct but tip has moved slightly off target
@@ -144,6 +147,9 @@ func solve_ik(target_position: Vector2) -> void:
 			var vec: Vector2 = _segments[i + 1] - _segments[i]
 			var direction: Vector2 = vec.normalized()
 			_segments[i + 1] = _segments[i] + direction * _segment_lengths[i]
+			
+			# Clamp to hole if under ground
+			_segments[i + 1] = constrain_to_hole_mask(_segments[i + 1])
 
 
 ## moves both _segments toward each other to fix segment stretching. (ಠ_ಠ)
@@ -278,13 +284,33 @@ func is_inside_hole(pos: Vector2) -> bool:
 	var py = int(uv.y * (hole_size.y - 1))
 	var color = hole_image.get_pixel(px, py)
 	return color.r > 0.5
+	
+	
+func project_to_hole(p_world: Vector2, max_radius: float = 6) -> Vector2:
+	# Start with original position
+	if is_inside_hole(p_world):
+		return p_world
 
-func constrain_to_hole_mask(p: Vector2, max_radius := 6) -> Vector2:
-	if is_inside_hole(to_global(p)-Vector2(256,256)):
-		debug_valid_points.append(p)
-		return p
-	debug_invalid_points.append(p)
-	return p
+	# Small iterative search toward center of hole
+	var dir = (hole_global_position - p_world).normalized()
+	var new_pos = p_world
+	for i in range(int(max_radius)):
+		new_pos += dir
+		if is_inside_hole(new_pos):
+			return new_pos
+
+	# Fallback: move only partially toward center
+	return p_world + dir * (max_radius * 0.5)
+
+func constrain_to_hole_mask(p_local: Vector2, max_radius := 20) -> Vector2:
+	
+	var p_world = to_global(p_local)-Vector2(256,256)
+	var clamped = project_to_hole(p_world, max_radius)
+	if clamped != p_world:
+		debug_invalid_points.append(p_local)
+	else:
+		debug_valid_points.append(p_local)
+	return to_local(clamped+Vector2(256,256))
 
 @export var debug_draw_hole_grid := true
 @export var debug_grid_size := 4      # pixel size of each cell
@@ -334,9 +360,18 @@ func get_true_hole_coord() -> Vector2:
 	return Vector2(to_local(hole_global_position)+Vector2(256,256))
 
 func apply_hole_constraint() -> void:
-	for i in range(_segments.size()):
-		#if _segments[i].y > emerge_height:
-		_segments[i] = constrain_to_hole_mask(_segments[i])
+	pass
+	#for i in range(1, _segments.size() - 1):
+		#var original = _segments[i]
+		#var clamped = constrain_to_hole_mask(original)
+#
+		## Compute the difference
+		#var delta = clamped - original
+#
+		## Project delta along neighboring segments to avoid breaking lengths
+		#_segments[i] += delta * 0.5
+		#_segments[i - 1] -= delta * 0.25
+		#_segments[i + 1] -= delta * 0.25
 
 
 ## Returns target segment lengths for constraint visualization
