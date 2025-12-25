@@ -70,7 +70,7 @@ class_name Arm extends Node2D
 @export var light_color: Color = Color("93faff")
 @export var dark_color: Color = Color("00e1e4")
 @export var hole_global_position : Vector2 = Vector2(0,32)
-@export var emerge_height : float = 4
+@export var emerge_height : float = 32
 
 
 
@@ -92,6 +92,7 @@ var hole_size: Vector2 = Vector2(128,128)
 func _ready() -> void:
 	hole_texture = preload("res://art/characters/vision/shop_tentacles_mask.png")
 	hole_image = hole_texture.get_image()
+	compute_hole_sdf()
 	
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material = $SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.duplicate()
 	if base_node:
@@ -116,7 +117,6 @@ func _physics_process(delta: float) -> void:
 	apply_constraints()
 	apply_wave_motion(delta)
 	apply_constraints()
-	apply_hole_constraint()  # <-- Step 4: keep underground segments inside hole
 
 	update_line2d()
 
@@ -269,38 +269,79 @@ func _apply_width_curve() -> void:
 func get_segments() -> Array[Vector2]:
 	return _segments
 
-func is_inside_hole(pos: Vector2) -> bool:
-	if pos.y < (emerge_height):
-		return true
- # Assume hole_global_position is CENTER of the hole
-	var local_pos = pos - (hole_global_position - hole_size / 2)  # offset to top-left of image
-	var uv = Vector2(
-		clamp(local_pos.x / hole_size.x, 0.0, 1.0),
-		clamp(local_pos.y / hole_size.y, 0.0, 1.0)
-	)
-	if (abs(uv.x-.5) <.26 and uv.y > .5):
-		return true
-	var px = int(uv.x * (hole_size.x - 1))
-	var py = int(uv.y * (hole_size.y - 1))
-	var color = hole_image.get_pixel(px, py)
-	return color.r > 0.5
-	
-	
 func project_to_hole(p_world: Vector2, max_radius: float = 6) -> Vector2:
-	# Start with original position
-	if is_inside_hole(p_world):
-		return p_world
+	var local = p_world - (hole_global_position - hole_size / 2)
 
-	# Small iterative search toward center of hole
-	var dir = (hole_global_position - p_world).normalized()
-	var new_pos = p_world
-	for i in range(int(max_radius)):
-		new_pos += dir
-		if is_inside_hole(new_pos):
-			return new_pos
+	var sdf_value = sample_sdf(p_world)
+	if sdf_value <= 0.0:
+		return p_world  # already inside
 
-	# Fallback: move only partially toward center
-	return p_world + dir * (max_radius * 0.5)
+	# Approximate gradient using central differences
+	var dx = sample_sdf(p_world + Vector2(1,0)) - sample_sdf(p_world - Vector2(1,0))
+	var dy = sample_sdf(p_world + Vector2(0,1)) - sample_sdf(p_world - Vector2(0,1))
+	var grad = Vector2(dx, dy).normalized()
+
+	# Move along gradient by distance
+	return p_world - grad * sdf_value
+
+
+var hole_sdf: PackedFloat32Array
+var sdf_size: Vector2
+
+func compute_hole_sdf():
+	sdf_size = hole_size
+	var w = int(hole_size.x)
+	var h = int(hole_size.y)
+	hole_sdf = PackedFloat32Array()
+	hole_sdf.resize(w * h)
+
+	# Initialize
+	for y in range(h):
+		for x in range(w):
+			var idx = y * w + x
+			var uv = Vector2(x / float(w), y / float(h))
+
+			# Extra rules from is_inside_hole()
+			var inside = false
+			if y < emerge_height:
+				inside = true
+			elif abs(uv.x - 0.5) < 0.26 and uv.y > 0.5:
+				inside = true
+			else:
+				var c = hole_image.get_pixel(x, y)
+				if c.r > 0.5:
+					inside = true
+			hole_sdf[idx] = 0.0 if inside else INF
+
+	# First pass
+	for y in range(h):
+		for x in range(w):
+			var idx = y * w + x
+			if x > 0:
+				hole_sdf[idx] = min(hole_sdf[idx], hole_sdf[idx-1] + 1)
+			if y > 0:
+				hole_sdf[idx] = min(hole_sdf[idx], hole_sdf[idx-w] + 1)
+
+	# Second pass
+	for y in range(h-1, -1, -1):
+		for x in range(w-1, -1, -1):
+			var idx = y * w + x
+			if x < w-1:
+				hole_sdf[idx] = min(hole_sdf[idx], hole_sdf[idx+1] + 1)
+			if y < h-1:
+				hole_sdf[idx] = min(hole_sdf[idx], hole_sdf[idx+w] + 1)
+
+	# Get Euclidean distance
+	for i in range(hole_sdf.size()):
+		hole_sdf[i] = sqrt(hole_sdf[i])
+
+func sample_sdf(pos: Vector2) -> float:
+	# Convert world pos to local hole image UV
+	var local = pos - (hole_global_position - hole_size / 2)
+	local.x = clamp(local.x, 0, hole_size.x - 1)
+	local.y = clamp(local.y, 0, hole_size.y - 1)
+	var idx = int(local.y) * int(sdf_size.x) + int(local.x)
+	return hole_sdf[idx]
 
 func constrain_to_hole_mask(p_local: Vector2, max_radius := 20) -> Vector2:
 	
@@ -319,8 +360,8 @@ func constrain_to_hole_mask(p_local: Vector2, max_radius := 20) -> Vector2:
 var debug_invalid_points: Array[Vector2] = []
 var debug_valid_points: Array[Vector2] = []
 func _draw() -> void:
-	if debug_draw_hole_grid:
-		draw_hole_debug_grid()
+	#if debug_draw_hole_grid:
+		#draw_hole_debug_grid()
 	draw_circle(Vector2.ZERO, 4, Color.GREEN)
 	for p in debug_invalid_points:
 		draw_circle(p, 1, Color.RED)
@@ -335,21 +376,29 @@ func _draw() -> void:
 	#draw_circle(to_local(hole_global_position), 4, Color.RED)
 
 func draw_hole_debug_grid():
-	if not hole_image:
+	if not hole_image or hole_sdf.size()==0:
 		return
 
 	var cell := debug_grid_size
 	var half := debug_grid_radius
+	var w = int(sdf_size.x)
+	var h = int(sdf_size.y)
 
 	for y in range(-half, half, cell):
 		for x in range(-half, half, cell):
 			var world_pos := hole_global_position + Vector2(x, y)
 
-			var inside := is_inside_hole(world_pos)
-			var color := Color.WHITE if inside else Color.BLACK
+			# Sample SDF
+			var sdf_val = sample_sdf(world_pos)
+			# Normalize distance for visualization (choose max display distance)
+			var max_display = 16.0
+			var shade = clamp(1.0 - (sdf_val / max_display), 0.0, 1.0)
+
+			# Convert to grayscale color
+			var color = Color(shade, shade, shade)
 
 			# Convert WORLD → LOCAL for drawing
-			var local_pos := to_local(world_pos)+Vector2(256,256)
+			var local_pos := to_local(world_pos) + Vector2(256, 256)
 
 			draw_rect(
 				Rect2(local_pos - Vector2(cell / 2, cell / 2), Vector2(cell, cell)),
@@ -359,20 +408,11 @@ func draw_hole_debug_grid():
 func get_true_hole_coord() -> Vector2:
 	return Vector2(to_local(hole_global_position)+Vector2(256,256))
 
-func apply_hole_constraint() -> void:
-	pass
-	#for i in range(1, _segments.size() - 1):
-		#var original = _segments[i]
-		#var clamped = constrain_to_hole_mask(original)
-#
-		## Compute the difference
-		#var delta = clamped - original
-#
-		## Project delta along neighboring segments to avoid breaking lengths
-		#_segments[i] += delta * 0.5
-		#_segments[i - 1] -= delta * 0.25
-		#_segments[i + 1] -= delta * 0.25
-
+func get_segment_half_width(index: int) -> float:
+	if not width_curve:
+		return line_width * 0.5
+	var t = float(index) / float(num__segments)
+	return width_curve.interpolate(t) * 0.5
 
 ## Returns target segment lengths for constraint visualization
 func get_segment_lengths() -> Array:
