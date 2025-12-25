@@ -10,8 +10,8 @@ enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 var player1 = null
 var player2 = null
 ###
-@onready var room_cleared: bool = false
-@onready var reward_claimed: bool = false
+@onready var room_cleared: bool = true
+@onready var reward_claimed: bool = true
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
@@ -134,6 +134,15 @@ func _ready() -> void:
 	create_new_rooms()
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	#This makes the first room a shop room
+	_enable_pathways()
 
 func _process(delta: float) -> void:
 	time_passed += delta

@@ -345,7 +345,7 @@ func sample_sdf(pos: Vector2) -> float:
 
 
 func constrain_to_hole_mask(p_local: Vector2, index: int) -> Vector2:
-	var p_world = to_global(p_local)-Vector2(256, 256)
+	var p_world = to_global(p_local)-Vector2(256, 256)+get_parent().get_parent().get_parent().position
 	var radius = get_segment_half_width(index)
 	
 	var sdf_value = sample_sdf(p_world)
@@ -361,7 +361,7 @@ func constrain_to_hole_mask(p_local: Vector2, index: int) -> Vector2:
 	else:
 		debug_valid_points.append(p_local)
 	
-	return to_local(p_world + Vector2(256, 256))
+	return to_local(p_world + Vector2(256, 256)-get_parent().get_parent().get_parent().position)
 
 @export var debug_draw_hole_grid := false
 @export var debug_grid_size := 4      # pixel size of each cell
