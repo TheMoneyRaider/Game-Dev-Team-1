@@ -13,7 +13,7 @@
 shader = ExtResource("4_lfc25")
 shader_parameter/hole_mask = ExtResource("3_11wsk")
 shader_parameter/hole_center = Vector2(1, 32)
-shader_parameter/enable = false
+shader_parameter/enable = true
 shader_parameter/emerge_height = 8.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_lfc25"]
