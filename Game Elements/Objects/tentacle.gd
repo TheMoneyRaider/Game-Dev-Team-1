@@ -33,7 +33,7 @@ class_name Arm extends Node2D
 		_initialize_segments()
 ## Total arm length. IK will compress the arm when target is closer than this distance.
 ## The setter recalculates segment lengths for immediate visual feedback in the editor.
-@export_range(10.0, 128.0, 1.0) var max_length: float = 128.0:
+@export_range(10.0, 256.0, 1.0) var max_length: float = 128.0:
 	set(value):
 		max_length = value
 		_initialize_segments()
@@ -50,7 +50,7 @@ class_name Arm extends Node2D
 ## Controls wavelength. Higher values create tighter, more frequent waves along the arm.
 @export_range(0.0, 5, 0.1) var wave_frequency: float = 2.0
 ## Animation speed multiplier. Independent from physics delta for artistic control.
-@export_range(0.0, 10.0, 0.1) var wave_speed: float = 3.0
+@export_range(0.0, 10.0, 0.1) var wave_speed: float = 0.5
 
 @export_group("Visual Properties")
 ## Base width of the Line2D in pixels. The width_curve modulates this value along the length.
@@ -90,7 +90,8 @@ var hole_size: Vector2 = Vector2(128,128)
 ## Runs on scene load and sets up segments.
 ## Separate from _initialize_segments() so setters can rebuild segments during editing.
 func _ready() -> void:
-	hole_texture = preload("res://art/characters/vision/shop_tentacles_mask.png")
+	_wave_time = randf() * 100
+	hole_texture = preload("res://art/characters/vision/shop_tentacles_sdf.png")
 	hole_image = hole_texture.get_image()
 	compute_hole_sdf()
 	
@@ -111,7 +112,7 @@ func _physics_process(delta: float) -> void:
 	debug_invalid_points.clear()
 	debug_valid_points.clear()
 	queue_redraw()
-	var target_pos: Vector2 = target.global_position +Vector2(512,512) -global_position if target else to_local(get_global_mouse_position())
+	var target_pos: Vector2 = to_local(target.global_position)+Vector2(256,256) if target else to_local(get_global_mouse_position())
 	solve_ik(target_pos)
 
 	apply_constraints()
@@ -137,7 +138,7 @@ func solve_ik(target_position: Vector2) -> void:
 			_segments[i] = _segments[i + 1] + direction * _segment_lengths[i]
 			
 			# Clamp to hole if under ground
-			_segments[i] = constrain_to_hole_mask(_segments[i])
+			_segments[i] = constrain_to_hole_mask(_segments[i],i)
 
 		# Forward: Re-anchor the base and propagate correct lengths forward
 		# After this pass, base is correct but tip has moved slightly off target
@@ -149,7 +150,7 @@ func solve_ik(target_position: Vector2) -> void:
 			_segments[i + 1] = _segments[i] + direction * _segment_lengths[i]
 			
 			# Clamp to hole if under ground
-			_segments[i + 1] = constrain_to_hole_mask(_segments[i + 1])
+			_segments[i + 1] = constrain_to_hole_mask(_segments[i + 1],i + 1)
 
 
 ## moves both _segments toward each other to fix segment stretching. (ಠ_ಠ)
@@ -269,8 +270,7 @@ func _apply_width_curve() -> void:
 func get_segments() -> Array[Vector2]:
 	return _segments
 
-func project_to_hole(p_world: Vector2, max_radius: float = 6) -> Vector2:
-	var local = p_world - (hole_global_position - hole_size / 2)
+func project_to_hole(p_world: Vector2) -> Vector2:
 
 	var sdf_value = sample_sdf(p_world)
 	if sdf_value <= 0.0:
@@ -343,37 +343,42 @@ func sample_sdf(pos: Vector2) -> float:
 	var idx = int(local.y) * int(sdf_size.x) + int(local.x)
 	return hole_sdf[idx]
 
-func constrain_to_hole_mask(p_local: Vector2, max_radius := 20) -> Vector2:
-	
+
+func constrain_to_hole_mask(p_local: Vector2, index: int) -> Vector2:
 	var p_world = to_global(p_local)-Vector2(256,256)
-	var clamped = project_to_hole(p_world, max_radius)
-	if clamped != p_world:
+	var radius = get_segment_half_width(index)
+	
+	var sdf_value = sample_sdf(p_world)
+	if sdf_value >= radius:
+		# Approximate gradient
+		var dx = sample_sdf(p_world + Vector2(1,0)) - sample_sdf(p_world - Vector2(1,0))
+		var dy = sample_sdf(p_world + Vector2(0,1)) - sample_sdf(p_world - Vector2(0,1))
+		var grad = Vector2(dx, dy).normalized()
+		
+		# Move along gradient by (sdf - radius) so the edge fits
+		p_world -= grad * (sdf_value - radius)
 		debug_invalid_points.append(p_local)
 	else:
 		debug_valid_points.append(p_local)
-	return to_local(clamped+Vector2(256,256))
+	
+	return to_local(p_world + Vector2(256, 256))
 
-@export var debug_draw_hole_grid := true
+@export var debug_draw_hole_grid := false
 @export var debug_grid_size := 4      # pixel size of each cell
 @export var debug_grid_radius := 128   # how far from hole center to scan
 
 var debug_invalid_points: Array[Vector2] = []
 var debug_valid_points: Array[Vector2] = []
+
 func _draw() -> void:
 	#if debug_draw_hole_grid:
 		#draw_hole_debug_grid()
-	draw_circle(Vector2.ZERO, 4, Color.GREEN)
-	for p in debug_invalid_points:
-		draw_circle(p, 1, Color.RED)
-	for p in debug_valid_points:
-		draw_circle(p, 1, Color.GREEN)
-
-#func _draw() -> void:
-	#if debug_draw_hole_grid:
-		#draw_hole_debug_grid()
-#
-	## Draw hole center for reference
-	#draw_circle(to_local(hole_global_position), 4, Color.RED)
+		#draw_circle(Vector2.ZERO, 4, Color.GREEN)
+		#for p in debug_invalid_points:
+			#draw_circle(p, 1, Color.RED)
+		#for p in debug_valid_points:
+			#draw_circle(p, 1, Color.GREEN)
+	pass
 
 func draw_hole_debug_grid():
 	if not hole_image or hole_sdf.size()==0:
@@ -381,8 +386,6 @@ func draw_hole_debug_grid():
 
 	var cell := debug_grid_size
 	var half := debug_grid_radius
-	var w = int(sdf_size.x)
-	var h = int(sdf_size.y)
 
 	for y in range(-half, half, cell):
 		for x in range(-half, half, cell):
@@ -412,7 +415,7 @@ func get_segment_half_width(index: int) -> float:
 	if not width_curve:
 		return line_width * 0.5
 	var t = float(index) / float(num__segments)
-	return width_curve.interpolate(t) * 0.5
+	return width_curve.sample(t) * 0.5
 
 ## Returns target segment lengths for constraint visualization
 func get_segment_lengths() -> Array:

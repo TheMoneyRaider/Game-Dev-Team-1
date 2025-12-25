@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_6ajk3"]
 [ext_resource type="Texture2D" uid="uid://dqbv1wbpkmdh1" path="res://art/characters/vision/shop_tentacles_mask.png" id="3_11wsk"]
 [ext_resource type="Script" uid="uid://b7sxco4u77p4o" path="res://Game Elements/Rooms/vision_npc.gd" id="3_anms3"]
-[ext_resource type="Texture2D" uid="uid://nuu5sdshqun3" path="res://art/characters/vision/shop_cracks.png" id="4_7pyre"]
+[ext_resource type="Texture2D" uid="uid://byo57hkya4gy8" path="res://art/characters/vision/shop_cracks_full.png" id="3_lfc25"]
 [ext_resource type="Shader" uid="uid://6ptcob6b1l7e" path="res://Game Elements/Rooms/tentacle_mask.gdshader" id="4_lfc25"]
 [ext_resource type="Texture2D" uid="uid://b8xv6nl2ivrdf" path="res://art/characters/vision/vision_character.png" id="5_anms3"]
 [ext_resource type="PackedScene" uid="uid://cryh3p532bi7" path="res://Game Elements/Objects/tentacle.tscn" id="6_voql5"]
@@ -28,7 +28,7 @@ script = ExtResource("3_anms3")
 
 [node name="Cracks" type="Sprite2D" parent="VisionNPC"]
 position = Vector2(0, 32)
-texture = ExtResource("4_7pyre")
+texture = ExtResource("3_lfc25")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="VisionNPC"]
 material = SubResource("ShaderMaterial_anms3")
@@ -48,70 +48,127 @@ transparent_bg = true
 handle_input_locally = false
 render_target_update_mode = 4
 
-[node name="Tentacle1" parent="VisionNPC/SubViewportContainer/SubViewport" instance=ExtResource("6_voql5")]
-position = Vector2(226, 305)
+[node name="Tentacle8" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(229, 343)
+target = NodePath("../../../Targets/MovingTarget8")
 num__segments = 26
-max_length = 96.0
+max_length = 160.0
+wave_speed = 1.1
+light_color = Color(1, 0.36862746, 0.3764706, 1)
+dark_color = Color(0.9415628, 0, 0.19590142, 1)
+
+[node name="Tentacle9" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(213, 336)
+target = NodePath("../../../Targets/MovingTarget9")
+num__segments = 26
+max_length = 170.0
+wave_speed = 0.9
+light_color = Color(0.53862005, 0.9999998, 0.6630365, 1)
+dark_color = Color(3.080368e-06, 0.6494347, 0.31226474, 1)
+
+[node name="Tentacle10" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(230, 350)
+target = NodePath("../../../Targets/MovingTarget10")
+num__segments = 26
+max_length = 180.0
+wave_speed = 0.7
+light_color = Color(0.8063605, 0.49320686, 1, 1)
+dark_color = Color(0.74219275, 0.22175905, 0.99999565, 1)
+
+[node name="Tentacle11" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(245, 346)
+target = NodePath("../../../Targets/MovingTarget11")
+num__segments = 26
+max_length = 190.0
+light_color = Color(1, 0.36862746, 0.3764706, 1)
+dark_color = Color(0.9415628, 0, 0.19590142, 1)
+
+[node name="Tentacle12" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(264, 350)
+target = NodePath("../../../Targets/MovingTarget12")
+num__segments = 26
+max_length = 180.0
+wave_speed = 0.7
+light_color = Color(0.53862005, 0.9999998, 0.6630365, 1)
+dark_color = Color(3.080368e-06, 0.6494347, 0.31226474, 1)
+
+[node name="Tentacle13" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(283, 348)
+target = NodePath("../../../Targets/MovingTarget13")
+num__segments = 26
+max_length = 170.0
+wave_speed = 0.9
+light_color = Color(0.8063605, 0.49320686, 1, 1)
+dark_color = Color(0.74219275, 0.22175905, 0.99999565, 1)
+
+[node name="Tentacle14" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(299, 339)
+target = NodePath("../../../Targets/MovingTarget14")
+num__segments = 26
+max_length = 160.0
+wave_speed = 1.1
+light_color = Color(1, 0.36862746, 0.3764706, 1)
+dark_color = Color(0.9415628, 0, 0.19590142, 1)
+
+[node name="Tentacle1" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(230, 329)
+target = NodePath("../../../Targets/MovingTarget1")
+num__segments = 26
+max_length = 140.0
+wave_speed = 1.1
 light_color = Color(0.53862005, 0.9999998, 0.6630365, 1)
 dark_color = Color(3.080368e-06, 0.6494347, 0.31226474, 1)
 
 [node name="Tentacle2" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
-process_mode = 4
-visible = false
-position = Vector2(210, 298)
+position = Vector2(214, 322)
 target = NodePath("../../../Targets/MovingTarget2")
 num__segments = 26
-max_length = 96.0
+max_length = 150.0
+wave_speed = 0.9
 light_color = Color(0.8063605, 0.49320686, 1, 1)
 dark_color = Color(0.74219275, 0.22175905, 0.99999565, 1)
 
 [node name="Tentacle3" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
-process_mode = 4
-visible = false
-position = Vector2(227, 312)
+position = Vector2(231, 336)
 target = NodePath("../../../Targets/MovingTarget3")
 num__segments = 26
-max_length = 96.0
+max_length = 160.0
+wave_speed = 0.7
 light_color = Color(1, 0.36862746, 0.3764706, 1)
 dark_color = Color(0.9415628, 0, 0.19590142, 1)
 
 [node name="Tentacle4" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
-process_mode = 4
-visible = false
-position = Vector2(242, 308)
+position = Vector2(246, 332)
 target = NodePath("../../../Targets/MovingTarget4")
 num__segments = 26
-max_length = 96.0
+max_length = 170.0
 light_color = Color(0.53862005, 0.9999998, 0.6630365, 1)
 dark_color = Color(3.080368e-06, 0.6494347, 0.31226474, 1)
 
 [node name="Tentacle5" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
-process_mode = 4
-visible = false
-position = Vector2(261, 312)
+position = Vector2(265, 336)
 target = NodePath("../../../Targets/MovingTarget5")
 num__segments = 26
-max_length = 96.0
+max_length = 160.0
+wave_speed = 0.7
 light_color = Color(0.8063605, 0.49320686, 1, 1)
 dark_color = Color(0.74219275, 0.22175905, 0.99999565, 1)
 
 [node name="Tentacle6" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
-process_mode = 4
-visible = false
-position = Vector2(280, 310)
+position = Vector2(284, 334)
 target = NodePath("../../../Targets/MovingTarget6")
 num__segments = 26
-max_length = 96.0
+max_length = 150.0
+wave_speed = 0.9
 light_color = Color(1, 0.36862746, 0.3764706, 1)
 dark_color = Color(0.9415628, 0, 0.19590142, 1)
 
 [node name="Tentacle7" parent="VisionNPC/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
-process_mode = 4
-visible = false
-position = Vector2(296, 301)
+position = Vector2(300, 325)
 target = NodePath("../../../Targets/MovingTarget7")
 num__segments = 26
-max_length = 96.0
+max_length = 140.0
+wave_speed = 1.1
 light_color = Color(0.53862005, 0.9999998, 0.6630365, 1)
 dark_color = Color(3.080368e-06, 0.6494347, 0.31226474, 1)
 
@@ -123,38 +180,67 @@ range = 12.0
 speed = 12.0
 
 [node name="MovingTarget2" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
-process_mode = 4
 position = Vector2(-44, -55)
-range = 12.0
-speed = 12.0
+range = 10.0
+speed = 10.0
 
 [node name="MovingTarget3" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
-process_mode = 4
 position = Vector2(-22, -74)
-range = 12.0
-speed = 12.0
+range = 8.0
+speed = 8.0
 
 [node name="MovingTarget4" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
-process_mode = 4
 position = Vector2(0, -81)
-range = 12.0
-speed = 12.0
+range = 6.0
+speed = 6.0
 
 [node name="MovingTarget5" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
-process_mode = 4
 position = Vector2(22, -72)
-range = 12.0
-speed = 12.0
+range = 8.0
+speed = 8.0
 
 [node name="MovingTarget6" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
-process_mode = 4
 position = Vector2(44, -55)
+range = 10.0
+speed = 10.0
+
+[node name="MovingTarget7" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(65, -31)
 range = 12.0
 speed = 12.0
 
-[node name="MovingTarget7" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
-process_mode = 4
-position = Vector2(65, -31)
+[node name="MovingTarget8" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(-57, -47)
+range = 12.0
+speed = 12.0
+
+[node name="MovingTarget9" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(-38, -68)
+range = 10.0
+speed = 10.0
+
+[node name="MovingTarget10" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(-16, -87)
+range = 8.0
+speed = 8.0
+
+[node name="MovingTarget11" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(6, -94)
+range = 6.0
+speed = 6.0
+
+[node name="MovingTarget12" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(28, -85)
+range = 8.0
+speed = 8.0
+
+[node name="MovingTarget13" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(50, -68)
+range = 10.0
+speed = 10.0
+
+[node name="MovingTarget14" parent="VisionNPC/Targets" instance=ExtResource("7_anms3")]
+position = Vector2(71, -44)
 range = 12.0
 speed = 12.0
 

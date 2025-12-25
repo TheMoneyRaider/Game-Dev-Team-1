@@ -21,7 +21,7 @@ func _process(delta):
 	var dist = to_center.length()
 	if dist > 0.01:
 		var pull = to_center.normalized() * (dist / range) * center_pull
-		velocity += pull * delta
+		velocity += pull * delta 
 
 	velocity = velocity.normalized()
-	position += velocity * speed * delta
+	position += velocity * speed * delta / 2
