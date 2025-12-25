@@ -30,6 +30,7 @@ window/stretch/aspect="ignore"
 [global_group]
 
 reward=""
+tentacle=""
 
 [input]
 

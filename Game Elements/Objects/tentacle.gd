@@ -66,6 +66,11 @@ class_name Arm extends Node2D
 	set(value):
 		width_curve = value
 		_apply_width_curve()
+		
+@export var light_color: Color = Color("93faff")
+@export var dark_color: Color = Color("00e1e4")
+@export var hole_global_position : Vector2 = Vector2(0,32)
+@export var emerge_height : float = 0.0
 
 
 
@@ -78,22 +83,40 @@ var _base_position: Vector2
 var _wave_time: float = 0.0
 #endregion
 
+var hole_image: Image
+var hole_texture: Texture2D
+var hole_size: Vector2
+
 ## Runs on scene load and sets up segments.
 ## Separate from _initialize_segments() so setters can rebuild segments during editing.
 func _ready() -> void:
+	hole_texture = preload("res://art/characters/vision/shop_tentacles_mask.png")
+	hole_image = hole_texture.get_image()
+	hole_size = hole_image.get_size()
+	
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material = $SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.duplicate()
 	if base_node:
 		_base_position = base_node.position
 	_initialize_segments()
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("light_color",light_color)
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("dark_color",dark_color)
 
+
+func set_hole(hole_position : Vector2):
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("hole_center",hole_position)
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("hole_radius",64)
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("emerge_height",hole_position.y+randf_range(-1,1))
+	
 
 ## Runs each physics frame applying IK, constraints, wave motion, then constraints again.
 func _physics_process(delta: float) -> void:
-	var target_pos: Vector2 = target.global_position if target else get_global_mouse_position()
+	var target_pos: Vector2 = target.global_position +Vector2(512,512) -global_position if target else get_global_mouse_position() -$SubViewportContainer.position -global_position
 	solve_ik(target_pos)
 
 	apply_constraints()
 	apply_wave_motion(delta)
 	apply_constraints()
+	apply_hole_constraint()  # <-- Step 4: keep underground segments inside hole
 
 	update_line2d()
 
@@ -239,6 +262,35 @@ func _apply_width_curve() -> void:
 ## Returns live segment positions for external nodes to read. (Debug Draw etc)
 func get_segments() -> Array[Vector2]:
 	return _segments
+
+func is_inside_hole(pos: Vector2) -> bool:
+	# Convert world position to hole image UV
+	var local_pos = pos - hole_global_position  # offset to hole origin
+	var uv = Vector2(
+		clamp(local_pos.x / hole_size.x, 0.0, 1.0),
+		clamp(local_pos.y / hole_size.y, 0.0, 1.0)
+	)
+	
+	var px = int(uv.x * (hole_size.x - 1))
+	var py = int(uv.y * (hole_size.y - 1))
+	var color = hole_image.get_pixel(px, py)
+	
+	return color.r > 0.5  # white = allowed
+
+func constrain_to_hole_mask(p: Vector2, max_iterations: int = 5) -> Vector2:
+	var pos = p
+	for i in range(max_iterations):
+		if is_inside_hole(pos):
+			break
+	var dir = (hole_global_position - pos).normalized()
+	draw_line(pos, pos + dir * 4, Color.RED)  # visualize correction
+	pos += dir
+	return pos
+
+func apply_hole_constraint() -> void:
+	for i in range(_segments.size()):
+		if _segments[i].y > emerge_height:
+			_segments[i] = constrain_to_hole_mask(_segments[i])
 
 
 ## Returns target segment lengths for constraint visualization
