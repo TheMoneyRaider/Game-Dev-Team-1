@@ -87,15 +87,15 @@ func _ready() -> void:
 	hud.set_cross_position()
 	
 	#####Remnant Testing
-	
-	var rem = load("res://Game Elements/Remnants/trickster.tres")
-	var rem2 = load("res://Game Elements/Remnants/trickster.tres")
-	rem.rank = 4
-	rem2.rank = 4
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem2.duplicate(true))
-	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
-	timefabric_collected = 1000000
+	#
+	#var rem = load("res://Game Elements/Remnants/trickster.tres")
+	#var rem2 = load("res://Game Elements/Remnants/trickster.tres")
+	#rem.rank = 4
+	#rem2.rank = 4
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem2.duplicate(true))
+	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	#timefabric_collected = 1000000
 	#####
 	game_root.add_child(pathfinding)
 	preload_rooms()

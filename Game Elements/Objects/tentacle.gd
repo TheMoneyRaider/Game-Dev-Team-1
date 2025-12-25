@@ -112,7 +112,7 @@ func _physics_process(delta: float) -> void:
 	debug_invalid_points.clear()
 	debug_valid_points.clear()
 	queue_redraw()
-	var target_pos: Vector2 = to_local(target.global_position)+Vector2(256,256) if target else to_local(get_global_mouse_position())
+	var target_pos: Vector2 = to_local(target.global_position)+Vector2(256, 256)-get_parent().get_parent().get_parent().position if target else to_local(get_global_mouse_position())
 	solve_ik(target_pos)
 
 	apply_constraints()
@@ -222,7 +222,7 @@ func apply_wave_motion(delta: float) -> void:
 func update_line2d() -> void:
 	base_node.clear_points()
 	for pos in _segments:
-		base_node.add_point(pos+Vector2(256,256)-base_node.position)
+		base_node.add_point(pos+Vector2(256, 256)-base_node.position)
 
 
 ## Rebuilds segment arrays when num__segments or max_length change.
@@ -345,7 +345,7 @@ func sample_sdf(pos: Vector2) -> float:
 
 
 func constrain_to_hole_mask(p_local: Vector2, index: int) -> Vector2:
-	var p_world = to_global(p_local)-Vector2(256,256)
+	var p_world = to_global(p_local)-Vector2(256, 256)
 	var radius = get_segment_half_width(index)
 	
 	var sdf_value = sample_sdf(p_world)
@@ -371,28 +371,26 @@ var debug_invalid_points: Array[Vector2] = []
 var debug_valid_points: Array[Vector2] = []
 
 func _draw() -> void:
-	#if debug_draw_hole_grid:
-		#draw_hole_debug_grid()
-		#draw_circle(Vector2.ZERO, 4, Color.GREEN)
-		#for p in debug_invalid_points:
-			#draw_circle(p, 1, Color.RED)
-		#for p in debug_valid_points:
-			#draw_circle(p, 1, Color.GREEN)
-	pass
+	if debug_draw_hole_grid:
+		draw_hole_debug_grid()
+		draw_circle(Vector2.ZERO, 4, Color.GREEN)
+		for p in debug_invalid_points:
+			draw_circle(p, 1, Color.RED)
+		for p in debug_valid_points:
+			draw_circle(p, 1, Color.GREEN)
 
 func draw_hole_debug_grid():
 	if not hole_image or hole_sdf.size()==0:
 		return
-
 	var cell := debug_grid_size
 	var half := debug_grid_radius
 
 	for y in range(-half, half, cell):
 		for x in range(-half, half, cell):
 			var world_pos := hole_global_position + Vector2(x, y)
-
 			# Sample SDF
 			var sdf_val = sample_sdf(world_pos)
+			
 			# Normalize distance for visualization (choose max display distance)
 			var max_display = 16.0
 			var shade = clamp(1.0 - (sdf_val / max_display), 0.0, 1.0)
@@ -401,15 +399,13 @@ func draw_hole_debug_grid():
 			var color = Color(shade, shade, shade)
 
 			# Convert WORLD → LOCAL for drawing
-			var local_pos := to_local(world_pos) + Vector2(256, 256)
+			var local_pos : Vector2= to_local(world_pos) + Vector2(256, 256)-get_parent().get_parent().get_parent().position
 
 			draw_rect(
 				Rect2(local_pos - Vector2(cell / 2, cell / 2), Vector2(cell, cell)),
 				color
 			)
 
-func get_true_hole_coord() -> Vector2:
-	return Vector2(to_local(hole_global_position)+Vector2(256,256))
 
 func get_segment_half_width(index: int) -> float:
 	if not width_curve:
