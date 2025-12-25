@@ -53,7 +53,7 @@ material = SubResource("ShaderMaterial_rt1qa")
 
 [node name="Line2D" type="Line2D" parent="SubViewportContainer/SubViewport/TwoToneCanvasGroup"]
 position = Vector2(263, 277)
-points = PackedVector2Array(17, 3, 73, 72)
+points = PackedVector2Array(-7, -21, 73, 72)
 width = 24.0
 width_curve = SubResource("Curve_qdj6u")
 texture_mode = 1

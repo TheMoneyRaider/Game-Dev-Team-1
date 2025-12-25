@@ -16,7 +16,7 @@ class_name Arm extends Node2D
 	set(value):
 		base_node = value
 		if base_node:
-			_base_position = base_node.position
+			_base_position = Vector2.ZERO
 		_apply_line_width()
 		_apply_width_curve()
 		_initialize_segments()
@@ -70,7 +70,7 @@ class_name Arm extends Node2D
 @export var light_color: Color = Color("93faff")
 @export var dark_color: Color = Color("00e1e4")
 @export var hole_global_position : Vector2 = Vector2(0,32)
-@export var emerge_height : float = 0.0
+@export var emerge_height : float = 4
 
 
 
@@ -95,7 +95,7 @@ func _ready() -> void:
 	
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material = $SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.duplicate()
 	if base_node:
-		_base_position = base_node.position
+		_base_position = Vector2.ZERO
 	_initialize_segments()
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("light_color",light_color)
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("dark_color",dark_color)
@@ -107,7 +107,9 @@ func set_hole(hole_position : Vector2):
 
 ## Runs each physics frame applying IK, constraints, wave motion, then constraints again.
 func _physics_process(delta: float) -> void:
-	var target_pos: Vector2 = target.global_position +Vector2(512,512) -global_position if target else get_global_mouse_position() -$SubViewportContainer.position -global_position
+	debug_invalid_points.clear()
+	queue_redraw()
+	var target_pos: Vector2 = target.global_position +Vector2(512,512) -global_position if target else to_local(get_global_mouse_position())
 	solve_ik(target_pos)
 
 	apply_constraints()
@@ -212,7 +214,7 @@ func apply_wave_motion(delta: float) -> void:
 func update_line2d() -> void:
 	base_node.clear_points()
 	for pos in _segments:
-		base_node.add_point(base_node.to_local(pos))
+		base_node.add_point(pos+Vector2(256,256)-base_node.position)
 
 
 ## Rebuilds segment arrays when num__segments or max_length change.
@@ -261,33 +263,72 @@ func get_segments() -> Array[Vector2]:
 	return _segments
 
 func is_inside_hole(pos: Vector2) -> bool:
+	if pos.y < (emerge_height):
+		return false
  # Assume hole_global_position is CENTER of the hole
 	var local_pos = pos - (hole_global_position - hole_size / 2)  # offset to top-left of image
 	var uv = Vector2(
 		clamp(local_pos.x / hole_size.x, 0.0, 1.0),
 		clamp(local_pos.y / hole_size.y, 0.0, 1.0)
 	)
+	if (abs(uv.x-.5) <.26 and uv.y > .5):
+		return true
 	var px = int(uv.x * (hole_size.x - 1))
 	var py = int(uv.y * (hole_size.y - 1))
 	var color = hole_image.get_pixel(px, py)
 	return color.r > 0.5
 
-func constrain_to_hole_mask(p: Vector2, max_iterations: int = 5) -> Vector2:
-	var pos = p
-	for i in range(max_iterations):
-		if is_inside_hole(pos):
-			break
-		# Simple push toward hole center
-		var dir = (hole_global_position - pos).normalized()
-		pos += dir  # move 1 pixel toward center each iteration
-	return pos
+func constrain_to_hole_mask(p: Vector2, max_radius := 6) -> Vector2:
+	if is_inside_hole(p):
+		return p
+	debug_invalid_points.append(p)
+	return p
+
+@export var debug_draw_hole_grid := true
+@export var debug_grid_size := 1      # pixel size of each cell
+@export var debug_grid_radius := 128   # how far from hole center to scan
+
+var debug_invalid_points: Array[Vector2] = []
+func _draw() -> void:
+	draw_circle(Vector2.ZERO+Vector2(-32,0), 4, Color.GREEN)
+	for p in debug_invalid_points:
+		draw_circle(p+Vector2(-32,0), 1, Color.RED)
+
+#func _draw() -> void:
+	#if debug_draw_hole_grid:
+		#draw_hole_debug_grid()
+#
+	## Draw hole center for reference
+	#draw_circle(to_local(hole_global_position), 4, Color.RED)
+
+#func draw_hole_debug_grid():
+	#if not hole_image:
+		#return
+#
+	#var cell := debug_grid_size
+	#var half := debug_grid_radius
+#
+	#for y in range(-half, half, cell):
+		#for x in range(-half, half, cell):
+			#var world_pos := hole_global_position + Vector2(x, y)
+#
+			#var inside := is_inside_hole(world_pos)
+			#var color := Color.WHITE if inside else Color.BLACK
+#
+			## Convert WORLD → LOCAL for drawing
+			#var local_pos := to_local(world_pos)+Vector2(256,256)
+#
+			#draw_rect(
+				#Rect2(local_pos - Vector2(cell / 2, cell / 2), Vector2(cell, cell)),
+				#color
+			#)
 
 func get_true_hole_coord() -> Vector2:
-	return Vector2(to_local(hole_global_position)+Vector2(246,244))
+	return Vector2(to_local(hole_global_position)+Vector2(256,256))
 
 func apply_hole_constraint() -> void:
 	for i in range(_segments.size()):
-		if _segments[i].y > (emerge_height-60):#Tweak this minus value
+		if _segments[i].y > emerge_height:
 			_segments[i] = constrain_to_hole_mask(_segments[i])
 
 
