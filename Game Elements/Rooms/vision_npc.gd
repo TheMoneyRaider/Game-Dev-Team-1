@@ -3,7 +3,7 @@ extends Node2D
 func _ready() -> void:
 	for node in get_node("SubViewportContainer").get_node("SubViewport").get_children():
 		if node.is_in_group("tentacle"):
-			node.set_hole($Cracks.global_position)
+			node.set_hole($Cracks.global_position+Vector2(8,32))
 			
 func _process(delta: float) -> void:
 	#position+=Vector2(1,0)*delta*10

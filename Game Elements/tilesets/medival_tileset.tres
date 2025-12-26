@@ -1423,6 +1423,9 @@ texture = ExtResource("1_0bxt4")
 1:5/0/custom_data_2 = 1.0
 1:5/0/custom_data_3 = 3
 0:4/0 = 0
+15:14/size_in_atlas = Vector2i(8, 8)
+15:14/0 = 0
+15:14/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -48, -16, -52, 32, -52, 40, -44, 48, -32, 52, -16, 52, 0, 48, 8, 40, 24, 40, 40, 28, 44, 12, 40, -4, 40, -12, 48, -16, 44, -24, 36, -36, 32, -40, 20, -48, 16, -52, 0, -44, -24, -56, -32, -52, -40)
 
 [resource]
 physics_layer_0/collision_layer = 1
