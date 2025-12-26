@@ -472,25 +472,29 @@ func preload_rooms() -> void:
 			cached_scenes[room_data_item.scene_location] = packed
 
 func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
-	#Remnant Orb
+	if(if_node_exists("Shop",generated_room)):
+		var vision = generated_room.get_node("Shop/VisionNPC") as Area2D
+		if player_reference in vision.tracked_bodies:
+			vision.activate()
+			return true
 	if(if_node_exists("RemnantOrb",generated_room)):
 		var orb = generated_room.get_node("RemnantOrb") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			_open_remnant_popup()
 			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var orb = generated_room.get_node("TimeFabricOrb") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
 			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
 		var orb = generated_room.get_node("UpgradeOrb") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			_open_upgrade_popup()
 			return true
 	if(if_node_exists("HealthUpgrade",generated_room)):
 		var orb = generated_room.get_node("HealthUpgrade") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			if is_multiplayer:
 				player2.change_health(5,5)
 			player1.change_health(5,5)
@@ -501,7 +505,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			return true
 	if(if_node_exists("Health",generated_room)):
 		var orb = generated_room.get_node("Health") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			if is_multiplayer:
 				player2.change_health(5)
 			player1.change_health(5)

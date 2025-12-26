@@ -69,7 +69,7 @@ class_name Arm extends Node2D
 		
 @export var light_color: Color = Color("93faff")
 @export var dark_color: Color = Color("00e1e4")
-@export var hole_global_position : Vector2 = Vector2(0,32)
+@export var hole_global_position : Vector2 = Vector2(8,32)
 @export var emerge_height : float = 40
 
 

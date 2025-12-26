@@ -11,7 +11,7 @@ func _ready():
 
 
 func _on_body_entered(body):
-	if "is_purple" in body:
+	if body.is_in_group("player"):
 		tracked_bodies.append(body)
 		prompt1.visible = true
 		if len(tracked_bodies) == 1:

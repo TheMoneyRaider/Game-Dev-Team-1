@@ -1,11 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://c7jn6wdb1cywy"]
+[gd_scene load_steps=11 format=3 uid="uid://c7jn6wdb1cywy"]
 
 [ext_resource type="Texture2D" uid="uid://dqbv1wbpkmdh1" path="res://art/characters/vision/shop_tentacles_mask.png" id="3_11wsk"]
-[ext_resource type="Script" uid="uid://b7sxco4u77p4o" path="res://Game Elements/Rooms/vision_npc.gd" id="3_anms3"]
+[ext_resource type="Script" uid="uid://b7sxco4u77p4o" path="res://Game Elements/Rooms/shop.gd" id="3_anms3"]
 [ext_resource type="Shader" uid="uid://6ptcob6b1l7e" path="res://Game Elements/Rooms/tentacle_mask.gdshader" id="4_lfc25"]
 [ext_resource type="Texture2D" uid="uid://b8xv6nl2ivrdf" path="res://art/characters/vision/vision_character.png" id="5_anms3"]
 [ext_resource type="PackedScene" uid="uid://cryh3p532bi7" path="res://Game Elements/Objects/tentacle.tscn" id="6_voql5"]
 [ext_resource type="PackedScene" uid="uid://nnb0fsf5jvvd" path="res://Game Elements/Objects/moving_target.tscn" id="7_anms3"]
+[ext_resource type="Script" uid="uid://br2t8al7u1a0m" path="res://Game Elements/Rooms/vision_npc.gd" id="7_lfc25"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://Game Elements/tilesets/medival_tileset.tres" id="8_lfc25"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_anms3"]
@@ -17,7 +18,7 @@ shader_parameter/enable = true
 shader_parameter/emerge_height = 16.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_lfc25"]
-radius = 25.0
+radius = 44.102154
 
 [node name="Shop" type="Node2D"]
 script = ExtResource("3_anms3")
@@ -168,6 +169,16 @@ wave_speed = 1.1
 light_color = Color(0.53862005, 0.9999998, 0.6630365, 1)
 dark_color = Color(3.080368e-06, 0.6494347, 0.31226474, 1)
 
+[node name="Tentacle_Vision" parent="SubViewportContainer/SubViewport" node_paths=PackedStringArray("target") instance=ExtResource("6_voql5")]
+position = Vector2(263, 384)
+target = NodePath("../../../VisionNPC/Feet")
+num__segments = 26
+max_length = 130.0
+wave_amplitude = 0.5
+line_width = 30.0
+light_color = Color(0.1764706, 0.3137255, 0.85882354, 1)
+dark_color = Color(0.16078432, 0.2, 0.88235295, 1)
+
 [node name="Targets" type="Node2D" parent="."]
 position = Vector2(7, 3)
 
@@ -243,6 +254,8 @@ speed = 12.0
 
 [node name="VisionNPC" type="Area2D" parent="."]
 position = Vector2(6, 19)
+collision_mask = 3
+script = ExtResource("7_lfc25")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="VisionNPC"]
 shape = SubResource("CircleShape2D_lfc25")
@@ -250,3 +263,9 @@ shape = SubResource("CircleShape2D_lfc25")
 [node name="Art" type="Sprite2D" parent="VisionNPC"]
 position = Vector2(2, -2)
 texture = ExtResource("5_anms3")
+
+[node name="Feet" type="Node2D" parent="VisionNPC"]
+position = Vector2(0, 12)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(4, 4)
