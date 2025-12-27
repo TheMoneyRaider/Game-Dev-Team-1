@@ -29,7 +29,7 @@ func _process(delta: float) -> void:
 	velocity = velocity*.95
 
 func activate() -> void:
-	print("TEEHEE")
+	get_parent().open_shop()
 
 
 func _on_body_entered(body):
