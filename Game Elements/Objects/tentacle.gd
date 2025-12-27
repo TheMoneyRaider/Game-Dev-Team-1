@@ -101,6 +101,7 @@ func _ready() -> void:
 	_initialize_segments()
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("light_color",light_color)
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("dark_color",dark_color)
+	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("emerge_height",emerge_height-24)
 
 
 func set_hole(hole_position : Vector2):
@@ -112,7 +113,7 @@ func _physics_process(delta: float) -> void:
 	debug_invalid_points.clear()
 	debug_valid_points.clear()
 	queue_redraw()
-	var target_pos: Vector2 = to_local(target.global_position)+Vector2(256, 256)-get_parent().get_parent().get_parent().position if target else to_local(get_global_mouse_position())
+	var target_pos: Vector2 = to_local(target.global_position)-get_parent().get_parent().get_parent().position if target else to_local(get_global_mouse_position())
 	solve_ik(target_pos)
 
 	apply_constraints()
@@ -345,7 +346,7 @@ func sample_sdf(pos: Vector2) -> float:
 
 
 func constrain_to_hole_mask(p_local: Vector2, index: int) -> Vector2:
-	var p_world = to_global(p_local)-Vector2(256, 256)+get_parent().get_parent().get_parent().position
+	var p_world = to_global(p_local)+get_parent().get_parent().get_parent().position
 	var radius = get_segment_half_width(index)
 	
 	var sdf_value = sample_sdf(p_world)
@@ -361,7 +362,7 @@ func constrain_to_hole_mask(p_local: Vector2, index: int) -> Vector2:
 	else:
 		debug_valid_points.append(p_local)
 	
-	return to_local(p_world + Vector2(256, 256)-get_parent().get_parent().get_parent().position)
+	return to_local(p_world -get_parent().get_parent().get_parent().position)
 
 @export var debug_draw_hole_grid := false
 @export var debug_grid_size := 4      # pixel size of each cell
@@ -399,7 +400,7 @@ func draw_hole_debug_grid():
 			var color = Color(shade, shade, shade)
 
 			# Convert WORLD → LOCAL for drawing
-			var local_pos : Vector2= to_local(world_pos) + Vector2(256, 256)-get_parent().get_parent().get_parent().position
+			var local_pos : Vector2= to_local(world_pos)-get_parent().get_parent().get_parent().position
 
 			draw_rect(
 				Rect2(local_pos - Vector2(cell / 2, cell / 2), Vector2(cell, cell)),

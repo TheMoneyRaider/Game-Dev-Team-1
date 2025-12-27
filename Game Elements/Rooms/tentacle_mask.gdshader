@@ -3,7 +3,6 @@ shader_type canvas_item;
 uniform sampler2D hole_mask : filter_nearest;
 uniform vec2 hole_center;
 uniform vec2 node_offset;
-uniform bool enable = false;
 uniform float emerge_height;
 
 varying vec2 world_pos;
@@ -14,7 +13,7 @@ void vertex() {
 
 void fragment() {
 	vec2 uv = (world_pos - hole_center) / 128.0 + vec2(0.5);
-	if (texture(hole_mask, uv).r < 0.5 && world_pos.y >= emerge_height && enable){
+	if (texture(hole_mask, uv).r < 0.5 && world_pos.y >= emerge_height){
 		discard;
 	}else{
 		COLOR = texture(TEXTURE, UV);

@@ -4,15 +4,19 @@ var shop_open = false
 var moving_tentacles : Array[Node] = []
 var moving_positions : Array[Vector2] = []
 var opening_stage : int = 0
+var curr_pos = Vector2.ZERO
 
 func _ready() -> void:
-	for node in get_node("SubViewportContainer/SubViewport").get_children():
+	for node in get_node("Tentacles").get_children():
 		if node.is_in_group("tentacle"):
 			node.set_hole($Cracks.global_position+Vector2(8,32))
 			
 func _process(delta: float) -> void:
-	get_node("SubViewportContainer").material.set_shader_parameter("node_offset",position)
-	pass
+	if curr_pos != position:
+		curr_pos= position
+		for node in get_node("Tentacles").get_children():
+			if node.is_in_group("tentacle"):
+				node.get_node("SubViewportContainer").material.set_shader_parameter("node_offset",position)
 
 
 
@@ -23,7 +27,7 @@ func open_shop(offered_items : int = 4) -> void:
 
 	var tentacle_list: Array[Node] = []
 
-	for node in get_node("SubViewportContainer/SubViewport").get_children():
+	for node in get_node("Tentacles").get_children():
 		if node.is_in_group("tentacle") and node.name != "Tentacle_Vision":
 			tentacle_list.append(node)
 
