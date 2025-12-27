@@ -101,7 +101,16 @@ func _ready() -> void:
 	_initialize_segments()
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("light_color",light_color)
 	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("dark_color",dark_color)
-	$SubViewportContainer/SubViewport/TwoToneCanvasGroup.material.set_shader_parameter("emerge_height",emerge_height-24)
+	$SubViewportContainer.material.set_shader_parameter("emerge_height",emerge_height)
+
+
+func shrink(shrink_amount : float):
+	max_length = int(max_length * shrink_amount)
+
+	var from_hole : Vector2 = target.origin - hole_global_position
+	target.origin = hole_global_position + from_hole * shrink_amount
+	target.global_position = target.origin
+	_initialize_segments()
 
 
 func set_hole(hole_position : Vector2):

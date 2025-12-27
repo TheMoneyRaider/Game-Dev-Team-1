@@ -9,7 +9,8 @@ var origin: Vector2
 var velocity: Vector2
 
 func _ready():
-	origin = position
+	randomize()
+	origin = global_position
 	velocity = Vector2.RIGHT.rotated(randf() * TAU)
 
 func _process(delta):
@@ -17,11 +18,11 @@ func _process(delta):
 	velocity = velocity.rotated(randf_range(-wander_strength, wander_strength) * delta)
 
 	#Soft pull toward center
-	var to_center = origin - position
+	var to_center = origin - global_position
 	var dist = to_center.length()
 	if dist > 0.01:
 		var pull = to_center.normalized() * (dist / range) * center_pull
 		velocity += pull * delta 
 
 	velocity = velocity.normalized()
-	position += velocity * speed * delta / 2
+	global_position += velocity * speed * delta / 2
