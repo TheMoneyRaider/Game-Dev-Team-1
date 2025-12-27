@@ -177,7 +177,7 @@ func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = 
 func _on_body_entered(body):
 	if !active:
 		return
-	if "is_purple" in body:
+	if body.is_in_group("player"):
 		tracked_bodies1.append(body)
 		prompt1.visible = true
 		tricky = _has_trickster(body,false)

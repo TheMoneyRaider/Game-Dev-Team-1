@@ -188,6 +188,7 @@ offset_top = -34.0
 offset_right = 168.33333
 offset_bottom = 116.0
 scale = Vector2(0.06, 0.06)
+metadata/_edit_use_anchors_ = true
 
 [node name="Prompt1" type="Node2D" parent="."]
 z_index = 1000

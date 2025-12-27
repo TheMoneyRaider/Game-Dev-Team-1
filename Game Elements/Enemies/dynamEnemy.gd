@@ -73,7 +73,7 @@ func _process(delta):
 	
 
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
-	if dmg_owner != null and "is_purple" in dmg_owner:
+	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
 			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants

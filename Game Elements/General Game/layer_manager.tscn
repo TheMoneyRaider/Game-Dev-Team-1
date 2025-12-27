@@ -40,6 +40,7 @@ scale = Vector2(1, 1)
 transform = Transform2D(1, 0, 0, 1, 0, 0)
 
 [node name="PauseMenu" parent="game_container/game_viewport/Hud" instance=ExtResource("4_qhni4")]
+visible = false
 
 [node name="game_root" type="Node2D" parent="game_container/game_viewport"]
 process_mode = 1

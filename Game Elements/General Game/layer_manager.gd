@@ -10,8 +10,8 @@ enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 var player1 = null
 var player2 = null
 ###
-@onready var room_cleared: bool = false
-@onready var reward_claimed: bool = false
+@onready var room_cleared: bool = true
+@onready var reward_claimed: bool = true
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
@@ -86,17 +86,17 @@ func _ready() -> void:
 	hud.connect_signals(player1)
 	hud.set_cross_position()
 	
-	#####Remnant Testing
+	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/trickster.tres")
-	var rem2 = load("res://Game Elements/Remnants/trickster.tres")
-	rem.rank = 4
-	rem2.rank = 4
+	var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	var rem2 = load("res://Game Elements/Remnants/winters_embrace.tres")
+	rem.rank = 3
+	rem2.rank = 3
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 1000000
-	#####
+	####
 	game_root.add_child(pathfinding)
 	preload_rooms()
 	randomize()
@@ -134,6 +134,15 @@ func _ready() -> void:
 	create_new_rooms()
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	#This makes the first room a shop room
+	_enable_pathways()
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -463,25 +472,31 @@ func preload_rooms() -> void:
 			cached_scenes[room_data_item.scene_location] = packed
 
 func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
-	#Remnant Orb
+	if(if_node_exists("Shop",generated_room)):
+		var vision = generated_room.get_node("Shop/VisionNPC") as Area2D
+		if player_reference in vision.tracked_bodies:
+			vision.activate()
+			return true
 	if(if_node_exists("RemnantOrb",generated_room)):
 		var orb = generated_room.get_node("RemnantOrb") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
+			orb.queue_free()
 			_open_remnant_popup()
 			return true
 	if(if_node_exists("TimeFabricOrb",generated_room)):
 		var orb = generated_room.get_node("TimeFabricOrb") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			timefabric_rewarded = 200 #TODO change this to by dynamic(ish)
 			return true
 	if(if_node_exists("UpgradeOrb",generated_room)):
 		var orb = generated_room.get_node("UpgradeOrb") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
+			orb.queue_free()
 			_open_upgrade_popup()
 			return true
 	if(if_node_exists("HealthUpgrade",generated_room)):
 		var orb = generated_room.get_node("HealthUpgrade") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			if is_multiplayer:
 				player2.change_health(5,5)
 			player1.change_health(5,5)
@@ -492,7 +507,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			return true
 	if(if_node_exists("Health",generated_room)):
 		var orb = generated_room.get_node("Health") as Area2D
-		if orb.overlaps_body(player_reference):
+		if player_reference in orb.tracked_bodies:
 			if is_multiplayer:
 				player2.change_health(5)
 			player1.change_health(5)
@@ -510,18 +525,22 @@ func room_reward(reward_type : Reward) -> void:
 		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16)),Vector2i(floor(player2.global_position.x / 16), floor(player2.global_position.y / 16))])
 	else:
 		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16))])
-	while reward == null:
-		match reward_type:
-			Reward.Remnant:
-				reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
-			Reward.TimeFabric:
-				reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
-			Reward.RemnantUpgrade:
-				reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
-			Reward.HealthUpgrade:
-				reward = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
-			Reward.Health:
-				reward = load("res://Game Elements/Objects/health.tscn").instantiate()
+	match reward_type:
+		Reward.Remnant:
+			reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			reward.set_meta("reward_type", "remnant")
+		Reward.TimeFabric:
+			reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
+			reward.set_meta("reward_type", "timefabric")
+		Reward.RemnantUpgrade:
+			reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
+			reward.set_meta("reward_type", "remnantupgrade")
+		Reward.HealthUpgrade:
+			reward = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
+			reward.set_meta("reward_type", "healthupgrade")
+		Reward.Health:
+			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
+			reward.set_meta("reward_type", "health")
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	
@@ -703,7 +722,7 @@ func _choose_reward(pathway_name : String) -> void:
 	var wave = false
 	
 	while reward_type1 == null:
-		var reward_value = calculate_reward()
+		var reward_value = calculate_reward(reward_num)
 		var last_reward_num = reward_num.duplicate()
 		if reward_value!= 5 or !wave:
 			match reward_value:
@@ -905,7 +924,6 @@ func _prepare_timefabric() -> void:
 
 func _open_remnant_popup() -> void:
 	if room_instance and !remnant_offer_popup:
-		room_instance.get_node("RemnantOrb").queue_free()
 		var offer_scene = load("res://Game Elements/ui/remnant_offer.tscn")
 		remnant_offer_popup = offer_scene.instantiate()
 		hud.add_child(remnant_offer_popup)
@@ -917,7 +935,6 @@ func _open_remnant_popup() -> void:
 
 func _open_upgrade_popup() -> void:
 	if room_instance and !remnant_upgrade_popup:
-		room_instance.get_node("UpgradeOrb").queue_free()
 		var upgrade_scene = load("res://Game Elements/ui/remnant_upgrade.tscn")
 		remnant_upgrade_popup = upgrade_scene.instantiate()
 		hud.add_child(remnant_upgrade_popup)
@@ -1269,6 +1286,8 @@ func _on_activate(player_node : Node):
 	if room_instance and room_cleared:
 		if check_reward(room_instance, room_instance_data,player_node):
 			return
+		if room_instance.get_node_or_null("Shop") and room_instance.get_node("Shop").check_rewards(player_node):
+			return
 		if reward_claimed:
 			var direction = check_pathways(room_instance, room_instance_data,player_node,false)
 			if direction != -1:
@@ -1298,15 +1317,15 @@ func _debug_tiles(array_of_tiles) -> void:
 		debug.position = tile*16
 		room_instance.add_child(debug)
 
-func calculate_reward() -> int:
+func calculate_reward(reward_probability : Array) -> int:
 	var total = 0.0
-	for val in reward_num:
+	for val in reward_probability:
 		total+= val
 	var float_point = randf() * total
 	var idx=0
 	var running_weight = 0.0
-	while idx < reward_num.size():
-		running_weight+=reward_num[idx]
+	while idx < reward_probability.size():
+		running_weight+=reward_probability[idx]
 		if running_weight >= float_point:
 			return idx
 		idx+=1

@@ -40,7 +40,7 @@ func _on_body_exited(body):
 		tracked_bodies.erase(body)
 		
 func _crafter_chance(node_to_damage : Node) -> bool:
-	if !"is_purple" in node_to_damage:
+	if !node_to_damage.is_in_group("player"):
 		return true
 	randomize()
 	var remnants : Array[Remnant]
