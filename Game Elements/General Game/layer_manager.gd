@@ -95,7 +95,7 @@ func _ready() -> void:
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
-	timefabric_collected = 1000000
+	timefabric_collected = 100000
 	####
 	game_root.add_child(pathfinding)
 	preload_rooms()

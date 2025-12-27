@@ -61,8 +61,6 @@ func check_rewards(player_node : Node) -> bool:
 						item.queue_free()
 						return true
 	return false
-	
-
 
 func open_shop(offered_items : int = 4) -> void:
 	ten_reward_num = get_tree().get_root().get_node("LayerManager").reward_num.duplicate()

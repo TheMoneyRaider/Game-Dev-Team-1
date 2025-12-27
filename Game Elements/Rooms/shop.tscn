@@ -170,7 +170,7 @@ emerge_height = 60.0
 position = Vector2(263, 384)
 target = NodePath("../../VisionNPC/Feet")
 num__segments = 26
-max_length = 130.0
+max_length = 150.0
 wave_amplitude = 0.5
 line_width = 30.0
 light_color = Color(0.1764706, 0.3137255, 0.85882354, 1)
@@ -262,7 +262,7 @@ position = Vector2(2, -2)
 texture = ExtResource("5_anms3")
 
 [node name="Feet" type="Node2D" parent="VisionNPC"]
-position = Vector2(0, 12)
+position = Vector2(0, 10)
 
 [node name="ItemLocation" type="Node2D" parent="."]
 position = Vector2(1, 349)
