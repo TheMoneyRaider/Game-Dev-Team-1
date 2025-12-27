@@ -38,22 +38,26 @@ func _ready():
 		fragmenting = Globals.config.get_value("fragmentation", "enabled", true)
 	if !fragmenting:
 		$RichTextLabel.visible = false
-	if !capture_all_states:
-		preload_all_textures()
-	UI.player1 = PlayerState.new()
-	UI.player2 = PlayerState.new()
-	randomize()
-	cooldown = 10.0
-	await get_tree().process_frame
-	await get_tree().process_frame
-	# Capture the UI once
-	var vp_tex = $SubViewportContainer/SubViewport.get_texture()
-	the_ui = ImageTexture.create_from_image(vp_tex.get_image())
-	UI_Group.visible = true if capture_all_states else false
-	await explode_ui()
-	cooldown = -1
-	if capture_all_states:
-		capture_all_ui_states()
+		UI_Group.get_node("VBoxContainer").get_child(2).grab_focus()
+		UI_Group.visible = true
+	else:
+		if !capture_all_states:
+			preload_all_textures()
+		UI.player1 = PlayerState.new()
+		UI.player2 = PlayerState.new()
+		randomize()
+		cooldown = 10.0
+		await get_tree().process_frame
+		await get_tree().process_frame
+		# Capture the UI once
+		var vp_tex = $SubViewportContainer/SubViewport.get_texture()
+		the_ui = ImageTexture.create_from_image(vp_tex.get_image())
+		UI_Group.visible = true if capture_all_states else false
+		if fragmenting:
+			await explode_ui()
+			cooldown = -1
+		if capture_all_states:
+			capture_all_ui_states()
 		
 func _begin_explosion_cooldown():
 	if cooldown < 0:
@@ -62,6 +66,8 @@ func _begin_explosion_cooldown():
 
 func _process(delta):
 	$ColorRect.material.set_shader_parameter("time", $ColorRect.material.get_shader_parameter("time")+delta)
+	if !fragmenting:
+		return
 	if Globals.player1_input:
 		if !prepared:
 			update_prompt()
@@ -141,6 +147,8 @@ func mouse_over(button: Button):
 		UI.player2.hover_button = button
 
 func _input(event):
+	if !fragmenting:
+		return
 	if event is InputEventMouseButton:
 		if not event.pressed:
 			if UI.player1.input == "key":

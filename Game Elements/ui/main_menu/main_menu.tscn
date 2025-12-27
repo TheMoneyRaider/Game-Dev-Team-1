@@ -13,11 +13,6 @@
 [ext_resource type="Texture2D" uid="uid://eifbgnatdh4i" path="res://art/gradiant_dot3.png" id="10_a412y"]
 [ext_resource type="StyleBox" uid="uid://4eubuwqyfxh3" path="res://Game Elements/ui/resources/4-2_button.tres" id="10_c3jtu"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
-font_size = 200
-outline_size = 30
-outline_color = Color(0, 0, 0, 1)
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qvtd8"]
 shader = ExtResource("9_6wjqi")
 shader_parameter/time = 0.0
@@ -28,6 +23,11 @@ shader_parameter/tendril_speed = 1.5
 shader_parameter/view_offset = Vector2(0.5, 0.5)
 shader_parameter/range_start = 1.50000007125
 shader_parameter/range_end = 2.50000011875
+
+[sub_resource type="LabelSettings" id="LabelSettings_l8pfx"]
+font_size = 200
+outline_size = 30
+outline_color = Color(0, 0, 0, 1)
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -62,6 +62,17 @@ texture = ExtResource("2_6am0n")
 expand_mode = 1
 stretch_mode = 4
 
+[node name="ColorRect" type="ColorRect" parent="."]
+z_index = -1
+material = SubResource("ShaderMaterial_qvtd8")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
@@ -70,7 +81,6 @@ offset_bottom = 40.0
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
 disable_3d = true
 transparent_bg = true
-handle_input_locally = false
 size = Vector2i(1920, 1000)
 render_target_update_mode = 4
 
@@ -118,7 +128,8 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("5_5lttq")
 theme_override_styles/pressed = ExtResource("6_a412y")
 theme_override_styles/hover = ExtResource("7_odps5")
-theme_override_styles/focus = ExtResource("5_5lttq")
+theme_override_styles/hover_pressed = ExtResource("6_a412y")
+theme_override_styles/focus = ExtResource("7_odps5")
 text = "Start Singleplayer"
 
 [node name="StartMPlayer" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -131,7 +142,8 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("5_5lttq")
 theme_override_styles/pressed = ExtResource("6_a412y")
 theme_override_styles/hover = ExtResource("7_odps5")
-theme_override_styles/focus = ExtResource("5_5lttq")
+theme_override_styles/hover_pressed = ExtResource("6_a412y")
+theme_override_styles/focus = ExtResource("7_odps5")
 text = "Start Multiplayer"
 
 [node name="SettingsButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -144,7 +156,8 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
 theme_override_styles/pressed = ExtResource("9_odps5")
 theme_override_styles/hover = ExtResource("10_c3jtu")
-theme_override_styles/focus = ExtResource("7_6wjqi")
+theme_override_styles/hover_pressed = ExtResource("9_odps5")
+theme_override_styles/focus = ExtResource("10_c3jtu")
 text = "Settings"
 
 [node name="QuitButton" type="Button" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer" groups=["ui_buttons"]]
@@ -156,19 +169,9 @@ theme_override_font_sizes/font_size = 40
 theme_override_styles/normal = ExtResource("7_6wjqi")
 theme_override_styles/pressed = ExtResource("9_odps5")
 theme_override_styles/hover = ExtResource("10_c3jtu")
-theme_override_styles/focus = ExtResource("7_6wjqi")
+theme_override_styles/hover_pressed = ExtResource("9_odps5")
+theme_override_styles/focus = ExtResource("10_c3jtu")
 text = "Quit Game"
-
-[node name="ColorRect" type="ColorRect" parent="."]
-z_index = -1
-material = SubResource("ShaderMaterial_qvtd8")
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 
 [node name="BreakFX" type="CanvasLayer" parent="."]
 

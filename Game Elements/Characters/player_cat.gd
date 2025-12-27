@@ -175,7 +175,7 @@ func tether(delta : float):
 		is_tethered = true
 	if Input.is_action_pressed("swap_" + input_device):
 		var effect = load("res://Game Elements/Effects/tether.tres").duplicate(true)
-		effect.cooldown = 1*delta
+		effect.cooldown = delta
 		effect.value1 = 0.5
 		effect.gained(self)
 		effects.append(effect)
