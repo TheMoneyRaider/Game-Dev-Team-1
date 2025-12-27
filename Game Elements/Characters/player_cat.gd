@@ -89,6 +89,7 @@ func apply_movement(_delta):
 
 
 func _physics_process(delta):
+	print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1
 	#Trap stuff
@@ -118,7 +119,7 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("swap_" + input_device):
 			swap_color()
 	else:
-		tether()
+		tether(delta)
 	input_direction += (tether_momentum / move_speed)
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
@@ -168,12 +169,17 @@ func swap_color():
 		crosshair_sprite.texture = purple_crosshair
 		tether_line.default_color = Color("Purple")
 
-func tether():
+func tether(delta : float):
 	if Input.is_action_just_pressed("swap_" + input_device):
 		tether_momentum += (other_player.position - position) / 1
-		move_speed /= 2
 		is_tethered = true
 	if Input.is_action_pressed("swap_" + input_device):
+		var effect = load("res://Game Elements/Effects/tether.tres").duplicate(true)
+		effect.cooldown = 1*delta
+		effect.value1 = 0.5
+		effect.gained(self)
+		effects.append(effect)
+		
 		tether_line.visible = true
 		if other_player.is_tethered:
 			if is_purple:
@@ -195,7 +201,6 @@ func tether():
 	else:
 		if tether_line.visible == true:
 			tether_line.visible = false
-			move_speed *= 2
 			is_tethered = false
 		if(abs(tether_momentum.length_squared()) <  .1):
 			tether_momentum = Vector2.ZERO
