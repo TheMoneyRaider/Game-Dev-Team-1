@@ -122,13 +122,19 @@ scale = Vector2(1.5, 1.5)
 
 [node name="Text" type="RichTextLabel" parent="Prompt1"]
 offset_left = -26.0
-offset_top = -22.666664
+offset_top = -28.666666
 offset_right = 1274.0
-offset_bottom = 240.33334
+offset_bottom = 3582.3333
 scale = Vector2(0.04, 0.04)
 theme_override_font_sizes/normal_font_size = 192
 bbcode_enabled = true
-text = ": Enter"
-fit_content = true
+text = " 500 to buy: [font=res://addons/input_prompt_icon_font/icon.ttf]keyboard_e_outline[/font]"
 scroll_active = false
 horizontal_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Prompt1"]
+offset_left = -30.666668
+offset_top = -27.999998
+offset_right = 119.33333
+offset_bottom = 122.0
+scale = Vector2(0.06, 0.06)

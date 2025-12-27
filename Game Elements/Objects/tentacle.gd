@@ -23,14 +23,12 @@ class_name Arm extends Node2D
 
 ## Optional target node to track. If not set, tracks mouse position instead.
 @export var target: Node2D
+@export var reward: Node2D
 
 @export_group("IK Configuration")
 ## More _segments = smoother curves but higher computation cost. Start low, increase if jerky.
 ## The setter rebuilds the segment arrays so you can see changes immediately in the editor.
-@export_range(3, 50, 1) var num__segments: int = 24:
-	set(value):
-		num__segments = value
-		_initialize_segments()
+@export_range(3, 50, 1) var num__segments: int = 24
 ## Total arm length. IK will compress the arm when target is closer than this distance.
 ## The setter recalculates segment lengths for immediate visual feedback in the editor.
 @export_range(10.0, 256.0, 1.0) var max_length: float = 128.0:
@@ -104,8 +102,9 @@ func _ready() -> void:
 	$SubViewportContainer.material.set_shader_parameter("emerge_height",emerge_height)
 
 
-func shrink(shrink_amount : float):
-	max_length = int(max_length * shrink_amount)
+func shrink(shrink_amount : float, change_length : bool = true):
+	if change_length:
+		max_length = int(max_length * shrink_amount)
 
 	var from_hole : Vector2 = target.origin - hole_global_position
 	target.origin = hole_global_position + from_hole * shrink_amount
@@ -232,7 +231,7 @@ func apply_wave_motion(delta: float) -> void:
 func update_line2d() -> void:
 	base_node.clear_points()
 	for pos in _segments:
-		base_node.add_point(pos+Vector2(256, 256)-base_node.position)
+		base_node.add_point(pos-$SubViewportContainer.position-base_node.position) #Offset due to viewport
 
 
 ## Rebuilds segment arrays when num__segments or max_length change.
@@ -241,6 +240,9 @@ func _initialize_segments() -> void:
 	# Early exit if called from setter before nodes are ready
 	if not base_node:
 		return
+		
+	##adaptive segment count based on length
+	#num__segments = int (max_length / 7.30769230769)
 
 	# Clear and rebuild arrays
 	_segments.clear()

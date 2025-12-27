@@ -28,7 +28,7 @@ shader_parameter/dark_color = Color(2.695322e-06, 0.8834594, 0.89557076, 1)
 shader_parameter/shade_ratio = 0.3
 
 [sub_resource type="Curve" id="Curve_qdj6u"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.14545453), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0.75746274), 0.0, 0.0, 0, 0, Vector2(0.99277973, 0.39850748), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [node name="Tentacle" type="Node2D" node_paths=PackedStringArray("base_node") groups=["tentacle"]]
@@ -42,9 +42,9 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -256.0
-offset_top = -256.0
+offset_top = -384.0
 offset_right = 256.0
-offset_bottom = 256.0
+offset_bottom = 128.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -58,7 +58,7 @@ material = SubResource("ShaderMaterial_rt1qa")
 
 [node name="Line2D" type="Line2D" parent="SubViewportContainer/SubViewport/TwoToneCanvasGroup"]
 position = Vector2(263, 277)
-points = PackedVector2Array(-7, -21, -7, -42)
+points = PackedVector2Array(-7, -21, -7, -38)
 width = 24.0
 width_curve = SubResource("Curve_qdj6u")
 texture_mode = 1
