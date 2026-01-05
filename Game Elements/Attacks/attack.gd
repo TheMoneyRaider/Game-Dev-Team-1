@@ -55,3 +55,19 @@ func set_values(attack_speed, attack_damage = self.damage, attack_lifespan = sel
 	self.lifespan = attack_lifespan
 	self.hit_force = attack_hit_force
 	
+static func apply_damage(body : Node, c_owner : Node, damage_dealt : int, direction: Vector2) -> int:
+	if c_owner.has_method("swap_color"):
+		if body.has_method("swap_color"):
+			return 0
+		elif body.has_method("take_damage"):
+			print("hit enemy?")
+			body.take_damage(damage_dealt,c_owner,direction)
+			return 1				
+	else:
+		if !body.has_method("swap_color"):
+			return 0
+		elif body.has_method("take_damage"):
+			print("hit enemy?")
+			body.take_damage(damage_dealt,c_owner,direction)
+			return 1
+	return -1
