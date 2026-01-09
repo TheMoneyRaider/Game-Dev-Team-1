@@ -88,13 +88,13 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	var rem2 = load("res://Game Elements/Remnants/winters_embrace.tres")
-	rem.rank = 3
-	rem2.rank = 3
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem2.duplicate(true))
-	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	#var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#var rem2 = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#rem.rank = 3
+	#rem2.rank = 3
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem2.duplicate(true))
+	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 100000
 	####
 	game_root.add_child(pathfinding)
@@ -1104,6 +1104,28 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	_choose_reward(pathway_detect.name)
 	
 func _move_to_pathway_room(pathway_id: String) -> void:
+	var shido1 = 0.0
+	var shido2 = 0.0
+	for rem in player_1_remnants:
+		if rem.remnant_name == "Remnant of Shido":
+			shido1 = rem.variable_1_values[rem.rank]/100.0
+			break
+	for rem in player_2_remnants:
+		if rem.remnant_name == "Remnant of Shido":
+			shido1 = rem.variable_1_values[rem.rank]/100.0
+			break
+	if shido1!=0.0:
+		for rem in player_1_remnants:
+			if randf() < shido1:
+				rem.rank +=1
+	if shido2!=0.0:
+		for rem in player_1_remnants:
+			if randf() < shido2:
+				rem.rank +=1
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+		
+	
+	
 	if not generated_rooms.has(pathway_id):
 		push_warning("No linked room for pathway " + pathway_id)
 		return
