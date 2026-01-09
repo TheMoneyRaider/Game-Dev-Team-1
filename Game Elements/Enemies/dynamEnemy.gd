@@ -2,7 +2,7 @@ class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
-var current_health: int = 10 
+var current_health: int = 10
 var move_speed: float = 70
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
@@ -75,7 +75,9 @@ func _process(delta):
 		queue_redraw()
 	
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null):
+	
+	get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:

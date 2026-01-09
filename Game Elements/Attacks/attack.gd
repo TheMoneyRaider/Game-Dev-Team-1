@@ -73,7 +73,7 @@ func apply_damage(body : Node, c_owner : Node, damage_dealt : int, direction: Ve
 	if !c_owner.is_in_group("player") and !body.is_in_group("player"):
 		return 0
 	if body.has_method("take_damage"):
-		body.take_damage(damage_dealt,c_owner,direction)
+		body.take_damage(damage_dealt,c_owner,direction,self)
 		return 1
 	return -1
 	
