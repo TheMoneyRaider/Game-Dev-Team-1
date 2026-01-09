@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Game Elements/Attacks/attack.tscn" id="4_vbfai"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
-radius = 3.0
 
 [sub_resource type="Animation" id="Animation_j4hvv"]
 length = 0.001

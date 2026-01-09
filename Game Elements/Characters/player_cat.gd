@@ -89,7 +89,6 @@ func apply_movement(_delta):
 
 
 func _physics_process(delta):
-	print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1
 	#Trap stuff
@@ -196,7 +195,6 @@ func tether(delta : float):
 		else:
 			tether_momentum += (other_player.position - position) / 25
 		tether_momentum *= .995
-		print(tether_momentum.length())
 		tether_line.width_curve.set_point_value(1, min(max(50 / tether_momentum.length(),.4),1))
 	else:
 		if tether_line.visible == true:
