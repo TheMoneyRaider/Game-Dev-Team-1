@@ -66,6 +66,25 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],		#Pathway Directions                       
 5,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
+false),room.Create_Room(
+"res://Game Elements/Rooms/test_room3.tscn", 																					#Scene Location                       
+0,																																#Num Liquids
+[],																																#Liquid Types 
+[],																																#Liquid Chances                     
+0,																																#Num Fillings              
+[0],																															#Terrain Set                                      
+[0],																															#Terrain ID                       
+[.6,1.0],																														#Threshold            
+randi(),																														#Noise Seed           
+FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+.1,																																#Noise Frequency                        
+0,																																#Num Traps              
+[],																																#Trap Chances                                
+[],																																#Trap Types                         
+4,																																#Num Pathways                   
+[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+3,																																#Enemy Num Goal                               
+0,																																#NPC Spawnpoints   
 false)]
 
 

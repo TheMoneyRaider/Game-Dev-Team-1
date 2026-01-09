@@ -434,7 +434,6 @@ func floor_noise_threaded(generated_room: Node2D, generated_room_data: Room) -> 
 	)
 
 func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) -> void:
-	generated_room.blocked_cells += generated_room.get_node("Walls").get_used_cells()
 	generated_room.blocked_cells += generated_room.get_node("Filling").get_used_cells()
 	var types = [0,0,0,0,0]
 	for liquid in generated_room_data.liquid_types:
@@ -865,7 +864,7 @@ func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vec
 	room_instance.add_child(timefabric_instance)
 	timefabric_instance.get_node("Sprite2D").frame = time_idx
 	timefabric_instance.global_position = current_position + Vector2(offset) +Vector2(8,8)
-	timefabric_instance.set_arrays(self, room_instance.get_node("Walls").get_used_cells())
+	timefabric_instance.set_arrays(self)
 	timefabric_instance.set_direction(direction)
 	timefabric_instance.set_process(true)
 	timefabric_instance.absorbed_by_player.connect(_on_timefabric_absorbed)

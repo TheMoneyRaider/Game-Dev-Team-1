@@ -16,7 +16,6 @@ var jump_cooldown := 0.0
 @onready var acid_cells := []
 @onready var trap_cells := []
 @onready var blocked_cells := []
-@onready var wall_cells := []
 
 # --- Behavior params ---
 @export var gravity := 300.0
@@ -143,10 +142,9 @@ func check_player(player : Node):
 	if distance < 5:
 		emit_signal("absorbed_by_player", self)
 
-func set_arrays(layer_manager : Node, walls_array : Array) -> void:
+func set_arrays(layer_manager : Node) -> void:
 	water_cells = layer_manager.water_cells
 	lava_cells = layer_manager.lava_cells
 	acid_cells = layer_manager.acid_cells
 	trap_cells = layer_manager.trap_cells
 	blocked_cells = layer_manager.blocked_cells
-	wall_cells = walls_array
