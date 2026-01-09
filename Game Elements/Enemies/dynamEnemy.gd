@@ -13,10 +13,8 @@ var debug_mode = false
 
 var effects : Array[Effect] = []
 
-const attack = preload("res://Game Elements/Attacks/attack.gd")
-var bad_bolt = preload("res://Game Elements/Attacks/bad_bolt.gd")
-var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bad_bolt.tscn", bad_bolt)]
-signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
+var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn")]
+signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
 
@@ -25,7 +23,12 @@ func handle_attack(target_position: Vector2):
 	var attack_position = attack_direction * 0		 + global_position
 	request_attack(attacks[0], attack_position, attack_direction)
 
-func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction: Vector2):
+func request_attack(t_attack: PackedScene, attack_position: Vector2, attack_direction: Vector2):
+	var instance = t_attack.instantiate()
+	instance.global_position = attack_position
+	instance.direction = attack_direction
+	instance.c_owner = self
+	get_parent().add_child(instance)
 	emit_signal("attack_requested", t_attack, attack_position, attack_direction)
 # import like, takes damage or something like that
 

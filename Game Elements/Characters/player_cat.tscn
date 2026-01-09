@@ -1,8 +1,7 @@
-[gd_scene load_steps=22 format=3 uid="uid://bgysbj2623d8d"]
+[gd_scene load_steps=21 format=3 uid="uid://bgysbj2623d8d"]
 
 [ext_resource type="Script" uid="uid://dpumkeekpn38k" path="res://Game Elements/Characters/player_cat.gd" id="1_u0lhy"]
 [ext_resource type="Texture2D" uid="uid://bse7gaxbkiksd" path="res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png" id="2_qmbn4"]
-[ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Game Elements/Attacks/attack.tscn" id="3_up8sf"]
 [ext_resource type="Script" uid="uid://dcpvhpj3f8luc" path="res://Game Elements/States/idle.gd" id="5_gr630"]
 [ext_resource type="PackedScene" uid="uid://dhidnnukydkmw" path="res://Game Elements/General Game/crosshair.tscn" id="5_q2fti"]
 [ext_resource type="Script" uid="uid://dwkcar82gxuft" path="res://Game Elements/States/move.gd" id="6_ylelj"]
@@ -204,8 +203,6 @@ shape = SubResource("RectangleShape2D_k8dsg")
 libraries = {
 &"": SubResource("AnimationLibrary_428uj")
 }
-
-[node name="Attack" parent="." instance=ExtResource("3_up8sf")]
 
 [node name="Crosshair" parent="." instance=ExtResource("5_q2fti")]
 

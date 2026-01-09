@@ -1,5 +1,4 @@
 extends CharacterBody2D
-const attack = preload("res://Game Elements/Attacks/attack.gd")
 var mouse_sensitivity: float = 1.0
 
 @export var move_speed: float = 100
@@ -44,17 +43,13 @@ var effects : Array[Effect] = []
 
 
 #The scripts for loading default values into the attack
-var smash = preload("res://Game Elements/Attacks/smash.gd")
-var bolt = preload("res://Game Elements/Attacks/bolt.gd")
-var death_mark = preload("res://Game Elements/Attacks/death_mark.gd")
 #The list of attacks for playercharacter
-var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bolt.tscn",bolt),attack.create_from_resource("res://Game Elements/Attacks/smash.tscn",smash)]
-var revive = attack.create_from_resource("res://Game Elements/Attacks/death_mark.tscn",death_mark)
+var attacks = [preload("res://Game Elements/Attacks/bolt.tscn"),preload("res://Game Elements/Attacks/smash.tscn")]
+var revive = preload("res://Game Elements/Attacks/death_mark.tscn")
 var cooldowns = [0,0]
 var is_purple = true
 
-
-signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
+signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
 signal special(player_node : Node)
@@ -141,10 +136,16 @@ func update_animation_parameters(move_input : Vector2):
 		move_state.move_direction = move_input
 		
 
-func request_attack(t_attack : Attack):
+func request_attack(t_attack : PackedScene) -> float:
+	var instance = t_attack.instantiate()
+	instance.direction = (crosshair.position).normalized()
+	instance.global_position = (crosshair.position).normalized() * 20 + global_position
+	instance.c_owner = self
+	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
+	return instance.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
 	if(i_frames <= 0):
@@ -153,6 +154,10 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if(current_health <= 0):
 			if(die(true)):
+				var instance = revive.instantiate()
+				instance.global_position = position
+				instance.c_owner = self
+				get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
@@ -240,9 +245,7 @@ func adjust_cooldowns(time_elapsed : float):
 
 func handle_attack():
 	if cooldowns[is_purple as int] <= 0:
-		await get_tree().create_timer(attacks[is_purple as int].start_lag).timeout
-		request_attack(attacks[is_purple as int])
-		cooldowns[is_purple as int] = attacks[is_purple as int].cooldown
+		cooldowns[is_purple as int] = request_attack(attacks[is_purple as int])
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
