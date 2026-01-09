@@ -29,32 +29,18 @@ func _process(delta):
 func _on_body_entered(body):
 	print("hit type is ", body)
 	if(!hit_nodes.has(body)):
-		if(apply_damage(body)):
-			pierce -= 1
-			hit_nodes[body] = null
+		match Attack.apply_damage(body,c_owner,damage,direction):
+			1:
+				pierce -= 1
+				hit_nodes[body] = null
+			0:
+				pass
+			-1:
+				pierce -= 1
+				if(wall_collision):
+					queue_free()
 	if pierce == -1:
 		queue_free()
-		
-func apply_damage(body : Node) -> bool:
-	if c_owner.has_method("swap_color"):
-		if body.has_method("swap_color"):
-			return false
-		elif body.has_method("take_damage"):
-			print("hit enemy?")
-			body.take_damage(damage,c_owner,direction)
-			return true				
-	else:
-		if !body.has_method("swap_color"):
-			return false
-		elif body.has_method("take_damage"):
-			print("hit enemy?")
-			body.take_damage(damage,c_owner,direction)
-			return true
-	if(wall_collision):
-		queue_free()
-		return false
-	else:
-		return true
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.has_method("deflect"):
