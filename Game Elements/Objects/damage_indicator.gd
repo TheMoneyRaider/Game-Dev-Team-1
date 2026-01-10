@@ -72,8 +72,9 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 	var rot_angle = deg_to_rad(20.0)
 	rot_velocity = randf_range(-rot_angle, rot_angle)
 	#Add Color Variation
-	var hue_change = .2
-	color = Color(color.r+randf_range(-hue_change,hue_change),color.g+randf_range(-hue_change,hue_change),color.b+randf_range(-hue_change,hue_change),color.a)
+	if attack_owner:
+		var hue_change = .2
+		color = Color(color.r+randf_range(-hue_change,hue_change),color.g+randf_range(-hue_change,hue_change),color.b+randf_range(-hue_change,hue_change),color.a)
 	
 	text.add_theme_font_size_override("font_size", size)
 	text.add_theme_color_override("font_color", color)

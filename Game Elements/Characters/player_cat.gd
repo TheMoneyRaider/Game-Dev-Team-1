@@ -148,11 +148,13 @@ func request_attack(t_attack : PackedScene) -> float:
 	return instance.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null):
+	return
 	if(i_frames <= 0):
 		i_frames = 20
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
-		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
+		if current_health >= 0:
+			get_tree().get_root().get_node("LayerManager")._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
 		if(current_health <= 0):
 			if(die(true)):
 				var instance = revive.instantiate()

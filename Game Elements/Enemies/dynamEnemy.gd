@@ -76,8 +76,8 @@ func _process(delta):
 	
 
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null):
-	
-	get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
+	if current_health >= 0:
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
@@ -93,7 +93,6 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 				effect.value1 =  rem.variable_1_values[rem.rank-1]
 				effect.gained(self)
 				effects.append(effect)
-				
 	var bt_player = get_node("BTPlayer")
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
@@ -104,7 +103,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 		damage_direction = direction
 	else:
 		emit_signal("enemy_took_damage",damage,current_health,self,direction)
-		current_health = current_health - damage
+		current_health -= damage
+	print(str(current_health)+" "+str(damage)+" "+str(max_health))
 
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)

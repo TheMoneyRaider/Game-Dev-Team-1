@@ -9,6 +9,7 @@ size = Vector2(15, 8)
 [node name="Bolt" type="Area2D" groups=["attack"]]
 collision_mask = 3
 script = ExtResource("1_lvfr5")
+speed = 90.0
 attack_type = "bad bolt"
 deflectable = true
 

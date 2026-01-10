@@ -67,13 +67,13 @@ func _process(delta):
 		c_owner.die(true,true)
 	queue_free()
 	
-func apply_damage(body : Node, c_owner : Node, damage_dealt : int, direction: Vector2) -> int:
-	if c_owner.is_in_group("player") and body.is_in_group("player"):
+func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: Vector2) -> int:
+	if n_owner.is_in_group("player") and body.is_in_group("player"):
 		return 0
-	if !c_owner.is_in_group("player") and !body.is_in_group("player"):
+	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
 		return 0
 	if body.has_method("take_damage"):
-		body.take_damage(damage_dealt,c_owner,direction,self)
+		body.take_damage(damage_dealt,n_owner,a_direction,self)
 		return 1
 	return -1
 	
@@ -109,3 +109,5 @@ func _on_area_entered(area: Area2D) -> void:
 		area.deflect(direction, hit_force)
 		area.c_owner = c_owner
 		area.hit_nodes = {}
+		for area_intr in area.get_overlapping_areas():
+			area._on_body_entered(area_intr)

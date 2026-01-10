@@ -1352,7 +1352,7 @@ func calculate_reward(reward_probability : Array) -> int:
 		idx+=1
 	return 0
 	
-func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node, c_owner : Node):
+func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):
 	var instance = load("res://Game Elements/Objects/damage_indicator.tscn").instantiate()
 	room_instance.add_child(instance)
 	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction)
