@@ -44,6 +44,7 @@ var effects : Array[Effect] = []
 
 #The scripts for loading default values into the attack
 #The list of attacks for playercharacter
+var weapons = [Weapon.create_weapon("res://Game Elements/Weapons/Crossbow.tres",self),Weapon.create_weapon("res://Game Elements/Weapons/Mace.tres",self)]
 var attacks = [preload("res://Game Elements/Attacks/bolt.tscn"),preload("res://Game Elements/Attacks/smash.tscn")]
 var revive = preload("res://Game Elements/Attacks/death_mark.tscn")
 var cooldowns = [0,0]
@@ -136,16 +137,10 @@ func update_animation_parameters(move_input : Vector2):
 		move_state.move_direction = move_input
 		
 
-func request_attack(t_attack : PackedScene) -> float:
-	var instance = t_attack.instantiate()
-	instance.direction = (crosshair.position).normalized()
-	instance.global_position = (crosshair.position).normalized() * 20 + global_position
-	instance.c_owner = self
-	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+func request_attack(t_weapon : Weapon) -> float:
 	var attack_direction = (crosshair.position).normalized()
-	var attack_position = attack_direction * 20 + global_position
-	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
-	return instance.cooldown
+	t_weapon.request_attacks(attack_direction,global_position)
+	return t_weapon.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
 	if(i_frames <= 0):
@@ -245,7 +240,7 @@ func adjust_cooldowns(time_elapsed : float):
 
 func handle_attack():
 	if cooldowns[is_purple as int] <= 0:
-		cooldowns[is_purple as int] = request_attack(attacks[is_purple as int])
+		cooldowns[is_purple as int] = request_attack(weapons[is_purple as int])
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
@@ -309,7 +304,7 @@ func _crafter_chance() -> bool:
 			
 	return true
 
-func _hunter_percent_boost() -> float:
+func hunter_percent_boost() -> float:
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
@@ -339,3 +334,6 @@ func red_flash() -> void:
 		sprite.self_modulate = Color(1.0, 0.378, 0.31, 1.0)
 	else:
 		sprite.self_modulate = Color(1.0, 1.0, 1.0)
+
+func set_weapon(purple : bool, resource_loc : String):
+	weapons[purple as int] = Weapon.create_weapon(resource_loc,self)

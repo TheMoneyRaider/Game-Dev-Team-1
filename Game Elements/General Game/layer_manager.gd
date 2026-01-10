@@ -9,6 +9,8 @@ enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
+var weapon1 = "res://Game Elements/Weapons/Mace.tres"
+var weapon2 = "res://Game Elements/Weapons/Shotgun.tres"
 ###
 @onready var room_cleared: bool = true
 @onready var reward_claimed: bool = true
@@ -797,6 +799,8 @@ func _setup_players() -> void:
 		player2.is_multiplayer = true
 		player1.other_player = player2
 		player2.other_player = player1
+		player1.set_weapon(true, weapon1)
+		player2.set_weapon(false, weapon2)
 		game_root.add_child(player1)
 		game_root.add_child(player2)
 		player2.update_input_device(Globals.player2_input)
@@ -809,6 +813,8 @@ func _setup_players() -> void:
 	else:
 		player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
+		player1.set_weapon(true, weapon1)
+		player1.set_weapon(false, weapon2)
 		game_root.add_child(player1)
 	player1.update_input_device(Globals.player1_input)
 	player1.attack_requested.connect(_on_player_attack)
