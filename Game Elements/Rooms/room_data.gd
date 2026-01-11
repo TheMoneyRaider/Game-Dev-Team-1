@@ -105,6 +105,6 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
 [room.Direction.Up,room.Direction.Down],																						#Pathway Directions                     
-0,																																#Enemy Num Goal                               
+10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false)

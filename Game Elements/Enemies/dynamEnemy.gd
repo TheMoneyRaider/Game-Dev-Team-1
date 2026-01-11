@@ -39,7 +39,7 @@ func load_settings():
 
 func _ready():
 	current_health = max_health
-	add_to_group("enemy")
+	add_to_group("enemy") #TODO might not be needed anymore. I added a global group and just put the scenes in that group
 	load_settings()
 	Globals.config_changed.connect(load_settings)
 

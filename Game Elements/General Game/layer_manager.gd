@@ -119,9 +119,9 @@ func _ready() -> void:
 		if c not in conflict_cells and c not in filling:
 			placable_locations.append(c)
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/laser_enemy.tscn")],self)
 	else:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/laser_enemy.tscn")],self)
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
@@ -183,7 +183,7 @@ func _process(delta: float) -> void:
 				room_instance.get_node("TimeFabricOrb").queue_free()
 	if !room_cleared:
 		for child in room_instance.get_children():
-			if child is DynamEnemy:
+			if child.is_in_group("enemy"):
 				if child.position.distance_to(player1.position) > 1000: #Haphazard fix for the disappearing enemy
 					push_warning("REMOVED ENEMY DUE TO BUG")
 					child.queue_free()
