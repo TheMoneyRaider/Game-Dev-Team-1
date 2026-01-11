@@ -2,8 +2,10 @@ class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
+@export var deagro_distance: float = 150.0
+@export var agro_distance: float = 150.0
 var current_health: int = 10
-var move_speed: float = 70
+@export var move_speed: float = 70
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
@@ -42,6 +44,9 @@ func _ready():
 	add_to_group("enemy") #TODO might not be needed anymore. I added a global group and just put the scenes in that group
 	load_settings()
 	Globals.config_changed.connect(load_settings)
+	var bt_player = get_node("BTPlayer")
+	bt_player.blackboard.set_var("agro_dist", agro_distance)
+	bt_player.blackboard.set_var("deagro_dist", deagro_distance)
 
 #need this for flipping the sprite movement
 func update_flip(dir: float): 
