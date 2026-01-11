@@ -61,8 +61,6 @@ func check_rewards(player_node : Node) -> bool:
 						item.queue_free()
 						return true
 	return false
-	
-
 
 func open_shop(offered_items : int = 4) -> void:
 	ten_reward_num = get_tree().get_root().get_node("LayerManager").reward_num.duplicate()
@@ -122,9 +120,10 @@ func _animate_tentacle_target(tentacle: Node, hole_bottom: Vector2) -> void:
 	)
 	await tween.finished
 	for node in moving_tentacles:
-		node.reward.enabled = true
-		if len(node.reward.tracked_bodies) != 0:
-			node.reward.prompt1.visible = true
+		if node.reward:
+			node.reward.enabled = true
+			if len(node.reward.tracked_bodies) != 0:
+				node.reward.prompt1.visible = true
 
 enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 func _on_tentacle_reached_hole(tentacle: Node) -> void:

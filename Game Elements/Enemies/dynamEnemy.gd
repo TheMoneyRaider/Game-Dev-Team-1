@@ -2,7 +2,7 @@ class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
-var current_health: int = 10 
+var current_health: int = 10
 var move_speed: float = 70
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var current_dmg_time: float = 0.0
@@ -13,10 +13,8 @@ var debug_mode = false
 
 var effects : Array[Effect] = []
 
-const attack = preload("res://Game Elements/Attacks/attack.gd")
-var bad_bolt = preload("res://Game Elements/Attacks/bad_bolt.gd")
-var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bad_bolt.tscn", bad_bolt)]
-signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
+var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn")]
+signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
 
@@ -25,7 +23,12 @@ func handle_attack(target_position: Vector2):
 	var attack_position = attack_direction * 0		 + global_position
 	request_attack(attacks[0], attack_position, attack_direction)
 
-func request_attack(t_attack: Attack, attack_position: Vector2, attack_direction: Vector2):
+func request_attack(t_attack: PackedScene, attack_position: Vector2, attack_direction: Vector2):
+	var instance = t_attack.instantiate()
+	instance.global_position = attack_position
+	instance.direction = attack_direction
+	instance.c_owner = self
+	get_parent().add_child(instance)
 	emit_signal("attack_requested", t_attack, attack_position, attack_direction)
 # import like, takes damage or something like that
 
@@ -72,7 +75,9 @@ func _process(delta):
 		queue_redraw()
 	
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null):
+	if current_health >= 0:
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
@@ -88,7 +93,6 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 				effect.value1 =  rem.variable_1_values[rem.rank-1]
 				effect.gained(self)
 				effects.append(effect)
-				
 	var bt_player = get_node("BTPlayer")
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
@@ -99,7 +103,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 		damage_direction = direction
 	else:
 		emit_signal("enemy_took_damage",damage,current_health,self,direction)
-		current_health = current_health - damage
+		current_health -= damage
+	#print(str(current_health)+" "+str(damage)+" "+str(max_health))
 
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)

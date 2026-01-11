@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bfmw81k3isc75"]
+[gd_scene load_steps=13 format=3 uid="uid://bfmw81k3isc75"]
 
 [ext_resource type="Script" uid="uid://jhehuw17cbi0" path="res://Game Elements/ui/settings.gd" id="1_4geyq"]
 [ext_resource type="Script" uid="uid://b2etf1e6x6kyr" path="res://Game Elements/ui/settings_slider.gd" id="2_r7s23"]
@@ -6,8 +6,10 @@
 [ext_resource type="StyleBox" uid="uid://gpahke45chv" path="res://Game Elements/ui/resources/7-3_button.tres" id="3_27vsl"]
 [ext_resource type="StyleBox" uid="uid://duatvi4nhndpj" path="res://Game Elements/ui/resources/4-1_button.tres" id="4_0nguj"]
 [ext_resource type="StyleBox" uid="uid://bl5m86jryhcbv" path="res://Game Elements/ui/resources/4-3_button.tres" id="5_r7s23"]
+[ext_resource type="StyleBox" uid="uid://7c2wqv48pg7x" path="res://Game Elements/ui/resources/7-2_button.tres" id="6_wbsn3"]
 [ext_resource type="Texture2D" uid="uid://rawhoxpikpyp" path="res://art/title_assets/grainy_background_visual.png" id="7_5x5iw"]
 [ext_resource type="Shader" uid="uid://df6is5vss0kty" path="res://Game Elements/ui/resources/timelines.gdshader" id="8_3n0va"]
+[ext_resource type="StyleBox" uid="uid://4eubuwqyfxh3" path="res://Game Elements/ui/resources/4-2_button.tres" id="8_xt5ys"]
 [ext_resource type="Texture2D" uid="uid://eifbgnatdh4i" path="res://art/gradiant_dot3.png" id="9_xt5ys"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_3n0va"]
@@ -192,7 +194,7 @@ focus_neighbor_right = NodePath("../Apply")
 theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = ExtResource("2_xrwt4")
 theme_override_styles/pressed = ExtResource("3_27vsl")
-theme_override_styles/hover = ExtResource("2_xrwt4")
+theme_override_styles/hover = ExtResource("6_wbsn3")
 theme_override_styles/hover_pressed = ExtResource("3_27vsl")
 text = "Return"
 
@@ -204,7 +206,7 @@ focus_neighbor_left = NodePath("../Back")
 theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = ExtResource("4_0nguj")
 theme_override_styles/pressed = ExtResource("5_r7s23")
-theme_override_styles/hover = ExtResource("4_0nguj")
+theme_override_styles/hover = ExtResource("8_xt5ys")
 theme_override_styles/hover_pressed = ExtResource("5_r7s23")
 text = "Apply"
 

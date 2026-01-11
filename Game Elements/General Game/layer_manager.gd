@@ -88,14 +88,14 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	var rem2 = load("res://Game Elements/Remnants/winters_embrace.tres")
-	rem.rank = 3
-	rem2.rank = 3
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem2.duplicate(true))
-	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
-	timefabric_collected = 1000000
+	#var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#var rem2 = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#rem.rank = 3
+	#rem2.rank = 3
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem2.duplicate(true))
+	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	timefabric_collected = 100000
 	####
 	game_root.add_child(pathfinding)
 	preload_rooms()
@@ -434,7 +434,6 @@ func floor_noise_threaded(generated_room: Node2D, generated_room_data: Room) -> 
 	)
 
 func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) -> void:
-	generated_room.blocked_cells += generated_room.get_node("Walls").get_used_cells()
 	generated_room.blocked_cells += generated_room.get_node("Filling").get_used_cells()
 	var types = [0,0,0,0,0]
 	for liquid in generated_room_data.liquid_types:
@@ -865,7 +864,7 @@ func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vec
 	room_instance.add_child(timefabric_instance)
 	timefabric_instance.get_node("Sprite2D").frame = time_idx
 	timefabric_instance.global_position = current_position + Vector2(offset) +Vector2(8,8)
-	timefabric_instance.set_arrays(self, room_instance.get_node("Walls").get_used_cells())
+	timefabric_instance.set_arrays(self)
 	timefabric_instance.set_direction(direction)
 	timefabric_instance.set_process(true)
 	timefabric_instance.absorbed_by_player.connect(_on_timefabric_absorbed)
@@ -1104,6 +1103,28 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	_choose_reward(pathway_detect.name)
 	
 func _move_to_pathway_room(pathway_id: String) -> void:
+	var shido1 = 0.0
+	var shido2 = 0.0
+	for rem in player_1_remnants:
+		if rem.remnant_name == "Remnant of Shido":
+			shido1 = rem.variable_1_values[rem.rank]/100.0
+			break
+	for rem in player_2_remnants:
+		if rem.remnant_name == "Remnant of Shido":
+			shido1 = rem.variable_1_values[rem.rank]/100.0
+			break
+	if shido1!=0.0:
+		for rem in player_1_remnants:
+			if randf() < shido1:
+				rem.rank +=1
+	if shido2!=0.0:
+		for rem in player_1_remnants:
+			if randf() < shido2:
+				rem.rank +=1
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+		
+	
+	
 	if not generated_rooms.has(pathway_id):
 		push_warning("No linked room for pathway " + pathway_id)
 		return
@@ -1241,7 +1262,7 @@ func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, 
 				_open_pathway(pathway_name+"_Detect", generated_room)
 				conflict_cells.append_array(generated_room.get_node(pathway_name).get_used_cells())
 			
-func _on_player_attack(_new_attack : Attack, _attack_position : Vector2, _attack_direction : Vector2, _damage_boost : float) -> void:
+func _on_player_attack(_new_attack : PackedScene, _attack_position : Vector2, _attack_direction : Vector2, _damage_boost : float) -> void:
 	layer_ai[6]+=1
 	
 func _on_player_take_damage(damage_amount : int,_current_health : int,_player_node : Node) -> void:
@@ -1330,3 +1351,8 @@ func calculate_reward(reward_probability : Array) -> int:
 			return idx
 		idx+=1
 	return 0
+	
+func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):
+	var instance = load("res://Game Elements/Objects/damage_indicator.tscn").instantiate()
+	room_instance.add_child(instance)
+	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction)

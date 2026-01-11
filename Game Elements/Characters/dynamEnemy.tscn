@@ -1,12 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://d4fye58prgexu"]
+[gd_scene load_steps=14 format=3 uid="uid://d4fye58prgexu"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_ffkh2"]
 [ext_resource type="BehaviorTree" uid="uid://dcnh0ja2aticr" path="res://ai/trees/meleEnemy.tres" id="2_ffkh2"]
 [ext_resource type="Texture2D" uid="uid://bulthemulnjtu" path="res://art/characters/goblin_spritesheet.png" id="2_n5i5c"]
-[ext_resource type="PackedScene" uid="uid://cqusktdp3muk6" path="res://Game Elements/Attacks/attack.tscn" id="4_vbfai"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
-radius = 3.0
 
 [sub_resource type="Animation" id="Animation_j4hvv"]
 length = 0.001
@@ -163,5 +161,3 @@ libraries = {
 [node name="BTPlayer" type="BTPlayer" parent="."]
 behavior_tree = ExtResource("2_ffkh2")
 blackboard_plan = SubResource("BlackboardPlan_4lifg")
-
-[node name="Attack" parent="." instance=ExtResource("4_vbfai")]

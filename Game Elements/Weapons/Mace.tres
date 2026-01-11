@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=2 format=3 uid="uid://dqvdb6fqylbce"]
+
+[ext_resource type="Script" uid="uid://dv58kn64xuqjd" path="res://Game Elements/Weapons/Weapon.gd" id="2_7bdxl"]
+
+[resource]
+script = ExtResource("2_7bdxl")
+cooldown = 0.5
+type = "Mace"

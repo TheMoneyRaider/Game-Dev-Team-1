@@ -1,5 +1,4 @@
 extends CharacterBody2D
-const attack = preload("res://Game Elements/Attacks/attack.gd")
 var mouse_sensitivity: float = 1.0
 
 @export var move_speed: float = 100
@@ -44,17 +43,13 @@ var effects : Array[Effect] = []
 
 
 #The scripts for loading default values into the attack
-var smash = preload("res://Game Elements/Attacks/smash.gd")
-var bolt = preload("res://Game Elements/Attacks/bolt.gd")
-var death_mark = preload("res://Game Elements/Attacks/death_mark.gd")
 #The list of attacks for playercharacter
-var attacks = [attack.create_from_resource("res://Game Elements/Attacks/bolt.tscn",bolt),attack.create_from_resource("res://Game Elements/Attacks/smash.tscn",smash)]
-var revive = attack.create_from_resource("res://Game Elements/Attacks/death_mark.tscn",death_mark)
+var attacks = [preload("res://Game Elements/Attacks/bolt.tscn"),preload("res://Game Elements/Attacks/smash.tscn")]
+var revive = preload("res://Game Elements/Attacks/death_mark.tscn")
 var cooldowns = [0,0]
 var is_purple = true
 
-
-signal attack_requested(new_attack : Attack, t_position : Vector2, t_direction : Vector2, damage_boost : float)
+signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
 signal activate(player_node : Node)
 signal special(player_node : Node)
@@ -118,7 +113,7 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("swap_" + input_device):
 			swap_color()
 	else:
-		tether()
+		tether(delta)
 	input_direction += (tether_momentum / move_speed)
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
@@ -141,18 +136,31 @@ func update_animation_parameters(move_input : Vector2):
 		move_state.move_direction = move_input
 		
 
-func request_attack(t_attack : Attack):
+func request_attack(t_attack : PackedScene) -> float:
+	var instance = t_attack.instantiate()
+	instance.direction = (crosshair.position).normalized()
+	instance.global_position = (crosshair.position).normalized() * 20 + global_position
+	instance.c_owner = self
+	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
+	return instance.cooldown
 
-func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1)):
+func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null):
+	return
 	if(i_frames <= 0):
 		i_frames = 20
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
+		if current_health >= 0:
+			get_tree().get_root().get_node("LayerManager")._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
 		if(current_health <= 0):
 			if(die(true)):
+				var instance = revive.instantiate()
+				instance.global_position = position
+				instance.c_owner = self
+				get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
@@ -168,12 +176,17 @@ func swap_color():
 		crosshair_sprite.texture = purple_crosshair
 		tether_line.default_color = Color("Purple")
 
-func tether():
+func tether(delta : float):
 	if Input.is_action_just_pressed("swap_" + input_device):
 		tether_momentum += (other_player.position - position) / 1
-		move_speed /= 2
 		is_tethered = true
 	if Input.is_action_pressed("swap_" + input_device):
+		var effect = load("res://Game Elements/Effects/tether.tres").duplicate(true)
+		effect.cooldown = delta
+		effect.value1 = 0.5
+		effect.gained(self)
+		effects.append(effect)
+		
 		tether_line.visible = true
 		if other_player.is_tethered:
 			if is_purple:
@@ -190,12 +203,10 @@ func tether():
 		else:
 			tether_momentum += (other_player.position - position) / 25
 		tether_momentum *= .995
-		print(tether_momentum.length())
 		tether_line.width_curve.set_point_value(1, min(max(50 / tether_momentum.length(),.4),1))
 	else:
 		if tether_line.visible == true:
 			tether_line.visible = false
-			move_speed *= 2
 			is_tethered = false
 		if(abs(tether_momentum.length_squared()) <  .1):
 			tether_momentum = Vector2.ZERO
@@ -237,9 +248,7 @@ func adjust_cooldowns(time_elapsed : float):
 
 func handle_attack():
 	if cooldowns[is_purple as int] <= 0:
-		await get_tree().create_timer(attacks[is_purple as int].start_lag).timeout
-		request_attack(attacks[is_purple as int])
-		cooldowns[is_purple as int] = attacks[is_purple as int].cooldown
+		cooldowns[is_purple as int] = request_attack(attacks[is_purple as int])
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
@@ -250,7 +259,7 @@ func check_traps(delta):
 			#Instant trap
 			if dmg and !in_instant_trap:
 				if _crafter_chance():
-					take_damage(dmg, null)
+					take_damage(dmg, null, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false
@@ -260,7 +269,7 @@ func check_traps(delta):
 				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
 					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
 					if _crafter_chance():
-						take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null)
+						take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null, null)
 			else:
 				current_dmg_time = 0
 		else:

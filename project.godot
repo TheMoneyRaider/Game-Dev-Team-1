@@ -33,6 +33,7 @@ reward=""
 tentacle=""
 player=""
 holds_reward=""
+attack=""
 
 [input]
 
