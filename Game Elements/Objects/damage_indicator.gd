@@ -36,6 +36,7 @@ func _process(delta: float) -> void:
 	
 func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node = null, value : int = 7, direction : Vector2 = Vector2.UP,size : int = 64, color : Color = Color(0.416, 0.416, 0.416, 1.0)) -> void:
 	
+	var orig_len = 100
 	#Position based on attack and damage owner collision shapes
 	if attack:
 		position = attack.position
@@ -53,6 +54,10 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 				color = Color(0.842, 0.348, 0.0, 1.0)
 		else:
 				color = Color(0.564, 0.0, 0.061, 1.0)
+	if !c_owner:
+		color = Color(0.5, 0.5, 0.5, 1.0)
+		orig_len = 20
+		
 			
 	# Initial big toss
 	direction = Vector2.UP #OVERRIDE DIRECTION
@@ -61,7 +66,6 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 	var angle_offset = randf_range(-max_angle, max_angle)
 	var deviated_dir = base_dir.rotated(angle_offset)
 
-	var orig_len = 100
 	var random_scale = lerp(1.0, randf_range(0.5, 2.5), 0.4)
 	var final_len = orig_len * random_scale
 
@@ -72,9 +76,15 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 	rot_velocity = randf_range(-rot_angle, rot_angle)
 	#Add Color Variation
 	if attack_owner:
-		var hue_change = .2
-		color = Color(color.r+randf_range(-hue_change,hue_change),color.g+randf_range(-hue_change,hue_change),color.b+randf_range(-hue_change,hue_change),color.a)
-	
+		if !c_owner:
+			var hue_change = .1
+			var rand_val = randf_range(-hue_change,hue_change)
+			color = Color(color.r+rand_val,color.g+rand_val,color.b+rand_val,color.a)
+		else:
+			var hue_change = .2
+			color = Color(color.r+randf_range(-hue_change,hue_change),color.g+randf_range(-hue_change,hue_change),color.b+randf_range(-hue_change,hue_change),color.a)
+		
+			
 	text.add_theme_font_size_override("font_size", size)
 	text.add_theme_color_override("font_color", color)
 	text.text = str(value)

@@ -75,6 +75,7 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if body.has_method("take_damage"):
 		body.take_damage(damage_dealt,n_owner,a_direction,self)
 		return 1
+	get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
 	return -1
 	
 
