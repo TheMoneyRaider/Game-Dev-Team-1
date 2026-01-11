@@ -42,7 +42,6 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 	if c_owner and attack:
 		var new_pos = intersection_center(c_owner,attack)
 		if new_pos != Vector2.ZERO:
-			print(new_pos)
 			position= new_pos
 		
 	
@@ -86,47 +85,46 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 
 
 
-func shape_to_polygon(in_shape: Shape2D) -> PackedVector2Array:
+func shape_to_polygon(in_shape: Shape2D, in_transform : Transform2D) -> PackedVector2Array:
 	var poly := PackedVector2Array()
+	if in_shape is CircleShape2D:
+		var r = in_shape.radius
+		var steps = 24
+		for i in range(steps):
+			var angle = TAU * float(i) / steps
+			var local = Vector2(cos(angle), sin(angle)) * r
+			poly.append(in_transform * local)
+	elif in_shape is RectangleShape2D:
+		var e = in_shape.extents
+		var pts = [
+			Vector2(-e.x, -e.y),
+			Vector2( e.x, -e.y),
+			Vector2( e.x,  e.y),
+			Vector2(-e.x,  e.y),
+		]
+		for p in pts:
+			poly.append(in_transform * p)
+	elif in_shape is CapsuleShape2D:
+		var r = in_shape.radius
+		var h = in_shape.height / 2.0
+		var steps = 12
 
-	match in_shape:
-		CircleShape2D:
-			var r = in_shape.radius
-			var steps = 24
-			for i in range(steps):
-				var angle = TAU * float(i) / steps
-				poly.append(transform * Vector2(cos(angle), sin(angle)) * r)
+		for i in steps:
+			var a = PI * float(i) / (steps - 1)
+			var local = Vector2(-h, 0) + Vector2(cos(a)*r, sin(a)*r)
+			poly.append(in_transform * local)
 
-		RectangleShape2D:
-			var e = in_shape.extents
-			var pts = [
-				Vector2(-e.x, -e.y),
-				Vector2( e.x, -e.y),
-				Vector2( e.x,  e.y),
-				Vector2(-e.x,  e.y),
-			]
-			for p in pts:
-				poly.append(transform * p)
-
-		CapsuleShape2D:
-			var r = in_shape.radius
-			var h = in_shape.height / 2.0
-			var steps = 12
-			for i in range(steps):
-				var a = PI * float(i) / (steps - 1)
-				poly.append(transform * (Vector2(-h,0) + Vector2(cos(a)*r, sin(a)*r)))
-			for i in range(steps):
-				var a = PI * float(i) / (steps - 1)
-				poly.append(transform * (Vector2(h,0) + Vector2(-cos(a)*r, sin(a)*r)))
-
-		ConvexPolygonShape2D:
-			for p in in_shape.points:
-				poly.append(transform * p)
-
-		ConcavePolygonShape2D:
-			# uses triangles
-			for p in in_shape.get_arrays()[Mesh.ARRAY_VERTEX]:
-				poly.append(transform * p)
+		for i in steps:
+			var a = PI * float(i) / (steps - 1)
+			var local = Vector2( h, 0) + Vector2(-cos(a)*r, sin(a)*r)
+			poly.append(in_transform * local)
+	elif in_shape is ConvexPolygonShape2D:
+		for p in in_shape.points:
+			poly.append(in_transform * p)
+	elif in_shape is ConcavePolygonShape2D:
+		# uses triangles
+		for p in in_shape.get_arrays()[Mesh.ARRAY_VERTEX]:
+			poly.append(in_transform * p)
 
 	return poly
 
@@ -135,9 +133,9 @@ func get_area_polygons(area: Node) -> Array:
 
 	for child in area.get_children():
 		if child is CollisionShape2D:
-			var shape = child.shape
-			var poly = shape_to_polygon(shape)
-
+			var in_shape = child.shape
+			var in_transform = child.global_transform
+			var poly = shape_to_polygon(in_shape,in_transform)
 			if poly.size() >= 3:
 				result.append(poly)
 
@@ -190,9 +188,9 @@ func polygon_centroid(poly: PackedVector2Array) -> Vector2:
 func intersection_center(area_a: Node, area_b: Node) -> Vector2:
 	var polys_a = get_area_polygons(area_a)
 	var polys_b = get_area_polygons(area_b)
-
+	
 	var inter = intersection_polygon(polys_a, polys_b)
+	
 	if inter.size() == 0:
 		return Vector2.ZERO
-
 	return polygon_centroid(inter)

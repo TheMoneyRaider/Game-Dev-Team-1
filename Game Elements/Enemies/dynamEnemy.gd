@@ -104,7 +104,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	else:
 		emit_signal("enemy_took_damage",damage,current_health,self,direction)
 		current_health -= damage
-	print(str(current_health)+" "+str(damage)+" "+str(max_health))
+	#print(str(current_health)+" "+str(damage)+" "+str(max_health))
 
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
