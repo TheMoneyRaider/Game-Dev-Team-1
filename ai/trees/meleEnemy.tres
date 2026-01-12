@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=48 format=3 uid="uid://dcnh0ja2aticr"]
+[gd_resource type="BehaviorTree" load_steps=49 format=3 uid="uid://dcnh0ja2aticr"]
 
 [ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
 [ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="4_tqs8k"]
 [ext_resource type="Script" uid="uid://rvfhx3hd7gln" path="res://ai/tasks/attacks.gd" id="5_xsft4"]
+[ext_resource type="Script" uid="uid://b1kbb6p0lyql8" path="res://ai/tasks/interuptibleTimer.gd" id="6_3ccgm"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ua8f2"]
 var/state/name = &"state"
@@ -102,16 +103,16 @@ resource_name = "AnimationPlayer"
 animation_player = SubResource("BBNode_6xbjc")
 animation_name = &"swing"
 
+[sub_resource type="BTAction" id="BTAction_1t8r3"]
+script = ExtResource("6_3ccgm")
+duration = 0.5
+
 [sub_resource type="BTAction" id="BTAction_4evon"]
 script = ExtResource("5_xsft4")
 
-[sub_resource type="BTDelay" id="BTDelay_1kwu6"]
-seconds = 0.5
-children = [SubResource("BTAction_4evon")]
-
 [sub_resource type="BTSequence" id="BTSequence_ecge8"]
 custom_name = "Attack"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTStopAnimation_3jwwk"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTPlayAnimation_4evon"), SubResource("BTDelay_1kwu6")]
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTStopAnimation_3jwwk"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTPlayAnimation_4evon"), SubResource("BTAction_1t8r3"), SubResource("BTAction_4evon")]
 
 [sub_resource type="BBNode" id="BBNode_3ccgm"]
 saved_value = NodePath("AnimationPlayer")

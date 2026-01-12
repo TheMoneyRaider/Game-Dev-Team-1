@@ -1,0 +1,166 @@
+[gd_resource type="BehaviorTree" load_steps=49 format=3 uid="uid://dcnh0ja2aticr"]
+
+[ext_resource type="Script" uid="uid://danrund51c7i6" path="res://ai/tasks/chooseRandomPos.gd" id="1_3c6mk"]
+[ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_ecge8"]
+[ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="1_hnqba"]
+[ext_resource type="Script" uid="uid://br65r6s5nmymb" path="res://ai/tasks/handleDeath.gd" id="2_1kwu6"]
+[ext_resource type="Script" uid="uid://dkrmjd0p1oufy" path="res://ai/tasks/checkDeagro.gd" id="2_llk5e"]
+[ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="2_tqs8k"]
+[ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="4_tqs8k"]
+[ext_resource type="Script" uid="uid://rvfhx3hd7gln" path="res://ai/tasks/attacks.gd" id="5_xsft4"]
+[ext_resource type="Script" uid="uid://b1kbb6p0lyql8" path="res://ai/tasks/interuptibleTimer.gd" id="6_3ccgm"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_ua8f2"]
+var/state/name = &"state"
+var/state/type = 4
+var/state/value = ""
+var/state/hint = 0
+var/state/hint_string = ""
+
+[sub_resource type="BTAction" id="BTAction_tqs8k"]
+script = ExtResource("1_ecge8")
+
+[sub_resource type="BBVariant" id="BBVariant_xsft4"]
+type = 4
+saved_value = "dead"
+resource_name = "dead"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_1kwu6"]
+variable = &"state"
+value = SubResource("BBVariant_xsft4")
+
+[sub_resource type="BBNode" id="BBNode_3jwwk"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_dlyii"]
+animation_player = SubResource("BBNode_3jwwk")
+animation_name = &"death"
+
+[sub_resource type="BBNode" id="BBNode_dlyii"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTAwaitAnimation" id="BTAwaitAnimation_1t8r3"]
+animation_player = SubResource("BBNode_dlyii")
+animation_name = &"death"
+max_time = 1.5
+
+[sub_resource type="BTAction" id="BTAction_dlyii"]
+script = ExtResource("2_1kwu6")
+
+[sub_resource type="BTSequence" id="BTSequence_3ccgm"]
+custom_name = "Die"
+children = [SubResource("BTCheckVar_1kwu6"), SubResource("BTPlayAnimation_dlyii"), SubResource("BTAwaitAnimation_1t8r3"), SubResource("BTAction_dlyii")]
+
+[sub_resource type="BBVariant" id="BBVariant_3c6mk"]
+type = 4
+saved_value = "agro"
+resource_name = "agro"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_nufqr"]
+variable = &"state"
+value = SubResource("BBVariant_3c6mk")
+
+[sub_resource type="BBNode" id="BBNode_4evon"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTStopAnimation" id="BTStopAnimation_3jwwk"]
+animation_player = SubResource("BBNode_4evon")
+animation_name = &"idle"
+
+[sub_resource type="BBNode" id="BBNode_xsft4"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_1kwu6"]
+animation_player = SubResource("BBNode_xsft4")
+animation_name = &"run"
+
+[sub_resource type="BTAction" id="BTAction_6xbjc"]
+script = ExtResource("2_llk5e")
+
+[sub_resource type="BTAction" id="BTAction_xsft4"]
+script = ExtResource("2_tqs8k")
+
+[sub_resource type="BTAction" id="BTAction_1kwu6"]
+script = ExtResource("1_hnqba")
+
+[sub_resource type="BBNode" id="BBNode_1kwu6"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTStopAnimation" id="BTStopAnimation_3ccgm"]
+animation_player = SubResource("BBNode_1kwu6")
+animation_name = &"run"
+
+[sub_resource type="BBNode" id="BBNode_6xbjc"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_4evon"]
+animation_player = SubResource("BBNode_6xbjc")
+animation_name = &"swing"
+
+[sub_resource type="BTAction" id="BTAction_1t8r3"]
+script = ExtResource("6_3ccgm")
+duration = 0.5
+
+[sub_resource type="BTAction" id="BTAction_4evon"]
+script = ExtResource("5_xsft4")
+
+[sub_resource type="BTSequence" id="BTSequence_ecge8"]
+custom_name = "Attack"
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTStopAnimation_3jwwk"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_6xbjc"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTPlayAnimation_4evon"), SubResource("BTAction_1t8r3"), SubResource("BTAction_4evon")]
+
+[sub_resource type="BBNode" id="BBNode_3ccgm"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_6xbjc"]
+animation_player = SubResource("BBNode_3ccgm")
+animation_name = &"idle"
+
+[sub_resource type="BTAction" id="BTAction_3ccgm"]
+script = ExtResource("4_tqs8k")
+
+[sub_resource type="BBVariant" id="BBVariant_tqs8k"]
+type = 4
+saved_value = "agro"
+resource_name = "agro"
+
+[sub_resource type="BTSetVar" id="BTSetVar_llk5e"]
+variable = &"state"
+value = SubResource("BBVariant_tqs8k")
+
+[sub_resource type="BTSequence" id="BTSequence_tqs8k"]
+custom_name = "Set Agro"
+children = [SubResource("BTPlayAnimation_6xbjc"), SubResource("BTAction_3ccgm"), SubResource("BTSetVar_llk5e")]
+
+[sub_resource type="BTFail" id="BTFail_xsft4"]
+
+[sub_resource type="BTRandomWait" id="BTRandomWait_3c6mk"]
+min_duration = 2.0
+max_duration = 5.0
+
+[sub_resource type="BTAction" id="BTAction_nufqr"]
+script = ExtResource("1_3c6mk")
+
+[sub_resource type="BTAction" id="BTAction_3jwwk"]
+script = ExtResource("2_tqs8k")
+
+[sub_resource type="BTAction" id="BTAction_hnqba"]
+custom_name = "moveToPos"
+script = ExtResource("1_hnqba")
+
+[sub_resource type="BTSequence" id="BTSequence_3c6mk"]
+custom_name = "Patrol"
+children = [SubResource("BTFail_xsft4"), SubResource("BTRandomWait_3c6mk"), SubResource("BTAction_nufqr"), SubResource("BTAction_3jwwk"), SubResource("BTAction_hnqba")]
+
+[sub_resource type="BTSelector" id="BTSelector_m8x3l"]
+children = [SubResource("BTAction_tqs8k"), SubResource("BTSequence_3ccgm"), SubResource("BTSequence_ecge8"), SubResource("BTSequence_tqs8k"), SubResource("BTSequence_3c6mk")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_ua8f2")
+root_task = SubResource("BTSelector_m8x3l")
