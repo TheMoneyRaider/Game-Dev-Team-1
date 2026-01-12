@@ -142,7 +142,7 @@ _data = {
 z_index = 1
 y_sort_enabled = true
 collision_layer = 4
-collision_mask = 7
+collision_mask = 15
 script = ExtResource("1_ffkh2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
