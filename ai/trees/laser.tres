@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=27 format=3 uid="uid://dlq43y0e0i6on"]
+[gd_resource type="BehaviorTree" load_steps=30 format=3 uid="uid://dlq43y0e0i6on"]
 
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_0junk"]
 [ext_resource type="Script" uid="uid://br65r6s5nmymb" path="res://ai/tasks/handleDeath.gd" id="2_mrfvi"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="4_7l6ws"]
 [ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="5_m5myp"]
 [ext_resource type="Script" uid="uid://rvfhx3hd7gln" path="res://ai/tasks/attacks.gd" id="6_08p4w"]
+[ext_resource type="Script" uid="uid://c7b86gm25q0p3" path="res://ai/tasks/player_in_range.gd" id="6_mrfvi"]
 [ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="7_i4dwu"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ak6g3"]
@@ -24,9 +25,22 @@ var/deagro_dist/type = 3
 var/deagro_dist/value = 0.0
 var/deagro_dist/hint = 0
 var/deagro_dist/hint_string = ""
+var/hit_range/name = &"hit_range"
+var/hit_range/type = 3
+var/hit_range/value = 0.0
+var/hit_range/hint = 0
+var/hit_range/hint_string = ""
+var/target_pos/name = &"target_pos"
+var/target_pos/type = 5
+var/target_pos/value = Vector2(0, 0)
+var/target_pos/hint = 0
+var/target_pos/hint_string = ""
 
 [sub_resource type="BTAction" id="BTAction_lr4pt"]
 script = ExtResource("1_0junk")
+
+[sub_resource type="BTAction" id="BTAction_7dnjs"]
+script = ExtResource("3_40xi1")
 
 [sub_resource type="BBVariant" id="BBVariant_lbsgg"]
 type = 4
@@ -44,6 +58,9 @@ script = ExtResource("2_mrfvi")
 custom_name = "Die"
 children = [SubResource("BTCheckVar_ywoh5"), SubResource("BTAction_6dg0g")]
 
+[sub_resource type="BTAction" id="BTAction_gskub"]
+script = ExtResource("4_7l6ws")
+
 [sub_resource type="BBVariant" id="BBVariant_kel6m"]
 type = 4
 saved_value = "agro"
@@ -53,25 +70,26 @@ resource_name = "agro"
 variable = &"state"
 value = SubResource("BBVariant_kel6m")
 
-[sub_resource type="BTAction" id="BTAction_7dnjs"]
-script = ExtResource("3_40xi1")
-
-[sub_resource type="BTAction" id="BTAction_gskub"]
-script = ExtResource("4_7l6ws")
-
 [sub_resource type="BTAction" id="BTAction_vygrw"]
 script = ExtResource("5_m5myp")
+
+[sub_resource type="BTSequence" id="BTSequence_ymovh"]
+custom_name = "Follow"
+children = [SubResource("BTAction_gskub"), SubResource("BTCheckVar_efa7g"), SubResource("BTAction_vygrw")]
+
+[sub_resource type="BTAction" id="BTAction_40xi1"]
+script = ExtResource("6_mrfvi")
 
 [sub_resource type="BTAction" id="BTAction_w61q3"]
 script = ExtResource("6_08p4w")
 
-[sub_resource type="BTDelay" id="BTDelay_mtj3f"]
-seconds = 0.5
+[sub_resource type="BTCooldown" id="BTCooldown_0junk"]
+duration = 5.0
 children = [SubResource("BTAction_w61q3")]
 
-[sub_resource type="BTSequence" id="BTSequence_ymovh"]
-custom_name = "Attack"
-children = [SubResource("BTCheckVar_efa7g"), SubResource("BTAction_7dnjs"), SubResource("BTAction_gskub"), SubResource("BTAction_vygrw"), SubResource("BTDelay_mtj3f")]
+[sub_resource type="BTSequence" id="BTSequence_40xi1"]
+custom_name = "Attack if in Range"
+children = [SubResource("BTAction_40xi1"), SubResource("BTCooldown_0junk")]
 
 [sub_resource type="BTAction" id="BTAction_uikho"]
 script = ExtResource("7_i4dwu")
@@ -90,7 +108,7 @@ custom_name = "Set Agro"
 children = [SubResource("BTAction_uikho"), SubResource("BTSetVar_nii70")]
 
 [sub_resource type="BTSelector" id="BTSelector_fykrr"]
-children = [SubResource("BTAction_lr4pt"), SubResource("BTSequence_xv6gq"), SubResource("BTSequence_ymovh"), SubResource("BTSequence_puo6y")]
+children = [SubResource("BTAction_lr4pt"), SubResource("BTAction_7dnjs"), SubResource("BTSequence_xv6gq"), SubResource("BTSequence_ymovh"), SubResource("BTSequence_40xi1"), SubResource("BTSequence_puo6y")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_ak6g3")

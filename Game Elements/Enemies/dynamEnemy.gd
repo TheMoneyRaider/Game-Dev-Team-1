@@ -2,6 +2,7 @@ class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
+@export var hit_range: int = 64
 @export var deagro_distance: float = 150.0
 @export var agro_distance: float = 150.0
 var current_health: int = 10
@@ -47,6 +48,7 @@ func _ready():
 	var bt_player = get_node("BTPlayer")
 	bt_player.blackboard.set_var("agro_dist", agro_distance)
 	bt_player.blackboard.set_var("deagro_dist", deagro_distance)
+	bt_player.blackboard.set_var("hit_range", hit_range)
 
 #need this for flipping the sprite movement
 func update_flip(dir: float): 
