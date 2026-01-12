@@ -3,7 +3,6 @@ extends BTAction
 @export var player_positions: String = "player_positions"
 @export var player_idx: String = "player_idx"
 @export var player_healths: String = "player_healths"
-@export var agro_distance: String = "agro_dist"
 # determines the distance at which and enemy can detect a player
 
 func _tick(_delta: float) -> Status:
@@ -22,13 +21,15 @@ func _tick(_delta: float) -> Status:
 	if not distances_squared:
 		return FAILURE
 	
-	var agro_dist = get_blackboard().get_var(agro_distance)
+	var agro_dist = agent.agro_distance
 	# looks for either enemy, and checks if they are in range, sends that position if they are
 	for i in range(distances_squared.size()): 
 		if distances_squared[i] <= agro_dist * agro_dist and healths[i] > 0:
 			blackboard.set_var(player_position_var, positions[i])
 			blackboard.set_var(player_idx, i)
+			blackboard.set_var("state", "agro")
+			
 			return SUCCESS
 			# pdate which index value the enemies should be acce`ssing
 	
-	return FAILURE
+	return SUCCESS

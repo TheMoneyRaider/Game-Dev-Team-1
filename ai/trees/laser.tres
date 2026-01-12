@@ -39,8 +39,15 @@ var/target_pos/hint_string = ""
 [sub_resource type="BTAction" id="BTAction_lr4pt"]
 script = ExtResource("1_0junk")
 
+[sub_resource type="BTAction" id="BTAction_uikho"]
+script = ExtResource("7_i4dwu")
+
 [sub_resource type="BTAction" id="BTAction_7dnjs"]
 script = ExtResource("3_40xi1")
+
+[sub_resource type="BTSequence" id="BTSequence_mrfvi"]
+custom_name = "Constants"
+children = [SubResource("BTAction_lr4pt"), SubResource("BTAction_uikho"), SubResource("BTAction_7dnjs")]
 
 [sub_resource type="BBVariant" id="BBVariant_lbsgg"]
 type = 4
@@ -58,25 +65,6 @@ script = ExtResource("2_mrfvi")
 custom_name = "Die"
 children = [SubResource("BTCheckVar_ywoh5"), SubResource("BTAction_6dg0g")]
 
-[sub_resource type="BTAction" id="BTAction_gskub"]
-script = ExtResource("4_7l6ws")
-
-[sub_resource type="BBVariant" id="BBVariant_kel6m"]
-type = 4
-saved_value = "agro"
-resource_name = "agro"
-
-[sub_resource type="BTCheckVar" id="BTCheckVar_efa7g"]
-variable = &"state"
-value = SubResource("BBVariant_kel6m")
-
-[sub_resource type="BTAction" id="BTAction_vygrw"]
-script = ExtResource("5_m5myp")
-
-[sub_resource type="BTSequence" id="BTSequence_ymovh"]
-custom_name = "Follow"
-children = [SubResource("BTAction_gskub"), SubResource("BTCheckVar_efa7g"), SubResource("BTAction_vygrw")]
-
 [sub_resource type="BTAction" id="BTAction_40xi1"]
 script = ExtResource("6_mrfvi")
 
@@ -91,25 +79,37 @@ children = [SubResource("BTAction_w61q3")]
 custom_name = "Attack if in Range"
 children = [SubResource("BTAction_40xi1"), SubResource("BTCooldown_0junk")]
 
-[sub_resource type="BTAction" id="BTAction_uikho"]
-script = ExtResource("7_i4dwu")
-
-[sub_resource type="BBVariant" id="BBVariant_qu504"]
+[sub_resource type="BBVariant" id="BBVariant_kel6m"]
 type = 4
 saved_value = "agro"
 resource_name = "agro"
 
-[sub_resource type="BTSetVar" id="BTSetVar_nii70"]
+[sub_resource type="BTCheckVar" id="BTCheckVar_efa7g"]
 variable = &"state"
-value = SubResource("BBVariant_qu504")
+value = SubResource("BBVariant_kel6m")
 
-[sub_resource type="BTSequence" id="BTSequence_puo6y"]
-custom_name = "Set Agro"
-children = [SubResource("BTAction_uikho"), SubResource("BTSetVar_nii70")]
+[sub_resource type="BTAction" id="BTAction_gskub"]
+script = ExtResource("4_7l6ws")
 
-[sub_resource type="BTSelector" id="BTSelector_fykrr"]
-children = [SubResource("BTAction_lr4pt"), SubResource("BTAction_7dnjs"), SubResource("BTSequence_xv6gq"), SubResource("BTSequence_ymovh"), SubResource("BTSequence_40xi1"), SubResource("BTSequence_puo6y")]
+[sub_resource type="BTDelay" id="BTDelay_mrfvi"]
+seconds = 0.5
+
+[sub_resource type="BTAction" id="BTAction_vygrw"]
+children = [SubResource("BTDelay_mrfvi")]
+script = ExtResource("5_m5myp")
+
+[sub_resource type="BTSequence" id="BTSequence_ymovh"]
+custom_name = "Follow"
+children = [SubResource("BTCheckVar_efa7g"), SubResource("BTAction_gskub"), SubResource("BTAction_vygrw")]
+
+[sub_resource type="BTSelector" id="BTSelector_mrfvi"]
+custom_name = "Behavior"
+children = [SubResource("BTSequence_xv6gq"), SubResource("BTSequence_40xi1"), SubResource("BTSequence_ymovh")]
+
+[sub_resource type="BTSequence" id="BTSequence_7l6ws"]
+custom_name = "Constant and Behavior"
+children = [SubResource("BTSequence_mrfvi"), SubResource("BTSelector_mrfvi")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_ak6g3")
-root_task = SubResource("BTSelector_fykrr")
+root_task = SubResource("BTSequence_7l6ws")
