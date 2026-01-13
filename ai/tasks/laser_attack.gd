@@ -2,7 +2,10 @@ extends BTAction
 
 var started : bool = false
 var valid : bool = true
-
+var time : float = 0.0
+var opening_time : float =1.0
+var closing_time : float =1.0
+var total_time : float =3.0
 
 func cast_axis_ray(origin: Vector2, direction: Vector2, distance: float) -> Dictionary:
 	var space = agent.get_world_2d().direct_space_state
@@ -11,18 +14,6 @@ func cast_axis_ray(origin: Vector2, direction: Vector2, distance: float) -> Dict
 	query.collide_with_bodies = true
 	query.collision_mask = 1 << 0
 	return space.intersect_ray(query)
-
-#func place_marker(direction : Vector2):
-	#var hit =cast_axis_ray(agent.global_position, direction, 1600)
-	##print(hit)
-	#if hit:
-		#var instance = load("res://Game Elements/Objects/moving_target.tscn").instantiate()
-		#instance.global_position = hit.position
-		#instance.speed = 0
-		#instance.range = 0
-		#agent.get_parent().add_child(instance)
-	#else:
-		#print("Error at "+str(direction))
 
 
 func start()->void:
@@ -62,22 +53,34 @@ func start()->void:
 			seg2.global_position = check_left.position
 			seg1.rotation = deg_to_rad(90)
 			seg2.rotation = deg_to_rad(-90)
-			seg1.visible = true
-			seg2.visible = true
 		2:
 			seg1.global_position = check_up.position
 			seg2.global_position = check_down.position
 			seg1.rotation = deg_to_rad(0)
 			seg2.rotation = deg_to_rad(180)
-			seg1.visible = true
-			seg2.visible = true
 
-func _tick(_delta: float) -> Status:
+func _tick(delta: float) -> Status:
+	print(started)
+	print(valid)
+	print(time)
+	time+=delta
 	if !started:
 		start()
-		valid=false
 		if !valid:
-			return FAILURE
+			return proc_finish(FAILURE)
+	var seg1 = agent.get_node("Segment1")
+	var seg2 = agent.get_node("Segment2")
+	if time < opening_time:
+		seg1.modulate.a = lerp(0,1,time)
+		seg2.modulate.a = lerp(0,1,time)
+	if time > total_time-closing_time:
+		seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+		seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+	if time >= total_time:
+		seg1.global_position = Vector2(1000,1000)
+		seg2.global_position = Vector2(1000,1000)
+		return proc_finish(SUCCESS)
+		
 	
 	
 	
@@ -90,6 +93,8 @@ func _tick(_delta: float) -> Status:
 	
 	return RUNNING
 
-func finish(status: Status) -> void:
+func proc_finish(status: Status) -> Status:
 	started = false
 	valid = true
+	time = 0.0
+	return status
