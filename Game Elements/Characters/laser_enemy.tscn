@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://d1iraxjiyuv2c"]
+[gd_scene load_steps=9 format=3 uid="uid://d1iraxjiyuv2c"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_8r1te"]
 [ext_resource type="BehaviorTree" uid="uid://dlq43y0e0i6on" path="res://ai/trees/laser.tres" id="2_6wupc"]
 [ext_resource type="Texture2D" uid="uid://d0ylh7xfvci7q" path="res://art/characters/laser/wall_laser.png" id="3_8r1te"]
+[ext_resource type="Script" uid="uid://g72k7lhd0tbx" path="res://Game Elements/Characters/laser_beam.gd" id="4_h87mk"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6wupc"]
 radius = 8.0
@@ -12,6 +13,10 @@ radius = 8.0
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8r1te"]
 radius = 8.0
 height = 37.6
+
+[sub_resource type="Curve" id="Curve_h87mk"]
+_data = [Vector2(0.25559106, 0), 0.0, 0.0, 0, 0, Vector2(0.74920136, 1), 0.0, 0.0, 0, 0]
+point_count = 2
 
 [node name="laser_enemy" type="CharacterBody2D" groups=["enemy"]]
 z_index = 1
@@ -63,3 +68,13 @@ shape = SubResource("CapsuleShape2D_8r1te")
 position = Vector2(0, 8)
 rotation = 1.5707964
 texture = ExtResource("3_8r1te")
+
+[node name="LaserBeam" type="Node2D" parent="."]
+script = ExtResource("4_h87mk")
+power_curve = SubResource("Curve_h87mk")
+
+[node name="LaserAbove" type="Line2D" parent="LaserBeam"]
+z_index = 2
+points = PackedVector2Array(65, 42, 75, 36, 93, 50, 112, 65, 98, 41, 112, 22, 113, 19, 111, 10, 91, 14, 82, 16, 75, 17, 68, 14, 62, 12, 59, 11, 55, 9, 52, 6, 48, 5, 43, 4, 37, 22, 39, 30, 41, 47, 34, 54, 30, 60, 14, 69, 5, 66, -18, 66, -37, 67, -53, 89, -12, 109, 78, 118, 131, 114, 180, 91, 193, 45, 186, 24, 155, -20, 114, -52, 55, -59, 30, -54, -15, -42, -27, -40, -42, -40, -52, -31, -60, 10, -50, 31, -41, 39, -9, 48, -2, 49, 8, 61, 11, 66, 19, 72, 32, 76, 52, 80, 68, 80, 68, 63, 56, 48, 42, 29, 235, 40)
+
+[node name="LaserBelow" type="Line2D" parent="LaserBeam"]

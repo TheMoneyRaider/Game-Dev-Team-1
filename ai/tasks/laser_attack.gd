@@ -1,6 +1,7 @@
 extends BTAction
 
 var started : bool = false
+var laser_out : bool = false
 var valid : bool = true
 var time : float = 0.0
 var opening_time : float =1.0
@@ -60,9 +61,6 @@ func start()->void:
 			seg2.rotation = deg_to_rad(180)
 
 func _tick(delta: float) -> Status:
-	print(started)
-	print(valid)
-	print(time)
 	time+=delta
 	if !started:
 		start()
@@ -73,13 +71,19 @@ func _tick(delta: float) -> Status:
 	if time < opening_time:
 		seg1.modulate.a = lerp(0,1,time)
 		seg2.modulate.a = lerp(0,1,time)
-	if time > total_time-closing_time:
-		seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
-		seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
-	if time >= total_time:
-		seg1.global_position = Vector2(1000,1000)
-		seg2.global_position = Vector2(1000,1000)
-		return proc_finish(SUCCESS)
+	elif !laser_out and time < total_time-closing_time-agent.get_node("LaserBeam").decay_time:
+		agent.get_node("LaserBeam").fire_laser(seg1.position,seg2.position)
+		laser_out =true
+	#if laser_out and time >= total_time-closing_time-agent.get_node("LaserBeam").decay_time:
+		#agent.get_node("LaserBeam").stop_laser()
+		#laser_out =false
+	#if time > total_time-closing_time:
+		#seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+		#seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+	#if time >= total_time:
+		#seg1.global_position = Vector2(1000,1000)
+		#seg2.global_position = Vector2(1000,1000)
+		#return proc_finish(SUCCESS)
 		
 	
 	
@@ -95,6 +99,7 @@ func _tick(delta: float) -> Status:
 
 func proc_finish(status: Status) -> Status:
 	started = false
+	laser_out = false
 	valid = true
 	time = 0.0
 	return status
