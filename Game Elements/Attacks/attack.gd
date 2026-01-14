@@ -114,9 +114,15 @@ func deflect(hit_direction, hit_speed):
 	rotation = direction.angle() + PI/2
 	damage = round(damage * ((hit_speed + speed) / speed))
 	speed = speed + hit_speed
+	
+		
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.is_in_group("attack") and area.deflectable == true:
+		if area.attack_type =="laser":
+			#if area.life > .5:
+			return
+			area.c_owner.take_damage(self.damage,c_owner,direction,self)
 		area.deflect(direction, hit_force)
 		area.c_owner = c_owner
 		area.hit_nodes = {}

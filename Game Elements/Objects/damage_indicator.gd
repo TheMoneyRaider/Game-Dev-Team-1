@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 		queue_free()
 	
 	
-func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node = null, value : int = 7, direction : Vector2 = Vector2.UP,size : int = 64, color : Color = Color(0.416, 0.416, 0.416, 1.0)) -> void:
+func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node = null, value : int = 7, direction : Vector2 = Vector2.UP,size : int = 64) -> void:
 	
 	var orig_len = 100
 	#Position based on attack and damage owner collision shapes
@@ -46,14 +46,13 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 			position= new_pos
 		
 	
+	var color = Color(0.564, 0.0, 0.061, 1.0)
 	if attack_owner:
 		if attack_owner.is_in_group("player"):
 			if attack_owner.is_purple:
 				color = Color(0.769, 0.003, 1.0, 1.0)
 			else:
 				color = Color(0.842, 0.348, 0.0, 1.0)
-		else:
-				color = Color(0.564, 0.0, 0.061, 1.0)
 	if !c_owner:
 		color = Color(0.5, 0.5, 0.5, 1.0)
 		orig_len = 20

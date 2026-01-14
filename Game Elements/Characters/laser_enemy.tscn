@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://d1iraxjiyuv2c"]
+[gd_scene load_steps=10 format=3 uid="uid://d1iraxjiyuv2c"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_8r1te"]
 [ext_resource type="BehaviorTree" uid="uid://dlq43y0e0i6on" path="res://ai/trees/laser.tres" id="2_6wupc"]
 [ext_resource type="Texture2D" uid="uid://d0ylh7xfvci7q" path="res://art/characters/laser/wall_laser.png" id="3_8r1te"]
+[ext_resource type="Script" uid="uid://bg5lcpq1r3aa3" path="res://Game Elements/Characters/laser_segment.gd" id="3_m6xb1"]
 [ext_resource type="Script" uid="uid://g72k7lhd0tbx" path="res://Game Elements/Characters/laser_beam.gd" id="4_h87mk"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6wupc"]
@@ -39,7 +40,7 @@ blackboard_plan = SubResource("BlackboardPlan_6wupc")
 visible = false
 y_sort_enabled = true
 
-[node name="Segment1" type="Area2D" parent="."]
+[node name="Segment1" type="Area2D" parent="." groups=["enemy"]]
 modulate = Color(1, 1, 1, 0)
 z_index = 29
 z_as_relative = false
@@ -48,6 +49,7 @@ position = Vector2(74332, -38167)
 rotation = 1.5707964
 collision_layer = 4
 collision_mask = 15
+script = ExtResource("3_m6xb1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Segment1"]
 position = Vector2(0, -5)
@@ -58,7 +60,7 @@ position = Vector2(0, 8)
 rotation = 1.5707964
 texture = ExtResource("3_8r1te")
 
-[node name="Segment2" type="Area2D" parent="."]
+[node name="Segment2" type="Area2D" parent="." groups=["enemy"]]
 modulate = Color(1, 1, 1, 0)
 z_index = 29
 z_as_relative = false
@@ -66,6 +68,7 @@ y_sort_enabled = true
 position = Vector2(74332, -38167)
 collision_layer = 4
 collision_mask = 15
+script = ExtResource("3_m6xb1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Segment2"]
 position = Vector2(0, -5)

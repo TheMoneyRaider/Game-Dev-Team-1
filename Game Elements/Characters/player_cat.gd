@@ -144,6 +144,7 @@ func request_attack(t_attack : PackedScene) -> float:
 	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
+	instance.damage = instance.damage*(100+_hunter_percent_boost())/100
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
 	return instance.cooldown
 
