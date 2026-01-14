@@ -7,6 +7,10 @@ var valid : bool = true
 var time : float = 0.0
 var opening_time : float =1.0
 var closing_time : float =1.0
+var min_time : float =4.0
+var max_time : float =8.0
+var min_cool : float =3.0
+var max_cool : float =5.0
 var total_time : float =5.0
 var y_axis : bool = false
 var killed : bool = false
@@ -36,6 +40,8 @@ func die():
 	agent.emit_signal("enemy_took_damage",killed_damage,agent.current_health,agent,killed_direction)
 
 func start()->void:
+	randomize()
+	total_time = min_time + (max_time-min_time)*randf()
 	started = true
 	var valid_X = false
 	var valid_Y = false
@@ -84,6 +90,8 @@ func _tick(delta: float) -> Status:
 		kill(blackboard.get_var("kill_damage"), blackboard.get_var("kill_direction"))
 	time+=delta
 	if !started:
+		if agent.weapon_cooldowns[0] > 0.0:
+			return FAILURE
 		start()
 		if !valid:
 			return proc_finish(FAILURE)
@@ -122,6 +130,7 @@ func _tick(delta: float) -> Status:
 	return RUNNING
 
 func proc_finish(r_status: Status) -> Status:
+	agent.weapon_cooldowns[0] = randf_range(min_cool, max_cool)
 	started = false
 	laser_out = false
 	valid = true

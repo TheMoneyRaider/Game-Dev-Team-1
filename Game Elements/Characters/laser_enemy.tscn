@@ -33,6 +33,7 @@ displays = Array[NodePath]([NodePath("Segment1/Sprite2D"), NodePath("Segment2/Sp
 min_timefabric = 12
 max_timefabric = 25
 move_speed = 150.0
+weapon_cooldowns = Array[float]([0.0])
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_6wupc")

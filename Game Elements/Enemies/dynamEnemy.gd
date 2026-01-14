@@ -16,7 +16,8 @@ var current_health: int = 10
 @onready var in_instant_trap: bool = false
 var damage_direction = Vector2(0,-1)
 var damage_taken = 0
-var debug_mode = false 
+var debug_mode = false
+@export var weapon_cooldowns : Array[float] = []
 
 var effects : Array[Effect] = []
 
@@ -68,6 +69,8 @@ func move(target_pos: Vector2, _delta: float):
 	move_and_slide()
 	
 func _process(delta):
+	for i in range(weapon_cooldowns.size()):
+		weapon_cooldowns[i]-=delta
 		
 	#Trap stuff
 	check_traps(delta)
