@@ -22,6 +22,10 @@ var mouse_sensitivity: float = 1.0
 @onready var tether_line = $Line2D
 @onready var crosshair = $Crosshair
 @onready var crosshair_sprite = $Crosshair/Sprite2D
+
+@onready var weapon_sprite = $WeaponSprite
+@onready var weapon_texture = $WeaponSprite/Sprite2D
+
 @onready var sprite = $Sprite2D
 @onready var purple_crosshair = preload("res://art/purple_crosshair.png")
 @onready var orange_crosshair = preload("res://art/orange_crosshair.png")
@@ -61,6 +65,8 @@ func _ready():
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
+	weapon_sprite.weapon_type = weapons[is_purple as int].type
+	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
 	if is_multiplayer:
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
@@ -116,6 +122,8 @@ func _physics_process(delta):
 	else:
 		tether(delta)
 	input_direction += (tether_momentum / move_speed)
+	weapon_sprite.weapon_direction = (crosshair.position).normalized()
+	
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		handle_attack()
@@ -138,6 +146,7 @@ func update_animation_parameters(move_input : Vector2):
 		
 
 func request_attack(t_weapon : Weapon) -> float:
+	weapon_sprite.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
 	t_weapon.request_attacks(attack_direction,global_position)
 	return t_weapon.cooldown
@@ -161,11 +170,15 @@ func swap_color():
 		is_purple = false
 		sprite.texture = orange_texture
 		crosshair_sprite.texture = orange_crosshair
+		weapon_texture.texture = weapons[0].weapon_sprite
+		weapon_sprite.weapon_type = weapons[0].type
 		tether_line.default_color = Color("Orange")
 	else:
 		is_purple = true
 		sprite.texture = purple_texture
 		crosshair_sprite.texture = purple_crosshair
+		weapon_texture.texture = weapons[1].weapon_sprite
+		weapon_sprite.weapon_type = weapons[1].type
 		tether_line.default_color = Color("Purple")
 
 func tether(delta : float):
