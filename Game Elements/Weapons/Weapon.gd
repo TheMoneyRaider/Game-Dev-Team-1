@@ -9,6 +9,7 @@ class_name Weapon
 
 @export var random_spread : bool = true
 @export var attack_spread: float = 0
+@export var split_attacks: bool = false
 
 @export var attack_type: String = "smash"
 @export var attack_scene: String = "res://Game Elements/Attacks/smash.tscn"
@@ -47,24 +48,28 @@ static func create_weapon(resource_location : String, current_owner : Node2D):
 
 func request_attacks(direction : Vector2, char_position : Vector2):
 	var attack_direction
-	if(random_spread):
+	if(!split_attacks):
 		attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
 	else:
 		attack_direction = direction.rotated(deg_to_rad(-attack_spread / 2))
+		if(random_spread):
+			attack_direction = attack_direction.rotated(deg_to_rad(randf_range(-attack_spread / (4 * num_attacks), attack_spread / (4 * num_attacks))))
 	if(num_attacks > 1):
 		for i in range(num_attacks):
 			#If there is weapon specific interactions write that here
 			match type:
 				"Shotgun":
-					speed = randi_range(150,250)
+					speed = randi_range(170 - ( (135 / num_attacks) * abs(i - num_attacks / 2.0)), 280 - ( (180 / num_attacks) * abs(i - num_attacks / 2.0)))
 				_:
 					pass
 			var attack_position = attack_direction * 20 + char_position
 			spawn_attack(attack_direction,attack_position)
-			if(random_spread):
+			if(!split_attacks):
 				attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
 			else:
 				attack_direction = attack_direction.rotated(deg_to_rad(attack_spread / (num_attacks-1)))
+				if(random_spread):
+					attack_direction = attack_direction.rotated(deg_to_rad(randf_range(-attack_spread / (2*num_attacks), attack_spread / (2*num_attacks))))
 			
 	else:
 		var attack_position = attack_direction * 20 + char_position

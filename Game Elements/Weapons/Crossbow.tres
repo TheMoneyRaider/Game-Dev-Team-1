@@ -7,5 +7,6 @@
 script = ExtResource("2_h21iu")
 type = "Crossbow"
 cooldown_icon = ExtResource("1_ej2g0")
+random_spread = false
 attack_type = "bolt"
 attack_scene = "res://Game Elements/Attacks/bolt.tscn"

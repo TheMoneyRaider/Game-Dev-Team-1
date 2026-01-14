@@ -7,7 +7,8 @@
 script = ExtResource("2_ncuxv")
 type = "Shotgun"
 cooldown_icon = ExtResource("1_43xtj")
-num_attacks = 8
+num_attacks = 9
 attack_spread = 30.0
+split_attacks = true
 attack_type = "bullet"
 attack_scene = "res://Game Elements/Attacks/bullet.tscn"

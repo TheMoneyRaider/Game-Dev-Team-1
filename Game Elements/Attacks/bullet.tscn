@@ -9,6 +9,7 @@ size = Vector2(10, 13)
 [node name="Bullet" type="Area2D" groups=["attack"]]
 script = ExtResource("1_7y327")
 speed = 300.0
+lifespan = 0.75
 hit_force = 10.0
 attack_type = "bolt"
 deflectable = true
