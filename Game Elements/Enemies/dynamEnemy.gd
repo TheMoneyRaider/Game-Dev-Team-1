@@ -99,10 +99,10 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 				effect.value1 =  rem.variable_1_values[rem.rank-1]
 				effect.gained(self)
 				effects.append(effect)
-	var bt_player = get_node("BTPlayer")
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
-	if current_health-damage < 0 and enemy_type == "laser":
+	if current_health-damage < 0 and enemy_type == "laser_e":
+		var bt_player = get_node("BTPlayer")
 		var board = bt_player.blackboard
 		if board:
 			board.set_var("kill_laser", true)

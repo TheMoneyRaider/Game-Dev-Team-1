@@ -28,7 +28,7 @@ script = ExtResource("1_8r1te")
 display_damage = false
 deagro_distance = 750.0
 agro_distance = 500.0
-enemy_type = "laser"
+enemy_type = "laser_e"
 move_speed = 150.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
