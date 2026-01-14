@@ -148,9 +148,9 @@ func request_attack(t_attack : PackedScene) -> float:
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
 	return instance.cooldown
 
-func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null):
+func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):
 	if(i_frames <= 0):
-		i_frames = 20
+		i_frames = attack_i_frames
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if current_health >= 0:

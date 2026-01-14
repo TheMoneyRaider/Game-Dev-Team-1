@@ -22,6 +22,7 @@ var hit_nodes = {}
 @export var attack_type : String = ""
 @export var deflectable : bool = false
 @export var deflects : bool = false
+@export var i_frames : int = 20
 
 var frozen := true
 
@@ -76,7 +77,7 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
 		return 0
 	if body.has_method("take_damage"):
-		body.take_damage(damage_dealt,n_owner,a_direction,self)
+		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames)
 		return 1
 	get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
 	return -1
