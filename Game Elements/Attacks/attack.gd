@@ -57,6 +57,9 @@ func _ready():
 func _process(delta):
 	if frozen:
 		return
+	if attack_type == "laser":
+		for body in get_overlapping_bodies():
+			intersection(body)
 	position += direction * speed * delta
 	life+=delta
 	if attack_type == "smash":
@@ -79,7 +82,9 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	return -1
 	
 
-func _on_body_entered(body):
+func intersection(body):
+	if attack_type == "laser" and life < .5:
+		return
 	if attack_type == "death mark":
 		if body != c_owner and body.is_in_group("player"):
 			c_owner.die(false)
@@ -89,7 +94,8 @@ func _on_body_entered(body):
 		match apply_damage(body,c_owner,damage,direction):
 			1:
 				pierce -= 1
-				hit_nodes[body] = null
+				if attack_type!= "laser":
+					hit_nodes[body] = null
 			0:
 				pass
 			-1:
@@ -98,6 +104,10 @@ func _on_body_entered(body):
 					queue_free()
 	if pierce == -1:
 		queue_free()
+
+
+func _on_body_entered(body):
+	intersection(body)
 
 func deflect(hit_direction, hit_speed):
 	direction = hit_direction

@@ -12,6 +12,8 @@ var powering := 0.0        # 0–1 (power up)
 var powering_down := 0.0   # 0–1 (power down)
 var active := false
 
+var laser_attack : Node
+
 
 
 func _ready():
@@ -19,17 +21,33 @@ func _ready():
 	hide_laser()
 
 
-func fire_laser(from_point : Vector2, to_point : Vector2):
+func fire_laser(from_point : Vector2, to_point : Vector2, y_axis : bool):
+	clear_points()
 	add_point(from_point)
 	add_point(to_point)
 	active = true
 	powering = 0.0
 	powering_down = -1.0
 	show_laser()
-
+	var global_pos_1 = to_global(from_point)
+	var global_pos_2 = to_global(to_point)
+	var instance = load("res://Game Elements/Attacks/laser.tscn").instantiate()
+	instance.c_owner = get_parent()
+	laser_attack = instance
+	laser_attack.global_position = (global_pos_1+global_pos_2)/2.0
+	var new_shape = RectangleShape2D.new()
+	if y_axis:
+		new_shape.size.y = 8
+		new_shape.size.x = (global_pos_2.y-global_pos_1.y)
+	else:
+		new_shape.size.x = 8
+		new_shape.size.y = (global_pos_2.x-global_pos_1.x)
+	laser_attack.get_child(0).shape = new_shape
+	get_parent().get_parent().add_child(instance)
 
 func stop_laser():
 	powering_down = 0.0
+	laser_attack.queue_free()
 
 func _process(delta):
 	if !active:

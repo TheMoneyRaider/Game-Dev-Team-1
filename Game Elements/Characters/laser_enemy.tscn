@@ -15,8 +15,8 @@ radius = 8.0
 height = 37.6
 
 [sub_resource type="Curve" id="Curve_h87mk"]
-_data = [Vector2(0.25559106, 0), 0.0, 0.0, 0, 0, Vector2(0.74920136, 1), 0.0, 0.0, 0, 0]
-point_count = 2
+_data = [Vector2(0, 0), 0.0, 7.601952, 0, 0, Vector2(0.037459284, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.25244302, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.50488603, 0.5050566), 2.0774114, 2.0774114, 0, 0, Vector2(0.74920136, 1), 0.0, 0.0, 0, 0]
+point_count = 5
 
 [node name="laser_enemy" type="CharacterBody2D" groups=["enemy"]]
 z_index = 20

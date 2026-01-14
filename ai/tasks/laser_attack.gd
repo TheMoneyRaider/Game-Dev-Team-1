@@ -6,7 +6,8 @@ var valid : bool = true
 var time : float = 0.0
 var opening_time : float =1.0
 var closing_time : float =1.0
-var total_time : float =3.0
+var total_time : float =5.0
+var y_axis : bool = false
 
 func cast_axis_ray(origin: Vector2, direction: Vector2, distance: float) -> Dictionary:
 	var space = agent.get_world_2d().direct_space_state
@@ -50,11 +51,12 @@ func start()->void:
 		0:
 			pass
 		1:
-			seg1.global_position = check_right.position
-			seg2.global_position = check_left.position
-			seg1.rotation = deg_to_rad(90)
-			seg2.rotation = deg_to_rad(-90)
+			seg2.global_position = check_right.position
+			seg1.global_position = check_left.position
+			seg2.rotation = deg_to_rad(90)
+			seg1.rotation = deg_to_rad(-90)
 		2:
+			y_axis = true
 			seg1.global_position = check_up.position
 			seg2.global_position = check_down.position
 			seg1.rotation = deg_to_rad(0)
@@ -71,19 +73,19 @@ func _tick(delta: float) -> Status:
 	if time < opening_time:
 		seg1.modulate.a = lerp(0,1,time)
 		seg2.modulate.a = lerp(0,1,time)
-	elif !laser_out and time < total_time-closing_time-agent.get_node("LaserBeam").decay_time:
-		agent.get_node("LaserBeam").fire_laser(seg1.position,seg2.position)
+	if !laser_out and time >= opening_time-agent.get_node("LaserBeam").power_time and time <= opening_time:
+		agent.get_node("LaserBeam").fire_laser(seg1.position,seg2.position,y_axis)
 		laser_out =true
-	#if laser_out and time >= total_time-closing_time-agent.get_node("LaserBeam").decay_time:
-		#agent.get_node("LaserBeam").stop_laser()
-		#laser_out =false
-	#if time > total_time-closing_time:
-		#seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
-		#seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
-	#if time >= total_time:
-		#seg1.global_position = Vector2(1000,1000)
-		#seg2.global_position = Vector2(1000,1000)
-		#return proc_finish(SUCCESS)
+	if laser_out and time >= total_time-closing_time-agent.get_node("LaserBeam").decay_time:
+		agent.get_node("LaserBeam").stop_laser()
+		laser_out = false
+	if time > total_time-closing_time:
+		seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+		seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+	if time >= total_time:
+		seg1.global_position = Vector2(1000,1000)
+		seg2.global_position = Vector2(1000,1000)
+		return proc_finish(SUCCESS)
 		
 	
 	
@@ -97,9 +99,10 @@ func _tick(delta: float) -> Status:
 	
 	return RUNNING
 
-func proc_finish(status: Status) -> Status:
+func proc_finish(r_status: Status) -> Status:
 	started = false
 	laser_out = false
 	valid = true
 	time = 0.0
-	return status
+	y_axis = false
+	return r_status
