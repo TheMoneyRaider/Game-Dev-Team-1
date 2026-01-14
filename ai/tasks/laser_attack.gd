@@ -103,10 +103,10 @@ func _tick(delta: float) -> Status:
 			seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
 			seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
 	if time >= total_time:
-		seg1.global_position = Vector2(1000,1000)
-		seg2.global_position = Vector2(1000,1000)
 		if killed:
 			die()
+		seg1.global_position = Vector2(1000,1000)
+		seg2.global_position = Vector2(1000,1000)
 		return proc_finish(SUCCESS)
 		
 	

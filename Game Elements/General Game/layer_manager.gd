@@ -817,9 +817,30 @@ func _setup_players() -> void:
 	player1.special.connect(_on_special)
 
 func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vector2) -> void:
-	var sprite = enemy.get_node("Sprite2D")
+	var sprites = enemy.displays
+	var total_area = 0.0
+	var areas : Array
+	for node in sprites:
+		var sprite = enemy.get_node(node)
+		if not sprite.texture:
+			print("Sprite has no texture!")
+		var img : Image = sprite.texture.get_image()
+		if not img:
+			print("Texture has no image!")
+		var w = int(img.get_width() / sprite.hframes)
+		var h = int(img.get_height() / sprite.vframes)
+		total_area+=w*h
+		areas.append(w*h)
+	var i = 0
+	for node in sprites:
+		var sprite = enemy.get_node(node)
+		_sprite_to_timefabric(sprite,direction, amount_range * (areas[i]/total_area))
+		i+=1
+		
+func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vector2) -> void:
+	var amount_variance = (amount_range.y-amount_range.x) * randf() * .5
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
-	var return_values : Array = _load_enemy_image(enemy)
+	var return_values : Array = _load_enemy_image(sprite)
 	var pixels_to_cover : Dictionary = return_values[0]
 	var enemy_width : int = return_values[1]
 	var enemy_height : int = return_values[2]
@@ -851,11 +872,10 @@ func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vecto
 		for pixel in timefabric_masks[timefabrics_to_place[i][0]]:
 			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
 				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
-	while timefabrics_to_place.size() > amount_range.y:
+	while timefabrics_to_place.size() > amount_range.y-amount_variance:
 		timefabrics_to_place.remove_at(randi() % timefabrics_to_place.size())
-	while timefabrics_to_place.size() < amount_range.x:
+	while timefabrics_to_place.size() < amount_range.x+amount_variance:
 		timefabrics_to_place.append(timefabrics_to_place[randi() % timefabrics_to_place.size()])
-	
 	for fabric in timefabrics_to_place:
 		_place_timefabric(fabric[0],fabric[1],current_position,direction)
 
@@ -877,12 +897,11 @@ func _score_timefabric_placement(pixels_to_cover : Dictionary, timefabric_pixels
 			count+=1.0
 	return count / timefabric_sizes[timefabric_idx][2]
 
-func _load_enemy_image(enemy : Node) -> Array: 
-	var sprite = enemy.get_node("Sprite2D") as Sprite2D
+func _load_enemy_image(sprite : Node) -> Array: 
 	if not sprite.texture:
 		print("Sprite has no texture!")
 	var img : Image = sprite.texture.get_image()
-	if not sprite.texture:
+	if not img:
 		print("Texture has no image!")
 	var visible_pixels := {}  # Dictionary as hashmap
 	var w = int(img.get_width() / sprite.hframes)
@@ -1274,8 +1293,7 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		for node in get_tree().get_nodes_in_group("attack"):
 			if node.c_owner == enemy:
 				node.queue_free()
-		print("Fix enemy logic")
-		#_enemy_to_timefabric(enemy,direction,Vector2(20,40))
+		_enemy_to_timefabric(enemy,direction,Vector2(enemy.min_timefabric,enemy.max_timefabric))
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1

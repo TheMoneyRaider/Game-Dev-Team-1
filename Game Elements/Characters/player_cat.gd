@@ -259,7 +259,7 @@ func check_traps(delta):
 			#Instant trap
 			if dmg and !in_instant_trap:
 				if _crafter_chance():
-					take_damage(dmg, null, null)
+					take_damage(dmg, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false
