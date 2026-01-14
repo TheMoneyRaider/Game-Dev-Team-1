@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 		queue_free()
 	
 	
-func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node = null, value : int = 7, direction : Vector2 = Vector2.UP,size : int = 64, color : Color = Color(0.416, 0.416, 0.416, 1.0)) -> void:
+func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node = null, value : int = 7, direction : Vector2 = Vector2.UP,size : int = 64) -> void:
 	
 	var orig_len = 100
 	#Position based on attack and damage owner collision shapes
@@ -46,14 +46,13 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 			position= new_pos
 		
 	
+	var color = Color(0.564, 0.0, 0.061, 1.0)
 	if attack_owner:
 		if attack_owner.is_in_group("player"):
 			if attack_owner.is_purple:
 				color = Color(0.769, 0.003, 1.0, 1.0)
 			else:
 				color = Color(0.842, 0.348, 0.0, 1.0)
-		else:
-				color = Color(0.564, 0.0, 0.061, 1.0)
 	if !c_owner:
 		color = Color(0.5, 0.5, 0.5, 1.0)
 		orig_len = 20
@@ -118,16 +117,20 @@ func shape_to_polygon(in_shape: Shape2D, in_transform : Transform2D) -> PackedVe
 		var r = in_shape.radius
 		var h = in_shape.height / 2.0
 		var steps = 12
+		var pts := []
 
-		for i in steps:
+		# top semicircle
+		for i in range(steps):
 			var a = PI * float(i) / (steps - 1)
-			var local = Vector2(-h, 0) + Vector2(cos(a)*r, sin(a)*r)
-			poly.append(in_transform * local)
+			pts.append(Vector2( cos(a)*r, -h + sin(a)*r ))
 
-		for i in steps:
+		# bottom semicircle
+		for i in range(steps):
 			var a = PI * float(i) / (steps - 1)
-			var local = Vector2( h, 0) + Vector2(-cos(a)*r, sin(a)*r)
-			poly.append(in_transform * local)
+			pts.append(Vector2(-cos(a)*r, h + sin(a)*r))
+
+		for p in pts:
+			poly.append(in_transform * p)
 	elif in_shape is ConvexPolygonShape2D:
 		for p in in_shape.points:
 			poly.append(in_transform * p)

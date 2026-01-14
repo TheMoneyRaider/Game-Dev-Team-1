@@ -20,6 +20,8 @@ shader_parameter/node_offset = Vector2(0, 0)
 shader_parameter/emerge_height = 16.0
 
 [node name="Shop" type="Node2D"]
+z_index = 20
+y_sort_enabled = true
 script = ExtResource("3_anms3")
 
 [node name="Cracks" type="TileMapLayer" parent="."]

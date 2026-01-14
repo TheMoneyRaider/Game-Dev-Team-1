@@ -144,13 +144,13 @@ func request_attack(t_attack : PackedScene) -> float:
 	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 	var attack_direction = (crosshair.position).normalized()
 	var attack_position = attack_direction * 20 + global_position
+	instance.damage = instance.damage*(100+_hunter_percent_boost())/100
 	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
 	return instance.cooldown
 
-func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null):
-	return
+func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):
 	if(i_frames <= 0):
-		i_frames = 20
+		i_frames = attack_i_frames
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if current_health >= 0:
@@ -259,7 +259,7 @@ func check_traps(delta):
 			#Instant trap
 			if dmg and !in_instant_trap:
 				if _crafter_chance():
-					take_damage(dmg, null, null)
+					take_damage(dmg, null)
 				in_instant_trap = true
 			if !dmg:
 				in_instant_trap = false

@@ -340,6 +340,7 @@ texture = ExtResource("1_0bxt4")
 5:2/0/terrains_peering_bit/top_side = 3
 5:2/0/terrains_peering_bit/top_right_corner = 3
 3:4/0 = 0
+3:4/0/z_index = -29
 3:4/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -4, -8, -4)
 6:6/animation_columns = 4
 6:6/animation_frame_0/duration = 1.0

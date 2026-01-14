@@ -183,14 +183,16 @@ point_count = 3
 resource_name = "TetherGradient"
 colors = PackedColorArray(0.627, 0.125, 0.941, 1, 1, 0.647, 0, 1)
 
-[node name="PlayerCat" type="CharacterBody2D" node_paths=PackedStringArray("state_machine") groups=["player"]]
-z_index = 1
+[node name="PlayerCat" type="CharacterBody2D" node_paths=PackedStringArray("state_machine") groups=["depth_entities", "player"]]
+z_index = 20
 y_sort_enabled = true
 collision_layer = 2
+collision_mask = 13
 script = ExtResource("1_u0lhy")
 state_machine = NodePath("LimboHSM")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+y_sort_enabled = true
 texture = ExtResource("2_qmbn4")
 hframes = 4
 vframes = 4
@@ -226,7 +228,7 @@ script = ExtResource("8_5huac")
 [node name="Line2D" type="Line2D" parent="."]
 visible = false
 top_level = true
-z_index = 3
+y_sort_enabled = true
 points = PackedVector2Array(0, 0, 0, 0, 0, 0)
 width = 5.0
 width_curve = SubResource("Curve_etjf5")

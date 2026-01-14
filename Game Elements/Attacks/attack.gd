@@ -22,6 +22,7 @@ var hit_nodes = {}
 @export var attack_type : String = ""
 @export var deflectable : bool = false
 @export var deflects : bool = false
+@export var i_frames : int = 20
 
 var frozen := true
 
@@ -57,6 +58,9 @@ func _ready():
 func _process(delta):
 	if frozen:
 		return
+	if attack_type == "laser":
+		for body in get_overlapping_bodies():
+			intersection(body)
 	position += direction * speed * delta
 	life+=delta
 	if attack_type == "smash":
@@ -73,13 +77,15 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
 		return 0
 	if body.has_method("take_damage"):
-		body.take_damage(damage_dealt,n_owner,a_direction,self)
+		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames)
 		return 1
 	get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
 	return -1
 	
 
-func _on_body_entered(body):
+func intersection(body):
+	if attack_type == "laser" and life < .5:
+		return
 	if attack_type == "death mark":
 		if body != c_owner and body.is_in_group("player"):
 			c_owner.die(false)
@@ -89,7 +95,8 @@ func _on_body_entered(body):
 		match apply_damage(body,c_owner,damage,direction):
 			1:
 				pierce -= 1
-				hit_nodes[body] = null
+				if attack_type!= "laser":
+					hit_nodes[body] = null
 			0:
 				pass
 			-1:
@@ -99,16 +106,38 @@ func _on_body_entered(body):
 	if pierce == -1:
 		queue_free()
 
-func deflect(hit_direction, hit_speed):
+
+func _on_body_entered(body):
+	intersection(body)
+
+func deflect(hit_direction, hit_speed, deflection_area):
+	if attack_type=="laser":
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(c_owner.max_health, deflection_area.c_owner,hit_direction, deflection_area,c_owner.get_node("Segment1"))
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(c_owner.max_health, deflection_area.c_owner,hit_direction, deflection_area,c_owner.get_node("Segment2"))
+		var bt_player = c_owner.get_node("BTPlayer")
+		var board = bt_player.blackboard
+		if board:
+			board.set_var("kill_laser", true)
+			board.set_var("kill_damage", c_owner.max_health)
+			board.set_var("kill_direction", hit_direction)
+		return
 	direction = hit_direction
 	rotation = direction.angle() + PI/2
 	damage = round(damage * ((hit_speed + speed) / speed))
 	speed = speed + hit_speed
+	
+		
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("attack") and area.deflectable == true:
-		area.deflect(direction, hit_force)
+	if area.is_in_group("attack") and area.deflectable == true and deflects:
+		if area.attack_type =="laser":
+			if area.life > .5:
+				return
+			area.c_owner.take_damage(self.damage,c_owner,direction,self)
+		area.deflect(direction, hit_force,self)
 		area.c_owner = c_owner
 		area.hit_nodes = {}
 		for area_intr in area.get_overlapping_areas():
 			area._on_body_entered(area_intr)
+	if area.is_in_group("enemy") or area.is_in_group("player"):
+		intersection(area)

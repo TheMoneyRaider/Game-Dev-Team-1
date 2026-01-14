@@ -123,6 +123,8 @@ _data = {
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_hq7sw"]
 
 [node name="Duck" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("1_ijcte")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

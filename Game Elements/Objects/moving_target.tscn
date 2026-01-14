@@ -4,9 +4,10 @@
 [ext_resource type="Texture2D" uid="uid://binx3rvrf87r" path="res://art/gradiant_dot2.png" id="2_ml7jn"]
 
 [node name="MovingTarget" type="Node2D"]
+z_index = 40
+y_sort_enabled = true
 script = ExtResource("1_xivx2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-visible = false
 scale = Vector2(0.03, 0.03)
 texture = ExtResource("2_ml7jn")

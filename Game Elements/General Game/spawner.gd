@@ -31,9 +31,9 @@ static func spawn_enemies(count: int, players: Array[Node],scene : Node, availab
 		weights.append(best[1])
 	
 		_spawn_enemy(best[0],scene,enemy_scenes,layer_manager)
-	if Globals.config_safe:
-		if Globals.config.get_value("debug", "enabled", false):
-			_choose_best_cell(available_cells, chosen_positions, players,edges,scene, Vector2i.ZERO, true)
+	#if Globals.config_safe:
+		#if Globals.config.get_value("debug", "enabled", false):
+			#_choose_best_cell(available_cells, chosen_positions, players,edges,scene, Vector2i.ZERO, true)
 
 static func _choose_best_cell(available_cells : Array[Vector2i], chosen_positions : Array[Vector2i], players : Array[Node],edges : Array[Vector2i],scene : Node, cells_needed : Vector2i, is_debug : bool = false) -> Array:
 	var best_weight := -INF

@@ -2,6 +2,17 @@ extends Node
 class_name RoomData
 const room = preload("res://Game Elements/Rooms/room.gd")
 
+
+###Z ORDERS
+#0-9 background enviornmental elements(flooring,etc)
+#10-19 background dynamic elements(grass, floor attacks)
+#20-29 Player area(player is 20, most enemies are 20)
+#30-39 Filling and portals
+#40-49 UI Elements
+####
+
+
+
 #the root node of each room MUST BE NAMED Root
 #var rooms : Array[Room] = [room.Create_Room(
 #"res://Game Elements/Rooms/test_room1.tscn", 																								#Scene Location                       
@@ -90,8 +101,8 @@ false)]
 
 var testing_room : Room = room.Create_Room(
 "res://Game Elements/Rooms/testing_room.tscn", 																								#Scene Location                       
-1,																																#Num Liquids
-[room.Liquid.Water],																											#Liquid Types 
+0,																																#Num Liquids
+[],																																#Liquid Types 
 [1.0],																															#Liquid Chances                     
 2,																																#Num Fillings              
 [0,0],																															#Terrain Set                                      
@@ -105,6 +116,6 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
 [room.Direction.Up,room.Direction.Down],																						#Pathway Directions                     
-0,																																#Enemy Num Goal                               
+1,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false)

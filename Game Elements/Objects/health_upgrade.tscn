@@ -32,6 +32,8 @@ z_index = 1000
 scale = Vector2(1.5, 1.5)
 
 [node name="Text" type="RichTextLabel" parent="Prompt1"]
+z_index = 25
+y_sort_enabled = true
 offset_left = -26.0
 offset_top = -28.666666
 offset_right = 1274.0
@@ -44,6 +46,8 @@ scroll_active = false
 horizontal_alignment = 1
 
 [node name="TextureRect" type="TextureRect" parent="Prompt1"]
+z_index = 25
+y_sort_enabled = true
 offset_left = -30.666668
 offset_top = -27.999998
 offset_right = 119.33333
