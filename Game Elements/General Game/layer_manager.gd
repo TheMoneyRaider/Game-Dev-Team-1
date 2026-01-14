@@ -4,13 +4,15 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
-@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,4]
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, NewWeapon}
+@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,4, 0.0]
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
 var weapon1 = "res://Game Elements/Weapons/Mace.tres"
 var weapon2 = "res://Game Elements/Weapons/Shotgun.tres"
+var undiscovered_weapons = ["Crossbow","Shotgun"]
+var possible_weapon = undiscovered_weapons.pick_random()
 ###
 @onready var room_cleared: bool = true
 @onready var reward_claimed: bool = true
@@ -517,6 +519,20 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			generated_room.add_child(particle)
 			orb.queue_free()
 			return true
+	if(if_node_exists("NewWeapon",generated_room)):
+		var orb = generated_room.get_node("NewWeapon") as Area2D
+		if player_reference in orb.tracked_bodies:
+			player_reference.update_weapon(orb.weapon_type)
+			undiscovered_weapons.erase(possible_weapon)
+			if(undiscovered_weapons.size() == 0):
+				reward_num[6] = 0.0
+				possible_weapon = ""
+			else:
+				possible_weapon = undiscovered_weapons.pick_random()
+			hud.set_cooldown_icons()
+			orb.queue_free()
+			return true
+		
 	return false
 
 func room_reward(reward_type : Reward) -> void:
@@ -542,6 +558,10 @@ func room_reward(reward_type : Reward) -> void:
 		Reward.Health:
 			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 			reward.set_meta("reward_type", "health")
+		Reward.NewWeapon:
+			reward = load("res://Game Elements/Objects/new_weapon.tscn").instantiate()
+			reward.set_meta("reward_type", "newweapon")
+			reward.weapon_type = possible_weapon
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	
@@ -714,6 +734,7 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 			reward_type1 = null
 	if reward_type2 == null:
 		reward_type2 = Reward.Remnant
+	
 	#Pass the icon & type to the pathway node
 	pathway_to_randomize.set_reward(reward_type1,wave,reward_type2)
 
@@ -754,6 +775,9 @@ func _choose_reward(pathway_name : String) -> void:
 				5:
 					wave = true
 					reward_num[reward_value] = reward_num[reward_value]/2.0
+				6:
+					reward_type1 = Reward.NewWeapon
+					reward_num[reward_value] = reward_num[reward_value]/2.0
 		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
 			reward_type2 = reward_type1
 			reward_type1 = null
@@ -763,7 +787,7 @@ func _choose_reward(pathway_name : String) -> void:
 	if reward_type2 == null:
 		reward_type2 = Reward.Remnant
 	#Pass the icon & type to the pathway node
-	room_instance.get_node(pathway_name).set_reward(reward_type1,wave,reward_type2)
+	room_instance.get_node(pathway_name).set_reward(reward_type1,wave,reward_type2, possible_weapon)
 
 func _enable_pathways() -> void:
 	var pathway_name= ""
@@ -1148,7 +1172,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	generated_rooms.clear()
 	generated_room_metadata.clear()
 	generated_room_conflict.clear()
-	reward_num = [1.0,1.0,1.0,1.0,1.0,4]
+	reward_num = [1.0,1.0,1.0,1.0,1.0,4,0.0]
 	
 	# Delete the current room
 	if is_instance_valid(room_instance):

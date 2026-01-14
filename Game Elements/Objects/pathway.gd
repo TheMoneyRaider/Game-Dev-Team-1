@@ -15,7 +15,7 @@ extends Node2D
 @export var reward2_hframes = null
 @export var reward2_vframes = null
 @export var reward2_material = null
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, NewWeapon}
 
 @export var interact_key := "activate"
 @onready var prompt1 := $Prompt1
@@ -120,7 +120,7 @@ func enable_pathway():
 		$Icons/PathwayIcon1.material.set_shader_parameter("upper_left", true)
 		$Icons/PathwayIcon2.material.set_shader_parameter("upper_left", false)
 
-func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = Reward.Remnant):
+func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = Reward.Remnant, weapon_type : String = ""):
 	var new_icon1 = null
 	var new_icon2 = null
 	is_wave = in_is_wave
@@ -140,6 +140,11 @@ func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = 
 		Reward.Health:
 			var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
+		Reward.NewWeapon:
+			var inst = load("res://Game ELements/OBjects/new_weapon.tscn").instantiate()
+			new_icon1 = inst.get_node("Image")
+			var weapon_resource = load("res://Game Elements/Weapons/" + weapon_type + ".tres")
+			new_icon1.texture = weapon_resource.weapon_sprite
 	if !is_wave:
 		new_icon2 = new_icon1
 	else:
@@ -159,6 +164,12 @@ func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = 
 			Reward.Health:
 				var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
+			Reward.NewWeapon:
+				var inst = load("res://Game ELements/OBjects/new_weapon.tscn").instantiate()
+				new_icon2 = inst.get_node("Image")
+				var weapon_resource = load("res://Game Elements/Weapons/" + weapon_type + ".tres")
+				new_icon2.texture = weapon_resource.weapon_sprite
+				
 	reward1_type = reward1
 	reward1_texture = new_icon1.texture
 	reward1_frame = new_icon1.frame

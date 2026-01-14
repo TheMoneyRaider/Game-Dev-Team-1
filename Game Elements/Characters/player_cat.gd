@@ -350,3 +350,9 @@ func red_flash() -> void:
 
 func set_weapon(purple : bool, resource_loc : String):
 	weapons[purple as int] = Weapon.create_weapon(resource_loc,self)
+	
+func update_weapon(resource_name : String):
+	var resource_loc = "res://Game Elements/Weapons/" + resource_name + ".tres"
+	weapons[is_purple as int] = Weapon.create_weapon(resource_loc,self)
+	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
+	weapon_sprite.weapon_type = weapons[is_purple as int].type
