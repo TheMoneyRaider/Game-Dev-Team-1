@@ -41,7 +41,7 @@ func die():
 
 func start()->void:
 	randomize()
-	total_time = min_time + (max_time-min_time)*randf()
+	total_time = randf_range(min_time,max_time)
 	started = true
 	var valid_X = false
 	var valid_Y = false
@@ -51,6 +51,20 @@ func start()->void:
 	var check_down = cast_axis_ray(agent.global_position, Vector2.DOWN, 1600)
 	
 	##REMOVE UNVALID LOCATIONS THAT HAVE OTHER LASER SPOTS
+	for node in agent.get_tree().get_nodes_in_group("enemy"):
+		if node.name=="Segment1" or node.name=="Segment2":
+			if check_right:
+				if node.global_position.distance_to(check_right.position) < 8:
+					check_right = null
+			if check_left:
+				if node.global_position.distance_to(check_left.position) < 8:
+					check_left = null
+			if check_up:
+				if node.global_position.distance_to(check_up.position) < 8:
+					check_up = null
+			if check_down:
+				if node.global_position.distance_to(check_down.position) < 8:
+					check_down = null
 	##
 	if check_right and check_left:
 		valid_X = true
@@ -58,6 +72,7 @@ func start()->void:
 		valid_Y = true
 	if !valid_X and !valid_Y:
 		valid=false
+		return
 		
 	var choice = 0
 		
@@ -88,13 +103,13 @@ func start()->void:
 func _tick(delta: float) -> Status:
 	if blackboard.get_var("kill_laser") and !killed:
 		kill(blackboard.get_var("kill_damage"), blackboard.get_var("kill_direction"))
-	time+=delta
 	if !started:
 		if agent.weapon_cooldowns[0] > 0.0:
 			return FAILURE
 		start()
 		if !valid:
 			return proc_finish(FAILURE)
+	time+=delta
 	var seg1 = agent.get_node("Segment1")
 	var seg2 = agent.get_node("Segment2")
 	if time < opening_time:
@@ -130,7 +145,10 @@ func _tick(delta: float) -> Status:
 	return RUNNING
 
 func proc_finish(r_status: Status) -> Status:
-	agent.weapon_cooldowns[0] = randf_range(min_cool, max_cool)
+	if r_status != FAILURE:
+		agent.weapon_cooldowns[0] = randf_range(min_cool, max_cool)
+	else:
+		agent.weapon_cooldowns[0] = min_cool
 	started = false
 	laser_out = false
 	valid = true
