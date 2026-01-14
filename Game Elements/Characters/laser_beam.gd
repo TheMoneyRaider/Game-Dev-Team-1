@@ -22,17 +22,18 @@ func _ready():
 
 
 func fire_laser(from_point : Vector2, to_point : Vector2, y_axis : bool):
+	var laser_enemy = get_parent().get_parent().get_parent()
 	clear_points()
-	add_point(from_point)
-	add_point(to_point)
+	add_point(from_point-get_parent().get_parent().position)
+	add_point(to_point-get_parent().get_parent().position)
 	active = true
 	powering = 0.0
 	powering_down = -1.0
 	show_laser()
-	var global_pos_1 = to_global(from_point)
-	var global_pos_2 = to_global(to_point)
+	var global_pos_1 = laser_enemy.to_global(from_point)
+	var global_pos_2 = laser_enemy.to_global(to_point)
 	var instance = load("res://Game Elements/Attacks/laser.tscn").instantiate()
-	instance.c_owner = get_parent()
+	instance.c_owner = laser_enemy
 	laser_attack = instance
 	laser_attack.global_position = (global_pos_1+global_pos_2)/2.0
 	var new_shape = RectangleShape2D.new()
@@ -43,7 +44,7 @@ func fire_laser(from_point : Vector2, to_point : Vector2, y_axis : bool):
 		new_shape.size.x = 8
 		new_shape.size.y = (global_pos_2.x-global_pos_1.x)
 	laser_attack.get_child(0).shape = new_shape
-	get_parent().get_parent().add_child(instance)
+	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 
 func stop_laser():
 	powering_down = 0.0
