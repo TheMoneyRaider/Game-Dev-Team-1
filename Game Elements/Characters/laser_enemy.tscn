@@ -19,7 +19,7 @@ _data = [Vector2(0.25559106, 0), 0.0, 0.0, 0, 0, Vector2(0.74920136, 1), 0.0, 0.
 point_count = 2
 
 [node name="laser_enemy" type="CharacterBody2D" groups=["enemy"]]
-z_index = 1
+z_index = 20
 y_sort_enabled = true
 collision_layer = 16
 collision_mask = 17
@@ -37,9 +37,13 @@ blackboard_plan = SubResource("BlackboardPlan_6wupc")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 visible = false
+y_sort_enabled = true
 
 [node name="Segment1" type="Area2D" parent="."]
 modulate = Color(1, 1, 1, 0)
+z_index = 29
+z_as_relative = false
+y_sort_enabled = true
 position = Vector2(74332, -38167)
 rotation = 1.5707964
 collision_layer = 4
@@ -56,6 +60,9 @@ texture = ExtResource("3_8r1te")
 
 [node name="Segment2" type="Area2D" parent="."]
 modulate = Color(1, 1, 1, 0)
+z_index = 29
+z_as_relative = false
+y_sort_enabled = true
 position = Vector2(74332, -38167)
 collision_layer = 4
 collision_mask = 15
@@ -69,12 +76,7 @@ position = Vector2(0, 8)
 rotation = 1.5707964
 texture = ExtResource("3_8r1te")
 
-[node name="LaserBeam" type="Node2D" parent="."]
+[node name="LaserBeam" type="Line2D" parent="."]
+y_sort_enabled = true
 script = ExtResource("4_h87mk")
 power_curve = SubResource("Curve_h87mk")
-
-[node name="LaserAbove" type="Line2D" parent="LaserBeam"]
-z_index = 2
-points = PackedVector2Array(65, 42, 75, 36, 93, 50, 112, 65, 98, 41, 112, 22, 113, 19, 111, 10, 91, 14, 82, 16, 75, 17, 68, 14, 62, 12, 59, 11, 55, 9, 52, 6, 48, 5, 43, 4, 37, 22, 39, 30, 41, 47, 34, 54, 30, 60, 14, 69, 5, 66, -18, 66, -37, 67, -53, 89, -12, 109, 78, 118, 131, 114, 180, 91, 193, 45, 186, 24, 155, -20, 114, -52, 55, -59, 30, -54, -15, -42, -27, -40, -42, -40, -52, -31, -60, 10, -50, 31, -41, 39, -9, 48, -2, 49, 8, 61, 11, 66, 19, 72, 32, 76, 52, 80, 68, 80, 68, 63, 56, 48, 42, 29, 235, 40)
-
-[node name="LaserBelow" type="Line2D" parent="LaserBeam"]

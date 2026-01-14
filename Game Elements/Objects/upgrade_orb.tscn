@@ -54,6 +54,8 @@ shader_parameter/band_width = 0.05
 shader_parameter/shift_wave_enabled = 0
 
 [node name="UpgradeOrb" type="Area2D" groups=["reward"]]
+z_index = 25
+y_sort_enabled = true
 collision_mask = 3
 script = ExtResource("1_qixjf")
 
