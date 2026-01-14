@@ -129,7 +129,7 @@ func deflect(hit_direction, hit_speed, deflection_area):
 		
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("attack") and area.deflectable == true:
+	if area.is_in_group("attack") and area.deflectable == true and deflects:
 		if area.attack_type =="laser":
 			if area.life > .5:
 				return
