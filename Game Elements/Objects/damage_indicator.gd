@@ -117,16 +117,20 @@ func shape_to_polygon(in_shape: Shape2D, in_transform : Transform2D) -> PackedVe
 		var r = in_shape.radius
 		var h = in_shape.height / 2.0
 		var steps = 12
+		var pts := []
 
-		for i in steps:
+		# top semicircle
+		for i in range(steps):
 			var a = PI * float(i) / (steps - 1)
-			var local = Vector2(-h, 0) + Vector2(cos(a)*r, sin(a)*r)
-			poly.append(in_transform * local)
+			pts.append(Vector2( cos(a)*r, -h + sin(a)*r ))
 
-		for i in steps:
+		# bottom semicircle
+		for i in range(steps):
 			var a = PI * float(i) / (steps - 1)
-			var local = Vector2( h, 0) + Vector2(-cos(a)*r, sin(a)*r)
-			poly.append(in_transform * local)
+			pts.append(Vector2(-cos(a)*r, h + sin(a)*r))
+
+		for p in pts:
+			poly.append(in_transform * p)
 	elif in_shape is ConvexPolygonShape2D:
 		for p in in_shape.points:
 			poly.append(in_transform * p)

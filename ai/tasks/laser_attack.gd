@@ -1,4 +1,5 @@
 extends BTAction
+class_name LaserAttack
 
 var started : bool = false
 var laser_out : bool = false
@@ -8,6 +9,12 @@ var opening_time : float =1.0
 var closing_time : float =1.0
 var total_time : float =5.0
 var y_axis : bool = false
+var killed : bool = false
+
+var killed_damage : int
+var killed_direction : Vector2
+
+
 
 func cast_axis_ray(origin: Vector2, direction: Vector2, distance: float) -> Dictionary:
 	var space = agent.get_world_2d().direct_space_state
@@ -17,6 +24,16 @@ func cast_axis_ray(origin: Vector2, direction: Vector2, distance: float) -> Dict
 	query.collision_mask = 1 << 0
 	return space.intersect_ray(query)
 
+
+func kill(damage : int, direction : Vector2) -> void:
+	killed = true
+	killed_damage = damage
+	killed_direction = direction
+	time = total_time-closing_time
+	agent.current_health -= damage
+	
+func die():
+	agent.emit_signal("enemy_took_damage",killed_damage,agent.current_health,agent,killed_direction)
 
 func start()->void:
 	started = true
@@ -53,16 +70,18 @@ func start()->void:
 		1:
 			seg2.global_position = check_right.position
 			seg1.global_position = check_left.position
-			seg2.rotation = deg_to_rad(90)
-			seg1.rotation = deg_to_rad(-90)
+			seg2.rotation = deg_to_rad(180)
+			seg1.rotation = deg_to_rad(0)
 		2:
 			y_axis = true
 			seg1.global_position = check_up.position
 			seg2.global_position = check_down.position
-			seg1.rotation = deg_to_rad(0)
-			seg2.rotation = deg_to_rad(180)
+			seg1.rotation = deg_to_rad(90)
+			seg2.rotation = deg_to_rad(-90)
 
 func _tick(delta: float) -> Status:
+	if blackboard.get_var("kill_laser") and !killed:
+		kill(blackboard.get_var("kill_damage"), blackboard.get_var("kill_direction"))
 	time+=delta
 	if !started:
 		start()
@@ -80,11 +99,14 @@ func _tick(delta: float) -> Status:
 		agent.get_node("LaserBeam").stop_laser()
 		laser_out = false
 	if time > total_time-closing_time:
-		seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
-		seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+		if !killed:
+			seg1.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
+			seg2.modulate.a = lerp(1,0,(time-total_time+closing_time)/closing_time)
 	if time >= total_time:
 		seg1.global_position = Vector2(1000,1000)
 		seg2.global_position = Vector2(1000,1000)
+		if killed:
+			die()
 		return proc_finish(SUCCESS)
 		
 	

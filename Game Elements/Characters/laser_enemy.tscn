@@ -13,7 +13,7 @@ radius = 8.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8r1te"]
 radius = 8.0
-height = 37.6
+height = 26.0
 
 [sub_resource type="Curve" id="Curve_h87mk"]
 _data = [Vector2(0, 0), 0.0, 7.601952, 0, 0, Vector2(0.037459284, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.25244302, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.50488603, 0.5050566), 2.0774114, 2.0774114, 0, 0, Vector2(0.74920136, 1), 0.0, 0.0, 0, 0]
@@ -25,8 +25,10 @@ y_sort_enabled = true
 collision_layer = 16
 collision_mask = 17
 script = ExtResource("1_8r1te")
+display_damage = false
 deagro_distance = 750.0
 agro_distance = 500.0
+enemy_type = "laser"
 move_speed = 150.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -36,28 +38,22 @@ shape = SubResource("CircleShape2D_6wupc")
 behavior_tree = ExtResource("2_6wupc")
 blackboard_plan = SubResource("BlackboardPlan_6wupc")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-visible = false
-y_sort_enabled = true
-
 [node name="Segment1" type="Area2D" parent="." groups=["enemy"]]
 modulate = Color(1, 1, 1, 0)
 z_index = 29
 z_as_relative = false
 y_sort_enabled = true
-position = Vector2(74332, -38167)
-rotation = 1.5707964
+position = Vector2(68736, 25147)
 collision_layer = 4
 collision_mask = 15
 script = ExtResource("3_m6xb1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Segment1"]
-position = Vector2(0, -5)
+rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_8r1te")
 
 [node name="Sprite2D" type="Sprite2D" parent="Segment1"]
-position = Vector2(0, 8)
-rotation = 1.5707964
+position = Vector2(7.9999995, 0)
 texture = ExtResource("3_8r1te")
 
 [node name="Segment2" type="Area2D" parent="." groups=["enemy"]]
@@ -65,18 +61,17 @@ modulate = Color(1, 1, 1, 0)
 z_index = 29
 z_as_relative = false
 y_sort_enabled = true
-position = Vector2(74332, -38167)
+position = Vector2(55543, 28719)
 collision_layer = 4
 collision_mask = 15
 script = ExtResource("3_m6xb1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Segment2"]
-position = Vector2(0, -5)
+rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_8r1te")
 
 [node name="Sprite2D" type="Sprite2D" parent="Segment2"]
-position = Vector2(0, 8)
-rotation = 1.5707964
+position = Vector2(7.9999995, 0)
 texture = ExtResource("3_8r1te")
 
 [node name="LaserBeam" type="Line2D" parent="."]

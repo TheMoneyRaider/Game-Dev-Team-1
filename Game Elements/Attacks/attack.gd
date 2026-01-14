@@ -128,3 +128,5 @@ func _on_area_entered(area: Area2D) -> void:
 		area.hit_nodes = {}
 		for area_intr in area.get_overlapping_areas():
 			area._on_body_entered(area_intr)
+	if area.is_in_group("enemy") or area.is_in_group("player"):
+		intersection(area)

@@ -185,7 +185,7 @@ func _process(delta: float) -> void:
 		for child in room_instance.get_children():
 			if child.is_in_group("enemy"):
 				if child.position.distance_to(player1.position) > 1000: #Haphazard fix for the disappearing enemy
-					push_warning("REMOVED ENEMY DUE TO BUG")
+					push_error("REMOVED ENEMY DUE TO BUG")
 					child.queue_free()
 				return
 		if is_wave_room and total_waves > current_wave:
@@ -1274,7 +1274,8 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		for node in get_tree().get_nodes_in_group("attack"):
 			if node.c_owner == enemy:
 				node.queue_free()
-		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
+		print("Fix enemy logic")
+		#_enemy_to_timefabric(enemy,direction,Vector2(20,40))
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1
