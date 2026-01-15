@@ -164,20 +164,19 @@ func check_liquids(delta):
 
 
 func _draw():
+	if !debug_mode:
+		return
 	# Get path from blackboard if behavior tree exists
 	if not has_node("BTPlayer"):
 		return
 	
 	var bt_player = get_node("BTPlayer")
-	
 	if not bt_player.blackboard.has_var("path"):
 		return
 		
 	var path = bt_player.blackboard.get_var("path", [])
-	
 	if path.is_empty():
 		return
-
 	# Draw lines between waypoints
 	for i in range(path.size() - 1):
 		var start = to_local(path[i])

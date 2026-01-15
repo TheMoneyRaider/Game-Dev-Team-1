@@ -103,6 +103,7 @@ func _ready() -> void:
 	room_instance_data = testing_room
 	room_location = load(room_instance_data.scene_location)
 	room_instance = room_location.instantiate()
+	room_instance.y_sort_enabled = true
 	game_root.add_child(room_instance)
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player1.global_position =  generated_room_entrance[room_instance.name]
@@ -1185,6 +1186,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 		
 	
 	room_instance.name = "Root"
+	room_instance.y_sort_enabled = true
 	# Enable Collisions
 	_set_tilemaplayer_collisions(room_instance, true)
 	
