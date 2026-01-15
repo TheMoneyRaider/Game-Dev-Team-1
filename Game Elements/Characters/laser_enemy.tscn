@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://d1iraxjiyuv2c"]
+[gd_scene load_steps=14 format=3 uid="uid://d1iraxjiyuv2c"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_8r1te"]
 [ext_resource type="BehaviorTree" uid="uid://dlq43y0e0i6on" path="res://ai/trees/laser.tres" id="2_6wupc"]
@@ -25,8 +25,21 @@ shader_parameter/outline_samples = 4
 shader_parameter/shade_color = Color(1, 1, 1, 0.5)
 
 [sub_resource type="Curve" id="Curve_h87mk"]
-_data = [Vector2(0, 0), 0.0, 7.601952, 0, 0, Vector2(0.037459284, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.25244302, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.50488603, 0.5050566), 2.0774114, 2.0774114, 0, 0, Vector2(0.74920136, 1), 0.0, 0.0, 0, 0]
-point_count = 5
+_limits = [0.0, 1.5, 0.0, 1.0]
+_data = [Vector2(0, 0), 0.0, 7.601952, 0, 0, Vector2(0.037459284, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.25244302, 0.095181525), 0.0, 0.0, 0, 0, Vector2(0.50488603, 0.5050566), 2.0774114, 2.0774114, 0, 0, Vector2(0.7865169, 1.1460773), -4.9788933, -4.9788933, 0, 0, Vector2(0.9967896, 1.0080276), 0.0, 0.0, 0, 0]
+point_count = 6
+metadata/_snap_count = 100
+
+[sub_resource type="Gradient" id="Gradient_dqm1i"]
+colors = PackedColorArray(1, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_s7vvk"]
+gradient = SubResource("Gradient_dqm1i")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.491453)
+fill_to = Vector2(0.5, 0)
 
 [node name="laser_enemy" type="CharacterBody2D" groups=["enemy"]]
 z_index = 20
@@ -106,3 +119,8 @@ points = PackedVector2Array(79, 52, 138, 113, 310, 144, 424, 171, 457, 313)
 default_color = Color(1, 0, 0, 1)
 script = ExtResource("4_h87mk")
 power_curve = SubResource("Curve_h87mk")
+
+[node name="Light" type="PointLight2D" parent="."]
+visible = false
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_s7vvk")
