@@ -1,10 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://dfus7yvwe8o0w"]
+[gd_scene load_steps=16 format=3 uid="uid://dfus7yvwe8o0w"]
 
 [ext_resource type="Script" uid="uid://c4n53rkbitwny" path="res://Game Elements/ui/main_menu/main_menu_effects.gd" id="1_6am0n"]
 [ext_resource type="Script" uid="uid://b2yehc48vhfk4" path="res://Game Elements/ui/main_menu/main_menu.gd" id="1_28flt"]
 [ext_resource type="Texture2D" uid="uid://rawhoxpikpyp" path="res://art/title_assets/grainy_background_visual.png" id="1_l8pfx"]
 [ext_resource type="Texture2D" uid="uid://ci51uf2w36bgw" path="res://art/title_assets/grainy_purple_and_orange_hourglass.png" id="2_6am0n"]
 [ext_resource type="StyleBox" uid="uid://dobyvfqwbwfh0" path="res://Game Elements/ui/resources/7-1_button.tres" id="5_5lttq"]
+[ext_resource type="Texture2D" uid="uid://b8yopxv6r5ajk" path="res://art/title_assets/title_variants/space.png" id="5_fhhe5"]
 [ext_resource type="StyleBox" uid="uid://gpahke45chv" path="res://Game Elements/ui/resources/7-3_button.tres" id="6_a412y"]
 [ext_resource type="StyleBox" uid="uid://duatvi4nhndpj" path="res://Game Elements/ui/resources/4-1_button.tres" id="7_6wjqi"]
 [ext_resource type="StyleBox" uid="uid://7c2wqv48pg7x" path="res://Game Elements/ui/resources/7-2_button.tres" id="7_odps5"]
@@ -72,6 +73,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 layout_mode = 0
@@ -81,8 +83,19 @@ offset_bottom = 40.0
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
 disable_3d = true
 transparent_bg = true
+handle_input_locally = false
 size = Vector2i(1920, 1000)
 render_target_update_mode = 4
+
+[node name="Title" type="TextureRect" parent="SubViewportContainer/SubViewport"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_fhhe5")
 
 [node name="UI_Group" type="Control" parent="SubViewportContainer/SubViewport"]
 layout_mode = 3
@@ -111,7 +124,6 @@ theme_override_constants/separation = 20
 [node name="Label" type="Label" parent="SubViewportContainer/SubViewport/UI_Group/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Time To Love"
 label_settings = SubResource("LabelSettings_l8pfx")
 uppercase = true
 
