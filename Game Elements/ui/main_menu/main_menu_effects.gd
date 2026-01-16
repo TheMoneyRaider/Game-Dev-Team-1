@@ -10,6 +10,7 @@ class UIState:
 	var player2: PlayerState	
 	
 @onready var UI_Group = $SubViewportContainer/SubViewport/UI_Group
+@onready var Title = $SubViewportContainer/SubViewport/Title
 @onready var cooldown : float = 0.0
 @onready var mouse_cooldown : float = 0.0
 @onready var the_ui : Texture2D
@@ -19,27 +20,25 @@ class UIState:
 @onready var fragmenting: bool = true
 @onready var prepared = false
 @export var capture_all_states: bool = false
-@export var saved_fragments_path: String = "res://Game Elements/ui/main_menu/BreakFXSaved.tres"
+@export var saved_fragments_paths: Array[String] = ["res://Game Elements/ui/main_menu/BreakFXSavedWestern.tres","res://Game Elements/ui/main_menu/BreakFXSavedSpace.tres","res://Game Elements/ui/main_menu/BreakFXSavedHorror.tres","res://Game Elements/ui/main_menu/BreakFXSavedMedieval.tres"]
 
 var last_mouse_pos : Vector2
 var ui_textures: Dictionary = {}
 var last_devices : Array = []
+var title_textures : Array = [load("res://art/title_assets/title_variants/western.png"),load("res://art/title_assets/title_variants/space.png"),load("res://art/title_assets/title_variants/horror.png"),load("res://art/title_assets/title_variants/medieval.png")]
 var UI: UIState = UIState.new()
-@onready var prev_state = normalize_ui_state({
-		"p1_hover": null,
-		"p1_press": false,
-		"p2_hover": null,
-		"p2_press": false
-	})
+@onready var prev_state = null
 
 
 func _ready():
+	Title.texture = title_textures[Globals.menu]
 	if Globals.config_safe:
 		fragmenting = Globals.config.get_value("fragmentation", "enabled", true)
 	if !fragmenting:
 		$RichTextLabel.visible = false
 		UI_Group.get_node("VBoxContainer").get_child(2).grab_focus()
 		UI_Group.visible = true
+		Title.visible = true
 	else:
 		if !capture_all_states:
 			preload_all_textures()
@@ -53,6 +52,7 @@ func _ready():
 		var vp_tex = $SubViewportContainer/SubViewport.get_texture()
 		the_ui = ImageTexture.create_from_image(vp_tex.get_image())
 		UI_Group.visible = true if capture_all_states else false
+		Title.visible = true if capture_all_states else false
 		if fragmenting:
 			await explode_ui()
 			cooldown = -1
@@ -183,47 +183,57 @@ func collect_leaf_children(node: Node, bounds: Dictionary) -> void:
 
 func explode_ui():
 	# If saved fragments exist, load them
-	if FileAccess.file_exists(saved_fragments_path):
-		load_fragments(saved_fragments_path)
+	if FileAccess.file_exists(saved_fragments_paths[Globals.menu]):
+		load_fragments(saved_fragments_paths[Globals.menu])
+		update_ui_display()
 		return
 
 	# --- Otherwise, generate fragments ---
-	var ui_bounds = {}
-	collect_leaf_children($SubViewportContainer/SubViewport, ui_bounds)
+	print("start saving fragments")
+	for state in [Globals.MenuState.Western,Globals.MenuState.Space,Globals.MenuState.Horror,Globals.MenuState.Medieval]:
+		Title.texture = title_textures[state]
+		await get_tree().process_frame
+		var vp_tex = $SubViewportContainer/SubViewport.get_texture()
+		the_ui = ImageTexture.create_from_image(vp_tex.get_image())
 
-	var button_bounds = {}
-	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
-		if button is Button:
-			button_bounds[button] = button.get_global_rect()
+		var button_bounds = {}
+		for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
+			if button is Button:
+				button_bounds[button] = button.get_global_rect()
 
-	# Generate polygons
-	var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(), 40, 40)
+		# Generate polygons
+		var fragments_data = generate_jittered_grid_fragments(the_ui.get_size(), 40, 40)
 
-	var fragment_resources: Array = []
+		var fragment_resources: Array = []
 
-	for frag_poly in fragments_data:
-		if not overlaps_any_ui_element(frag_poly, ui_bounds):
-			continue
+		for frag_poly in fragments_data:
 
-		var frag = load("res://Game Elements/ui/main_menu/break_frag.tscn").instantiate()
-		$BreakFX.add_child(frag)
+			var frag = load("res://Game Elements/ui/main_menu/break_frag.tscn").instantiate()
+			$BreakFX.add_child(frag)
 
-		# Assign polygon & texture
-		var assigned_buttons = find_button_for_fragment(frag_poly, button_bounds)
-		frag.begin_break(frag_poly, the_ui, UI_Group.global_position)
-		frag.add_interactive_area(frag_poly, assigned_buttons)
+			# Assign polygon & texture
+			var assigned_buttons = find_button_for_fragment(frag_poly, button_bounds)
+			frag.begin_break(frag_poly, the_ui, UI_Group.global_position)
+			frag.add_interactive_area(frag_poly, assigned_buttons)
 
-		# Save fragment data
-		var fdata = FragmentData.new()
-		fdata.polygon = frag_poly.duplicate()
-		fdata.position = frag.global_position
-		fdata.texture_path = "" # Optional if using the_ui
-		fragment_resources.append(fdata)
+			#Add way to not save if has no alpha pixels.
+			if !frag or frag.is_queued_for_deletion():
+				continue
+			# Save fragment data
+			var fdata = FragmentData.new()
+			fdata.polygon = frag_poly.duplicate()
+			fdata.position = frag.global_position
+			fragment_resources.append(fdata)
+			frag.queue_free()
 
-	# Save all fragments to resource
-	var container = FragmentsContainer.new()
-	container.fragments = fragment_resources
-	ResourceSaver.save(container, saved_fragments_path)
+		# Save all fragments to resource
+		var container = FragmentsContainer.new()
+		container.fragments = fragment_resources
+		ResourceSaver.save(container, saved_fragments_paths[state])
+		fragment_resources.clear()
+		print("Saved fragments of menu "+str(state))
+		
+	print("All fragment data saved!")
 
 func load_fragments(path: String) -> void:
 	if not FileAccess.file_exists(path):
@@ -394,14 +404,14 @@ func update_ui_display():
 		"p2_hover": UI.player2.hover_button,
 		"p2_press": UI.player2.pressing
 	})
-	if state!=prev_state:
+	if !prev_state or state!=prev_state:
 		prev_state=state
 		var fname = generate_filename(prev_state)
 		if !ui_textures.has(fname):
 			fname = generate_filename(state, true)
-
 		for frag in $BreakFX.get_children():
-			frag.set_display_texture(ui_textures[fname])
+			if frag.is_in_group("ui_fragments"):
+				frag.set_display_texture(ui_textures[fname])
 	
 func capture_all_ui_states():		
 	var buttons = []
@@ -414,6 +424,7 @@ func capture_all_ui_states():
 		var img = await capture_state(state)
 		var filename = generate_filename(state)
 		img.get_image().save_png("res://ui_captures/"+filename+".png")
+	print("All states saved!")
 
 func capture_state(state: Dictionary) -> ViewportTexture:
 	# Update UI: apply hover/press for each player
@@ -439,7 +450,7 @@ func set_player_ui_state(state: Dictionary) -> void:
 	for button in $SubViewportContainer/SubViewport/UI_Group/VBoxContainer.get_children():
 		if button is Button:
 			button.button_pressed = false
-			button.add_theme_stylebox_override("normal", button.get_theme_stylebox("focus"))
+			button.add_theme_stylebox_override("normal", button.get_theme_stylebox("disabled"))
 
 	# Set P1
 	if state["p1_hover"] != null:
