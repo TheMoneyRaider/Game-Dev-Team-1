@@ -185,7 +185,7 @@ func _process(delta: float) -> void:
 	if !room_cleared:
 		for child in room_instance.get_children():
 			if child.is_in_group("enemy"):
-				if child.position.distance_to(player1.position) > 1000: #Haphazard fix for the disappearing enemy
+				if child.position.distance_to(player1.position) > 5000: #Haphazard fix for the disappearing enemy
 					push_error("REMOVED ENEMY DUE TO BUG")
 					child.queue_free()
 				return
