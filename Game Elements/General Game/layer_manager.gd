@@ -4,7 +4,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop}
 @onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
 var player1 = null
@@ -271,7 +271,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 			if pathway_detect and !pathway_detect.used:
 				for body in pathway_detect.get_node("Area2D").get_overlapping_bodies():
 					if body==player_reference:
-						if is_special_action:
+						if is_special_action and pathway_detect.reward1_type != Reward.Shop:
 							_randomize_room_reward(pathway_detect)
 							return -1
 						is_wave_room  = pathway_detect.is_wave
@@ -541,6 +541,8 @@ func room_reward(reward_type : Reward) -> void:
 		Reward.Health:
 			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 			reward.set_meta("reward_type", "health")
+		Reward.Shop:
+			return
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	

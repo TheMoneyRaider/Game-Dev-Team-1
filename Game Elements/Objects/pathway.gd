@@ -51,7 +51,7 @@ func _ready():
 
 
 func _process(delta):
-	$ShaderSprite.material.set_shader_parameter("mask_texture", $MaskViewport.get_texture())
+	$ShaderSprite.material.set_shader_parameter("mask_texture", $ShaderSprite/MaskViewport.get_texture())
 	if frames.is_empty():
 		return
 

@@ -120,7 +120,8 @@ func set_hole(hole_position : Vector2):
 func _physics_process(delta: float) -> void:
 	debug_invalid_points.clear()
 	debug_valid_points.clear()
-	queue_redraw()
+	if debug_draw_hole_grid:
+		queue_redraw()
 	var target_pos: Vector2 = to_local(target.global_position)-get_parent().get_parent().get_parent().position if target else to_local(get_global_mouse_position())
 	solve_ik(target_pos)
 
