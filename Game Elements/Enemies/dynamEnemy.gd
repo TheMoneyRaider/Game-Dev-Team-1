@@ -87,7 +87,7 @@ func _process(delta):
 		queue_redraw()
 	
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, i_frames : int = 0):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, _i_frames : int = 0):
 	if current_health >= 0 and display_damage:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):

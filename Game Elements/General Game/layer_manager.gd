@@ -4,7 +4,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop}
 @onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
 var player1 = null
@@ -25,8 +25,8 @@ var generated_room_metadata : = {}
 var generated_room_conflict : = {}
 var generated_room_entrance : = {}
 var global_conflict_cells= []
-var this_room_reward1 = Reward.HealthUpgrade
-var this_room_reward2 = Reward.HealthUpgrade
+var this_room_reward1 = Reward.Remnant
+var this_room_reward2 = Reward.Remnant
 var is_wave_room = false
 var total_waves = 0
 var current_wave = 0
@@ -135,15 +135,6 @@ func _ready() -> void:
 	create_new_rooms()
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
-	#await get_tree().process_frame
-	#await get_tree().process_frame
-	#await get_tree().process_frame
-	#await get_tree().process_frame
-	#await get_tree().process_frame
-	#await get_tree().process_frame
-	#await get_tree().process_frame
-	##This makes the first room a shop room
-	#_enable_pathways()
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -198,18 +189,23 @@ func _process(delta: float) -> void:
 			else:
 				Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
 			return
-		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
-		room_reward(this_room_reward1)
-		if is_wave_room:
-			room_reward(this_room_reward2)
+		if !room_instance_data.has_shop:
+			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
+			room_reward(this_room_reward1)
+			if is_wave_room:
+				room_reward(this_room_reward2)
 		room_cleared= true
 	else:
 		if !reward_claimed:
 			for node in room_instance.get_children():
 				if node.is_in_group("reward"):
 					return
-			_enable_pathways()
-			reward_claimed=true
+			if this_room_reward1 == Reward.Shop:
+				for i in 4:
+					await get_tree().process_frame
+			if !reward_claimed:
+				_enable_pathways()
+				reward_claimed=true
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -272,6 +268,8 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 				for body in pathway_detect.get_node("Area2D").get_overlapping_bodies():
 					if body==player_reference:
 						if is_special_action:
+							if pathway_detect.reward_type1 == Reward.Shop:
+								return 0
 							_randomize_room_reward(pathway_detect)
 							return -1
 						is_wave_room  = pathway_detect.is_wave
@@ -527,7 +525,7 @@ func room_reward(reward_type : Reward) -> void:
 		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16))])
 	match reward_type:
 		Reward.Remnant:
-			reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			reward = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnant")
 		Reward.TimeFabric:
 			reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
@@ -673,7 +671,8 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var reward_type2 = null
 	var wave = false
 	var prev_reward_type = pathway_to_randomize.reward1_type
-	
+	if prev_reward_type == Reward.Shop:
+		return
 	while reward_type1 == null:
 		var reward_val = randi() % 6
 		if reward_val!= 5 or !wave:
@@ -720,7 +719,10 @@ func _choose_reward(pathway_name : String) -> void:
 	var reward_type1 = null
 	var reward_type2 = null
 	var wave = false
-	
+	if generated_room_metadata[pathway_name].has_shop:
+		reward_type1 = Reward.Shop
+		room_instance.get_node(pathway_name).set_reward(reward_type1,false,reward_type1)
+		return
 	while reward_type1 == null:
 		var reward_value = calculate_reward(reward_num)
 		var last_reward_num = reward_num.duplicate()
@@ -1348,8 +1350,8 @@ func _on_special(player_node : Node):
 	for rem in remnants:
 		if rem.remnant_name == trickster.remnant_name:
 			if timefabric_collected >= int(rem.variable_1_values[rem.rank-1]):
-				timefabric_collected-=int(rem.variable_1_values[rem.rank-1])
-				check_pathways(room_instance, room_instance_data,player_node,true)
+				if check_pathways(room_instance, room_instance_data,player_node,true) == -1:
+					timefabric_collected-=int(rem.variable_1_values[rem.rank-1])
 	return -1
 
 func _debug_message(msg : String) -> void:

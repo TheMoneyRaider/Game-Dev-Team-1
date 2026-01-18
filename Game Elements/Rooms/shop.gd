@@ -155,7 +155,7 @@ func _on_tentacle_reached_hole(tentacle: Node) -> void:
 					ten_reward_num[reward_value] = ten_reward_num[reward_value]/2.0
 	match reward_type:
 		Reward.Remnant:
-			reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			reward = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnant")
 		Reward.RemnantUpgrade:
 			reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()

@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://dc615m8r6verx" path="res://art/remnants/remnant_orb_feet.png" id="1_jd1oi"]
 [ext_resource type="Script" uid="uid://bn7wc23ktk2ry" path="res://Game Elements/Objects/orb.gd" id="1_wu7qe"]
 [ext_resource type="Texture2D" uid="uid://bp337bkoxod8h" path="res://art/timefabric_orb.png" id="3_2ieqf"]
-[ext_resource type="Shader" uid="uid://bcbula2hj7vua" path="res://Game Elements/Remnants/remnant_orb.gdshader" id="4_vru07"]
+[ext_resource type="Shader" uid="uid://bcbula2hj7vua" path="res://Game Elements/Objects/remnant_orb.gdshader" id="4_vru07"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p07o2"]
 radius = 36.138622
