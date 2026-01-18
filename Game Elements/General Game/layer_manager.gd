@@ -557,10 +557,10 @@ func room_reward(reward_type : Reward) -> void:
 		Reward.Health:
 			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 			reward.set_meta("reward_type", "health")
-		Reward.NewWeapon:
-			reward = load("res://Game Elements/Objects/new_weapon.tscn").instantiate()
-			reward.set_meta("reward_type", "newweapon")
-			reward.weapon_type = possible_weapon
+		#Reward.NewWeapon:
+		#	reward = load("res://Game Elements/Objects/new_weapon.tscn").instantiate()
+		#	reward.set_meta("reward_type", "newweapon")
+		#	reward.weapon_type = possible_weapon
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	
@@ -778,9 +778,9 @@ func _choose_reward(pathway_name : String) -> void:
 				5:
 					wave = true
 					reward_num[reward_value] = reward_num[reward_value]/2.0
-				6:
-					reward_type1 = Reward.NewWeapon
-					reward_num[reward_value] = reward_num[reward_value]/2.0
+				#6:
+				#	reward_type1 = Reward.NewWeapon
+				#	reward_num[reward_value] = reward_num[reward_value]/2.0
 		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
 			reward_type2 = reward_type1
 			reward_type1 = null
