@@ -62,6 +62,7 @@ func set_players(player1_node : Node, player2_node : Node = null):
 		is_multiplayer = false
 		CrossCooldownBar.cover_cooldown()
 		health_bar_2.visible = false
+	set_cooldown_icons()
 
 func connect_signals(player_node : Node):
 	player_node.player_took_damage.connect(_on_player_take_damage)
@@ -83,6 +84,14 @@ func set_cooldowns():
 	else:
 		MaceCooldownBar.set_current_cooldown(player1.cooldowns[1])
 		CrossCooldownBar.set_current_cooldown(player1.cooldowns[0])
+
+func set_cooldown_icons():
+	if is_multiplayer:
+		MaceCooldownBar.set_cooldown_icon(player1.weapons[1].cooldown_icon)
+		CrossCooldownBar.set_cooldown_icon(player2.weapons[0].cooldown_icon)
+	else:
+		MaceCooldownBar.set_cooldown_icon(player1.weapons[1].cooldown_icon)
+		CrossCooldownBar.set_cooldown_icon(player1.weapons[0].cooldown_icon)	
 
 func set_cross_position():
 	if is_multiplayer:

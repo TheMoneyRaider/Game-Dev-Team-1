@@ -30,6 +30,11 @@ func gained(node_to_change : Node):
 			node_to_change.get_parent().add_child(particle)
 		"tether":
 			node_to_change.move_speed = ((1-value1) * node_to_change.move_speed)
+		"charged":
+			node_to_change.move_speed = ((1-value1) * node_to_change.move_speed)
+			var particle =  load("res://Game Elements/Effects/charged_particles.tscn").instantiate()
+			particle.position = node_to_change.position
+			node_to_change.get_parent().add_child(particle)
 			
 
 func lost(node_to_change : Node):
@@ -39,4 +44,6 @@ func lost(node_to_change : Node):
 		"slow":
 			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
 		"tether":
+			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
+		"charged":
 			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)

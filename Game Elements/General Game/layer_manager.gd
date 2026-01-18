@@ -9,6 +9,10 @@ enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop}
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
+var weapon1 = "res://Game Elements/Weapons/Mace.tres"
+var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
+var undiscovered_weapons = []
+var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
 @onready var room_cleared: bool = false
 @onready var reward_claimed: bool = false
@@ -514,6 +518,20 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			generated_room.add_child(particle)
 			orb.queue_free()
 			return true
+	if(if_node_exists("NewWeapon",generated_room)):
+		var orb = generated_room.get_node("NewWeapon") as Area2D
+		if player_reference in orb.tracked_bodies:
+			player_reference.update_weapon(orb.weapon_type)
+			undiscovered_weapons.erase(possible_weapon)
+			if(undiscovered_weapons.size() == 0):
+				reward_num[6] = 0.0
+				possible_weapon = ""
+			else:
+				possible_weapon = undiscovered_weapons.pick_random()
+			hud.set_cooldown_icons()
+			orb.queue_free()
+			return true
+		
 	return false
 
 func room_reward(reward_type : Reward) -> void:
@@ -539,6 +557,10 @@ func room_reward(reward_type : Reward) -> void:
 		Reward.Health:
 			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 			reward.set_meta("reward_type", "health")
+		Reward.NewWeapon:
+			reward = load("res://Game Elements/Objects/new_weapon.tscn").instantiate()
+			reward.set_meta("reward_type", "newweapon")
+			reward.weapon_type = possible_weapon
 	reward.position = reward_location
 	room_instance.call_deferred("add_child",reward)
 	
@@ -712,6 +734,7 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 			reward_type1 = null
 	if reward_type2 == null:
 		reward_type2 = Reward.Remnant
+	
 	#Pass the icon & type to the pathway node
 	pathway_to_randomize.set_reward(reward_type1,wave,reward_type2)
 
@@ -755,6 +778,9 @@ func _choose_reward(pathway_name : String) -> void:
 				5:
 					wave = true
 					reward_num[reward_value] = reward_num[reward_value]/2.0
+				6:
+					reward_type1 = Reward.NewWeapon
+					reward_num[reward_value] = reward_num[reward_value]/2.0
 		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
 			reward_type2 = reward_type1
 			reward_type1 = null
@@ -764,7 +790,7 @@ func _choose_reward(pathway_name : String) -> void:
 	if reward_type2 == null:
 		reward_type2 = Reward.Remnant
 	#Pass the icon & type to the pathway node
-	room_instance.get_node(pathway_name).set_reward(reward_type1,wave,reward_type2)
+	room_instance.get_node(pathway_name).set_reward(reward_type1,wave,reward_type2, possible_weapon)
 
 func _enable_pathways() -> void:
 	var pathway_name= ""
@@ -800,6 +826,8 @@ func _setup_players() -> void:
 		player2.is_multiplayer = true
 		player1.other_player = player2
 		player2.other_player = player1
+		player1.set_weapon(true, weapon1)
+		player2.set_weapon(false, weapon2)
 		game_root.add_child(player1)
 		game_root.add_child(player2)
 		player2.update_input_device(Globals.player2_input)
@@ -812,6 +840,8 @@ func _setup_players() -> void:
 	else:
 		player1 = player_scene.instantiate()
 		player1.is_multiplayer = false
+		player1.set_weapon(true, weapon1)
+		player1.set_weapon(false, weapon2)
 		game_root.add_child(player1)
 	player1.update_input_device(Globals.player1_input)
 	player1.attack_requested.connect(_on_player_attack)

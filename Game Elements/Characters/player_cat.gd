@@ -22,6 +22,10 @@ var mouse_sensitivity: float = 1.0
 @onready var tether_line = $Line2D
 @onready var crosshair = $Crosshair
 @onready var crosshair_sprite = $Crosshair/Sprite2D
+
+@onready var weapon_sprite = $WeaponSprite
+@onready var weapon_texture = $WeaponSprite/Sprite2D
+
 @onready var sprite = $Sprite2D
 @onready var purple_crosshair = preload("res://art/purple_crosshair.png")
 @onready var orange_crosshair = preload("res://art/orange_crosshair.png")
@@ -44,6 +48,7 @@ var effects : Array[Effect] = []
 
 #The scripts for loading default values into the attack
 #The list of attacks for playercharacter
+var weapons = [Weapon.create_weapon("res://Game Elements/Weapons/Crossbow.tres",self),Weapon.create_weapon("res://Game Elements/Weapons/Mace.tres",self)]
 var attacks = [preload("res://Game Elements/Attacks/bolt.tscn"),preload("res://Game Elements/Attacks/smash.tscn")]
 var revive = preload("res://Game Elements/Attacks/death_mark.tscn")
 var cooldowns = [0,0]
@@ -60,6 +65,8 @@ func _ready():
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
+	weapon_sprite.weapon_type = weapons[is_purple as int].type
+	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
 	if is_multiplayer:
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
@@ -115,13 +122,20 @@ func _physics_process(delta):
 	else:
 		tether(delta)
 	input_direction += (tether_momentum / move_speed)
+	weapon_sprite.weapon_direction = (crosshair.position).normalized()
+	
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
-	if Input.is_action_just_pressed("special_" + input_device):
+		
+	if Input.is_action_pressed("special_" + input_device):
+		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position)
 		emit_signal("special",self)
+	elif Input.is_action_just_released("special_" + input_device):
+		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position)
+		
 	adjust_cooldowns(delta)
 	red_flash()
 	#move and slide function
@@ -136,17 +150,11 @@ func update_animation_parameters(move_input : Vector2):
 		move_state.move_direction = move_input
 		
 
-func request_attack(t_attack : PackedScene) -> float:
-	var instance = t_attack.instantiate()
-	instance.direction = (crosshair.position).normalized()
-	instance.global_position = (crosshair.position).normalized() * 20 + global_position
-	instance.c_owner = self
-	get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+func request_attack(t_weapon : Weapon) -> float:
+	weapon_sprite.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
-	var attack_position = attack_direction * 20 + global_position
-	instance.damage = instance.damage*(100+_hunter_percent_boost())/100
-	emit_signal("attack_requested",t_attack, attack_position, attack_direction, _hunter_percent_boost())
-	return instance.cooldown
+	t_weapon.request_attacks(attack_direction,global_position)
+	return t_weapon.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):
 	if(i_frames <= 0):
@@ -169,12 +177,18 @@ func swap_color():
 		is_purple = false
 		sprite.texture = orange_texture
 		crosshair_sprite.texture = orange_crosshair
+		weapon_texture.texture = weapons[0].weapon_sprite
+		weapon_sprite.weapon_type = weapons[0].type
 		tether_line.default_color = Color("Orange")
+		weapons[1].special_time_elapsed = 0.0
 	else:
 		is_purple = true
 		sprite.texture = purple_texture
 		crosshair_sprite.texture = purple_crosshair
+		weapon_texture.texture = weapons[1].weapon_sprite
+		weapon_sprite.weapon_type = weapons[1].type
 		tether_line.default_color = Color("Purple")
+		weapons[0].special_time_elapsed = 0.0
 
 func tether(delta : float):
 	if Input.is_action_just_pressed("swap_" + input_device):
@@ -248,7 +262,7 @@ func adjust_cooldowns(time_elapsed : float):
 
 func handle_attack():
 	if cooldowns[is_purple as int] <= 0:
-		cooldowns[is_purple as int] = request_attack(attacks[is_purple as int])
+		cooldowns[is_purple as int] = request_attack(weapons[is_purple as int])
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
@@ -312,7 +326,7 @@ func _crafter_chance() -> bool:
 			
 	return true
 
-func _hunter_percent_boost() -> float:
+func hunter_percent_boost() -> float:
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
@@ -342,3 +356,12 @@ func red_flash() -> void:
 		sprite.self_modulate = Color(1.0, 0.378, 0.31, 1.0)
 	else:
 		sprite.self_modulate = Color(1.0, 1.0, 1.0)
+
+func set_weapon(purple : bool, resource_loc : String):
+	weapons[purple as int] = Weapon.create_weapon(resource_loc,self)
+	
+func update_weapon(resource_name : String):
+	var resource_loc = "res://Game Elements/Weapons/" + resource_name + ".tres"
+	weapons[is_purple as int] = Weapon.create_weapon(resource_loc,self)
+	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
+	weapon_sprite.weapon_type = weapons[is_purple as int].type
