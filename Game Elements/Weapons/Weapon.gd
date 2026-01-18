@@ -80,7 +80,7 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 		var attack_position = attack_direction * 20 + char_position
 		spawn_attack(attack_direction,attack_position)
 
-func spawn_attack(attack_direction : Vector2, attack_position : Vector2):
+func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particle_effect : String = ""):
 	var instance = load(attack_scene).instantiate()
 	instance.direction = attack_direction
 	instance.global_position = attack_position
@@ -92,6 +92,9 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2):
 	instance.start_lag = start_lag
 	instance.cooldown = cooldown
 	instance.pierce = pierce
+	if(particle_effect != ""):
+		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
+		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 
 func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2) -> Array:
@@ -103,14 +106,14 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 			"Crossbow":
 				if(special_time_elapsed == 0.0):
 					special_start_damage = damage
-				if(special_time_elapsed <= 5.0):
-					damage += (special_start_damage / 5) * time_elapsed
+				if(special_time_elapsed <= 3.0):
+					damage += (special_start_damage / 2) * time_elapsed
 				var effect = load("res://Game Elements/Effects/max_charge.tres").duplicate(true)
 				effect.cooldown = 20*time_elapsed
 				effect.value1 = 0.15
 				effect.gained(c_owner)
 				Effects.append(effect)
-				if(special_time_elapsed >= 5.0):
+				if(special_time_elapsed >= 2.0):
 					effect = load("res://Game Elements/Effects/slow_down.tres").duplicate(true)
 					effect.cooldown = 1*time_elapsed
 					effect.value1 = 0.0
@@ -126,8 +129,9 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				if(special_time_elapsed >= 5.0):
 					damage += (special_start_damage / 2)
 				if(special_time_elapsed >= 1.0):
-					spawn_attack(special_direction,special_position)
+					spawn_attack(special_direction,special_position, "charged_particles")
 					print(damage)
+					damage = special_start_damage
 			_:
 				pass
 		special_time_elapsed = 0.0

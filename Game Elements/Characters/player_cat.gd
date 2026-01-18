@@ -134,7 +134,6 @@ func _physics_process(delta):
 		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position)
 		emit_signal("special",self)
 	elif Input.is_action_just_released("special_" + input_device):
-		pass
 		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position)
 		
 	adjust_cooldowns(delta)
@@ -179,6 +178,7 @@ func swap_color():
 		weapon_texture.texture = weapons[0].weapon_sprite
 		weapon_sprite.weapon_type = weapons[0].type
 		tether_line.default_color = Color("Orange")
+		weapons[1].special_time_elapsed = 0.0
 	else:
 		is_purple = true
 		sprite.texture = purple_texture
@@ -186,6 +186,7 @@ func swap_color():
 		weapon_texture.texture = weapons[1].weapon_sprite
 		weapon_sprite.weapon_type = weapons[1].type
 		tether_line.default_color = Color("Purple")
+		weapons[0].special_time_elapsed = 0.0
 
 func tether(delta : float):
 	if Input.is_action_just_pressed("swap_" + input_device):
