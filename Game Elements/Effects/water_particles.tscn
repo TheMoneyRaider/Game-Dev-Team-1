@@ -28,7 +28,7 @@ scale_curve = SubResource("CurveTexture_oxh06")
 color_ramp = SubResource("GradientTexture1D_oxh06")
 
 [node name="WinterParticles" type="GPUParticles2D"]
-z_index = 10
+z_index = 19
 y_sort_enabled = true
 emitting = false
 amount = 10

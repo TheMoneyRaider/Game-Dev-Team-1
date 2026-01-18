@@ -87,7 +87,7 @@ func _process(delta):
 		queue_redraw()
 	
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, i_frames : int = 0):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, _i_frames : int = 0):
 	if current_health >= 0 and display_damage:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
@@ -164,20 +164,19 @@ func check_liquids(delta):
 
 
 func _draw():
+	if !debug_mode:
+		return
 	# Get path from blackboard if behavior tree exists
 	if not has_node("BTPlayer"):
 		return
 	
 	var bt_player = get_node("BTPlayer")
-	
 	if not bt_player.blackboard.has_var("path"):
 		return
 		
 	var path = bt_player.blackboard.get_var("path", [])
-	
 	if path.is_empty():
 		return
-
 	# Draw lines between waypoints
 	for i in range(path.size() - 1):
 		var start = to_local(path[i])

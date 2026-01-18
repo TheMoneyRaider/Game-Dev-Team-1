@@ -14,6 +14,7 @@ var max_cool : float =5.0
 var total_time : float =5.0
 var y_axis : bool = false
 var killed : bool = false
+var first_time : bool = true
 
 var killed_damage : int
 var killed_direction : Vector2
@@ -101,6 +102,11 @@ func start()->void:
 			seg2.rotation = deg_to_rad(-90)
 
 func _tick(delta: float) -> Status:
+	if first_time:   #Added so they don't all fire simultaniously. Maybe keep?
+		first_time=false
+		agent.weapon_cooldowns[0] = randf_range(min_cool/3, max_cool/3)
+		return proc_finish(FAILURE)
+		
 	if blackboard.get_var("kill_laser") and !killed:
 		kill(blackboard.get_var("kill_damage"), blackboard.get_var("kill_direction"))
 	if !started:

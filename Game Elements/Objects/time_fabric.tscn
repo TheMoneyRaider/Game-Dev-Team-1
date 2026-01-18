@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="1_kcv6a"]
 
 [node name="TimeFabric" type="Node2D"]
-z_index = 29
+z_index = 20
 y_sort_enabled = true
 script = ExtResource("1_edgu3")
 
