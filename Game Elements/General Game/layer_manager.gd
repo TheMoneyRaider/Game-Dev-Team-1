@@ -4,8 +4,8 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, NewWeapon}
-@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,4, 0.0]
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop}
+@onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
@@ -14,8 +14,8 @@ var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
-@onready var room_cleared: bool = true
-@onready var reward_claimed: bool = true
+@onready var room_cleared: bool = false
+@onready var reward_claimed: bool = false
 @onready var timefabric_masks: Array[Array]
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
@@ -29,8 +29,8 @@ var generated_room_metadata : = {}
 var generated_room_conflict : = {}
 var generated_room_entrance : = {}
 var global_conflict_cells= []
-var this_room_reward1 = Reward.HealthUpgrade
-var this_room_reward2 = Reward.HealthUpgrade
+var this_room_reward1 = Reward.Remnant
+var this_room_reward2 = Reward.Remnant
 var is_wave_room = false
 var total_waves = 0
 var current_wave = 0
@@ -107,6 +107,7 @@ func _ready() -> void:
 	room_instance_data = testing_room
 	room_location = load(room_instance_data.scene_location)
 	room_instance = room_location.instantiate()
+	room_instance.y_sort_enabled = true
 	game_root.add_child(room_instance)
 	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player1.global_position =  generated_room_entrance[room_instance.name]
@@ -123,9 +124,9 @@ func _ready() -> void:
 		if c not in conflict_cells and c not in filling:
 			placable_locations.append(c)
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/laser_enemy.tscn")],self)
 	else:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/laser_enemy.tscn")],self)
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
@@ -138,15 +139,6 @@ func _ready() -> void:
 	create_new_rooms()
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), room_instance.blocked_cells, room_instance.trap_cells)
 	_prepare_timefabric()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	await get_tree().process_frame
-	await get_tree().process_frame
-	await get_tree().process_frame
-	await get_tree().process_frame
-	await get_tree().process_frame
-	#This makes the first room a shop room
-	_enable_pathways()
 
 func _process(delta: float) -> void:
 	time_passed += delta
@@ -187,9 +179,9 @@ func _process(delta: float) -> void:
 				room_instance.get_node("TimeFabricOrb").queue_free()
 	if !room_cleared:
 		for child in room_instance.get_children():
-			if child is DynamEnemy:
-				if child.position.distance_to(player1.position) > 1000: #Haphazard fix for the disappearing enemy
-					push_warning("REMOVED ENEMY DUE TO BUG")
+			if child.is_in_group("enemy"):
+				if child.position.distance_to(player1.position) > 5000: #Haphazard fix for the disappearing enemy
+					push_error("REMOVED ENEMY DUE TO BUG")
 					child.queue_free()
 				return
 		if is_wave_room and total_waves > current_wave:
@@ -201,18 +193,23 @@ func _process(delta: float) -> void:
 			else:
 				Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
 			return
-		layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
-		room_reward(this_room_reward1)
-		if is_wave_room:
-			room_reward(this_room_reward2)
+		if !room_instance_data.has_shop:
+			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
+			room_reward(this_room_reward1)
+			if is_wave_room:
+				room_reward(this_room_reward2)
 		room_cleared= true
 	else:
 		if !reward_claimed:
 			for node in room_instance.get_children():
 				if node.is_in_group("reward"):
 					return
-			_enable_pathways()
-			reward_claimed=true
+			if this_room_reward1 == Reward.Shop:
+				for i in 4:
+					await get_tree().process_frame
+			if !reward_claimed:
+				_enable_pathways()
+				reward_claimed=true
 
 func create_new_rooms() -> void:
 	if thread_running:
@@ -275,6 +272,8 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 				for body in pathway_detect.get_node("Area2D").get_overlapping_bodies():
 					if body==player_reference:
 						if is_special_action:
+							if pathway_detect.reward_type1 == Reward.Shop:
+								return 0
 							_randomize_room_reward(pathway_detect)
 							return -1
 						is_wave_room  = pathway_detect.is_wave
@@ -544,7 +543,7 @@ func room_reward(reward_type : Reward) -> void:
 		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16))])
 	match reward_type:
 		Reward.Remnant:
-			reward = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			reward = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnant")
 		Reward.TimeFabric:
 			reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
@@ -694,7 +693,8 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var reward_type2 = null
 	var wave = false
 	var prev_reward_type = pathway_to_randomize.reward1_type
-	
+	if prev_reward_type == Reward.Shop:
+		return
 	while reward_type1 == null:
 		var reward_val = randi() % 6
 		if reward_val!= 5 or !wave:
@@ -742,7 +742,10 @@ func _choose_reward(pathway_name : String) -> void:
 	var reward_type1 = null
 	var reward_type2 = null
 	var wave = false
-	
+	if generated_room_metadata[pathway_name].has_shop:
+		reward_type1 = Reward.Shop
+		room_instance.get_node(pathway_name).set_reward(reward_type1,false,reward_type1)
+		return
 	while reward_type1 == null:
 		var reward_value = calculate_reward(reward_num)
 		var last_reward_num = reward_num.duplicate()
@@ -847,9 +850,30 @@ func _setup_players() -> void:
 	player1.special.connect(_on_special)
 
 func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vector2) -> void:
-	var sprite = enemy.get_node("Sprite2D")
+	var sprites = enemy.displays
+	var total_area = 0.0
+	var areas : Array
+	for node in sprites:
+		var sprite = enemy.get_node(node)
+		if not sprite.texture:
+			print("Sprite has no texture!")
+		var img : Image = sprite.texture.get_image()
+		if not img:
+			print("Texture has no image!")
+		var w = int(img.get_width() / sprite.hframes)
+		var h = int(img.get_height() / sprite.vframes)
+		total_area+=w*h
+		areas.append(w*h)
+	var i = 0
+	for node in sprites:
+		var sprite = enemy.get_node(node)
+		_sprite_to_timefabric(sprite,direction, amount_range * (areas[i]/total_area))
+		i+=1
+		
+func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vector2) -> void:
+	var amount_variance = (amount_range.y-amount_range.x) * randf() * .5
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
-	var return_values : Array = _load_enemy_image(enemy)
+	var return_values : Array = _load_enemy_image(sprite)
 	var pixels_to_cover : Dictionary = return_values[0]
 	var enemy_width : int = return_values[1]
 	var enemy_height : int = return_values[2]
@@ -881,11 +905,10 @@ func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vecto
 		for pixel in timefabric_masks[timefabrics_to_place[i][0]]:
 			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
 				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
-	while timefabrics_to_place.size() > amount_range.y:
+	while timefabrics_to_place.size() > amount_range.y-amount_variance:
 		timefabrics_to_place.remove_at(randi() % timefabrics_to_place.size())
-	while timefabrics_to_place.size() < amount_range.x:
+	while timefabrics_to_place.size() < amount_range.x+amount_variance:
 		timefabrics_to_place.append(timefabrics_to_place[randi() % timefabrics_to_place.size()])
-	
 	for fabric in timefabrics_to_place:
 		_place_timefabric(fabric[0],fabric[1],current_position,direction)
 
@@ -907,12 +930,11 @@ func _score_timefabric_placement(pixels_to_cover : Dictionary, timefabric_pixels
 			count+=1.0
 	return count / timefabric_sizes[timefabric_idx][2]
 
-func _load_enemy_image(enemy : Node) -> Array: 
-	var sprite = enemy.get_node("Sprite2D") as Sprite2D
+func _load_enemy_image(sprite : Node) -> Array: 
 	if not sprite.texture:
 		print("Sprite has no texture!")
 	var img : Image = sprite.texture.get_image()
-	if not sprite.texture:
+	if not img:
 		print("Texture has no image!")
 	var visible_pixels := {}  # Dictionary as hashmap
 	var w = int(img.get_width() / sprite.hframes)
@@ -1172,7 +1194,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	generated_rooms.clear()
 	generated_room_metadata.clear()
 	generated_room_conflict.clear()
-	reward_num = [1.0,1.0,1.0,1.0,1.0,4,0.0]
+	reward_num = [1.0,1.0,1.0,1.0,1.0,1.0]
 	
 	# Delete the current room
 	if is_instance_valid(room_instance):
@@ -1196,6 +1218,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 		
 	
 	room_instance.name = "Root"
+	room_instance.y_sort_enabled = true
 	# Enable Collisions
 	_set_tilemaplayer_collisions(room_instance, true)
 	
@@ -1301,7 +1324,10 @@ func _on_player_take_damage(damage_amount : int,_current_health : int,_player_no
 func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direction = Vector2(0,-1)) -> void:
 	layer_ai[5]+=damage
 	if current_health <= 0:
-		_enemy_to_timefabric(enemy,direction,Vector2(20,40))
+		for node in get_tree().get_nodes_in_group("attack"):
+			if node.c_owner == enemy:
+				node.queue_free()
+		_enemy_to_timefabric(enemy,direction,Vector2(enemy.min_timefabric,enemy.max_timefabric))
 		enemy.visible=false
 		enemy.queue_free()
 		layer_ai[7]+=1
@@ -1354,8 +1380,8 @@ func _on_special(player_node : Node):
 	for rem in remnants:
 		if rem.remnant_name == trickster.remnant_name:
 			if timefabric_collected >= int(rem.variable_1_values[rem.rank-1]):
-				timefabric_collected-=int(rem.variable_1_values[rem.rank-1])
-				check_pathways(room_instance, room_instance_data,player_node,true)
+				if check_pathways(room_instance, room_instance_data,player_node,true) == -1:
+					timefabric_collected-=int(rem.variable_1_values[rem.rank-1])
 	return -1
 
 func _debug_message(msg : String) -> void:
@@ -1381,3 +1407,8 @@ func calculate_reward(reward_probability : Array) -> int:
 			return idx
 		idx+=1
 	return 0
+	
+func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):
+	var instance = load("res://Game Elements/Objects/damage_indicator.tscn").instantiate()
+	room_instance.add_child(instance)
+	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction)

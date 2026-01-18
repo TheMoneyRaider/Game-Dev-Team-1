@@ -15,7 +15,7 @@ extends Node2D
 @export var reward2_hframes = null
 @export var reward2_vframes = null
 @export var reward2_material = null
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, NewWeapon}
+enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health,Shop}
 
 @export var interact_key := "activate"
 @onready var prompt1 := $Prompt1
@@ -126,7 +126,7 @@ func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = 
 	is_wave = in_is_wave
 	match reward1:
 		Reward.Remnant:
-			var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+			var inst = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 		Reward.TimeFabric:
 			var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
@@ -140,17 +140,15 @@ func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = 
 		Reward.Health:
 			var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-		Reward.NewWeapon:
-			var inst = load("res://Game ELements/OBjects/new_weapon.tscn").instantiate()
+		Reward.Shop:
+			var inst = load("res://Game Elements/Objects/vision.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-			var weapon_resource = load("res://Game Elements/Weapons/" + weapon_type + ".tres")
-			new_icon1.texture = weapon_resource.weapon_sprite
 	if !is_wave:
 		new_icon2 = new_icon1
 	else:
 		match reward2:
 			Reward.Remnant:
-				var inst = load("res://Game Elements/Remnants/remnant_orb.tscn").instantiate()
+				var inst = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
 			Reward.TimeFabric:
 				var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
@@ -218,6 +216,8 @@ func _on_body_exited(body):
 		
 		
 func _has_trickster(body : Node, is_switched : bool = false) -> int:
+	if reward1_type == Reward.Shop:
+		return -1
 	var remnants : Array[Remnant] = []
 	var player_col = body.is_purple
 	if is_switched:

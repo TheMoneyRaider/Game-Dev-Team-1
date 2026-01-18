@@ -38,4 +38,4 @@ func _tick(_delta: float) -> Status:
 		var player_agressing = blackboard.get_var(player_idx)
 		blackboard.set_var(player_position_var, positions_array[player_agressing])
 	
-	return FAILURE
+	return SUCCESS

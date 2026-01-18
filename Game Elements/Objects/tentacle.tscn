@@ -32,6 +32,9 @@ _data = [Vector2(0, 0.75746274), 0.0, 0.0, 0, 0, Vector2(0.99277973, 0.39850748)
 point_count = 2
 
 [node name="Tentacle" type="Node2D" node_paths=PackedStringArray("base_node") groups=["tentacle"]]
+z_index = 30
+z_as_relative = false
+y_sort_enabled = true
 script = ExtResource("1_djn6u")
 base_node = NodePath("SubViewportContainer/SubViewport/TwoToneCanvasGroup/Line2D")
 width_curve = SubResource("Curve_djn6u")

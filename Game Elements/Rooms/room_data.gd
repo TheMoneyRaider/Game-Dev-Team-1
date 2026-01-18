@@ -2,6 +2,17 @@ extends Node
 class_name RoomData
 const room = preload("res://Game Elements/Rooms/room.gd")
 
+
+###Z ORDERS
+#0-9 background enviornmental elements(flooring,etc)
+#10-19 background dynamic elements(grass, floor attacks)
+#20-29 Player area(player is 20, most enemies are 20)
+#30-39 Filling and portals
+#40-49 UI Elements
+####
+
+
+
 #the root node of each room MUST BE NAMED Root
 #var rooms : Array[Room] = [room.Create_Room(
 #"res://Game Elements/Rooms/test_room1.tscn", 																								#Scene Location                       
@@ -42,7 +53,26 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 #[room.Direction.Up,room.Direction.Up,room.Direction.Left,room.Direction.Down,room.Direction.Right],								#Pathway Directions                        
 #8,																																#Enemy Num Goal                               
 #0,																																#NPC Spawnpoints   
-#false)]																														#Has Shop
+#false),room.Create_Room(
+#"res://Game Elements/Rooms/test_room3.tscn", 																					#Scene Location                       
+#0,																																#Num Liquids
+#[],																																#Liquid Types 
+#[],																																#Liquid Chances                     
+#0,																																#Num Fillings              
+#[0],																															#Terrain Set                                      
+#[0],																															#Terrain ID                       
+#[.6,1.0],																														#Threshold            
+#randi(),																														#Noise Seed           
+#FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+#.1,																																#Noise Frequency                        
+#0,																																#Num Traps              
+#[],																																#Trap Chances                                
+#[],																																#Trap Types                         
+#4,																																#Num Pathways                   
+#[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+#3,																																#Enemy Num Goal                               
+#0,																																#NPC Spawnpoints   
+#false)]																															#Has Shop
 
 
 #Dev array
@@ -67,13 +97,13 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 5,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
-"res://Game Elements/Rooms/test_room3.tscn", 																					#Scene Location                       
+"res://Game Elements/Rooms/medieval_shop.tscn", 																				#Scene Location                       
 0,																																#Num Liquids
 [],																																#Liquid Types 
 [],																																#Liquid Chances                     
-0,																																#Num Fillings              
-[0],																															#Terrain Set                                      
-[0],																															#Terrain ID                       
+2,																																#Num Fillings              
+[0,0],																															#Terrain Set                                      
+[3,4],																															#Terrain ID                       
 [.6,1.0],																														#Threshold            
 randi(),																														#Noise Seed           
 FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
@@ -83,15 +113,15 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
 [room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
-3,																																#Enemy Num Goal                               
+0,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false)]
+true)]
 
 
 var testing_room : Room = room.Create_Room(
 "res://Game Elements/Rooms/testing_room.tscn", 																								#Scene Location                       
-1,																																#Num Liquids
-[room.Liquid.Water],																											#Liquid Types 
+0,																																#Num Liquids
+[],																																#Liquid Types 
 [1.0],																															#Liquid Chances                     
 2,																																#Num Fillings              
 [0,0],																															#Terrain Set                                      
@@ -105,6 +135,6 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
 [room.Direction.Up,room.Direction.Down],																						#Pathway Directions                     
-0,																																#Enemy Num Goal                               
+3,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false)

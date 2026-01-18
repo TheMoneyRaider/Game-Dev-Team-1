@@ -34,6 +34,7 @@ tentacle=""
 player=""
 holds_reward=""
 attack=""
+enemy=""
 
 [input]
 
@@ -301,6 +302,14 @@ pause={
 , Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":6,"pressure":0.0,"pressed":true,"script":null)
 ]
 }
+
+[layer_names]
+
+2d_physics/layer_1="Environment Layer"
+2d_physics/layer_2="Player Layer"
+2d_physics/layer_3="Enemy Layer"
+2d_physics/layer_4="Attack Layer"
+2d_physics/layer_5="Invisible Enemy Layer"
 
 [rendering]
 

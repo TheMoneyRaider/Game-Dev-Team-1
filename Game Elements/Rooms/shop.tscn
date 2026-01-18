@@ -20,6 +20,8 @@ shader_parameter/node_offset = Vector2(0, 0)
 shader_parameter/emerge_height = 16.0
 
 [node name="Shop" type="Node2D"]
+z_index = 20
+y_sort_enabled = true
 script = ExtResource("3_anms3")
 
 [node name="Cracks" type="TileMapLayer" parent="."]
@@ -250,6 +252,8 @@ range = 12.0
 speed = 12.0
 
 [node name="VisionNPC" type="Area2D" parent="."]
+z_index = 31
+y_sort_enabled = true
 position = Vector2(6, 19)
 collision_mask = 3
 script = ExtResource("7_lfc25")
@@ -268,4 +272,5 @@ position = Vector2(0, 10)
 position = Vector2(1, 349)
 
 [node name="Items" type="CanvasGroup" parent="."]
+z_index = 30
 material = SubResource("ShaderMaterial_lfc25")

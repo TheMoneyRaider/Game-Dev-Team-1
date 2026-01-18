@@ -2,14 +2,22 @@ class_name DynamEnemy
 extends CharacterBody2D
 const is_elite: bool = false
 @export var max_health: int = 10
-var current_health: int = 10 
-var move_speed: float = 70
-@onready var sprite_2d: Sprite2D = $Sprite2D
+@export var display_damage: bool =true
+@export var hit_range: int = 64
+@export var deagro_distance: float = 150.0
+@export var agro_distance: float = 150.0
+@export var enemy_type : String = ""
+@export var displays : Array[NodePath] = []
+@export var min_timefabric = 10
+@export var max_timefabric = 20
+var current_health: int = 10
+@export var move_speed: float = 70
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
 var damage_direction = Vector2(0,-1)
 var damage_taken = 0
-var debug_mode = false 
+var debug_mode = false
+@export var weapon_cooldowns : Array[float] = []
 
 var effects : Array[Effect] = []
 
@@ -39,13 +47,15 @@ func load_settings():
 
 func _ready():
 	current_health = max_health
-	add_to_group("enemy")
+	add_to_group("enemy") #TODO might not be needed anymore. I added a global group and just put the scenes in that group
 	load_settings()
 	Globals.config_changed.connect(load_settings)
 
 #need this for flipping the sprite movement
-func update_flip(dir: float): 
-	sprite_2d.flip_h = dir < 0 
+func update_flip(dir: float):
+	var sprite2d=get_node_or_null("Sprite2D")
+	if sprite2d: 
+		sprite2d.flip_h = dir < 0
 
 func move(target_pos: Vector2, _delta: float): 
 	
@@ -59,6 +69,8 @@ func move(target_pos: Vector2, _delta: float):
 	move_and_slide()
 	
 func _process(delta):
+	for i in range(weapon_cooldowns.size()):
+		weapon_cooldowns[i]-=delta
 		
 	#Trap stuff
 	check_traps(delta)
@@ -75,7 +87,9 @@ func _process(delta):
 		queue_redraw()
 	
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, _i_frames : int = 0):
+	if current_health >= 0 and display_damage:
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
@@ -91,19 +105,19 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1)):
 				effect.value1 =  rem.variable_1_values[rem.rank-1]
 				effect.gained(self)
 				effects.append(effect)
-				
-	var bt_player = get_node("BTPlayer")
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
-	if current_health - damage <= 0: 
-		current_health = current_health - damage
-		bt_player.blackboard.set_var("state", "dead")
-		damage_taken = damage
-		damage_direction = direction
-	else:
-		emit_signal("enemy_took_damage",damage,current_health,self,direction)
-		current_health = current_health - damage
-
+	if current_health-damage < 0 and enemy_type == "laser_e":
+		var bt_player = get_node("BTPlayer")
+		var board = bt_player.blackboard
+		if board:
+			board.set_var("kill_laser", true)
+			board.set_var("kill_damage", damage)
+			board.set_var("kill_direction", direction)
+		return
+	emit_signal("enemy_took_damage",damage,current_health,self,direction)
+	current_health -= damage
+	
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
 
@@ -150,20 +164,19 @@ func check_liquids(delta):
 
 
 func _draw():
+	if !debug_mode:
+		return
 	# Get path from blackboard if behavior tree exists
 	if not has_node("BTPlayer"):
 		return
 	
 	var bt_player = get_node("BTPlayer")
-	
 	if not bt_player.blackboard.has_var("path"):
 		return
 		
 	var path = bt_player.blackboard.get_var("path", [])
-	
 	if path.is_empty():
 		return
-
 	# Draw lines between waypoints
 	for i in range(path.size() - 1):
 		var start = to_local(path[i])

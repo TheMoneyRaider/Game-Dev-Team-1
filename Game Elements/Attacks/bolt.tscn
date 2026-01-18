@@ -7,6 +7,10 @@
 size = Vector2(10, 20)
 
 [node name="Bolt" type="Area2D" groups=["attack"]]
+z_index = 20
+y_sort_enabled = true
+collision_layer = 8
+collision_mask = 7
 script = ExtResource("1_hjuet")
 speed = 300.0
 damage = 4.0
@@ -22,4 +26,5 @@ position = Vector2(0, 4.7683716e-07)
 scale = Vector2(1, 1.25)
 texture = ExtResource("2_wvak2")
 
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
