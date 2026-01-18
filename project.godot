@@ -310,10 +310,6 @@ pause={
 2d_physics/layer_4="Attack Layer"
 2d_physics/layer_5="Invisible Enemy Layer"
 
-[limbo_ai]
-
-behavior_tree/user_task_dirs=PackedStringArray("res://ai/tasks", "res://ai/decorators")
-
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0

@@ -44,6 +44,7 @@ visible = false
 
 [node name="game_root" type="Node2D" parent="game_container/game_viewport"]
 process_mode = 1
+y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="game_container/game_viewport/game_root"]
 zoom = Vector2(4, 4)

@@ -5,6 +5,7 @@ extends Node2D
 # --- Movement variables ---
 var velocity := Vector2.ZERO
 var rot_velocity := 0.0
+var mov_scale := .75
 var grounded := false
 
 # --- Internal ---
@@ -23,9 +24,9 @@ func _process(delta: float) -> void:
 	if freeze_time < 0.2:
 		return
 	# --- In air: apply gravity ---
-	velocity.y += gravity * delta
-	position += velocity * delta
-	rotation+=rot_velocity * delta
+	velocity.y += gravity * delta * mov_scale
+	position += velocity * delta * mov_scale
+	rotation+=rot_velocity * delta * mov_scale
 	if time_passed*2.0 > lifetime:
 		var color : Color = text.get_theme_color("font_color")
 		color.a = lerp(first_color.a,0.0,(time_passed-lifetime/2.0)/(lifetime/2.0))

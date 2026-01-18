@@ -27,6 +27,8 @@ hue_variation_min = -0.020000022
 hue_variation_max = 0.019999977
 
 [node name="HealParticles" type="GPUParticles2D"]
+z_index = 21
+y_sort_enabled = true
 emitting = false
 amount = 40
 texture = ExtResource("1_n8asd")

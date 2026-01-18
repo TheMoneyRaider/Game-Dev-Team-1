@@ -115,7 +115,7 @@ render_target_update_mode = 4
 
 [node name="LaserBeam" type="Line2D" parent="SubViewportContainer/SubViewport"]
 y_sort_enabled = true
-points = PackedVector2Array(79, 52, 138, 113, 310, 144, 424, 171, 457, 313)
+points = PackedVector2Array(246, 256, 265, 256)
 default_color = Color(1, 0, 0, 1)
 script = ExtResource("4_h87mk")
 power_curve = SubResource("Curve_h87mk")

@@ -112,7 +112,7 @@ func add_interactive_area(frag_poly: Array, assigned_b : Array):
 	var step = 1  # every 1 pixels
 	for y in range(int(min_y), int(max_y)+1, step):
 		for x in range(int(min_x), int(max_x)+1, step):
-			if img.get_pixel(x, y).a > 0.0:
+			if x > 0 and x < img.get_size().x and y > 0 and y < img.get_size().y and img.get_pixel(x, y).a > 0.0:
 				points.append(Vector2i(x, y))
 	if points.size()<=40:
 		queue_free()
