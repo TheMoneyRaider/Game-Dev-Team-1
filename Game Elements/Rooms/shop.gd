@@ -170,6 +170,8 @@ func _on_tentacle_reached_hole(tentacle: Node) -> void:
 	get_node("Items").add_child(reward)
 	tentacle.reward = reward
 	reward.enabled = false
+	reward.z_index = 0
+	reward.y_sort_enabled = false
 	reward.global_position = $ItemLocation.global_position
 	
 	var feet = reward.get_node_or_null("Feet")

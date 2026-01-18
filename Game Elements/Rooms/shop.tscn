@@ -272,4 +272,5 @@ position = Vector2(0, 10)
 position = Vector2(1, 349)
 
 [node name="Items" type="CanvasGroup" parent="."]
+z_index = 30
 material = SubResource("ShaderMaterial_lfc25")
