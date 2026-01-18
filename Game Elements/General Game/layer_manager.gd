@@ -10,9 +10,9 @@ enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, NewWeap
 var player1 = null
 var player2 = null
 var weapon1 = "res://Game Elements/Weapons/Mace.tres"
-var weapon2 = "res://Game Elements/Weapons/Shotgun.tres"
-var undiscovered_weapons = ["Crossbow","Shotgun"]
-var possible_weapon = undiscovered_weapons.pick_random()
+var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
+var undiscovered_weapons = []
+var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
 @onready var room_cleared: bool = true
 @onready var reward_claimed: bool = true

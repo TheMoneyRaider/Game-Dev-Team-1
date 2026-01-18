@@ -30,6 +30,10 @@ var pierce = 0.0
 var c_owner: Node = null
 #If the attack can hit walls
 
+#Variables for Specials
+var special_time_elapsed : float = 0.0
+var special_start_damage : float = 1.0
+
 static func create_weapon(resource_location : String, current_owner : Node2D):
 	var new_weapon = load(resource_location)
 	var attack_instance = load(new_weapon.attack_scene).instantiate()
@@ -59,6 +63,7 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 			#If there is weapon specific interactions write that here
 			match type:
 				"Shotgun":
+					@warning_ignore("integer_division")
 					speed = randi_range(170 - ( (135 / num_attacks) * abs(i - num_attacks / 2.0)), 280 - ( (180 / num_attacks) * abs(i - num_attacks / 2.0)))
 				_:
 					pass
@@ -88,3 +93,45 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2):
 	instance.cooldown = cooldown
 	instance.pierce = pierce
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+
+func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2) -> Array:
+	var Effects : Array[Effect] = []
+	if(!is_released):
+		match type:
+			"Mace":
+				pass
+			"Crossbow":
+				if(special_time_elapsed == 0.0):
+					special_start_damage = damage
+				if(special_time_elapsed <= 5.0):
+					damage += (special_start_damage / 5) * time_elapsed
+				var effect = load("res://Game Elements/Effects/max_charge.tres").duplicate(true)
+				effect.cooldown = 20*time_elapsed
+				effect.value1 = 0.15
+				effect.gained(c_owner)
+				Effects.append(effect)
+				if(special_time_elapsed >= 5.0):
+					effect = load("res://Game Elements/Effects/slow_down.tres").duplicate(true)
+					effect.cooldown = 1*time_elapsed
+					effect.value1 = 0.0
+					effect.gained(c_owner)
+					Effects.append(effect)
+			_:
+				pass
+	else:
+		match type:
+			"Mace":
+				pass
+			"Crossbow":
+				if(special_time_elapsed >= 5.0):
+					damage += (special_start_damage / 2)
+				if(special_time_elapsed >= 1.0):
+					spawn_attack(special_direction,special_position)
+					print(damage)
+			_:
+				pass
+		special_time_elapsed = 0.0
+		return Effects
+	special_time_elapsed += time_elapsed
+	return Effects
+	

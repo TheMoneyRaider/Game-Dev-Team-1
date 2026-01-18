@@ -129,8 +129,14 @@ func _physics_process(delta):
 		handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
-	if Input.is_action_just_pressed("special_" + input_device):
+		
+	if Input.is_action_pressed("special_" + input_device):
+		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position)
 		emit_signal("special",self)
+	elif Input.is_action_just_released("special_" + input_device):
+		pass
+		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position)
+		
 	adjust_cooldowns(delta)
 	red_flash()
 	#move and slide function
