@@ -283,7 +283,7 @@ func check_traps(delta):
 				if current_dmg_time >= tile_data.get_custom_data("trap_ongoing_seconds"):
 					current_dmg_time -= tile_data.get_custom_data("trap_ongoing_seconds")
 					if _crafter_chance():
-						take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null, null)
+						take_damage(tile_data.get_custom_data("trap_ongoing_dmg"),null)
 			else:
 				current_dmg_time = 0
 		else:
