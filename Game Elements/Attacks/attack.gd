@@ -84,6 +84,8 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	
 
 func intersection(body):
+	if body.get("c_owner") != null and !is_instance_valid(body.c_owner):
+		return
 	if attack_type == "laser" and life < .5:
 		return
 	if attack_type == "death mark":
@@ -129,7 +131,7 @@ func deflect(hit_direction, hit_speed, deflection_area):
 		
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("attack") and area.deflectable == true and deflects:
+	if area.is_in_group("attack") and area.deflectable == true and deflects and is_instance_valid(area.c_owner):
 		if area.attack_type =="laser":
 			if area.life > .5:
 				return

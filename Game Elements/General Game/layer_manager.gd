@@ -272,7 +272,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 				for body in pathway_detect.get_node("Area2D").get_overlapping_bodies():
 					if body==player_reference:
 						if is_special_action:
-							if pathway_detect.reward_type1 == Reward.Shop:
+							if pathway_detect.reward1_type == Reward.Shop:
 								return 0
 							_randomize_room_reward(pathway_detect)
 							return -1
