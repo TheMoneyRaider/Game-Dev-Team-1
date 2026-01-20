@@ -5,6 +5,7 @@ var moving_tentacles : Array[Node] = []
 var opening_stage : int = 0
 var curr_pos = Vector2.ZERO
 var ten_reward_num
+var time_passed = 0.0
 
 func _ready() -> void:
 	for node in get_node("Tentacles").get_children():
@@ -12,8 +13,12 @@ func _ready() -> void:
 			node.set_hole($Cracks.global_position+Vector2(8,32))
 		if node.is_in_group("holds_reward"):
 			node.shrink(.88)
+	$Cracks.enabled = false
 			
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	print(time_passed)
+	if time_passed >= 2.0:
+		$Cracks.enabled = true
 	if curr_pos != position:
 		curr_pos= position
 		get_node("Items").material.set_shader_parameter("node_offset",position)
@@ -23,6 +28,8 @@ func _process(_delta: float) -> void:
 	for node in moving_tentacles:
 		if node.reward:
 			node.reward.global_position = node.target.global_position
+	if $Cracks.enabled == false:
+		time_passed+=delta
 
 func check_rewards(player_node : Node) -> bool:
 	var layer_manager = get_tree().get_root().get_node("LayerManager")
