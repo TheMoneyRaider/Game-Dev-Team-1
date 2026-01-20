@@ -1159,11 +1159,11 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	var shido2 = 0.0
 	for rem in player_1_remnants:
 		if rem.remnant_name == "Remnant of Shido":
-			shido1 = rem.variable_1_values[rem.rank]/100.0
+			shido1 = rem.variable_1_values[rem.rank-1]/100.0
 			break
 	for rem in player_2_remnants:
 		if rem.remnant_name == "Remnant of Shido":
-			shido1 = rem.variable_1_values[rem.rank]/100.0
+			shido1 = rem.variable_1_values[rem.rank-1]/100.0
 			break
 	if shido1!=0.0:
 		for rem in player_1_remnants:
