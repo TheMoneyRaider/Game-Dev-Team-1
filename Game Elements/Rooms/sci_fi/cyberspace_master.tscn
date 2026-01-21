@@ -14,15 +14,17 @@ shader = ExtResource("5_q8v0y")
 script = ExtResource("1_uhdke")
 
 [node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -834.0
-offset_top = -177.99994
-offset_right = 68.0
-offset_bottom = 695.00006
+z_index = -1
+offset_left = -697.0
+offset_top = -480.0
+offset_right = 769.0
+offset_bottom = 418.0
 color = Color(0, 0, 0, 1)
 script = ExtResource("2_h3uvg")
 
 [node name="BackBufferCopy" type="BackBufferCopy" parent="."]
-position = Vector2(-376, 469)
+z_index = -1
+position = Vector2(-3004, -2400)
 scale = Vector2(1.4749999, 1)
 copy_mode = 2
 
