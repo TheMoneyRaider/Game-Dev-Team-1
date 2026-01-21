@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=4 uid="uid://b6of6nh0h8e3q"]
+[gd_scene load_steps=8 format=4 uid="uid://b6of6nh0h8e3q"]
 
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_eiaxy"]
 [ext_resource type="Script" uid="uid://b56ruwgbi1lqa" path="res://Game Elements/Rooms/sci_fi/cyber_background.gd" id="2_55jt0"]
 [ext_resource type="TileSet" uid="uid://du2dmgjlmgair" path="res://Game Elements/tilesets/sci_fi2.tres" id="3_ccop6"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="4_54tik"]
+[ext_resource type="Shader" uid="uid://cpgjerdx47x38" path="res://Game Elements/Rooms/sci_fi/z_mask.gdshader" id="5_ccop6"]
+[ext_resource type="Texture2D" uid="uid://dlcpw4tgvjjuo" path="res://art/ring_texture.png" id="6_54tik"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ccop6"]
+shader = ExtResource("5_ccop6")
 
 [node name="Root" type="Node2D"]
 script = ExtResource("1_eiaxy")
@@ -16,6 +21,11 @@ offset_bottom = 38.0
 color = Color(0, 0, 0, 1)
 script = ExtResource("2_55jt0")
 num_strings = 20
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="."]
+position = Vector2(-27, -208)
+scale = Vector2(1.4749999, 1)
+copy_mode = 2
 
 [node name="Ground" type="TileMapLayer" parent="."]
 y_sort_enabled = true
@@ -45,17 +55,71 @@ z_index = 31
 y_sort_enabled = true
 tile_set = ExtResource("3_ccop6")
 
+[node name="TextureRect" type="Sprite2D" parent="PathwayR1"]
+z_index = 30
+z_as_relative = false
+material = SubResource("ShaderMaterial_ccop6")
+position = Vector2(-342.00003, 843)
+scale = Vector2(0.65624994, 0.33398435)
+texture = ExtResource("6_54tik")
+
+[node name="G" type="TileMapLayer" parent="PathwayR1"]
+z_index = -31
+y_sort_enabled = true
+tile_set = ExtResource("3_ccop6")
+
 [node name="PathwayU1" type="TileMapLayer" parent="."]
 z_index = 31
+y_sort_enabled = true
+tile_set = ExtResource("3_ccop6")
+
+[node name="TextureRect" type="Sprite2D" parent="PathwayU1"]
+z_index = 30
+z_as_relative = false
+material = SubResource("ShaderMaterial_ccop6")
+position = Vector2(-238.00003, 897)
+scale = Vector2(0.65624994, 0.33398435)
+texture = ExtResource("6_54tik")
+
+[node name="G" type="TileMapLayer" parent="PathwayU1"]
+z_index = -31
+y_sort_enabled = true
+tile_set = ExtResource("3_ccop6")
+
+[node name="PathwayL1" type="TileMapLayer" parent="."]
+z_index = 31
+y_sort_enabled = true
+tile_set = ExtResource("3_ccop6")
+
+[node name="TextureRect" type="Sprite2D" parent="PathwayL1"]
+z_index = 30
+z_as_relative = false
+material = SubResource("ShaderMaterial_ccop6")
+position = Vector2(-203.00003, 896)
+scale = Vector2(0.65624994, 0.33398435)
+texture = ExtResource("6_54tik")
+
+[node name="G" type="TileMapLayer" parent="PathwayL1"]
+z_index = -31
 y_sort_enabled = true
 tile_set = ExtResource("3_ccop6")
 
 [node name="PathwayD1" type="TileMapLayer" parent="."]
 z_index = 31
 y_sort_enabled = true
+position = Vector2(-3.0517578e-05, 3.0517578e-05)
+scale = Vector2(0.99999994, 0.99999994)
 tile_set = ExtResource("3_ccop6")
 
-[node name="PathwayL1" type="TileMapLayer" parent="."]
-z_index = 31
+[node name="TextureRect" type="Sprite2D" parent="PathwayD1"]
+z_index = 30
+z_as_relative = false
+material = SubResource("ShaderMaterial_ccop6")
+position = Vector2(-384, 833.00006)
+scale = Vector2(0.65624994, 0.33398435)
+texture = ExtResource("6_54tik")
+
+[node name="G" type="TileMapLayer" parent="PathwayD1"]
+z_index = -31
 y_sort_enabled = true
 tile_set = ExtResource("3_ccop6")
