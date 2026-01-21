@@ -35,6 +35,7 @@ player=""
 holds_reward=""
 attack=""
 enemy=""
+timefabric=""
 
 [input]
 
