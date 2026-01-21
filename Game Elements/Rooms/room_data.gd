@@ -214,14 +214,14 @@ true)]
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/testing_room.tscn", 																								#Scene Location                       
-0,																																#Num Liquids
-[],																																#Liquid Types 
+"res://Game Elements/Rooms/sci_fi/factory_master.tscn", 																								#Scene Location                       
+1,																																#Num Liquids
+[room.Liquid.Conveyer],																											#Liquid Types 
 [1.0],																															#Liquid Chances                     
-2,																																#Num Fillings              
-[0,0],																															#Terrain Set                                      
-[3,4],																															#Terrain ID                       
-[.6,1.0],																														#Threshold            
+0,																																#Num Fillings              
+[],																																#Terrain Set                                      
+[],																																#Terrain ID                       
+[],																																#Threshold            
 randi(),																														#Noise Seed           
 FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
 .1,																																#Noise Frequency                        
@@ -229,7 +229,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Down],																						#Pathway Directions                     
-0,																																#Enemy Num Goal                               
+[room.Direction.Up,room.Direction.Down,room.Direction.Left,room.Direction.Right],												#Pathway Directions                     
+20,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false)

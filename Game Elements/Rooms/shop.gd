@@ -16,7 +16,6 @@ func _ready() -> void:
 	$Cracks.enabled = false
 			
 func _process(delta: float) -> void:
-	print(time_passed)
 	if time_passed >= 2.0:
 		$Cracks.enabled = true
 	if curr_pos != position:

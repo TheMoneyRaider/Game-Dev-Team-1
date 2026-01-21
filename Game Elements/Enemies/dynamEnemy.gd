@@ -161,6 +161,8 @@ func check_liquids(delta):
 					effect.value1 = 0.023
 					effect.gained(self)
 					effects.append(effect)
+				3:
+					position+=tile_data.get_custom_data("direction").normalized() *delta * 32
 
 
 func _draw():

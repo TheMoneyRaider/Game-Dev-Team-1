@@ -60,6 +60,7 @@ var time_passed := 0.0
 @export var water_cells := []
 @export var lava_cells := []
 @export var acid_cells := []
+@export var conveyer_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
 @export var liquid_cells := []
@@ -124,15 +125,16 @@ func _ready() -> void:
 		if c not in conflict_cells and c not in filling:
 			placable_locations.append(c)
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/laser_enemy.tscn")],self)
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
 	else:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/laser_enemy.tscn")],self)
+		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	water_cells = room_instance.water_cells
 	lava_cells = room_instance.lava_cells
 	acid_cells = room_instance.acid_cells
+	conveyer_cells = room_instance.conveyer_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
@@ -451,6 +453,9 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 			room.Liquid.Acid:
 				if if_node_exists("Acid"+str(types[liquid]),generated_room):
 					generated_room.acid_cells += generated_room.get_node("Acid"+str(types[liquid])).get_used_cells()
+			room.Liquid.Conveyer:
+				if if_node_exists("Conveyer"+str(types[liquid]),generated_room):
+					generated_room.conveyer_cells += generated_room.get_node("Conveyer"+str(types[liquid])).get_used_cells()
 	var curr_trap = 0
 	while curr_trap < generated_room_data.num_trap:
 		curr_trap+=1
@@ -465,7 +470,7 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
 	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells)
-	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells)
+	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells+generated_room.conveyer_cells)
 
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
@@ -1004,6 +1009,7 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 	unsafe_cells.append_array(water_cells)
 	unsafe_cells.append_array(lava_cells)
 	unsafe_cells.append_array(acid_cells)
+	unsafe_cells.append_array(conveyer_cells)
 	unsafe_cells.append_array(trap_cells)
 	var direction_count = [0,0,0,0]
 	var pathway_positions = []
@@ -1118,6 +1124,10 @@ func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
 				if if_node_exists("Acid"+str(types[liquid]),room_instance):
 					if tile_pos in room_instance.get_node("Acid"+str(types[liquid])).get_used_cells():
 						return room_instance.get_node("Acid"+str(types[liquid]))
+			room.Liquid.Conveyer:
+				if if_node_exists("Conveyer"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Conveyer"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Conveyer"+str(types[liquid]))
 	return null
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
@@ -1230,6 +1240,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	water_cells = room_instance.water_cells
 	lava_cells = room_instance.lava_cells
 	acid_cells = room_instance.acid_cells
+	conveyer_cells = room_instance.conveyer_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
@@ -1283,6 +1294,8 @@ func _get_liquid_string(liquid : room.Liquid) -> String:
 			return "Lava"
 		room.Liquid.Acid:
 			return "Acid"
+		room.Liquid.Conveyer:
+			return "Conveyer"
 	return ""
 	
 func _open_pathway(input : String,generated_room : Node2D) -> void:

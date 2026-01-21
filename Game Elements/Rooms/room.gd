@@ -1,6 +1,6 @@
 class_name Room
 
-enum Liquid {Water, Lava, Acid}
+enum Liquid {Water, Lava, Acid, Conveyer}
 enum Direction {Up, Right, Left, Down, Error}
 enum Trap {Tile, Spike}
 #enum Exit {Cave, Forest_Path, Castle, Sewer_Manhole, Basement_Door, Mansion_Door, Western_Door, Desert_Path, Arid_Archway, Factory_Door, Vent, Hallway_Door, Limbo_Gate}
