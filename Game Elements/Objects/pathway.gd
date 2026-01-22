@@ -3,19 +3,18 @@ extends Node2D
 @export var used := false
 @export var active := false
 @export var is_wave = false
-@export var reward1_type = Reward.Remnant
+@export var reward1_type = Globals.Reward.Remnant
 @export var reward1_texture = null
 @export var reward1_frame = null
 @export var reward1_hframes = null
 @export var reward1_vframes = null
 @export var reward1_material = null
-@export var reward2_type = Reward.Remnant
+@export var reward2_type = Globals.Reward.Remnant
 @export var reward2_texture = null
 @export var reward2_frame = null
 @export var reward2_hframes = null
 @export var reward2_vframes = null
 @export var reward2_material = null
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health,Shop}
 
 @export var interact_key := "activate"
 @onready var prompt1 := $Prompt1
@@ -120,49 +119,49 @@ func enable_pathway():
 		$Icons/PathwayIcon1.material.set_shader_parameter("upper_left", true)
 		$Icons/PathwayIcon2.material.set_shader_parameter("upper_left", false)
 
-func set_reward(reward1 : Reward, in_is_wave : bool = false, reward2 : Reward = Reward.Remnant, weapon_type : String = ""):
+func set_reward(reward1 : Globals.Reward, in_is_wave : bool = false, reward2 : Globals.Reward = Globals.Reward.Remnant, weapon_type : String = ""):
 	var new_icon1 = null
 	var new_icon2 = null
 	is_wave = in_is_wave
 	match reward1:
-		Reward.Remnant:
+		Globals.Reward.Remnant:
 			var inst = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-		Reward.TimeFabric:
+		Globals.Reward.TimeFabric:
 			var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-		Reward.RemnantUpgrade:
+		Globals.Reward.RemnantUpgrade:
 			var inst =load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-		Reward.HealthUpgrade:
+		Globals.Reward.HealthUpgrade:
 			var inst =load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-		Reward.Health:
+		Globals.Reward.Health:
 			var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
-		Reward.Shop:
+		Globals.Reward.Shop:
 			var inst = load("res://Game Elements/Objects/vision.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 	if !is_wave:
 		new_icon2 = new_icon1
 	else:
 		match reward2:
-			Reward.Remnant:
+			Globals.Reward.Remnant:
 				var inst = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
-			Reward.TimeFabric:
+			Globals.Reward.TimeFabric:
 				var inst =load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
-			Reward.RemnantUpgrade:
+			Globals.Reward.RemnantUpgrade:
 				var inst =load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
-			Reward.HealthUpgrade:
+			Globals.Reward.HealthUpgrade:
 				var inst =load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
-			Reward.Health:
+			Globals.Reward.Health:
 				var inst =load("res://Game Elements/Objects/health.tscn").instantiate()
 				new_icon2 = inst.get_node("Image")
-			#Reward.NewWeapon:
+			#Globals.Reward.NewWeapon:
 			#	var inst = load("res://Game ELements/OBjects/new_weapon.tscn").instantiate()
 			#	new_icon2 = inst.get_node("Image")
 			#	var weapon_resource = load("res://Game Elements/Weapons/" + weapon_type + ".tres")
@@ -216,7 +215,7 @@ func _on_body_exited(body):
 		
 		
 func _has_trickster(body : Node, is_switched : bool = false) -> int:
-	if reward1_type == Reward.Shop:
+	if reward1_type == Globals.Reward.Shop:
 		return -1
 	var remnants : Array[Remnant] = []
 	var player_col = body.is_purple

@@ -4,7 +4,6 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
 @onready var cave_stage : Array[Room] = room_data.new().rooms
 @onready var testing_room : Room = room_data.new().testing_room
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop}
 @onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
 var player1 = null
@@ -29,8 +28,8 @@ var generated_room_metadata : = {}
 var generated_room_conflict : = {}
 var generated_room_entrance : = {}
 var global_conflict_cells= []
-var this_room_reward1 = Reward.Remnant
-var this_room_reward2 = Reward.Remnant
+var this_room_reward1 = Globals.Reward.Remnant
+var this_room_reward2 = Globals.Reward.Remnant
 var is_wave_room = false
 var total_waves = 0
 var current_wave = 0
@@ -110,7 +109,7 @@ func _ready() -> void:
 	room_instance = room_location.instantiate()
 	room_instance.y_sort_enabled = true
 	game_root.add_child(room_instance)
-	choose_pathways(room.Direction.Up,room_instance, room_instance_data, conflict_cells)
+	choose_pathways(Globals.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player1.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
 		player2.global_position =  generated_room_entrance[room_instance.name] + Vector2(16,0)
@@ -206,7 +205,7 @@ func _process(delta: float) -> void:
 			for node in room_instance.get_children():
 				if node.is_in_group("reward"):
 					return
-			if this_room_reward1 == Reward.Shop:
+			if this_room_reward1 == Globals.Reward.Shop:
 				for i in 4:
 					await get_tree().process_frame
 			if !reward_claimed:
@@ -274,7 +273,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 				for body in pathway_detect.get_node("Area2D").get_overlapping_bodies():
 					if body==player_reference:
 						if is_special_action:
-							if pathway_detect.reward1_type == Reward.Shop:
+							if pathway_detect.reward1_type == Globals.Reward.Shop:
 								return 0
 							_randomize_room_reward(pathway_detect)
 							return -1
@@ -326,7 +325,7 @@ func choose_pathways(direction : int, generated_room : Node2D, generated_room_da
 				offset+=1
 		else:
 			if direction == 3:
-				_open_random_pathway_in_direction(Room.Direction.Up,direction_count, generated_room,conflict_cells)
+				_open_random_pathway_in_direction(Globals.Direction.Up,direction_count, generated_room,conflict_cells)
 			else:
 				_open_random_pathway_in_direction(direction+1,direction_count, generated_room,conflict_cells)
 	else:
@@ -374,7 +373,7 @@ func place_traps(generated_room : Node2D, generated_room_data : Room, conflict_c
 			else:
 				conflict_cells.append_array(cells)
 				_debug_message("Added Trap")
-				if(generated_room_data.trap_types[trap_num-1]!=room.Trap.Tile):
+				if(generated_room_data.trap_types[trap_num-1]!=Globals.Trap.Tile):
 					_add_trap(generated_room, generated_room_data, trap_num)
 
 			
@@ -444,16 +443,16 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 	for liquid in generated_room_data.liquid_types:
 		types[liquid] +=1
 		match liquid:
-			room.Liquid.Water:
+			Globals.Liquid.Water:
 				if if_node_exists("Water"+str(types[liquid]),generated_room):
 					generated_room.water_cells += generated_room.get_node("Water"+str(types[liquid])).get_used_cells()
-			room.Liquid.Lava:
+			Globals.Liquid.Lava:
 				if if_node_exists("Lava"+str(types[liquid]),generated_room):
 					generated_room.lava_cells += generated_room.get_node("Lava"+str(types[liquid])).get_used_cells()
-			room.Liquid.Acid:
+			Globals.Liquid.Acid:
 				if if_node_exists("Acid"+str(types[liquid]),generated_room):
 					generated_room.acid_cells += generated_room.get_node("Acid"+str(types[liquid])).get_used_cells()
-			room.Liquid.Conveyer:
+			Globals.Liquid.Conveyer:
 				if if_node_exists("Conveyer"+str(types[liquid]),generated_room):
 					generated_room.conveyer_cells += generated_room.get_node("Conveyer"+str(types[liquid])).get_used_cells()
 	var curr_trap = 0
@@ -539,7 +538,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 		
 	return false
 
-func room_reward(reward_type : Reward) -> void:
+func room_reward(reward_type : Globals.Reward) -> void:
 	var reward_location
 	var reward = null
 	if is_multiplayer:
@@ -547,22 +546,22 @@ func room_reward(reward_type : Reward) -> void:
 	else:
 		reward_location = _find_2x2_open_area([Vector2i(floor(player1.global_position.x / 16), floor(player1.global_position.y / 16))])
 	match reward_type:
-		Reward.Remnant:
+		Globals.Reward.Remnant:
 			reward = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnant")
-		Reward.TimeFabric:
+		Globals.Reward.TimeFabric:
 			reward = load("res://Game Elements/Objects/timefabric_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "timefabric")
-		Reward.RemnantUpgrade:
+		Globals.Reward.RemnantUpgrade:
 			reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnantupgrade")
-		Reward.HealthUpgrade:
+		Globals.Reward.HealthUpgrade:
 			reward = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
 			reward.set_meta("reward_type", "healthupgrade")
-		Reward.Health:
+		Globals.Reward.Health:
 			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 			reward.set_meta("reward_type", "health")
-		#Reward.NewWeapon:
+		#Globals.Reward.NewWeapon:
 		#	reward = load("res://Game Elements/Objects/new_weapon.tscn").instantiate()
 		#	reward.set_meta("reward_type", "newweapon")
 		#	reward.weapon_type = possible_weapon
@@ -698,31 +697,31 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var reward_type2 = null
 	var wave = false
 	var prev_reward_type = pathway_to_randomize.reward1_type
-	if prev_reward_type == Reward.Shop:
+	if prev_reward_type == Globals.Reward.Shop:
 		return
 	while reward_type1 == null:
 		var reward_val = randi() % 6
 		if reward_val!= 5 or !wave:
 				match reward_val:
 					0:
-						reward_type1 = Reward.Remnant
+						reward_type1 = Globals.Reward.Remnant
 						if reward_type1 == prev_reward_type:
 							reward_type1 = null
 					1:
-						reward_type1 = Reward.TimeFabric
+						reward_type1 = Globals.Reward.TimeFabric
 						if reward_type1 == prev_reward_type:
 							reward_type1 = null
 					2:
 						if _upgradable_remnants():
-							reward_type1 = Reward.RemnantUpgrade
+							reward_type1 = Globals.Reward.RemnantUpgrade
 							if reward_type1 == prev_reward_type:
 								reward_type1 = null
 					3:
-						reward_type1 = Reward.HealthUpgrade
+						reward_type1 = Globals.Reward.HealthUpgrade
 						if reward_type1 == prev_reward_type:
 							reward_type1 = null
 					4:
-						reward_type1 = Reward.Health
+						reward_type1 = Globals.Reward.Health
 						if reward_type1 == prev_reward_type:
 							reward_type1 = null
 						if is_multiplayer:
@@ -738,7 +737,7 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 		if reward_type1 == reward_type2: #if a enemy wave room is being made, don't let both rewards be the same
 			reward_type1 = null
 	if reward_type2 == null:
-		reward_type2 = Reward.Remnant
+		reward_type2 = Globals.Reward.Remnant
 	
 	#Pass the icon & type to the pathway node
 	pathway_to_randomize.set_reward(reward_type1,wave,reward_type2)
@@ -748,7 +747,7 @@ func _choose_reward(pathway_name : String) -> void:
 	var reward_type2 = null
 	var wave = false
 	if generated_room_metadata[pathway_name].has_shop:
-		reward_type1 = Reward.Shop
+		reward_type1 = Globals.Reward.Shop
 		room_instance.get_node(pathway_name).set_reward(reward_type1,false,reward_type1)
 		return
 	while reward_type1 == null:
@@ -757,22 +756,22 @@ func _choose_reward(pathway_name : String) -> void:
 		if reward_value!= 5 or !wave:
 			match reward_value:
 				0:
-					reward_type1 = Reward.Remnant
+					reward_type1 = Globals.Reward.Remnant
 					reward_num[reward_value] = reward_num[reward_value]/2.0
 
 				1:
-					reward_type1 = Reward.TimeFabric
+					reward_type1 = Globals.Reward.TimeFabric
 					reward_num[reward_value] = reward_num[reward_value]/2.0
 
 				2:
 					if _upgradable_remnants():
-						reward_type1 = Reward.RemnantUpgrade
+						reward_type1 = Globals.Reward.RemnantUpgrade
 						reward_num[reward_value] = reward_num[reward_value]/2.0
 				3:
-					reward_type1 = Reward.HealthUpgrade
+					reward_type1 = Globals.Reward.HealthUpgrade
 					reward_num[reward_value] = reward_num[reward_value]/2.0
 				4:
-					reward_type1 = Reward.Health
+					reward_type1 = Globals.Reward.Health
 					if is_multiplayer:
 						if player1.current_health == player1.max_health and player2.current_health == player2.max_health:
 							reward_type1 = null	
@@ -784,7 +783,7 @@ func _choose_reward(pathway_name : String) -> void:
 					wave = true
 					reward_num[reward_value] = reward_num[reward_value]/2.0
 				#6:
-				#	reward_type1 = Reward.NewWeapon
+				#	reward_type1 = Globals.Reward.NewWeapon
 				#	reward_num[reward_value] = reward_num[reward_value]/2.0
 		if wave and reward_type2==null and reward_type1!=null: #Get two rewards
 			reward_type2 = reward_type1
@@ -793,7 +792,7 @@ func _choose_reward(pathway_name : String) -> void:
 			reward_type1 = null
 			reward_num = last_reward_num
 	if reward_type2 == null:
-		reward_type2 = Reward.Remnant
+		reward_type2 = Globals.Reward.Remnant
 	#Pass the icon & type to the pathway node
 	room_instance.get_node(pathway_name).set_reward(reward_type1,wave,reward_type2, possible_weapon)
 
@@ -1095,7 +1094,7 @@ func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int)
 	var type = generated_room_data.trap_types[trap_num-1]
 	for cell in cells:
 		match type:
-			room.Trap.Spike:
+			Globals.Trap.Spike:
 				var spike = load("res://Game Elements/Objects/spike_trap.tscn").instantiate()
 				spike.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
 				generated_room.add_child(spike)
@@ -1112,19 +1111,19 @@ func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
 	for liquid in room_instance_data.liquid_types:
 		types[liquid] +=1
 		match liquid:
-			room.Liquid.Water:
+			Globals.Liquid.Water:
 				if if_node_exists("Water"+str(types[liquid]),room_instance):
 					if tile_pos in room_instance.get_node("Water"+str(types[liquid])).get_used_cells():
 						return room_instance.get_node("Water"+str(types[liquid]))
-			room.Liquid.Lava:
+			Globals.Liquid.Lava:
 				if if_node_exists("Lava"+str(types[liquid]),room_instance):
 					if tile_pos in room_instance.get_node("Lava"+str(types[liquid])).get_used_cells():
 						return room_instance.get_node("Lava"+str(types[liquid]))
-			room.Liquid.Acid:
+			Globals.Liquid.Acid:
 				if if_node_exists("Acid"+str(types[liquid]),room_instance):
 					if tile_pos in room_instance.get_node("Acid"+str(types[liquid])).get_used_cells():
 						return room_instance.get_node("Acid"+str(types[liquid]))
-			room.Liquid.Conveyer:
+			Globals.Liquid.Conveyer:
 				if if_node_exists("Conveyer"+str(types[liquid]),room_instance):
 					if tile_pos in room_instance.get_node("Conveyer"+str(types[liquid])).get_used_cells():
 						return room_instance.get_node("Conveyer"+str(types[liquid]))
@@ -1260,13 +1259,13 @@ func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 
 func _get_pathway_name(direction: int, index: int) -> String:
 	match direction:
-		room.Direction.Up: 
+		Globals.Direction.Up: 
 			return "PathwayU" + str(index)
-		room.Direction.Down: 
+		Globals.Direction.Down: 
 			return "PathwayD" + str(index)
-		room.Direction.Left: 
+		Globals.Direction.Left: 
 			return "PathwayL" + str(index)
-		room.Direction.Right: 
+		Globals.Direction.Right: 
 			return "PathwayR" + str(index)
 	push_warning("Invalid pathway direction: " + str(direction))
 	return ""
@@ -1286,15 +1285,15 @@ func _arrays_intersect(array1 : Array[Vector2i], array2 : Array[Vector2i]) -> bo
 			return true
 	return false
 	
-func _get_liquid_string(liquid : room.Liquid) -> String:
+func _get_liquid_string(liquid : Globals.Liquid) -> String:
 	match liquid:
-		room.Liquid.Water:
+		Globals.Liquid.Water:
 			return "Water"
-		room.Liquid.Lava:
+		Globals.Liquid.Lava:
 			return "Lava"
-		room.Liquid.Acid:
+		Globals.Liquid.Acid:
 			return "Acid"
-		room.Liquid.Conveyer:
+		Globals.Liquid.Conveyer:
 			return "Conveyer"
 	return ""
 	
@@ -1310,7 +1309,7 @@ func if_node_exists(input : String,generated_room : Node2D) -> bool:
 	else:
 		return false
 
-func _open_random_pathway_in_direction(dir : room.Direction, direction_count : Array,generated_room : Node2D, conflict_cells : Array[Vector2i]) -> void:
+func _open_random_pathway_in_direction(dir : Globals.Direction, direction_count : Array,generated_room : Node2D, conflict_cells : Array[Vector2i]) -> void:
 	var pathway_name = _get_pathway_name(dir,int(randf()*direction_count[dir])+1)
 	conflict_cells.append_array(generated_room.get_node(pathway_name).get_used_cells())
 	_open_pathway(pathway_name, generated_room)

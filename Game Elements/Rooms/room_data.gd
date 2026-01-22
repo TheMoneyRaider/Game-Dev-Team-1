@@ -17,7 +17,7 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 #var rooms : Array[Room] = [room.Create_Room(
 #"res://Game Elements/Rooms/test_room1.tscn", 																								#Scene Location                       
 #4,																																#Num Liquids
-#[room.Liquid.Water,room.Liquid.Water,room.Liquid.Water,room.Liquid.Water],														#Liquid Types 
+#[Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water],														#Liquid Types 
 #[.75,.25,.75,.25],																												#Liquid Chances                     
 #2,																																#Num Fillings              
 #[0,0],																															#Terrain Set                                      
@@ -28,16 +28,16 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 #.1,																															#Noise Frequency                        
 #3,																																#Num Traps              
 #[.65,.65,.65],																													#Trap Chances                                
-#[room.Trap.Spike, room.Trap.Tile, room.Trap.Tile],																				#Trap Types                         
+#[Globals.Trap.Spike, Globals.Trap.Tile, Globals.Trap.Tile],																				#Trap Types                         
 #6,																																#Num Pathways                   
-#[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Right],		#Pathway Directions                        
+#[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down,Globals.Direction.Down,Globals.Direction.Right],		#Pathway Directions                        
 #5,																																#Enemy Num Goal                               
 #0,																																#NPC Spawnpoints   
 #false),																															#Has Shop
 										#room.Create_Room(
 #"res://Game Elements/Rooms/test_room2.tscn", 																								#Scene Location                       
 #2,																																#Num Liquids
-#[room.Liquid.Water,room.Liquid.Water],																							#Liquid Types 
+#[Globals.Liquid.Water,Globals.Liquid.Water],																							#Liquid Types 
 #[.5,.5],																														#Liquid Chances                     
 #2,																																#Num Fillings              
 #[0,0],																															#Terrain Set                                      
@@ -48,9 +48,9 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 #.1,																																#Noise Frequency                       
 #2,																																#Num Traps              
 #[.75,.25],																														#Trap Chances                          
-#[room.Trap.Tile, room.Trap.Spike],																				#Trap Types                                        
+#[Globals.Trap.Tile, Globals.Trap.Spike],																				#Trap Types                                        
 #5,																																#Num Pathways                   
-#[room.Direction.Up,room.Direction.Up,room.Direction.Left,room.Direction.Down,room.Direction.Right],								#Pathway Directions                        
+#[Globals.Direction.Up,Globals.Direction.Up,Globals.Direction.Left,Globals.Direction.Down,Globals.Direction.Right],								#Pathway Directions                        
 #8,																																#Enemy Num Goal                               
 #0,																																#NPC Spawnpoints   
 #false),room.Create_Room(
@@ -69,7 +69,7 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 #[],																																#Trap Chances                                
 #[],																																#Trap Types                         
 #4,																																#Num Pathways                   
-#[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+#[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 #3,																																#Enemy Num Goal                               
 #0,																																#NPC Spawnpoints   
 #false)]																															#Has Shop
@@ -93,7 +93,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
@@ -112,7 +112,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 18,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
@@ -131,7 +131,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
@@ -150,7 +150,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 14,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
@@ -169,7 +169,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 6,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down,room.Direction.Down,room.Direction.Down],		#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down,Globals.Direction.Down,Globals.Direction.Down],		#Pathway Directions                       
 16,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
@@ -188,7 +188,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 8,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false),room.Create_Room(
@@ -207,7 +207,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Right,room.Direction.Left,room.Direction.Down],												#Pathway Directions                       
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],												#Pathway Directions                       
 0,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 true)]
@@ -216,7 +216,7 @@ true)]
 var testing_room : Room = room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/factory_master.tscn", 																								#Scene Location                       
 1,																																#Num Liquids
-[room.Liquid.Conveyer],																											#Liquid Types 
+[Globals.Liquid.Conveyer],																											#Liquid Types 
 [1.0],																															#Liquid Chances                     
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
@@ -229,7 +229,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
-[room.Direction.Up,room.Direction.Down,room.Direction.Left,room.Direction.Right],												#Pathway Directions                     
+[Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],												#Pathway Directions                     
 20,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false)
