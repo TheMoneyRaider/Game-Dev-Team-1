@@ -50,6 +50,12 @@ var num_enemy_goal : int
 var num_npc_spawnpoints : int
 #Shop spawnpoint. Node to be labeled Shop
 var has_shop : bool
+#The different enemies this room can have
+var enemy_pool : Array[String]
+#The chances for each enemy to spawn in this room
+var enemy_chances : Array[float]
+#If this room is a wave room, this is the chance that the saves will be segmented(only one enemy per wave)(0->1)
+var wave_segment : float
 
 static func Create_Room(t_scene_location : String, 
 t_num_liquid : int, 
@@ -69,7 +75,10 @@ t_num_pathways : int,
 t_pathway_direction : Array[Globals.Direction], 
 t_num_enemy_goal : int, 
 t_num_npc_spawnpoints : int, 
-t_has_shop : bool
+t_has_shop : bool,
+t_enemy_pool : Array[String],
+t_enemy_chances : Array[float],
+t_wave_segment : float
 ) -> Room:
 	var new_room = Room.new()
 	new_room.scene_location = t_scene_location
@@ -94,4 +103,7 @@ t_has_shop : bool
 	new_room.num_enemy_goal = t_num_enemy_goal
 	new_room.num_npc_spawnpoints = t_num_npc_spawnpoints
 	new_room.has_shop = t_has_shop
+	new_room.enemy_pool = t_enemy_pool
+	new_room.enemy_chances = t_enemy_chances
+	new_room.wave_segment = t_wave_segment
 	return new_room

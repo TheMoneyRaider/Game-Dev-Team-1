@@ -1137,9 +1137,9 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	place_traps(next_room_instance, next_room_data, conflict_cells)
 	var placable_locations = next_room_instance.get_node("Ground").get_used_cells().filter(func(c): return c not in conflict_cells)
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies(next_room_data.num_enemy_goal, [player1,player2], next_room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies([player1,player2], next_room_instance, placable_locations,next_room_data,self,false)
 	else:
-		Spawner.spawn_enemies(next_room_data.num_enemy_goal, [player1], next_room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies([player1], next_room_instance, placable_locations,next_room_data,self,false)
 	
 	# Async floor noise
 	var ground = next_room_instance.get_node("Ground")
