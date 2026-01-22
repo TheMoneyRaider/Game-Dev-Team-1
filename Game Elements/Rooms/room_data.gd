@@ -76,6 +76,31 @@ const room = preload("res://Game Elements/Rooms/room.gd")
 
 
 #Dev array
+#
+#var rooms : Array[Room] = [room.Create_Room(
+#"res://Game Elements/Rooms/test_room1.tscn", 																								#Scene Location                       
+#4,																																#Num Liquids
+#[Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water],														#Liquid Types 
+#[.75,.25,.75,.25],																												#Liquid Chances                     
+#2,																																#Num Fillings              
+#[0,0],																															#Terrain Set                                      
+#[3,4],																															#Terrain ID                       
+#[.6,1.0],																														#Threshold            
+#randi(),																														#Noise Seed           
+#FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+#.1,																																#Noise Frequency                        
+#2,																																#Num Traps              
+#[.65,.65],																														#Trap Chances                                
+#[Globals.Trap.Spike, Globals.Trap.Tile],																						#Trap Types                         
+#6,																																#Num Pathways                   
+#[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down,Globals.Direction.Down,Globals.Direction.Right],		#Pathway Directions                        
+#5,																																#Enemy Num Goal                               
+#0,																																#NPC Spawnpoints   
+#false,																															#Is a shop room?
+#["res://Game Elements/Characters/laser_enemy.tscn","res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
+#[.25,.75],																															#Weights for those enemies to spawn
+#0)]
+
 
 var rooms : Array[Room] = [room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/cyberspace1.tscn", 																			#Scene Location                       
@@ -243,9 +268,9 @@ true,																															#Is a shop room?
 
 var testing_room : Room = room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/factory_master.tscn", 																		#Scene Location                       
-1,																																#Num Liquids
-[Globals.Liquid.Conveyer],																										#Liquid Types 
-[1.0],																															#Liquid Chances                     
+6,																																#Num Liquids
+[Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Glitch],																										#Liquid Types 
+[.65,.65,.65,.65,.65,.65,1.0],																										#Liquid Chances                     
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       
@@ -258,9 +283,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
-20,																																#Enemy Num Goal                               
+0,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
-0)																															#Chance for waves to be segmented
+0)																																#Chance for waves to be segmented

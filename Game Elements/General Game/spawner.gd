@@ -9,6 +9,8 @@ static var edge_penalty_weight : float = 0.25
 static var edge_threshold : float = 2*16.0
 
 static func spawn_enemies(players: Array[Node],scene : Node, available_cells : Array[Vector2i],room_data: Room,layer_manager : Node, is_wave : bool):
+	if room_data.num_enemy_goal <= 0:
+		return
 	var edges = _get_edges(available_cells)
 	var chosen_positions: Array[Vector2i] = []
 	var weights: Array[float] = []

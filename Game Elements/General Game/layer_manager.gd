@@ -60,6 +60,7 @@ var time_passed := 0.0
 @export var lava_cells := []
 @export var acid_cells := []
 @export var conveyer_cells := []
+@export var glitch_cells := []
 @export var trap_cells := []
 @export var blocked_cells := []
 @export var liquid_cells := []
@@ -124,9 +125,9 @@ func _ready() -> void:
 		if c not in conflict_cells and c not in filling:
 			placable_locations.append(c)
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies([player1,player2], room_instance, placable_locations,room_instance_data,self,false)
 	else:
-		Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+		Spawner.spawn_enemies([player1], room_instance, placable_locations,room_instance_data,self,false)
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
@@ -134,6 +135,7 @@ func _ready() -> void:
 	lava_cells = room_instance.lava_cells
 	acid_cells = room_instance.acid_cells
 	conveyer_cells = room_instance.conveyer_cells
+	glitch_cells = room_instance.glitch_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
@@ -190,9 +192,9 @@ func _process(delta: float) -> void:
 			hud.display_notification("Wave "+str(current_wave)+" / "+str(total_waves))
 			var placable_locations = room_instance.get_node("Ground").get_used_cells().filter(func(c): return c not in global_conflict_cells)
 			if Globals.is_multiplayer:
-				Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1,player2], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+				Spawner.spawn_enemies([player1,player2], room_instance, placable_locations,room_instance_data,self,true)
 			else:
-				Spawner.spawn_enemies(room_instance_data.num_enemy_goal, [player1], room_instance, placable_locations,[preload("res://Game Elements/Characters/dynamEnemy.tscn")],self)
+				Spawner.spawn_enemies([player1], room_instance, placable_locations,room_instance_data,self,true)
 			return
 		if !room_instance_data.has_shop:
 			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
@@ -439,7 +441,7 @@ func floor_noise_threaded(generated_room: Node2D, generated_room_data: Room) -> 
 
 func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) -> void:
 	generated_room.blocked_cells += generated_room.get_node("Filling").get_used_cells()
-	var types = [0,0,0,0,0]
+	var types = [0,0,0,0,0,0,0,0,0,0]
 	for liquid in generated_room_data.liquid_types:
 		types[liquid] +=1
 		match liquid:
@@ -455,6 +457,9 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 			Globals.Liquid.Conveyer:
 				if if_node_exists("Conveyer"+str(types[liquid]),generated_room):
 					generated_room.conveyer_cells += generated_room.get_node("Conveyer"+str(types[liquid])).get_used_cells()
+			Globals.Liquid.Glitch:
+				if if_node_exists("Glitch"+str(types[liquid]),generated_room):
+					generated_room.glitch_cells += generated_room.get_node("Glitch"+str(types[liquid])).get_used_cells()
 	var curr_trap = 0
 	while curr_trap < generated_room_data.num_trap:
 		curr_trap+=1
@@ -469,7 +474,7 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
 	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells)
-	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells+generated_room.conveyer_cells)
+	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells+generated_room.conveyer_cells+generated_room.glitch_cells)
 
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
@@ -1009,6 +1014,7 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 	unsafe_cells.append_array(lava_cells)
 	unsafe_cells.append_array(acid_cells)
 	unsafe_cells.append_array(conveyer_cells)
+	unsafe_cells.append_array(glitch_cells)
 	unsafe_cells.append_array(trap_cells)
 	var direction_count = [0,0,0,0]
 	var pathway_positions = []
@@ -1093,11 +1099,18 @@ func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int)
 	var cells = generated_room.get_node("Trap"+str(trap_num)).get_used_cells()
 	var type = generated_room_data.trap_types[trap_num-1]
 	for cell in cells:
+		var place = generated_room.get_node("Trap"+str(trap_num)).get_cell_tile_data(cell).get_custom_data("place_trap")
+		if !place:
+			continue
 		match type:
 			Globals.Trap.Spike:
 				var spike = load("res://Game Elements/Objects/spike_trap.tscn").instantiate()
 				spike.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
 				generated_room.add_child(spike)
+			Globals.Trap.Fire:
+				var fire = load("res://Game Elements/Objects/fire_trap.tscn").instantiate()
+				fire.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
+				generated_room.add_child(fire)
 
 func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 	for trap_num in range(1,room_instance_data.num_trap+1):
@@ -1107,7 +1120,7 @@ func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 	return null
 	
 func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
-	var types = [0,0,0,0,0]
+	var types = [0,0,0,0,0,0,0,0,0,0]
 	for liquid in room_instance_data.liquid_types:
 		types[liquid] +=1
 		match liquid:
@@ -1127,6 +1140,10 @@ func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
 				if if_node_exists("Conveyer"+str(types[liquid]),room_instance):
 					if tile_pos in room_instance.get_node("Conveyer"+str(types[liquid])).get_used_cells():
 						return room_instance.get_node("Conveyer"+str(types[liquid]))
+			Globals.Liquid.Glitch:
+				if if_node_exists("Glitch"+str(types[liquid]),room_instance):
+					if tile_pos in room_instance.get_node("Glitch"+str(types[liquid])).get_used_cells():
+						return room_instance.get_node("Glitch"+str(types[liquid]))
 	return null
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
@@ -1240,6 +1257,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	lava_cells = room_instance.lava_cells
 	acid_cells = room_instance.acid_cells
 	conveyer_cells = room_instance.conveyer_cells
+	glitch_cells = room_instance.glitch_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
@@ -1295,6 +1313,8 @@ func _get_liquid_string(liquid : Globals.Liquid) -> String:
 			return "Acid"
 		Globals.Liquid.Conveyer:
 			return "Conveyer"
+		Globals.Liquid.Glitch:
+			return "Glitch"
 	return ""
 	
 func _open_pathway(input : String,generated_room : Node2D) -> void:

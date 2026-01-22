@@ -12,9 +12,9 @@ var config_safe = false
 var config_path := "user://settings.cfg"
 
 enum MenuState {Western, Space, Horror, Medieval}
-enum Liquid {Water, Lava, Acid, Conveyer}
+enum Liquid {Buffer, Water, Lava, Acid, Conveyer, Glitch} #Don't mess with the buffer
 enum Direction {Up, Right, Left, Down, Error}
-enum Trap {Tile, Spike}
+enum Trap {Tile, Spike, Fire}
 enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop}
 
 var menu : MenuState

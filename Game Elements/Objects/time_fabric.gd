@@ -16,6 +16,7 @@ var jump_cooldown := 0.0
 @onready var acid_cells := []
 @onready var trap_cells := []
 @onready var conveyer_cells := []
+@onready var glitch_cells := []
 
 @onready var blocked_cells := []
 
