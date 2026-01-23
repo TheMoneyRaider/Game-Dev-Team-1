@@ -102,15 +102,16 @@ texture = ExtResource("3_8r1te")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 material = SubResource("ShaderMaterial_m6xb1")
-offset_left = -256.0
-offset_top = -256.0
-offset_right = -256.0
-offset_bottom = -256.0
+offset_left = -1024.0
+offset_top = -1024.0
+offset_right = 1024.0
+offset_bottom = 1024.0
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
 transparent_bg = true
 handle_input_locally = false
 canvas_item_default_texture_filter = 0
+size = Vector2i(2048, 2048)
 render_target_update_mode = 4
 
 [node name="LaserBeam" type="Line2D" parent="SubViewportContainer/SubViewport"]

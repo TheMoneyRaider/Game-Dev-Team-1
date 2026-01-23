@@ -5,7 +5,7 @@ uniform float u_speed = .5;
 uniform vec4 u_color_low : source_color = vec4(0, 0, 0, 1); 
 uniform vec4 u_color_mid_red : source_color = vec4(0, 0.337, 0.32, 1.0); 
 uniform vec4 u_color_high : source_color = vec4(.4745, .98, 0.0, 1.0); 
-uniform float scale = 16.0;
+uniform float scale = 24.0;
 
 
 

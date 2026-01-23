@@ -889,6 +889,8 @@ func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vec
 		for pixel in timefabric_masks[timefabrics_to_place[i][0]]:
 			if pixels_to_cover.has(Vector2i(pixel+timefabrics_to_place[i][1])):
 				pixels_to_cover[Vector2i(pixel+timefabrics_to_place[i][1])] = false
+	if timefabrics_to_place.size() == 0:
+		return
 	while timefabrics_to_place.size() > amount_range.y-amount_variance:
 		timefabrics_to_place.remove_at(randi() % timefabrics_to_place.size())
 	while timefabrics_to_place.size() < amount_range.x+amount_variance:

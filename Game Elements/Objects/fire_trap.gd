@@ -5,6 +5,7 @@ func _ready():
 	connect("body_entered", Callable(self, "_on_body_entered"))
 	connect("body_exited", Callable(self, "_on_body_exited"))
 	$AnimationPlayer.play("fire")
+	$AnimationPlayer.seek(randf()*2.0, true)
 
 func _process(_delta: float) -> void:
 	if !$CollisionShape2D.disabled:
