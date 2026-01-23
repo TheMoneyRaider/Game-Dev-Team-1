@@ -11,12 +11,7 @@ var rotation_speed := 0.0
 var jump_cooldown := 0.0
 
 # --- Environment ---
-@onready var water_cells := []
-@onready var lava_cells := []
-@onready var acid_cells := []
-@onready var trap_cells := []
-@onready var conveyer_cells := []
-@onready var glitch_cells := []
+@onready var liquid_cells := []
 
 @onready var blocked_cells := []
 
@@ -86,13 +81,13 @@ func _process(delta: float) -> void:
 
 func in_liquid(delta):
 	var cell := Vector2i(floor((position.x)/16), floor(position.y/16))
-	if cell in water_cells or cell in lava_cells or cell in acid_cells:
-		return true
-	if cell in conveyer_cells:
+	if cell in liquid_cells[Globals.Liquid.Conveyer]:
 		var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
 		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			position+=tile_data.get_custom_data("direction").normalized() *delta * 32
+	if cell in liquid_cells[0]:
+		return true
 	return false
 
 func set_direction(direction : Vector2):
@@ -151,9 +146,5 @@ func check_player(player : Node):
 		emit_signal("absorbed_by_player", self)
 
 func set_arrays(layer_manager : Node) -> void:
-	water_cells = layer_manager.water_cells
-	conveyer_cells = layer_manager.conveyer_cells
-	lava_cells = layer_manager.lava_cells
-	acid_cells = layer_manager.acid_cells
-	trap_cells = layer_manager.trap_cells
+	liquid_cells = layer_manager.liquid_cells
 	blocked_cells = layer_manager.blocked_cells

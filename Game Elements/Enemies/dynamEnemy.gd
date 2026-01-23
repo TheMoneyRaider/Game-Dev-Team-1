@@ -150,7 +150,7 @@ func check_traps(delta):
 
 func check_liquids(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells:
+	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells[0]:
 		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var type = tile_data.get_custom_data("liquid")

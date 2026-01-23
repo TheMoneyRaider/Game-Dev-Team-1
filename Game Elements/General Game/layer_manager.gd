@@ -56,17 +56,12 @@ var remnant_offer_popup
 var remnant_upgrade_popup
 #The total time of this run
 var time_passed := 0.0
-@export var water_cells := []
-@export var lava_cells := []
-@export var acid_cells := []
-@export var conveyer_cells := []
-@export var glitch_cells := []
-@export var trap_cells := []
-@export var blocked_cells := []
-@export var liquid_cells := []
-@export var is_multiplayer = Globals.is_multiplayer
+var trap_cells := []
+var blocked_cells := []
+var liquid_cells : Array[Array]= [[],[],[],[],[],[],[],[],[],[]]
+var is_multiplayer = Globals.is_multiplayer
 #
-@export var layer_ai := [
+var layer_ai := [
 	0,#Rooms cleared
 	0,#Combat rooms cleared
 	0,#Time spent in last room
@@ -131,11 +126,6 @@ func _ready() -> void:
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
-	water_cells = room_instance.water_cells
-	lava_cells = room_instance.lava_cells
-	acid_cells = room_instance.acid_cells
-	conveyer_cells = room_instance.conveyer_cells
-	glitch_cells = room_instance.glitch_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
@@ -444,22 +434,8 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 	var types = [0,0,0,0,0,0,0,0,0,0]
 	for liquid in generated_room_data.liquid_types:
 		types[liquid] +=1
-		match liquid:
-			Globals.Liquid.Water:
-				if if_node_exists("Water"+str(types[liquid]),generated_room):
-					generated_room.water_cells += generated_room.get_node("Water"+str(types[liquid])).get_used_cells()
-			Globals.Liquid.Lava:
-				if if_node_exists("Lava"+str(types[liquid]),generated_room):
-					generated_room.lava_cells += generated_room.get_node("Lava"+str(types[liquid])).get_used_cells()
-			Globals.Liquid.Acid:
-				if if_node_exists("Acid"+str(types[liquid]),generated_room):
-					generated_room.acid_cells += generated_room.get_node("Acid"+str(types[liquid])).get_used_cells()
-			Globals.Liquid.Conveyer:
-				if if_node_exists("Conveyer"+str(types[liquid]),generated_room):
-					generated_room.conveyer_cells += generated_room.get_node("Conveyer"+str(types[liquid])).get_used_cells()
-			Globals.Liquid.Glitch:
-				if if_node_exists("Glitch"+str(types[liquid]),generated_room):
-					generated_room.glitch_cells += generated_room.get_node("Glitch"+str(types[liquid])).get_used_cells()
+		if if_node_exists(_get_liquid_string(liquid)+str(types[liquid]),generated_room):
+			generated_room.liquid_cells[liquid]+=(generated_room.get_node(_get_liquid_string(liquid)+str(types[liquid])).get_used_cells())
 	var curr_trap = 0
 	while curr_trap < generated_room_data.num_trap:
 		curr_trap+=1
@@ -474,8 +450,7 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 		if if_node_exists(pathway_name,generated_room):
 			generated_room.blocked_cells += generated_room.get_node(pathway_name).get_used_cells()
 	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells)
-	generated_room.liquid_cells = _remove_duplicates(generated_room.water_cells+generated_room.lava_cells+generated_room.acid_cells+generated_room.conveyer_cells+generated_room.glitch_cells)
-
+	generated_room.liquid_cells[0] = _amalgamate_liquids(generated_room.liquid_cells)
 func preload_rooms() -> void:
 	for room_data_item in cave_stage:
 		if not cached_scenes.has(room_data_item.scene_location):
@@ -1010,11 +985,7 @@ func _find_2x2_open_area(player_positions: Array, max_distance: int = 20) -> Vec
 	#Combine all blocked and unsafe cells
 	var unsafe_cells :Array = blocked_cells.duplicate()
 	var safe_cells : Array = room_instance.get_node("Ground").get_used_cells()
-	unsafe_cells.append_array(water_cells)
-	unsafe_cells.append_array(lava_cells)
-	unsafe_cells.append_array(acid_cells)
-	unsafe_cells.append_array(conveyer_cells)
-	unsafe_cells.append_array(glitch_cells)
+	unsafe_cells.append_array(liquid_cells[0])
 	unsafe_cells.append_array(trap_cells)
 	var direction_count = [0,0,0,0]
 	var pathway_positions = []
@@ -1123,27 +1094,9 @@ func return_liquid_layer(tile_pos : Vector2i) -> TileMapLayer:
 	var types = [0,0,0,0,0,0,0,0,0,0]
 	for liquid in room_instance_data.liquid_types:
 		types[liquid] +=1
-		match liquid:
-			Globals.Liquid.Water:
-				if if_node_exists("Water"+str(types[liquid]),room_instance):
-					if tile_pos in room_instance.get_node("Water"+str(types[liquid])).get_used_cells():
-						return room_instance.get_node("Water"+str(types[liquid]))
-			Globals.Liquid.Lava:
-				if if_node_exists("Lava"+str(types[liquid]),room_instance):
-					if tile_pos in room_instance.get_node("Lava"+str(types[liquid])).get_used_cells():
-						return room_instance.get_node("Lava"+str(types[liquid]))
-			Globals.Liquid.Acid:
-				if if_node_exists("Acid"+str(types[liquid]),room_instance):
-					if tile_pos in room_instance.get_node("Acid"+str(types[liquid])).get_used_cells():
-						return room_instance.get_node("Acid"+str(types[liquid]))
-			Globals.Liquid.Conveyer:
-				if if_node_exists("Conveyer"+str(types[liquid]),room_instance):
-					if tile_pos in room_instance.get_node("Conveyer"+str(types[liquid])).get_used_cells():
-						return room_instance.get_node("Conveyer"+str(types[liquid]))
-			Globals.Liquid.Glitch:
-				if if_node_exists("Glitch"+str(types[liquid]),room_instance):
-					if tile_pos in room_instance.get_node("Glitch"+str(types[liquid])).get_used_cells():
-						return room_instance.get_node("Glitch"+str(types[liquid]))
+		if if_node_exists(_get_liquid_string(liquid)+str(types[liquid]),room_instance):
+			if tile_pos in room_instance.get_node(_get_liquid_string(liquid)+str(types[liquid])).get_used_cells():
+				return room_instance.get_node(_get_liquid_string(liquid)+str(types[liquid]))
 	return null
 
 func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, direction: int, pathway_detect: Node) -> void:
@@ -1253,11 +1206,6 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	room_instance_data = next_room_data
 
 	# Update layers and other arrays
-	water_cells = room_instance.water_cells
-	lava_cells = room_instance.lava_cells
-	acid_cells = room_instance.acid_cells
-	conveyer_cells = room_instance.conveyer_cells
-	glitch_cells = room_instance.glitch_cells
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
@@ -1293,6 +1241,16 @@ func _remove_duplicates(arr: Array) -> Array:
 	for element in arr:
 		s[element] = true
 	return s.keys()
+
+func _amalgamate_liquids(liquids: Array) -> Array:
+	var itr = -1
+	var return_arr : Array = []
+	for array in liquids:
+		itr+=1
+		if itr == 0:
+			continue
+		return_arr.append_array(array)
+	return return_arr
 
 func _arrays_intersect(array1 : Array[Vector2i], array2 : Array[Vector2i]) -> bool:
 	var array2_dictionary = {}
