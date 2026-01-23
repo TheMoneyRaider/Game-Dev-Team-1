@@ -5,6 +5,7 @@ var moving_tentacles : Array[Node] = []
 var opening_stage : int = 0
 var curr_pos = Vector2.ZERO
 var ten_reward_num
+var time_passed = 0.0
 
 func _ready() -> void:
 	for node in get_node("Tentacles").get_children():
@@ -12,8 +13,11 @@ func _ready() -> void:
 			node.set_hole($Cracks.global_position+Vector2(8,32))
 		if node.is_in_group("holds_reward"):
 			node.shrink(.88)
+	$Cracks.enabled = false
 			
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if time_passed >= 2.0:
+		$Cracks.enabled = true
 	if curr_pos != position:
 		curr_pos= position
 		get_node("Items").material.set_shader_parameter("node_offset",position)
@@ -23,6 +27,8 @@ func _process(_delta: float) -> void:
 	for node in moving_tentacles:
 		if node.reward:
 			node.reward.global_position = node.target.global_position
+	if $Cracks.enabled == false:
+		time_passed+=delta
 
 func check_rewards(player_node : Node) -> bool:
 	var layer_manager = get_tree().get_root().get_node("LayerManager")
@@ -125,7 +131,6 @@ func _animate_tentacle_target(tentacle: Node, hole_bottom: Vector2) -> void:
 			if len(node.reward.tracked_bodies) != 0:
 				node.reward.prompt1.visible = true
 
-enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health}
 func _on_tentacle_reached_hole(tentacle: Node) -> void:
 	var layer_manager = get_tree().get_root().get_node("LayerManager")
 	tentacle.shrink(1/.8)
@@ -135,17 +140,17 @@ func _on_tentacle_reached_hole(tentacle: Node) -> void:
 		var reward_value = layer_manager.calculate_reward(ten_reward_num)
 		match reward_value:
 			0:
-				reward_type = Reward.Remnant
+				reward_type = Globals.Reward.Remnant
 				ten_reward_num[reward_value] = ten_reward_num[reward_value]/2.0
 			2:
 				if layer_manager._upgradable_remnants():
-					reward_type = Reward.RemnantUpgrade
+					reward_type = Globals.Reward.RemnantUpgrade
 					ten_reward_num[reward_value] = ten_reward_num[reward_value]/2.0
 			3:
-				reward_type = Reward.HealthUpgrade
+				reward_type = Globals.Reward.HealthUpgrade
 				ten_reward_num[reward_value] = ten_reward_num[reward_value]/2.0
 			4:
-				reward_type = Reward.Health
+				reward_type = Globals.Reward.Health
 				if layer_manager.is_multiplayer:
 					if layer_manager.player1.current_health == layer_manager.player1.max_health and layer_manager.player2.current_health == layer_manager.player2.max_health:
 						reward_type = null	
@@ -154,16 +159,16 @@ func _on_tentacle_reached_hole(tentacle: Node) -> void:
 				if reward_type!= null:
 					ten_reward_num[reward_value] = ten_reward_num[reward_value]/2.0
 	match reward_type:
-		Reward.Remnant:
+		Globals.Reward.Remnant:
 			reward = load("res://Game Elements/Objects/remnant_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnant")
-		Reward.RemnantUpgrade:
+		Globals.Reward.RemnantUpgrade:
 			reward = load("res://Game Elements/Objects/upgrade_orb.tscn").instantiate()
 			reward.set_meta("reward_type", "remnantupgrade")
-		Reward.HealthUpgrade:
+		Globals.Reward.HealthUpgrade:
 			reward = load("res://Game Elements/Objects/health_upgrade.tscn").instantiate()
 			reward.set_meta("reward_type", "healthupgrade")
-		Reward.Health:
+		Globals.Reward.Health:
 			reward = load("res://Game Elements/Objects/health.tscn").instantiate()
 			reward.set_meta("reward_type", "health")
 	

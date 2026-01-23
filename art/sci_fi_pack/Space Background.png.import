@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3tn38mgf2ns8"
-path="res://.godot/imported/shop_tentacles_sdf.png-2fb6dff4d1822b3b53162fa586db6812.ctex"
+uid="uid://d2csymelsakwo"
+path="res://.godot/imported/Space Background.png-23b3dee8c6ba7edb2e8effa16514e119.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/characters/vision/shop_tentacles_sdf.png"
-dest_files=["res://.godot/imported/shop_tentacles_sdf.png-2fb6dff4d1822b3b53162fa586db6812.ctex"]
+source_file="res://art/sci_fi_pack/Space Background.png"
+dest_files=["res://.godot/imported/Space Background.png-23b3dee8c6ba7edb2e8effa16514e119.ctex"]
 
 [params]
 
