@@ -323,9 +323,17 @@ func _glitch_move() -> void:
 		move_dir = move_dir.rotated(direct * deg_to_rad(5))
 		check_pos = Vector2i(((position + move_dir)/16).floor())
 		attempts += 1
-		print("Rotated: "+str(5*attempts)+" Current Direction: "+str(move_dir)+" Original Direction: "+str(velocity))
-	position+=move_dir
-	
+	position+=move_dir/2.0
+	var saved_position = position
+	var position_variance = 8
+	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
+	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),Color(0.584, 0.002, 0.834, 1.0),Color(0.584, 0.002, 0.834, 1.0),0,1.0,1)
+	position = saved_position
+	position+=move_dir/2.0
+	saved_position = position
+	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
+	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),Color(0.714, 0.29, 0.0, 1.0),Color(0.714, 0.29, 0.0, 1.0),0,1.0,1)
+	position = saved_position
 
 func _crafter_chance() -> bool:
 	randomize()

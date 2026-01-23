@@ -283,7 +283,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 2,																																#Num Pathways                   
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
-0,																																#Enemy Num Goal                               
+10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room

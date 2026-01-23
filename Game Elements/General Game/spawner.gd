@@ -181,3 +181,34 @@ static func _debug_tiles(array_of_tiles,scene, weights) -> void:
 		debug.get_node("TestScene2").modulate.a = weights[idx]
 		scene.add_child(debug)
 		idx+=1
+
+
+
+static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0):
+	
+	# Instance the after image
+	var after_image = load("res://Game Elements/Objects/after_image.tscn").instantiate()
+
+	# Match position and rotation
+	after_image.global_position = entity.global_position
+	after_image.global_rotation = entity.global_rotation
+	after_image.scale = entity.scale
+
+	# Copy the texture and frame if using Sprite2D
+	if entity.has_node("Sprite2D"):
+		var sprite = entity.get_node("Sprite2D")
+		after_image.texture = sprite.texture
+		after_image.region_rect = sprite.region_rect
+		after_image.hframes = sprite.hframes
+		after_image.vframes = sprite.vframes
+		after_image.flip_h = sprite.flip_h
+		after_image.flip_v = sprite.flip_v
+		after_image.frame = sprite.frame
+	
+
+	after_image.start_color = start_color
+	after_image.start_color_strength = start_color_strength
+	after_image.end_color = end_color
+	after_image.end_color_strength = end_color_strength
+	after_image.lifetime = lifetime
+	layer_manager.room_instance.add_child(after_image)
