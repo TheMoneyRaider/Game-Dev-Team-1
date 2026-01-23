@@ -92,7 +92,7 @@ func in_liquid(delta):
 		var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
 		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
-			position+=tile_data.get_custom_data("direction").normalized() *delta * 16
+			position+=tile_data.get_custom_data("direction").normalized() *delta * 32
 	return false
 
 func set_direction(direction : Vector2):

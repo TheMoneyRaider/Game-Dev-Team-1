@@ -84,6 +84,8 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	
 
 func intersection(body):
+	if c_owner == null:
+		return
 	if body.get("c_owner") != null and !is_instance_valid(body.c_owner):
 		return
 	if attack_type == "laser" and life < .5:

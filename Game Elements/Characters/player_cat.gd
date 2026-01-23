@@ -305,7 +305,7 @@ func check_liquids(delta):
 					effect.gained(self)
 					effects.append(effect)
 				Globals.Liquid.Conveyer:
-					position+=tile_data.get_custom_data("direction").normalized() *delta * 16
+					position+=tile_data.get_custom_data("direction").normalized() *delta * 32
 				Globals.Liquid.Glitch:
 					_glitch_move()
 					
@@ -323,6 +323,8 @@ func _glitch_move() -> void:
 		move_dir = move_dir.rotated(direct * deg_to_rad(5))
 		check_pos = Vector2i(((position + move_dir)/16).floor())
 		attempts += 1
+	if velocity.length() < .1:
+		return
 	position+=move_dir/2.0
 	var saved_position = position
 	var position_variance = 8

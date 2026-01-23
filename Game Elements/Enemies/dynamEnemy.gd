@@ -181,6 +181,8 @@ func _glitch_move() -> void:
 		move_dir = move_dir.rotated(direct * deg_to_rad(5))
 		check_pos = Vector2i(((position + move_dir)/16).floor())
 		attempts += 1
+	if velocity.length() < .1:
+		return
 	position+=move_dir/2.0
 	var saved_position = position
 	var position_variance = 8
