@@ -2,7 +2,8 @@ extends Node2D
 const room = preload("res://Game Elements/Rooms/room.gd")
 const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
-@onready var cave_stage : Array[Room] = room_data.new().rooms
+@onready var sci_fi_layer : Array[Room] = room_data.new().sci_fi_rooms
+@onready var sci_fi_layer_shops : Array[Room] = room_data.new().sci_fi_shops
 @onready var testing_room : Room = room_data.new().testing_room
 @onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
@@ -218,7 +219,7 @@ func create_new_rooms() -> void:
 	# Start async generation thread
 	thread_running = true
 	room_gen_thread = Thread.new()
-	room_gen_thread.start(_thread_generate_rooms.bind(cave_stage, room_instance_data))
+	room_gen_thread.start(_thread_generate_rooms.bind(sci_fi_layer, room_instance_data))
 
 func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> void:
 	#Rooms cleared
@@ -283,7 +284,7 @@ func check_pathways(generated_room : Node2D, generated_room_data : Room, player_
 
 func choose_room() -> void:
 	#Shuffle rooms and load one
-	room_instance_data = cave_stage[randi() % cave_stage.size()]
+	room_instance_data = sci_fi_layer[randi() % sci_fi_layer.size()]
 	
 	room_location = load(room_instance_data.scene_location)
 	room_instance = room_location.instantiate()
@@ -317,12 +318,12 @@ func choose_pathways(direction : int, generated_room : Node2D, generated_room_da
 				offset+=1
 		else:
 			if direction == 3:
-				_open_random_pathway_in_direction(Globals.Direction.Up,direction_count, generated_room,conflict_cells)
+				_open_random_pathway_in_direction(Globals.Direction.Up,direction_count, generated_room)
 			else:
-				_open_random_pathway_in_direction(direction+1,direction_count, generated_room,conflict_cells)
+				_open_random_pathway_in_direction(direction+1,direction_count, generated_room)
 	else:
 		#Open at least one pathway in the given direction
-		_open_random_pathway_in_direction(dir, direction_count, generated_room,conflict_cells)
+		_open_random_pathway_in_direction(dir, direction_count, generated_room)
 	#Choose which pathways to keep      #add intelligent pathway choosing #TODO
 	_open_random_pathways(generated_room, generated_room_data, conflict_cells)
 
@@ -452,7 +453,7 @@ func calculate_cell_arrays(generated_room : Node2D, generated_room_data : Room) 
 	generated_room.blocked_cells = _remove_duplicates(generated_room.blocked_cells)
 	generated_room.liquid_cells[0] = _amalgamate_liquids(generated_room.liquid_cells)
 func preload_rooms() -> void:
-	for room_data_item in cave_stage:
+	for room_data_item in sci_fi_layer:
 		if not cached_scenes.has(room_data_item.scene_location):
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
@@ -1289,9 +1290,8 @@ func if_node_exists(input : String,generated_room : Node2D) -> bool:
 	else:
 		return false
 
-func _open_random_pathway_in_direction(dir : Globals.Direction, direction_count : Array,generated_room : Node2D, conflict_cells : Array[Vector2i]) -> void:
+func _open_random_pathway_in_direction(dir : Globals.Direction, direction_count : Array,generated_room : Node2D) -> void:
 	var pathway_name = _get_pathway_name(dir,int(randf()*direction_count[dir])+1)
-	conflict_cells.append_array(generated_room.get_node(pathway_name).get_used_cells())
 	_open_pathway(pathway_name, generated_room)
 
 func _open_random_pathways(generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:

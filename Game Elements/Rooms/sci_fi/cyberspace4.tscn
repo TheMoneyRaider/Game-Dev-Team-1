@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=4 uid="uid://b6of6nh0h8e3q"]
+[gd_scene load_steps=10 format=4 uid="uid://b6of6nh0h8e3q"]
 
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_eiaxy"]
 [ext_resource type="Script" uid="uid://b56ruwgbi1lqa" path="res://Game Elements/Rooms/sci_fi/cyber_background.gd" id="2_55jt0"]
@@ -6,9 +6,18 @@
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="4_54tik"]
 [ext_resource type="Shader" uid="uid://cpgjerdx47x38" path="res://Game Elements/Rooms/sci_fi/z_mask.gdshader" id="5_ccop6"]
 [ext_resource type="Texture2D" uid="uid://dlcpw4tgvjjuo" path="res://art/ring_texture.png" id="6_54tik"]
+[ext_resource type="Shader" uid="uid://djb6fots67ufy" path="res://Game Elements/Rooms/sci_fi/glitch_liquid.gdshader" id="7_54tik"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ccop6"]
 shader = ExtResource("5_ccop6")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_war35"]
+shader = ExtResource("7_54tik")
+shader_parameter/u_speed = 0.5
+shader_parameter/u_color_low = Color(0, 0, 0, 1)
+shader_parameter/u_color_mid_red = Color(0, 0.337, 0.32, 1)
+shader_parameter/u_color_high = Color(0.4745, 0.98, 0, 1)
+shader_parameter/scale = 24.0
 
 [node name="Root" type="Node2D"]
 script = ExtResource("1_eiaxy")
@@ -116,4 +125,16 @@ texture = ExtResource("6_54tik")
 [node name="G" type="TileMapLayer" parent="PathwayD1"]
 z_as_relative = false
 y_sort_enabled = true
+tile_set = ExtResource("3_ccop6")
+
+[node name="Glitch1" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_war35")
+tile_map_data = PackedByteArray("AAA+APP/AQAAAAEAAAA+APL/AQABAAAAAAA+APH/AQAAAAEAAAA+APD/AQAAAAAAAAA+AO//AQAAAAAAAAA/AO//AQAAAAUAAAA/APD/AQAIAAoAAAA+AO7/AQAGAAsAAAA/AO7/AQAIAAkAAAA/APH/AQAIAAEAAAA/APL/AQAAAAYAAAA/APP/AQAIAAEAAAA/APT/AQAMAAYAAAA+APT/AQALAAAAAAA9AOT/AQABAAAAAAA8AOT/AQAAAAEAAAA7AOT/AQAAAAAAAAA6AOT/AQAAAAEAAAA5AOT/AQAAAAEAAAA4AOT/AQAAAAEAAAA3AOT/AQAAAAAAAAA2AOT/AQABAAAAAAA1AOT/AQABAAEAAAA0AOT/AQABAAAAAAAzAOT/AQABAAAAAAAyAOT/AQAAAAAAAAAzAOX/AQAGAAAAAAAyAOX/AQALAAAAAAAxAOX/AQADAAQAAAAxAOT/AQAPAAMAAAAxAOP/AQAFAAUAAAAyAOP/AQADAAkAAAAzAOP/AQADAAEAAAA0AOX/AQAJAAAAAAA0AOP/AQACAAkAAAA1AOX/AQAJAAAAAAA1AOP/AQACAAkAAAA2AOX/AQAMAAAAAAA2AOP/AQACAAkAAAA3AOX/AQADAAoAAAA3AOP/AQADAAsAAAA4AOX/AQACAAoAAAA4AOP/AQAOAAsAAAA5AOP/AQABAAsAAAA6AOP/AQADAAEAAAA7AOP/AQADAAEAAAA8AOP/AQACAAsAAAA9AOP/AQACAAkAAAA+AOT/AQABAAAAAAA+AOP/AQABAAsAAAA/AOT/AQABAAEAAAA/AOP/AQADAAkAAABAAOT/AQAOAAkAAABAAOX/AQAEAAoAAABAAOP/AQAKAAUAAAA/AOX/AQACAAIAAAA=")
+tile_set = ExtResource("3_ccop6")
+
+[node name="Glitch2" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+material = SubResource("ShaderMaterial_war35")
+tile_map_data = PackedByteArray("AAAzAPD/AQAAAAEAAAAzAPH/AQAFAAAAAAAzAO//AQAAAAAAAAA0AO//AQAAAAQAAAA0APD/AQAAAAQAAAAyAPD/AQAHAAEAAAAyAO//AQANAAgAAAAyAO7/AQABAAkAAAAzAO7/AQAGAAsAAAA0AO7/AQAKAAUAAAA0APH/AQAEAAgAAAAyAPH/AQABAAQAAAAzAOr/AQABAAEAAAAzAOn/AQAAAAAAAAA0AOn/AQAAAAMAAAA0AOr/AQAAAAgAAAAyAOr/AQAPAAgAAAAyAOn/AQAPAAcAAAAyAOj/AQABAAcAAAAzAOj/AQADAAkAAAA0AOj/AQACAAcAAAA0AOv/AQAEAAoAAAAzAOv/AQANAAAAAAAyAOv/AQANAAIAAABHAOv/AQABAAAAAABHAOr/AQABAAAAAABIAOr/AQAIAAEAAABIAOv/AQAAAAkAAABGAOv/AQAPAAQAAABGAOr/AQAPAAoAAABGAOn/AQABAAcAAABHAOn/AQADAAEAAABIAOn/AQAGAAMAAABIAOz/AQAEAAgAAABHAOz/AQANAAAAAABGAOz/AQADAAYAAABEAPT/AQAAAAEAAABEAPP/AQABAAEAAABEAPL/AQAAAAAAAABDAPT/AQABAAEAAABDAPP/AQAAAAAAAABDAPL/AQAAAAAAAABCAPT/AQABAAAAAABCAPP/AQABAAAAAABCAPL/AQABAAEAAABBAPP/AQAPAAgAAABBAPL/AQAPAAkAAABBAPH/AQABAAMAAABCAPH/AQAJAAsAAABDAPH/AQAKAAsAAABBAPT/AQAPAAcAAABDAPX/AQAJAAAAAABCAPX/AQAKAAAAAABBAPX/AQADAAQAAABEAPH/AQAKAAsAAABEAPX/AQAOAAIAAABFAPL/AQAOAAQAAABFAPP/AQAOAAQAAABFAPH/AQAGAAUAAABFAPT/AQAOAAkAAABFAPX/AQAEAAIAAAA=")
 tile_set = ExtResource("3_ccop6")
