@@ -73,6 +73,7 @@ y_sort_enabled = true
 tile_set = ExtResource("3_tl2eu")
 
 [node name="PathwayU1" type="TileMapLayer" parent="."]
+visible = false
 z_index = 32
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAjAPP/AAACAAAAAAAkAPP/AAACAAAAAAAlAPP/AAACAAAAAAAmAPP/AAACAAAAAAAjAPT/AAABAAEAAAAkAPT/AAABAAEAAAAlAPT/AAABAAEAAAAmAPT/AAABAAEAAAAiAPP/AAACAAAAAAAnAPP/AAACAAAAAAAiAPD/AAAMAAcAAAAiAPH/AAAMAAcAAAAiAPL/AAAMAAcAAAAjAPD/AAAMAAcAAAAjAPH/AAAMAAcAAAAjAPL/AAAMAAcAAAAkAPD/AAAMAAcAAAAkAPH/AAAMAAcAAAAkAPL/AAAMAAcAAAAlAPD/AAAMAAcAAAAlAPH/AAAMAAcAAAAlAPL/AAAMAAcAAAAmAPD/AAAMAAcAAAAmAPH/AAAMAAcAAAAmAPL/AAAMAAcAAAAnAPD/AAAMAAcAAAAnAPH/AAAMAAcAAAAnAPL/AAAMAAcAAAA=")
@@ -93,6 +94,7 @@ tile_map_data = PackedByteArray("AAAjAPX/AAAHAAEAAAAkAPX/AAAHAAEAAAAlAPX/AAAHAAE
 tile_set = ExtResource("3_tl2eu")
 
 [node name="PathwayL1" type="TileMapLayer" parent="."]
+visible = false
 z_index = 32
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAiAAUAAAABAAMAAAAjAAUAAAABAAMAAAAkAAUAAAABAAMAAAAlAAUAAAABAAMAAAAhAAUAAAAAAAMAAAAhAAYAAAAMAAcAAAAiAAYAAAAMAAcAAAAjAAYAAAAMAAcAAAAkAAYAAAAMAAcAAAAlAAYAAAAMAAcAAAA=")
@@ -112,6 +114,7 @@ y_sort_enabled = true
 tile_set = ExtResource("3_tl2eu")
 
 [node name="PathwayD1" type="TileMapLayer" parent="."]
+visible = false
 z_index = 32
 y_sort_enabled = true
 position = Vector2(-3.0517578e-05, 3.0517578e-05)
@@ -142,6 +145,7 @@ tile_map_data = PackedByteArray("AAArABAAAAAJAAIAAAA=")
 tile_set = ExtResource("3_tl2eu")
 
 [node name="PathwayD2" type="TileMapLayer" parent="."]
+visible = false
 z_index = 32
 y_sort_enabled = true
 position = Vector2(-3.0517578e-05, 3.0517578e-05)
@@ -163,6 +167,7 @@ y_sort_enabled = true
 tile_set = ExtResource("3_tl2eu")
 
 [node name="PathwayD3" type="TileMapLayer" parent="."]
+visible = false
 z_index = 32
 y_sort_enabled = true
 position = Vector2(-3.0517578e-05, 3.0517578e-05)

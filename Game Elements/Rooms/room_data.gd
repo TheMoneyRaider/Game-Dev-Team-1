@@ -200,9 +200,9 @@ false,																															#Is a shop room?
 .25),																															#Chance for waves to be segmented
 room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/cyberspace5.tscn", 																			#Scene Location                       
-0,																																#Num Liquids
-[],																																#Liquid Types 
-[],																																#Liquid Chances                     
+4,																																#Num Liquids
+[Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch],										#Liquid Types 
+[.8,.9,.5,.5],																													#Liquid Chances                     
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       

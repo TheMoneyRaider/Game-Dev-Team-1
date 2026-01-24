@@ -1212,6 +1212,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
+	
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), 
 		room_instance.blocked_cells,
 		room_instance.trap_cells
