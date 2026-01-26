@@ -106,6 +106,7 @@ func _ready() -> void:
 	room_instance = room_location.instantiate()
 	room_instance.y_sort_enabled = true
 	game_root.add_child(room_instance)
+	apply_shared_noise_offset(room_instance)
 	choose_pathways(Globals.Direction.Up,room_instance, room_instance_data, conflict_cells)
 	player1.global_position =  generated_room_entrance[room_instance.name]
 	if(is_multiplayer):
@@ -1189,6 +1190,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	next_room.visible = true
 	next_room.process_mode = Node.PROCESS_MODE_INHERIT
 	room_instance = next_room
+	apply_shared_noise_offset(room_instance)
 	
 	# Teleport player to the entrance of the next room
 	player1.global_position =  generated_room_entrance[next_room.name]
@@ -1400,7 +1402,21 @@ func calculate_reward(reward_probability : Array) -> int:
 			return idx
 		idx+=1
 	return 0
-	
+
+func apply_shared_noise_offset(root: Node):
+	var shared_offset = Vector2(randf() * 1000.0, randf() * 1000.0)
+	check_node(root,shared_offset)
+
+func check_node(n: Node,shared_offset : Vector2):
+		if n is TileMapLayer:
+			var mat = n.material
+			if mat is ShaderMaterial:
+				mat.set_shader_parameter("noise_offset", shared_offset)
+
+		for child in n.get_children():
+			check_node(child,shared_offset)
+
+
 func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):
 	var instance = load("res://Game Elements/Objects/damage_indicator.tscn").instantiate()
 	room_instance.add_child(instance)

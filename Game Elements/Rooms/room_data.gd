@@ -249,10 +249,10 @@ var sci_fi_shops : Array[Room]= []
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/shops/shop_factory.tscn", 																			#Scene Location                       
-2,																																#Num Liquids
-[Globals.Liquid.Conveyer,Globals.Liquid.Conveyer], 																				#Liquid Types 
-[1,1],																															#Liquid Chances                     
+"res://Game Elements/Rooms/sci_fi/cyberspace3.tscn", 																			#Scene Location                      
+4,																																#Num Liquids
+[Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch],										#Liquid Types 
+[.9,.8,.5,.5],																													#Liquid Chances                       
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       
@@ -260,14 +260,14 @@ var testing_room : Room = room.Create_Room(
 randi(),																														#Noise Seed           
 FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
 .1,																																#Noise Frequency                        
-1,																																#Num Traps              
-[1],																															#Trap Chances                                
-[Globals.Trap.Fire],																											#Trap Types                         
+0,																																#Num Traps              
+[],																																#Trap Chances                                
+[],																																#Trap Types                         
 4,																																#Num Pathways                   
-[Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
-0,																																#Enemy Num Goal                               
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],									#Pathway Directions                       
+12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-true,																															#Is a shop room?
-[],																																#Enemies That can spawn in this room
-[],																																#Weights for those enemies to spawn
-0.0)																															#Chance for waves to be segmented
+false,																															#Is a shop room?
+["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
+[1.0],																															#Weights for those enemies to spawn
+.25)
