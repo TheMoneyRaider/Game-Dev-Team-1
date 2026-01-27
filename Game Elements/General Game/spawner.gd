@@ -184,7 +184,7 @@ static func _debug_tiles(array_of_tiles,scene, weights) -> void:
 
 
 
-static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0):
+static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0, start_alpha : float  = 1):
 	
 	# Instance the after image
 	var after_image = load("res://Game Elements/Objects/after_image.tscn").instantiate()
@@ -211,4 +211,5 @@ static func spawn_after_image(entity : Node, layer_manager : Node, start_color :
 	after_image.end_color = end_color
 	after_image.end_color_strength = end_color_strength
 	after_image.lifetime = lifetime
+	after_image.start_alpha = start_alpha
 	layer_manager.room_instance.add_child(after_image)

@@ -293,7 +293,7 @@ func check_traps(delta):
 
 func check_liquids(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells:
+	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells[0]:
 		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var type = tile_data.get_custom_data("liquid")
@@ -327,15 +327,23 @@ func _glitch_move() -> void:
 		return
 	position+=move_dir/2.0
 	var saved_position = position
-	var position_variance = 8
+	var position_variance = 16
+	var hue_variance = .08
+	var color1 = shift_hue(Color(0.0, 0.867, 0.318, 1.0),randf_range(-hue_variance,hue_variance))
+	var color2 = shift_hue(Color(0.0, 0.116, 0.014, 1.0),randf_range(-hue_variance,hue_variance))
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),Color(0.584, 0.002, 0.834, 1.0),Color(0.584, 0.002, 0.834, 1.0),0,1.0,1)
+	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	position+=move_dir/2.0
 	saved_position = position
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),Color(0.714, 0.29, 0.0, 1.0),Color(0.714, 0.29, 0.0, 1.0),0,1.0,1)
+	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
+
+func shift_hue(color: Color, amount: float) -> Color:
+	var h = color.h + amount
+	h = fposmod(h, 1.0) # wrap hue to 0–1
+	return Color.from_hsv(h, color.s, color.v, color.a)
 
 func _crafter_chance() -> bool:
 	randomize()

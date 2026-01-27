@@ -5,15 +5,15 @@ extends Node2D
 @export var is_wave = false
 @export var reward1_type = Globals.Reward.Remnant
 @export var reward1_texture = null
-@export var reward1_frame = null
-@export var reward1_hframes = null
-@export var reward1_vframes = null
+@export var reward1_frame = 0
+@export var reward1_hframes = 1
+@export var reward1_vframes = 1
 @export var reward1_material = null
 @export var reward2_type = Globals.Reward.Remnant
 @export var reward2_texture = null
-@export var reward2_frame = null
-@export var reward2_hframes = null
-@export var reward2_vframes = null
+@export var reward2_frame = 0
+@export var reward2_hframes = 1
+@export var reward2_vframes = 1
 @export var reward2_material = null
 
 @export var interact_key := "activate"

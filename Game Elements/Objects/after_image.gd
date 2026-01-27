@@ -2,7 +2,7 @@
 extends Sprite2D
 
 @export var lifetime: float = 0.3            # Total duration of after-image
-@export var start_alpha: float = 0.5         # Starting transparency
+@export var start_alpha: float = 1.0         # Starting transparency
 @export var end_alpha: float = 0.0           # Ending transparency
 
 # Optional color shading
@@ -34,11 +34,11 @@ func _process(delta):
 	
 	# Interpolate color shading
 	var strength = lerp(start_color_strength, end_color_strength, t)
-	var target_color = start_color.lerp(end_color, t)
+	var target_color = lerp(start_color, end_color, t)
 	
 	# Blend modulate color while preserving alpha
 	var current_alpha = modulate.a
-	modulate = modulate.lerp(target_color, strength)
+	modulate = lerp(Color(1.0,1.0,1.0,1.0), target_color, strength)
 	modulate.a = current_alpha
 	
 	# Remove node when lifetime exceeded

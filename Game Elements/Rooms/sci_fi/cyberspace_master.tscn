@@ -10,11 +10,11 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wfssr"]
 shader = ExtResource("4_2rya3")
-shader_parameter/u_speed = 1.0
-shader_parameter/u_color_low = Color(0, 0.32174873, 0.6191661, 1)
-shader_parameter/u_color_mid_red = Color(0.46601123, 0.0003058228, 0.51276904, 1)
-shader_parameter/u_color_high = Color(0.19200438, 1, 0.42029616, 1)
-shader_parameter/scale = 32.0
+shader_parameter/u_speed = 0.5
+shader_parameter/u_color_low = Color(0, 0, 0, 1)
+shader_parameter/u_color_mid_red = Color(0, 0.337, 0.32, 1)
+shader_parameter/u_color_high = Color(0.4745, 0.98, 0, 1)
+shader_parameter/scale = 16.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_21pmh"]
 shader = ExtResource("5_q8v0y")

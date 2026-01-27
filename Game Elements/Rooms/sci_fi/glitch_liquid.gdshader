@@ -1,11 +1,11 @@
 shader_type canvas_item;
 
-uniform float u_speed = 1.0; 
+uniform float u_speed = .5; 
 
-uniform vec4 u_color_low : source_color = vec4(0.01, 0.41, 0.51, 1.0); 
-uniform vec4 u_color_mid_red : source_color = vec4(.50, 0.10, 0.30, 1.0); 
-uniform vec4 u_color_high : source_color = vec4(1.0, 1.0, 1.0, 1.0); 
-uniform float scale = 32.0;
+uniform vec4 u_color_low : source_color = vec4(0, 0, 0, 1); 
+uniform vec4 u_color_mid_red : source_color = vec4(0, 0.337, 0.32, 1.0); 
+uniform vec4 u_color_high : source_color = vec4(.4745, .98, 0.0, 1.0); 
+uniform float scale = 24.0;
 
 
 
@@ -83,5 +83,5 @@ void fragment() {
 	// Scale the colormap color to match original brightness
     vec3 final_rgb = map_col.rgb * lum;
 	
-	COLOR = vec4(final_rgb, col.a);
+	COLOR = vec4(final_rgb, col.a*map_col.a);
 }
