@@ -67,7 +67,7 @@ script = ExtResource("4_1ipxq")
 [sub_resource type="BTAction" id="BTAction_pmm7h"]
 custom_name = "InnerRange"
 script = ExtResource("4_38pnp")
-hit_range = 16
+hit_range = 48
 
 [sub_resource type="BTAction" id="BTAction_w61q3"]
 script = ExtResource("4_pmm7h")

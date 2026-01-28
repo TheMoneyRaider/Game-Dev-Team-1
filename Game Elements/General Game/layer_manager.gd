@@ -836,6 +836,11 @@ func _setup_players() -> void:
 	player1.special.connect(_on_special)
 
 func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vector2) -> void:
+	if enemy.enemy_type=="binary_bot":
+		var locations = enemy.get_node("Core")._return_glyph_locations()
+		for loc in locations:
+			_place_timefabric(randi()%6,Vector2i.ZERO,loc,direction)
+		return
 	var sprites = enemy.displays
 	var total_area = 0.0
 	var areas : Array

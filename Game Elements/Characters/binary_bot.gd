@@ -20,6 +20,7 @@ var last_position : Vector2
 
 # Visual jitter
 @export var jitter_strength := 3.0
+var tracked_player : Node = null
 
 # Legs
 const LEG_COUNT := 6
@@ -171,6 +172,29 @@ func _process(delta):
 	_update_physics(delta)
 	_process_leg_ik(delta)
 
+func _return_glyph_locations() -> Array[Vector2]:
+	var locations: Array[Vector2] = []
+	for p in particles:
+		var label: Label = p["label"]
+		if is_instance_valid(label):
+			locations.append(label.global_position)
+	for L in legs:
+		for c in L["upper_chars"]:
+			if is_instance_valid(c):
+				locations.append(c.global_position)
+
+		for c in L["lower_chars"]:
+			if is_instance_valid(c):
+				locations.append(c.global_position)
+
+		for c in L["foot_chars"]:
+			if is_instance_valid(c):
+				locations.append(c.global_position)
+
+	return locations
+	
+
+
 func _deflect_melee_attack():
 	print("deflect")
 	attack_direct = -1
@@ -182,45 +206,65 @@ func _get_player_position() -> Vector2:
 		positions_array.append(player.global_position)
 
 	var board = get_parent().get_node("BTPlayer").blackboard
+	
+	tracked_player =players[board.get_var("player_idx")]
 	return positions_array[board.get_var("player_idx")]
 
 func _do_melee_attack():
+	var tracked_player_pos := _get_player_position()
 	attack_direct = 1
 	attack_cooldown = 1.2
 	print("Shrink")
 	var tween := create_tween()
-	tween.tween_property(self, "repulsion_force", repulsion_force/4.0, 1.0)
-	await tween.finished
+	tween.tween_property(self, "repulsion_force", repulsion_force/8.0, .5)
+	var track_strength := 6.0  # higher = more accurate, lower = more dodgeable
+	while tween.is_running():
+		var delta := get_process_delta_time()
+		var real_player_pos : Vector2 = tracked_player.global_position
+		# Exponential smoothing (frame-rate independent)
+		tracked_player_pos = tracked_player_pos.lerp(
+			real_player_pos,
+			1.0 - exp(-track_strength * delta)
+		)
+		#var debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
+		#get_parent().get_parent().add_child(debug)
+		#debug.global_position = tracked_player_pos
+		await get_tree().process_frame
 	get_parent().get_node("Attack/CollisionShape2D").disabled=false
 	# --- Calculate movement ---
-	var player_position = _get_player_position()
-	var movement_vector = player_position - global_position
-	var target_vector = movement_vector * 1.4  # 40% overshoot
-		
+	var movement_vector = tracked_player_pos - global_position
+	if movement_vector.length() < 348:
+		movement_vector = movement_vector.normalized()*48
+	var target_vector = movement_vector * 1.5  # 50% overshoot
 	print("Lunge forward")
 	
-
 	var duration := .25  # seconds
 	var elapsed := 0.0
-
+	var lunge_velocity := Vector2.ZERO
 	while elapsed < duration:
 		var delta := get_process_delta_time()
 		elapsed += delta
 
 		var t := delta / duration
-		get_parent().apply_velocity(target_vector * t * 60 * attack_direct)
-		print("Move")
+		lunge_velocity = target_vector * t * 60 * attack_direct
+		get_parent().apply_velocity(lunge_velocity)
 
 		await get_tree().process_frame  # wait for next frame
 
-	
+	var friction := 10.0
 
+	while lunge_velocity.length() > 5.0:
+		var delta := get_process_delta_time()
+		lunge_velocity = lunge_velocity.move_toward(Vector2.ZERO, friction * delta * 100)
+
+		get_parent().apply_velocity(lunge_velocity)
+		await get_tree().process_frame
 	get_parent().get_node("Attack/CollisionShape2D").disabled=true
 	var board = get_parent().get_node("BTPlayer").blackboard
-	board.set_var("attack_status"," FINISHING")
 	print("Expand")
+	board.set_var("attack_status"," FINISHING")
 	var tween_expand := create_tween()
-	tween_expand.tween_property(self, "repulsion_force", repulsion_force*4.0, 2.0)
+	tween_expand.tween_property(self, "repulsion_force", repulsion_force*8.0, 1.0)
 	await get_tree().create_timer(2.0).timeout
 	board.set_var("attack_status"," DONE")
 
