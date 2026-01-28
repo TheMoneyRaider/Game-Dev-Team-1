@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=24 format=3 uid="uid://do5k61nakb7mo"]
+[gd_resource type="BehaviorTree" load_steps=45 format=3 uid="uid://do5k61nakb7mo"]
 
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_1ipxq"]
 [ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="2_tojib"]
@@ -41,9 +41,9 @@ var/attack_status/hint = 2
 var/attack_status/hint_string = "STARTING,RUNNING,FINISHING,DONE"
 var/attack_mode/name = &"attack_mode"
 var/attack_mode/type = 4
-var/attack_mode/value = "MELEE"
+var/attack_mode/value = "SPAWNING"
 var/attack_mode/hint = 2
-var/attack_mode/hint_string = "NONE,MELEE,RANGED"
+var/attack_mode/hint_string = "NONE,MELEE,RANGED,SPAWNING"
 
 [sub_resource type="BTAction" id="BTAction_lr4pt"]
 script = ExtResource("1_1ipxq")
@@ -55,49 +55,136 @@ script = ExtResource("2_tojib")
 custom_name = "Constants"
 children = [SubResource("BTAction_lr4pt"), SubResource("BTAction_uikho")]
 
-[sub_resource type="BTAction" id="BTAction_40xi1"]
+[sub_resource type="BBVariant" id="BBVariant_1ipxq"]
+type = 4
+saved_value = "SPAWNING"
+resource_name = "SPAWNING"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_tojib"]
+variable = &"attack_mode"
+value = SubResource("BBVariant_1ipxq")
+
+[sub_resource type="BTSequence" id="BTSequence_sdpef"]
+custom_name = "Spawning"
+children = [SubResource("BTCheckVar_tojib")]
+
+[sub_resource type="BBVariant" id="BBVariant_sdpef"]
+type = 4
+saved_value = "MELEE"
+resource_name = "MELEE"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_38pnp"]
+variable = &"attack_mode"
+value = SubResource("BBVariant_sdpef")
+
+[sub_resource type="BTAction" id="BTAction_1fl3p"]
 custom_name = "OuterRange"
 script = ExtResource("4_38pnp")
 hit_range = 64
 
-[sub_resource type="BTAction" id="BTAction_tojib"]
+[sub_resource type="BTAction" id="BTAction_eo4y3"]
 custom_name = "MoveToPlayer"
 script = ExtResource("4_1ipxq")
 
-[sub_resource type="BTAction" id="BTAction_pmm7h"]
+[sub_resource type="BTAction" id="BTAction_w0000"]
 custom_name = "InnerRange"
 script = ExtResource("4_38pnp")
 hit_range = 48
 
-[sub_resource type="BTAction" id="BTAction_w61q3"]
+[sub_resource type="BTAction" id="BTAction_v8hg1"]
 script = ExtResource("4_pmm7h")
 
-[sub_resource type="BTSequence" id="BTSequence_40xi1"]
+[sub_resource type="BTSequence" id="BTSequence_2ycj8"]
 custom_name = "Attack if in Range"
-children = [SubResource("BTAction_40xi1"), SubResource("BTAction_tojib"), SubResource("BTAction_pmm7h"), SubResource("BTAction_w61q3")]
+children = [SubResource("BTAction_1fl3p"), SubResource("BTAction_eo4y3"), SubResource("BTAction_w0000"), SubResource("BTAction_v8hg1")]
 
-[sub_resource type="BBVariant" id="BBVariant_kel6m"]
+[sub_resource type="BBVariant" id="BBVariant_iowe0"]
 type = 4
 saved_value = "agro"
 resource_name = "agro"
 
-[sub_resource type="BTCheckVar" id="BTCheckVar_efa7g"]
+[sub_resource type="BTCheckVar" id="BTCheckVar_flek7"]
 variable = &"state"
-value = SubResource("BBVariant_kel6m")
+value = SubResource("BBVariant_iowe0")
 
-[sub_resource type="BTAction" id="BTAction_gskub"]
+[sub_resource type="BTAction" id="BTAction_dvgxm"]
 script = ExtResource("6_1fl3p")
 
-[sub_resource type="BTAction" id="BTAction_vygrw"]
+[sub_resource type="BTAction" id="BTAction_nu3tg"]
 script = ExtResource("7_eo4y3")
 
-[sub_resource type="BTSequence" id="BTSequence_ymovh"]
+[sub_resource type="BTSequence" id="BTSequence_32x7r"]
 custom_name = "Follow"
-children = [SubResource("BTCheckVar_efa7g"), SubResource("BTAction_gskub"), SubResource("BTAction_vygrw")]
+children = [SubResource("BTCheckVar_flek7"), SubResource("BTAction_dvgxm"), SubResource("BTAction_nu3tg")]
+
+[sub_resource type="BTSelector" id="BTSelector_1ipxq"]
+custom_name = "Tree"
+children = [SubResource("BTSequence_2ycj8"), SubResource("BTSequence_32x7r")]
+
+[sub_resource type="BTSequence" id="BTSequence_sjkbe"]
+custom_name = "Melee"
+children = [SubResource("BTCheckVar_38pnp"), SubResource("BTSelector_1ipxq")]
+
+[sub_resource type="BBVariant" id="BBVariant_v28lu"]
+type = 4
+saved_value = "RANGED"
+resource_name = "RANGED"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_1fl3p"]
+variable = &"attack_mode"
+value = SubResource("BBVariant_v28lu")
+
+[sub_resource type="BTAction" id="BTAction_s18vw"]
+custom_name = "OuterRange"
+script = ExtResource("4_38pnp")
+hit_range = 64
+
+[sub_resource type="BTAction" id="BTAction_a8oss"]
+custom_name = "MoveToPlayer"
+script = ExtResource("4_1ipxq")
+
+[sub_resource type="BTAction" id="BTAction_0ebrn"]
+custom_name = "InnerRange"
+script = ExtResource("4_38pnp")
+hit_range = 48
+
+[sub_resource type="BTAction" id="BTAction_fehff"]
+script = ExtResource("4_pmm7h")
+
+[sub_resource type="BTSequence" id="BTSequence_lb3uq"]
+custom_name = "Attack if in Range"
+children = [SubResource("BTAction_s18vw"), SubResource("BTAction_a8oss"), SubResource("BTAction_0ebrn"), SubResource("BTAction_fehff")]
+
+[sub_resource type="BBVariant" id="BBVariant_hd8a4"]
+type = 4
+saved_value = "agro"
+resource_name = "agro"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_mgs0x"]
+variable = &"state"
+value = SubResource("BBVariant_hd8a4")
+
+[sub_resource type="BTAction" id="BTAction_m2bol"]
+script = ExtResource("6_1fl3p")
+
+[sub_resource type="BTAction" id="BTAction_jg5ox"]
+script = ExtResource("7_eo4y3")
+
+[sub_resource type="BTSequence" id="BTSequence_wbt3q"]
+custom_name = "Follow"
+children = [SubResource("BTCheckVar_mgs0x"), SubResource("BTAction_m2bol"), SubResource("BTAction_jg5ox")]
+
+[sub_resource type="BTSelector" id="BTSelector_tojib"]
+custom_name = "Tree"
+children = [SubResource("BTSequence_lb3uq"), SubResource("BTSequence_wbt3q")]
+
+[sub_resource type="BTSequence" id="BTSequence_yvllp"]
+custom_name = "Ranged"
+children = [SubResource("BTCheckVar_1fl3p"), SubResource("BTSelector_tojib")]
 
 [sub_resource type="BTSelector" id="BTSelector_mrfvi"]
-custom_name = "Behavior"
-children = [SubResource("BTSequence_40xi1"), SubResource("BTSequence_ymovh")]
+custom_name = "Modes"
+children = [SubResource("BTSequence_sdpef"), SubResource("BTSequence_sjkbe"), SubResource("BTSequence_yvllp")]
 
 [sub_resource type="BTSequence" id="BTSequence_7l6ws"]
 custom_name = "Constant and Behavior"

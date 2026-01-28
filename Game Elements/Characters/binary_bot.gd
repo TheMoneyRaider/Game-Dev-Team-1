@@ -16,11 +16,12 @@ var last_position : Vector2
 # Characters 
 @export var core_char_count := 36
 @export var segment_char_count := 4   # chars per leg segment
-@export var glyph_choices := "@#%*&+=~/?<>"
+@export var glyph_choices := "10"
 
 # Visual jitter
 @export var jitter_strength := 3.0
 var tracked_player : Node = null
+var tracked_wave : Node = null
 
 # Legs
 const LEG_COUNT := 6
@@ -35,17 +36,20 @@ func _ready():
 	get_parent().get_node("Attack").c_owner = get_parent()
 	get_parent().get_node("Attack/CollisionShape2D").disabled=true
 	last_position = global_position
-	_spawn_core_characters()
 	_spawn_legs()
+	var instance = load("res://Game Elements/Rooms/sci_fi/binary_string.tscn").instantiate()
+	instance.position = Vector2(-640, 0)
+	instance.min_length = core_char_count
+	instance.max_length = core_char_count
+	add_child(instance)
+	tracked_wave = instance
+	tracked_wave.z_index += 20 
 
 
 # CHARACTER SPAWNING
 func _random_glyph() -> String:
 	return glyph_choices[randi() % glyph_choices.length()]
 
-func get_lum_variation() -> float:
-	var variation = .5
-	return randf_range(-variation, variation)
 
 func change_color(label_to_change : Label, time_step : float, og_color : Color, new_color : Color, lum : float):
 	var time = clamp(time_step,0.0,1.0)
@@ -62,27 +66,13 @@ func change_color(label_to_change : Label, time_step : float, og_color : Color, 
 	label_to_change.add_theme_color_override("font_color", time_color)
 	
 
-func _make_char_label(lum_offset: float, parent : Node) -> Label:
+func _make_char_label(parent : Node) -> Label:
 	var lbl: Label = GlyphLabel.instantiate()
 	var glyph = _random_glyph()
-	lbl.set_character_data(glyph, lum_offset)
+	lbl.set_character_data(glyph)
 	parent.add_child(lbl)
 	lbl.position = Vector2(0,0)
 	return lbl
-
-func _spawn_core_characters():
-	var spawn_distance = 4
-	for i in range(core_char_count):
-		var lum = get_lum_variation()
-		var ch = _make_char_label(lum,self)
-		ch.position = Vector2(randf_range(-spawn_distance,spawn_distance),randf_range(-spawn_distance,spawn_distance))
-
-		particles.append({
-			"label": ch,
-			"pos": ch.position,
-			"vel": Vector2.ZERO,
-			"lum": lum
-		})
 
 func _spawn_legs():
 	var legs_root := Node2D.new()
@@ -113,24 +103,15 @@ func _spawn_legs():
 		var upper_chars = []
 		var lower_chars = []
 		var foot_chars = []
-		var upper_chars_lum = []
-		var lower_chars_lum = []
-		var foot_chars_lum = []
 
 		for n in range(segment_char_count):
 			
-			var lum = get_lum_variation()
-			var u = _make_char_label(lum,upper_seg)
+			var u = _make_char_label(upper_seg)
 			upper_chars.append(u)
-			upper_chars_lum.append(lum)
-			lum = get_lum_variation()
-			var l = _make_char_label(lum,lower_seg)
+			var l = _make_char_label(lower_seg)
 			lower_chars.append(l)
-			lower_chars_lum.append(lum)
-			lum = get_lum_variation()
-			var f = _make_char_label(lum,foot_seg)
+			var f = _make_char_label(foot_seg)
 			foot_chars.append(f)
-			foot_chars_lum.append(lum)
 
 		# store leg data
 		legs.append({
@@ -141,9 +122,6 @@ func _spawn_legs():
 			"upper_chars": upper_chars,
 			"lower_chars": lower_chars,
 			"foot_chars": foot_chars,
-			"upper_chars_var": upper_chars_lum,
-			"lower_chars_var": lower_chars_lum,
-			"foot_chars_var": foot_chars_lum,
 			"angle": leg_angle,
 			"step_timer": randf_range(0.0, 1.0),
 			"foot_target": Vector2.ZERO,
@@ -155,14 +133,31 @@ func _process(delta):
 	var board = bt_player.blackboard
 	if board:
 		var attack_mode = board.get_var("attack_mode")
+		if attack_mode == "SPAWNING":
+			if !tracked_wave:
+				board.set_var("attack_mode","MELEE")
+			else:
+				var labels = tracked_wave.glyphs
+				for lbl in labels:
+					if lbl.global_position.distance_to(global_position) < 12 or lbl.global_position.x > global_position.x:
+						var temp_position = lbl.global_position + Vector2(0,randf_range(-5,5))
+						lbl.get_parent().glyphs.erase(lbl)
+						lbl.get_parent().remove_child(lbl)
+						add_child(lbl)
+						lbl.global_position = temp_position
+						particles.append({
+							"label": lbl,
+							"pos": lbl.position,
+							"vel": Vector2.ZERO
+						})
+					
 		if last_mode != attack_mode:
-			if attack_mode == "MELEE":
-				get_parent().get_node("Legs").visible = false
+			get_parent().get_node("Legs").visible = false
 			if attack_mode == "RANGED":
 				get_parent().get_node("Legs").visible = true
 			last_mode = attack_mode
 		var attack_status = board.get_var("attack_status")
-		if attack_status == " STARTING" and attack_mode == " MELEE":
+		if attack_status == " STARTING" and attack_mode == "MELEE":
 			board.set_var("attack_status"," RUNNING")
 			_do_melee_attack()
 		
@@ -193,6 +188,24 @@ func _return_glyph_locations() -> Array[Vector2]:
 
 	return locations
 	
+func _change_glyph_colors(color : Color, time : float, delay : float):
+	for p in particles:
+		var label: Label = p["label"]
+		if is_instance_valid(label):
+			label._change_color(color, time, delay)
+	for L in legs:
+		for c in L["upper_chars"]:
+			if is_instance_valid(c):
+				c._change_color(color, time, delay)
+
+		for c in L["lower_chars"]:
+			if is_instance_valid(c):
+				c._change_color(color, time, delay)
+
+		for c in L["foot_chars"]:
+			if is_instance_valid(c):
+				c._change_color(color, time, delay)
+	
 
 
 func _deflect_melee_attack():
@@ -217,6 +230,7 @@ func _do_melee_attack():
 	print("Shrink")
 	var tween := create_tween()
 	tween.tween_property(self, "repulsion_force", repulsion_force/8.0, .5)
+	_change_glyph_colors(Color(0.487, 0.496, 0.157, 1.0),.5,0.0)
 	var track_strength := 6.0  # higher = more accurate, lower = more dodgeable
 	while tween.is_running():
 		var delta := get_process_delta_time()
@@ -238,6 +252,7 @@ func _do_melee_attack():
 	var target_vector = movement_vector * 1.5  # 50% overshoot
 	print("Lunge forward")
 	
+	_change_glyph_colors(Color(0.743, 0.247, 0.148, 1.0),.125,0.0)
 	var duration := .25  # seconds
 	var elapsed := 0.0
 	var lunge_velocity := Vector2.ZERO
@@ -265,12 +280,9 @@ func _do_melee_attack():
 	board.set_var("attack_status"," FINISHING")
 	var tween_expand := create_tween()
 	tween_expand.tween_property(self, "repulsion_force", repulsion_force*8.0, 1.0)
+	_change_glyph_colors(Color(0.0, 0.373, 0.067, 1.0),2.0,0.0)
 	await get_tree().create_timer(2.0).timeout
 	board.set_var("attack_status"," DONE")
-
-
-
-
 
 
 func _update_physics(delta):
