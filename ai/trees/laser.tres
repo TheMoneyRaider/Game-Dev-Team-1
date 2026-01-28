@@ -51,6 +51,7 @@ children = [SubResource("BTAction_lr4pt"), SubResource("BTAction_uikho")]
 
 [sub_resource type="BTAction" id="BTAction_40xi1"]
 script = ExtResource("6_mrfvi")
+hit_range = 64
 
 [sub_resource type="BTAction" id="BTAction_w61q3"]
 script = ExtResource("6_40xi1")

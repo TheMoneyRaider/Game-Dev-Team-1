@@ -7,4 +7,6 @@ func _tick(_delta: float) -> Status:
 		get_blackboard().set_var("attack_mode"," MELEE")
 		get_blackboard().set_var("attack_status"," STARTING")
 		return SUCCESS
+	if attack_status == " RUNNING":
+		return RUNNING
 	return FAILURE

@@ -12,8 +12,8 @@ var direction = Vector2.RIGHT
 @export var start_lag = 0.0
 #How much time after pressing attack does the attack start in seconds
 @export var cooldown = .5
-@export var pierce = 0.0
 #How many enemies the attack will pierce through (-1 for inf)
+@export var pierce = 0.0
 var c_owner: Node = null
 #If the attack can hit walls
 @export var wall_collision = true
@@ -99,7 +99,7 @@ func intersection(body):
 		match apply_damage(body,c_owner,damage,direction):
 			1:
 				pierce -= 1
-				if attack_type!= "laser":
+				if attack_type!= "laser" and attack_type!= "binary_melee":
 					hit_nodes[body] = null
 			0:
 				pass
@@ -138,6 +138,12 @@ func _on_area_entered(area: Area2D) -> void:
 			if area.life > .5:
 				return
 			area.c_owner.take_damage(self.damage,c_owner,direction,self)
+		if area.attack_type =="binary_melee":
+			print("DEFLECT")
+			area.c_owner.get_node("Core")._deflect_melee_attack()
+			area.c_owner.take_damage(self.damage,c_owner,direction,self)
+			area.c_owner.take_damage(self.damage,c_owner,direction,self)
+			return
 		area.deflect(direction, hit_force,self)
 		area.c_owner = c_owner
 		area.hit_nodes = {}

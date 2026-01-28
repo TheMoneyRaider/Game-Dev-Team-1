@@ -28,9 +28,9 @@ func _ready():
 	base_spacing = randf_range(14,17)
 	create_digit_chain(digit_string)
 
-func get_char_spacing(char: String) -> float:
+func get_char_spacing(in_char: String) -> float:
 	# Assign spacing per character (customize as needed)
-	match char:
+	match in_char:
 		"1": return base_spacing * .5
 		"0": return base_spacing * 1
 		"2","3","4","5","6","7","8","9": return base_spacing * 0.9

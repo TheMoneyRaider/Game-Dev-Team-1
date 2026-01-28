@@ -3,14 +3,14 @@ extends Node2D
 # ============================================================
 # CONFIGURATION
 # ============================================================
-
+var GlyphLabel = preload("res://Game Elements/Objects/binary_character.tscn")
 # Physics parameters
 @export var spring_strength := 1000.0      # pulls each glyph toward the core center
 @export var damping := 10.0               # slows velocity
 @export var repulsion_force := 2000.0    # prevents collapsing
 @export var repulsion_radius := 18.0     # min distance between characters
 var particles = []   # Each entry: { label, pos, vel }
-
+var attack_direct = 1
 @export var mono_font: Font
 var last_position : Vector2
 # Characters 
@@ -31,6 +31,8 @@ var attack_cooldown := 0.0
 var legs = []          # runtime legs array
 
 func _ready():
+	get_parent().get_node("Attack").c_owner = get_parent()
+	get_parent().get_node("Attack/CollisionShape2D").disabled=true
 	last_position = global_position
 	_spawn_core_characters()
 	_spawn_legs()
@@ -59,33 +61,19 @@ func change_color(label_to_change : Label, time_step : float, og_color : Color, 
 	label_to_change.add_theme_color_override("font_color", time_color)
 	
 
-func _make_char_label(lum_offset : float) -> Label:
-	var base_color = Color(1.0, 0.0, 0.0, 1.0)
-	# Convert to HSV
-	var h = base_color.h
-	var s = base_color.s
-	var v = clamp(base_color.v + lum_offset, 0.0, 1.0)
-
-	var text_color = Color.from_hsv(h, s, v, base_color.a)
-	
-	var lbl := Label.new()
-	lbl.text = _random_glyph()
-	lbl.position = Vector2.ZERO
-
-	# ---- APPLY GREEN CODING STYLE ----
-	lbl.add_theme_color_override("font_color", text_color)
-	lbl.add_theme_constant_override("outline_size", 2)
-	lbl.add_theme_font_override("font", mono_font)
-	lbl.add_theme_font_size_override("font_size", 64)
-	lbl.scale = Vector2(0.125, 0.125)
+func _make_char_label(lum_offset: float, parent : Node) -> Label:
+	var lbl: Label = GlyphLabel.instantiate()
+	var glyph = _random_glyph()
+	lbl.set_character_data(glyph, lum_offset)
+	parent.add_child(lbl)
+	lbl.position = Vector2(0,0)
 	return lbl
 
 func _spawn_core_characters():
 	var spawn_distance = 4
 	for i in range(core_char_count):
 		var lum = get_lum_variation()
-		var ch = _make_char_label(lum)
-		add_child(ch)
+		var ch = _make_char_label(lum,self)
 		ch.position = Vector2(randf_range(-spawn_distance,spawn_distance),randf_range(-spawn_distance,spawn_distance))
 
 		particles.append({
@@ -131,18 +119,15 @@ func _spawn_legs():
 		for n in range(segment_char_count):
 			
 			var lum = get_lum_variation()
-			var u = _make_char_label(lum)
-			upper_seg.add_child(u)
+			var u = _make_char_label(lum,upper_seg)
 			upper_chars.append(u)
 			upper_chars_lum.append(lum)
 			lum = get_lum_variation()
-			var l = _make_char_label(lum)
-			lower_seg.add_child(l) 
+			var l = _make_char_label(lum,lower_seg)
 			lower_chars.append(l)
 			lower_chars_lum.append(lum)
 			lum = get_lum_variation()
-			var f = _make_char_label(lum)
-			foot_seg.add_child(f)
+			var f = _make_char_label(lum,foot_seg)
 			foot_chars.append(f)
 			foot_chars_lum.append(lum)
 
@@ -186,6 +171,10 @@ func _process(delta):
 	_update_physics(delta)
 	_process_leg_ik(delta)
 
+func _deflect_melee_attack():
+	print("deflect")
+	attack_direct = -1
+
 func _get_player_position() -> Vector2:
 	var players = get_tree().get_nodes_in_group("player")
 	var positions_array = []
@@ -196,45 +185,48 @@ func _get_player_position() -> Vector2:
 	return positions_array[board.get_var("player_idx")]
 
 func _do_melee_attack():
-	var player_position = _get_player_position()
+	attack_direct = 1
 	attack_cooldown = 1.2
 	print("Shrink")
 	var tween := create_tween()
 	tween.tween_property(self, "repulsion_force", repulsion_force/4.0, 1.0)
 	await tween.finished
+	get_parent().get_node("Attack/CollisionShape2D").disabled=false
 	# --- Calculate movement ---
+	var player_position = _get_player_position()
 	var movement_vector = player_position - global_position
 	var target_vector = movement_vector * 1.4  # 40% overshoot
+		
+	print("Lunge forward")
 	
-	var debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
-	get_parent().get_parent().add_child(debug)
-	debug.global_position = player_position
-	#
-	#print("Lunge forward")
-	#
-#
-	#var duration := .25  # seconds
-	#var elapsed := 0.0
-#
-	#while elapsed < duration:
-		#var delta := get_process_delta_time()
-		#elapsed += delta
-#
-		## Compute fraction of the total distance to move this frame
-		#var t := delta / duration
-#
-		#get_parent().apply_velocity(target_vector * t)
-		#print("Move")
-#
-		#await get_tree().process_frame  # wait for next frame
-#
-	#
+
+	var duration := .25  # seconds
+	var elapsed := 0.0
+
+	while elapsed < duration:
+		var delta := get_process_delta_time()
+		elapsed += delta
+
+		var t := delta / duration
+		get_parent().apply_velocity(target_vector * t * 60 * attack_direct)
+		print("Move")
+
+		await get_tree().process_frame  # wait for next frame
+
+	
+
+	get_parent().get_node("Attack/CollisionShape2D").disabled=true
+	var board = get_parent().get_node("BTPlayer").blackboard
+	board.set_var("attack_status"," FINISHING")
 	print("Expand")
 	var tween_expand := create_tween()
 	tween_expand.tween_property(self, "repulsion_force", repulsion_force*4.0, 2.0)
 	await get_tree().create_timer(2.0).timeout
-	var board = get_parent().get_node("BTPlayer").blackboard
 	board.set_var("attack_status"," DONE")
+
+
+
+
 
 
 func _update_physics(delta):
