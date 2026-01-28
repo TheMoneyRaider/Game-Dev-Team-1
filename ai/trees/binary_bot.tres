@@ -1,11 +1,11 @@
-[gd_resource type="BehaviorTree" load_steps=21 format=3 uid="uid://dlq43y0e0i6on"]
+[gd_resource type="BehaviorTree" load_steps=21 format=3 uid="uid://do5k61nakb7mo"]
 
-[ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_0junk"]
-[ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="4_7l6ws"]
-[ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="5_m5myp"]
-[ext_resource type="Script" uid="uid://bp6ip53ex8i1a" path="res://ai/tasks/laser_attack.gd" id="6_40xi1"]
-[ext_resource type="Script" uid="uid://c7b86gm25q0p3" path="res://ai/tasks/player_in_range.gd" id="6_mrfvi"]
-[ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="7_i4dwu"]
+[ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_1ipxq"]
+[ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="2_tojib"]
+[ext_resource type="Script" uid="uid://c7b86gm25q0p3" path="res://ai/tasks/player_in_range.gd" id="4_38pnp"]
+[ext_resource type="Script" uid="uid://cmb8joe4lefgx" path="res://ai/tasks/binary_melee_attack.gd" id="4_pmm7h"]
+[ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="6_1fl3p"]
+[ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="7_eo4y3"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ak6g3"]
 var/state/name = &"state"
@@ -18,11 +18,6 @@ var/agro_dist/type = 3
 var/agro_dist/value = 0.0
 var/agro_dist/hint = 0
 var/agro_dist/hint_string = ""
-var/deagro_dist/name = &"deagro_dist"
-var/deagro_dist/type = 3
-var/deagro_dist/value = 0.0
-var/deagro_dist/hint = 0
-var/deagro_dist/hint_string = ""
 var/hit_range/name = &"hit_range"
 var/hit_range/type = 3
 var/hit_range/value = 0.0
@@ -38,22 +33,32 @@ var/kill_laser/type = 1
 var/kill_laser/value = false
 var/kill_laser/hint = 0
 var/kill_laser/hint_string = ""
+var/attack_status/name = &"attack_status"
+var/attack_status/type = 4
+var/attack_status/value = "DONE"
+var/attack_status/hint = 2
+var/attack_status/hint_string = "STARTING,RUNNING,FINISHING,DONE"
+var/attack_mode/name = &"attack_mode"
+var/attack_mode/type = 4
+var/attack_mode/value = "MELEE"
+var/attack_mode/hint = 2
+var/attack_mode/hint_string = "NONE,MELEE,RANGED"
 
 [sub_resource type="BTAction" id="BTAction_lr4pt"]
-script = ExtResource("1_0junk")
+script = ExtResource("1_1ipxq")
 
 [sub_resource type="BTAction" id="BTAction_uikho"]
-script = ExtResource("7_i4dwu")
+script = ExtResource("2_tojib")
 
 [sub_resource type="BTSequence" id="BTSequence_mrfvi"]
 custom_name = "Constants"
 children = [SubResource("BTAction_lr4pt"), SubResource("BTAction_uikho")]
 
 [sub_resource type="BTAction" id="BTAction_40xi1"]
-script = ExtResource("6_mrfvi")
+script = ExtResource("4_38pnp")
 
 [sub_resource type="BTAction" id="BTAction_w61q3"]
-script = ExtResource("6_40xi1")
+script = ExtResource("4_pmm7h")
 
 [sub_resource type="BTSequence" id="BTSequence_40xi1"]
 custom_name = "Attack if in Range"
@@ -69,10 +74,10 @@ variable = &"state"
 value = SubResource("BBVariant_kel6m")
 
 [sub_resource type="BTAction" id="BTAction_gskub"]
-script = ExtResource("4_7l6ws")
+script = ExtResource("6_1fl3p")
 
 [sub_resource type="BTAction" id="BTAction_vygrw"]
-script = ExtResource("5_m5myp")
+script = ExtResource("7_eo4y3")
 
 [sub_resource type="BTSequence" id="BTSequence_ymovh"]
 custom_name = "Follow"

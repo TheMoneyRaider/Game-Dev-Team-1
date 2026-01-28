@@ -249,10 +249,10 @@ var sci_fi_shops : Array[Room]= []
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/sci_fi/cyberspace3.tscn", 																			#Scene Location                      
-4,																																#Num Liquids
-[Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch],										#Liquid Types 
-[.9,.8,.5,.5],																													#Liquid Chances                       
+"res://Game Elements/Rooms/testing_room.tscn", 																			#Scene Location                      
+0,																																#Num Liquids
+[],										#Liquid Types 
+[],																													#Liquid Chances                       
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       
@@ -263,11 +263,11 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 0,																																#Num Traps              
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
-4,																																#Num Pathways                   
-[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],									#Pathway Directions                       
-12,																																#Enemy Num Goal                               
+2,																																#Num Pathways                   
+[Globals.Direction.Up,Globals.Direction.Down],									#Pathway Directions                       
+1,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
+["res://Game Elements/Characters/binary_bot.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 .25)

@@ -1,10 +1,8 @@
 class_name DynamEnemy
 extends CharacterBody2D
-const is_elite: bool = false
 @export var max_health: int = 10
 @export var display_damage: bool =true
 @export var hit_range: int = 64
-@export var deagro_distance: float = 150.0
 @export var agro_distance: float = 150.0
 @export var enemy_type : String = ""
 @export var displays : Array[NodePath] = []
@@ -66,6 +64,10 @@ func move(target_pos: Vector2, _delta: float):
 	
 	update_flip(direction.x)
 	
+	move_and_slide()
+	
+func apply_velocity(vel : Vector2):
+	velocity=vel
 	move_and_slide()
 	
 func _process(delta):
@@ -168,8 +170,6 @@ func check_liquids(delta):
 				Globals.Liquid.Glitch:
 					_glitch_move()
 
-
-					
 func _glitch_move() -> void:
 	var direct = -1 if randf() > .5 else 1
 	var ground_cells = get_tree().get_root().get_node("LayerManager").room_instance.get_node("Ground").get_used_cells()
@@ -196,7 +196,6 @@ func _glitch_move() -> void:
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
 	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),Color(0.714, 0.29, 0.0, 1.0),Color(0.714, 0.29, 0.0, 1.0),0,1.0,1)
 	position = saved_position
-
 
 func _draw():
 	if !debug_mode:
