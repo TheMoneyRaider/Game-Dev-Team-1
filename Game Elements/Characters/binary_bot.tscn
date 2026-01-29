@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dwflq7w2bs542"]
+[gd_scene load_steps=11 format=3 uid="uid://dwflq7w2bs542"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_gkk4m"]
 [ext_resource type="Script" uid="uid://dtxn0il4h244y" path="res://Game Elements/Characters/binary_bot.gd" id="1_twmrc"]
@@ -12,6 +12,12 @@ var/attack_status/type = 4
 var/attack_status/value = " DONE"
 var/attack_status/hint = 2
 var/attack_status/hint_string = "STARTING,RUNNING,FINISHING,DONE"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ijs7j"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_gkk4m"]
+noise = SubResource("FastNoiseLite_ijs7j")
+seamless = true
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_twmrc"]
 
@@ -37,6 +43,7 @@ blackboard_plan = SubResource("BlackboardPlan_6wupc")
 [node name="Core" type="Node2D" parent="."]
 script = ExtResource("1_twmrc")
 mono_font = ExtResource("4_1ovct")
+damage_noise = SubResource("NoiseTexture2D_gkk4m")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_twmrc")

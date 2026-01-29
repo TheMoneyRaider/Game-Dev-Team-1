@@ -2,7 +2,7 @@ extends Label
 
 @export var mono_font: Font
 @export var current_color := Color(0.0, 0.373, 0.067, 1.0)
-@export var new_color := Color(0.0, 0.373, 0.067, 1.0)
+var new_color := Color(0.0, 0.373, 0.067, 1.0)
 @export var outline_size := 2
 @export var font_size := 64
 @export var char_scale := 0.125
@@ -41,6 +41,12 @@ func _change_color(color : Color, time : float = 1.0, delay : float = 0.0):
 	current_time = time
 	current_color = new_color
 	new_color = color
+	
+func _change_char(char : String, delay : float = 0.0):
+	if delay > 0.0:
+		await get_tree().create_timer(delay).timeout
+	text = char
+
 
 
 func _update_visuals():

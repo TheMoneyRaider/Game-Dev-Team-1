@@ -17,11 +17,14 @@ var last_position : Vector2
 @export var core_char_count := 36
 @export var segment_char_count := 4   # chars per leg segment
 @export var glyph_choices := "10"
+@export var damage_glyph_choices := "@#%*&?"
 
 # Visual jitter
 @export var jitter_strength := 3.0
 var tracked_player : Node = null
 var tracked_wave : Node = null
+@export var damage_noise : NoiseTexture2D
+var noise_offset : Vector2
 
 # Legs
 const LEG_COUNT := 6
@@ -33,6 +36,7 @@ var attack_cooldown := 0.0
 var legs = []          # runtime legs array
 
 func _ready():
+	noise_offset = Vector2(randf_range(-300,300),randf_range(-300,300))
 	get_parent().get_node("Attack").c_owner = get_parent()
 	get_parent().get_node("Attack/CollisionShape2D").disabled=true
 	last_position = global_position
@@ -285,7 +289,37 @@ func _do_melee_attack():
 	board.set_var("attack_status"," DONE")
 
 
+func damage_glyphs():
+	var delay
+	for p in particles:
+		var label: Label = p["label"]
+		if is_instance_valid(label):
+			delay = damage_noise.noise.get_noise_2d(label.global_position.x, label.global_position.y) * 0.5 + 0.5
+			label._change_char(damage_glyph_choices[randi() % damage_glyph_choices.length()], delay* .33)
+			label._change_char(glyph_choices[randi() % glyph_choices.length()], delay* .33+.66)
+	for L in legs:
+		for c in L["upper_chars"]:
+			if is_instance_valid(c):
+				delay = damage_noise.noise.get_noise_2d(c.global_position.x, c.global_position.y) * 0.5 + 0.5
+				c._change_char(damage_glyph_choices[randi() % damage_glyph_choices.length()], delay* .33)
+				c._change_char(glyph_choices[randi() % glyph_choices.length()], delay* .33+.66)
+
+		for c in L["lower_chars"]:
+			if is_instance_valid(c):
+				delay = damage_noise.noise.get_noise_2d(c.global_position.x, c.global_position.y) * 0.5 + 0.5
+				c._change_char(damage_glyph_choices[randi() % damage_glyph_choices.length()], delay* .33)
+				c._change_char(glyph_choices[randi() % glyph_choices.length()], delay* .33+.66)
+
+		for c in L["foot_chars"]:
+			if is_instance_valid(c):
+				delay = damage_noise.noise.get_noise_2d(c.global_position.x, c.global_position.y) * 0.5 + 0.5
+				c._change_char(damage_glyph_choices[randi() % damage_glyph_choices.length()], delay* .33)
+				c._change_char(glyph_choices[randi() % glyph_choices.length()], delay* .33+.66)
+	
+	
+
 func _update_physics(delta):
+	#return
 	var pos_difference = last_position - global_position
 	last_position = global_position
 	var center = Vector2.ZERO   # relative to parent

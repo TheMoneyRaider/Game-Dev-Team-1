@@ -16,6 +16,7 @@ var damage_direction = Vector2(0,-1)
 var damage_taken = 0
 var debug_mode = false
 @export var weapon_cooldowns : Array[float] = []
+@onready var i_frames : int = 0
 
 var effects : Array[Effect] = []
 
@@ -71,6 +72,8 @@ func apply_velocity(vel : Vector2):
 	move_and_slide()
 	
 func _process(delta):
+	if(i_frames > 0):
+		i_frames -= 1
 	for i in range(weapon_cooldowns.size()):
 		weapon_cooldowns[i]-=delta
 		
@@ -89,7 +92,10 @@ func _process(delta):
 		queue_redraw()
 	
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, _i_frames : int = 0):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0):
+	if(i_frames <= 0) and enemy_type=="binary_bot":
+		i_frames = 20
+		$Core.damage_glyphs()
 	if current_health >= 0 and display_damage:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
