@@ -12,7 +12,7 @@ var direction = Vector2.RIGHT
 @export var start_lag = 0.0
 #How much time after pressing attack does the attack start in seconds
 @export var cooldown = .5
-#How many enemies the attack will pierce through (-1 for inf)
+#How many enemies the attack will pierce through (-2 for inf)
 @export var pierce = 0.0
 var c_owner: Node = null
 #If the attack can hit walls
