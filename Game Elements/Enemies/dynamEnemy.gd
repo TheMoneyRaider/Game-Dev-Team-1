@@ -8,11 +8,19 @@ extends CharacterBody2D
 @export var displays : Array[NodePath] = []
 @export var min_timefabric = 10
 @export var max_timefabric = 20
+@export var can_sprint : bool = false
+@export var min_sprint_time : float = 1.0
+@export var max_sprint_time : float = 3.0
+@export var min_sprint_cooldown : float = 3.0
+@export var max_sprint_cooldown : float = 6.0
+@export var sprint_multiplier : float = 2.0
 var current_health: int = 10
 @export var move_speed: float = 70
 @onready var current_dmg_time: float = 0.0
 @onready var in_instant_trap: bool = false
 var damage_direction = Vector2(0,-1)
+var sprint_timer : float = 0.0
+var sprint_cool : float = 0.0
 var damage_taken = 0
 var debug_mode = false
 var look_direction : Vector2
@@ -77,7 +85,26 @@ func apply_velocity(vel : Vector2):
 	velocity=vel
 	move_and_slide()
 	
+func sprint(start : bool):
+	if !can_sprint:
+		return
+	if !start and sprint_timer > 0.0:
+		if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("move"):
+			$AnimationPlayer.play("move")
+		sprint_cool = randf_range(min_sprint_cooldown,max_sprint_cooldown)
+		move_speed /=sprint_multiplier
+		sprint_timer=0.0
+	else:
+		if sprint_timer == 0.0 and  sprint_cool == 0.0:
+			if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("sprint"):
+				$AnimationPlayer.play("sprint")
+			move_speed *=sprint_multiplier
+			sprint_timer = randf_range(min_sprint_time,max_sprint_time)
+	
 func _process(delta):
+	sprint_timer = max(0.0,sprint_timer-delta)
+	if sprint_timer ==0.0:
+		sprint_cool = max(0.0,sprint_cool-delta)
 	if enemy_type=="robot":
 		_robot_process()
 	if(i_frames > 0):
@@ -154,10 +181,17 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 func check_agro(dmg_owner : Node):
 	if dmg_owner.is_in_group("player"):
 		var board = get_node("BTPlayer").blackboard
+		var positions = board.get_var("player_positions")
+		var distances_squared = []
+		for pos in positions: 
+			distances_squared.append(global_position.distance_squared_to(pos))
+		var i = 0
+		if distances_squared.size()>1 and distances_squared[1]<distances_squared[0]:
+			i= 1
 		board.set_var("target_pos", dmg_owner.global_position)
 		board.set_var("player_idx", i)
 		board.set_var("state", "agro")
-	
+
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))

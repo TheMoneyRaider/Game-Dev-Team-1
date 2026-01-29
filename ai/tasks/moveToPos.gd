@@ -31,17 +31,23 @@ func _tick(_delta: float) -> Status:
 		
 		if player_moved_distance > recalc_distance_threshold:
 			#print("Player moved", player_moved_distance)
+			agent.sprint(false)
 			return FAILURE
 	
 	if path.is_empty():
 		
 		print("FAILED")
+		agent.sprint(false)
 		return FAILURE
 	
 	if waypoint_index >= path.size():
 
 		print("FAILED")
+		agent.sprint(false)
 		return FAILURE # failure forces tree to recalculate
+	
+	if agent.sprint_cool == 0.0 and agent.can_sprint:
+		agent.sprint(true)
 	var target_pos: Vector2 = path[waypoint_index]
 	var current_pos: Vector2 = agent.global_position
 	var distance = 32.0 if players and p_index else 16.0
@@ -52,6 +58,7 @@ func _tick(_delta: float) -> Status:
 		#last waypoint reached
 		if waypoint_index >= path.size():
 
+			agent.sprint(false)
 			return SUCCESS
 		return RUNNING
 	
