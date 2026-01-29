@@ -15,6 +15,7 @@ var current_health: int = 10
 var damage_direction = Vector2(0,-1)
 var damage_taken = 0
 var debug_mode = false
+var look_direction : Vector2
 @export var weapon_cooldowns : Array[float] = []
 @onready var i_frames : int = 0
 
@@ -24,6 +25,7 @@ var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn")]
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
+
 
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
@@ -45,25 +47,29 @@ func load_settings():
 	
 
 func _ready():
+	if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("idle"):
+		$AnimationPlayer.play("idle")
+	look_direction = Vector2(randf_range(-1,1),randf_range(-1,1)).normalized()
 	current_health = max_health
 	add_to_group("enemy") #TODO might not be needed anymore. I added a global group and just put the scenes in that group
 	load_settings()
 	Globals.config_changed.connect(load_settings)
 
 #need this for flipping the sprite movement
-func update_flip(dir: float):
+func update_flip():
+	if enemy_type=="robot":
+		return
 	var sprite2d=get_node_or_null("Sprite2D")
 	if sprite2d: 
-		sprite2d.flip_h = dir < 0
+		sprite2d.flip_h = look_direction.x < 0
 
 func move(target_pos: Vector2, _delta: float): 
+	look_direction = (target_pos - global_position).normalized()
 	
-	var direction = (target_pos - global_position).normalized()
-	
-	var target_velocity = direction * move_speed
+	var target_velocity = look_direction * move_speed
 	velocity = velocity.lerp(target_velocity, 0.05)
 	
-	update_flip(direction.x)
+	update_flip()
 	
 	move_and_slide()
 	
@@ -72,6 +78,8 @@ func apply_velocity(vel : Vector2):
 	move_and_slide()
 	
 func _process(delta):
+	if enemy_type=="robot":
+		_robot_process()
 	if(i_frames > 0):
 		i_frames -= 1
 	for i in range(weapon_cooldowns.size()):
@@ -92,7 +100,24 @@ func _process(delta):
 		queue_redraw()
 	
 
+func _robot_process():
+	var dir = look_direction
+	var block : int= $RobotBrain.anim_frame / 10 * 10
+	var offset : int= $RobotBrain.anim_frame % 10
+
+	if abs(dir.y) > abs(dir.x): # Vertical
+		if dir.y < 0:# (0, -Y) → 5–9
+			offset += 5
+	else:# Horizontal
+		# Horizontal blocks start at 220
+		block +=220
+		if dir.x > 0:# (+X, 0) → 5–9
+			offset += 5
+	$RobotBrain.set_frame(block + offset)
+
+
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0):
+	check_agro(dmg_owner)
 	if(i_frames <= 0) and enemy_type=="binary_bot":
 		i_frames = 20
 		$Core.damage_glyphs()
@@ -125,6 +150,14 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 		return
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 	current_health -= damage
+
+func check_agro(dmg_owner : Node):
+	if dmg_owner.is_in_group("player"):
+		var board = get_node("BTPlayer").blackboard
+		board.set_var("target_pos", dmg_owner.global_position)
+		board.set_var("player_idx", i)
+		board.set_var("state", "agro")
+	
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))

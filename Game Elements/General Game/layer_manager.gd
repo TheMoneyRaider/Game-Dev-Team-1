@@ -115,16 +115,11 @@ func _ready() -> void:
 		player2.is_purple = false
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
-	var filling = room_instance.get_node("Filling").get_used_cells().map(func(c): return Vector2i(c.x, c.y))
-	var placable_locations : Array[Vector2i]
-	for cell in room_instance.get_node("Ground").get_used_cells():
-		var c = Vector2i(cell.x, cell.y)
-		if c not in conflict_cells and c not in filling:
-			placable_locations.append(c)
+	global_conflict_cells = conflict_cells
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies([player1,player2], room_instance, placable_locations,room_instance_data,self,false)
+		Spawner.spawn_enemies([player1,player2], room_instance, _placable_locations(),room_instance_data,self,false)
 	else:
-		Spawner.spawn_enemies([player1], room_instance, placable_locations,room_instance_data,self,false)
+		Spawner.spawn_enemies([player1], room_instance, _placable_locations(),room_instance_data,self,false)
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
@@ -182,7 +177,7 @@ func _process(delta: float) -> void:
 		if is_wave_room and total_waves > current_wave:
 			current_wave+=1
 			hud.display_notification("Wave "+str(current_wave)+" / "+str(total_waves))
-			var placable_locations = room_instance.get_node("Ground").get_used_cells().filter(func(c): return c not in global_conflict_cells)
+			var placable_locations = _placable_locations()
 			if Globals.is_multiplayer:
 				Spawner.spawn_enemies([player1,player2], room_instance, placable_locations,room_instance_data,self,true)
 			else:
@@ -1413,13 +1408,22 @@ func apply_shared_noise_offset(root: Node):
 	check_node(root,shared_offset)
 
 func check_node(n: Node,shared_offset : Vector2):
-		if n is TileMapLayer:
-			var mat = n.material
-			if mat is ShaderMaterial:
-				mat.set_shader_parameter("noise_offset", shared_offset)
+	if n is TileMapLayer:
+		var mat = n.material
+		if mat is ShaderMaterial:
+			mat.set_shader_parameter("noise_offset", shared_offset)
 
-		for child in n.get_children():
-			check_node(child,shared_offset)
+	for child in n.get_children():
+		check_node(child,shared_offset)
+
+func _placable_locations():
+	var filling = room_instance.get_node("Filling").get_used_cells().map(func(c): return Vector2i(c.x, c.y))
+	var placable_locations : Array[Vector2i]
+	for cell in room_instance.get_node("Ground").get_used_cells():
+		var c = Vector2i(cell.x, cell.y)
+		if c not in global_conflict_cells and c not in filling:
+			placable_locations.append(c)
+	return placable_locations
 
 
 func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):

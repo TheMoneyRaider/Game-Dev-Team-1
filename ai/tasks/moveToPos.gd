@@ -19,7 +19,7 @@ func _tick(_delta: float) -> Status:
 
 	var p_index = blackboard.get_var(player_idx)
 	var players = agent.get_tree().get_nodes_in_group("player")
-	var current_player_pos: Vector2 = players[p_index].global_position if players else Vector2.ZERO
+	var current_player_pos: Vector2 = players[p_index].global_position if players and p_index else Vector2.ZERO
 
 	if blackboard.get_var("path_recalculated", false):	
 		waypoint_index = skip_waypoints_behind(path, 0)
@@ -42,11 +42,10 @@ func _tick(_delta: float) -> Status:
 
 		print("FAILED")
 		return FAILURE # failure forces tree to recalculate
-		
 	var target_pos: Vector2 = path[waypoint_index]
 	var current_pos: Vector2 = agent.global_position
-	
-	if current_pos.distance_to(target_pos) <= 32.0:  
+	var distance = 32.0 if players and p_index else 16.0
+	if current_pos.distance_to(target_pos) <= distance: 
 		waypoint_index += 1
 		blackboard.set_var("waypoint_index", waypoint_index)
 	
