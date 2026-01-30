@@ -44,6 +44,11 @@ var/attack_mode/type = 4
 var/attack_mode/value = "SPAWNING"
 var/attack_mode/hint = 2
 var/attack_mode/hint_string = "NONE,MELEE,SPAWNING"
+var/player_idx/name = &"player_idx"
+var/player_idx/type = 2
+var/player_idx/value = 0
+var/player_idx/hint = 0
+var/player_idx/hint_string = ""
 
 [sub_resource type="BTAction" id="BTAction_lr4pt"]
 script = ExtResource("1_1ipxq")

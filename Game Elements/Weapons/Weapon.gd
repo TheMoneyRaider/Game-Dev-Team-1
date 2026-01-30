@@ -13,6 +13,7 @@ class_name Weapon
 
 @export var attack_type: String = "smash"
 @export var attack_scene: String = "res://Game Elements/Attacks/smash.tscn"
+@export var spawn_distance: float = 20
 
 var speed = 60.0
 #How fast the attack is moving
@@ -67,7 +68,7 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 					speed = randi_range(170 - ( (135 / num_attacks) * abs(i - num_attacks / 2.0)), 280 - ( (180 / num_attacks) * abs(i - num_attacks / 2.0)))
 				_:
 					pass
-			var attack_position = attack_direction * 20 + char_position
+			var attack_position = attack_direction * spawn_distance + char_position
 			spawn_attack(attack_direction,attack_position)
 			if(!split_attacks):
 				attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
@@ -77,7 +78,7 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 					attack_direction = attack_direction.rotated(deg_to_rad(randf_range(-attack_spread / (2*num_attacks), attack_spread / (2*num_attacks))))
 			
 	else:
-		var attack_position = attack_direction * 20 + char_position
+		var attack_position = attack_direction * spawn_distance + char_position
 		spawn_attack(attack_direction,attack_position)
 
 func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particle_effect : String = ""):
@@ -86,7 +87,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particl
 	instance.global_position = attack_position
 	instance.c_owner = c_owner
 	instance.speed = speed
-	instance.damage = damage * (1+ c_owner.hunter_percent_boost()/100)
+	instance.damage = damage * (1+ c_owner.hunter_percent_boost()/100) if c_owner.is_in_group("players") else damage
 	instance.lifespan = lifespan
 	instance.hit_force = hit_force
 	instance.start_lag = start_lag

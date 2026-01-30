@@ -45,8 +45,11 @@ func set_values(attack_speed = self.attack_speed, attack_damage = self.damage, a
 
 func _ready():
 	frozen = true
-	await get_tree().create_timer(start_lag).timeout
+	if start_lag > 0.0:
+		await get_tree().create_timer(start_lag).timeout
 	frozen = false
+	if attack_type == "robot melee":
+		$AnimationPlayer.play("main")
 	
 	if attack_type == "death mark":
 		if c_owner.is_purple:

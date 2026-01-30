@@ -15,7 +15,7 @@ func _tick(_delta: float) -> Status:
 		positions_array.append(player.global_position)
 
 	var player_agressing = blackboard.get_var("player_idx")
-	if !positions_array[player_agressing]:
+	if player_agressing == null or !positions_array[player_agressing]:
 		return FAILURE
 	if positions_array[player_agressing].distance_to(agent.global_position) <= hit_range:
 		return SUCCESS

@@ -38,6 +38,11 @@ var/kill_laser/type = 1
 var/kill_laser/value = false
 var/kill_laser/hint = 0
 var/kill_laser/hint_string = ""
+var/player_idx/name = &"player_idx"
+var/player_idx/type = 2
+var/player_idx/value = 0
+var/player_idx/hint = 0
+var/player_idx/hint_string = ""
 
 [sub_resource type="BTAction" id="BTAction_lr4pt"]
 script = ExtResource("1_0junk")

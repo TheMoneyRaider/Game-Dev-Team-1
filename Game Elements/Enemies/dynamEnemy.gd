@@ -26,10 +26,10 @@ var debug_mode = false
 var look_direction : Vector2 = Vector2(0,1)
 @export var weapon_cooldowns : Array[float] = []
 @onready var i_frames : int = 0
-
+var weapon = null
 var effects : Array[Effect] = []
 
-var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn")]
+var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res://Game Elements/Attacks/robot_melee.tscn")]
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
@@ -38,6 +38,9 @@ signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direec
 func handle_attack(target_position: Vector2):
 	var attack_direction = (target_position - global_position).normalized()
 	var attack_position = attack_direction * 0		 + global_position
+	if enemy_type=="robot":
+		weapon.request_attacks(attack_direction,global_position)
+		return
 	request_attack(attacks[0], attack_position, attack_direction)
 
 func request_attack(t_attack: PackedScene, attack_position: Vector2, attack_direction: Vector2):
@@ -57,6 +60,8 @@ func load_settings():
 func _ready():
 	if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("idle"):
 		$AnimationPlayer.play("idle")
+	if enemy_type=="robot":
+		weapon = Weapon.create_weapon("res://Game Elements/Weapons/RobotMelee.tres",self)
 	current_health = max_health
 	add_to_group("enemy") #TODO might not be needed anymore. I added a global group and just put the scenes in that group
 	load_settings()
