@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=47 format=3 uid="uid://divr2rf3r2i0x"]
+[gd_resource type="BehaviorTree" load_steps=56 format=3 uid="uid://divr2rf3r2i0x"]
 
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_jodhf"]
 [ext_resource type="Script" uid="uid://clsympdov604o" path="res://ai/tasks/checkAgro.gd" id="2_hsdvk"]
@@ -42,15 +42,6 @@ var/player_idx/value = 0
 var/player_idx/hint = 0
 var/player_idx/hint_string = ""
 
-[sub_resource type="BTAction" id="BTAction_tqs8k"]
-script = ExtResource("1_jodhf")
-
-[sub_resource type="BTAction" id="BTAction_3ccgm"]
-script = ExtResource("2_hsdvk")
-
-[sub_resource type="BTSequence" id="BTSequence_4evon"]
-children = [SubResource("BTAction_tqs8k"), SubResource("BTAction_3ccgm")]
-
 [sub_resource type="BBVariant" id="BBVariant_arvq5"]
 type = 4
 saved_value = "spawning"
@@ -58,7 +49,18 @@ resource_name = "spawning"
 
 [sub_resource type="BTCheckVar" id="BTCheckVar_yg7nc"]
 variable = &"state"
+check_type = 5
 value = SubResource("BBVariant_arvq5")
+
+[sub_resource type="BTAction" id="BTAction_tqs8k"]
+script = ExtResource("1_jodhf")
+
+[sub_resource type="BTAction" id="BTAction_3ccgm"]
+script = ExtResource("2_hsdvk")
+
+[sub_resource type="BTSequence" id="BTSequence_4evon"]
+custom_name = "Constants"
+children = [SubResource("BTAction_tqs8k"), SubResource("BTAction_3ccgm")]
 
 [sub_resource type="BBVariant" id="BBVariant_3c6mk"]
 type = 4
@@ -69,14 +71,6 @@ resource_name = "agro"
 variable = &"state"
 value = SubResource("BBVariant_3c6mk")
 
-[sub_resource type="BBNode" id="BBNode_4evon"]
-saved_value = NodePath("AnimationPlayer")
-resource_name = "AnimationPlayer"
-
-[sub_resource type="BTStopAnimation" id="BTStopAnimation_3jwwk"]
-animation_player = SubResource("BBNode_4evon")
-animation_name = &"idle"
-
 [sub_resource type="BBNode" id="BBNode_xsft4"]
 saved_value = NodePath("AnimationPlayer")
 resource_name = "AnimationPlayer"
@@ -85,11 +79,19 @@ resource_name = "AnimationPlayer"
 animation_player = SubResource("BBNode_xsft4")
 animation_name = &"move"
 
+[sub_resource type="BTRunLimit" id="BTRunLimit_arvq5"]
+children = [SubResource("BTPlayAnimation_1kwu6")]
+
 [sub_resource type="BTAction" id="BTAction_xsft4"]
 script = ExtResource("3_y6dfc")
 
 [sub_resource type="BTAction" id="BTAction_1kwu6"]
 script = ExtResource("4_arvq5")
+
+[sub_resource type="BTAction" id="BTAction_v4ajl"]
+script = ExtResource("8_arvq5")
+min_time = 0.5
+max_time = 2.0
 
 [sub_resource type="BTAction" id="BTAction_yg7nc"]
 custom_name = "OuterRange"
@@ -127,13 +129,33 @@ script = ExtResource("5_yg7nc")
 seconds = 0.5
 children = [SubResource("BTAction_4evon")]
 
+[sub_resource type="BBNode" id="BBNode_yg7nc"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_2flr3"]
+animation_player = SubResource("BBNode_yg7nc")
+animation_name = &"move"
+
 [sub_resource type="BTSequence" id="BTSequence_v4ajl"]
 custom_name = "Attack if in Range"
-children = [SubResource("BTAction_yg7nc"), SubResource("BTAction_2flr3"), SubResource("BTAction_h7qfk"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTPlayAnimation_4evon"), SubResource("BTDelay_1kwu6")]
+children = [SubResource("BTAction_v4ajl"), SubResource("BTAction_yg7nc"), SubResource("BTAction_2flr3"), SubResource("BTAction_h7qfk"), SubResource("BTStopAnimation_3ccgm"), SubResource("BTPlayAnimation_4evon"), SubResource("BTDelay_1kwu6"), SubResource("BTPlayAnimation_2flr3")]
+
+[sub_resource type="BTCooldown" id="BTCooldown_33y05"]
+duration = 1.0
+children = [SubResource("BTSequence_v4ajl")]
+
+[sub_resource type="BTSequence" id="BTSequence_yg7nc"]
+custom_name = "Attack"
+children = [SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTCooldown_33y05")]
+
+[sub_resource type="BTSelector" id="BTSelector_2flr3"]
+custom_name = "Animate or Not"
+children = [SubResource("BTRunLimit_arvq5"), SubResource("BTSequence_yg7nc")]
 
 [sub_resource type="BTSequence" id="BTSequence_ecge8"]
 custom_name = "Attack"
-children = [SubResource("BTCheckVar_nufqr"), SubResource("BTStopAnimation_3jwwk"), SubResource("BTPlayAnimation_1kwu6"), SubResource("BTAction_xsft4"), SubResource("BTAction_1kwu6"), SubResource("BTSequence_v4ajl")]
+children = [SubResource("BTCheckVar_nufqr"), SubResource("BTSelector_2flr3")]
 
 [sub_resource type="BBVariant" id="BBVariant_jodhf"]
 type = 4
@@ -151,6 +173,14 @@ max_duration = 3.0
 [sub_resource type="BTAction" id="BTAction_arvq5"]
 script = ExtResource("8_arvq5")
 
+[sub_resource type="BBNode" id="BBNode_arvq5"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_yg7nc"]
+animation_player = SubResource("BBNode_arvq5")
+animation_name = &"move"
+
 [sub_resource type="BTAction" id="BTAction_nufqr"]
 script = ExtResource("6_2flr3")
 
@@ -161,8 +191,16 @@ script = ExtResource("3_y6dfc")
 custom_name = "moveToPos"
 script = ExtResource("4_arvq5")
 
+[sub_resource type="BBNode" id="BBNode_2flr3"]
+saved_value = NodePath("AnimationPlayer")
+resource_name = "AnimationPlayer"
+
+[sub_resource type="BTPlayAnimation" id="BTPlayAnimation_h7qfk"]
+animation_player = SubResource("BBNode_2flr3")
+animation_name = &"idle"
+
 [sub_resource type="BTSequence" id="BTSequence_arvq5"]
-children = [SubResource("BTAction_arvq5"), SubResource("BTAction_nufqr"), SubResource("BTAction_3jwwk"), SubResource("BTAction_hnqba")]
+children = [SubResource("BTAction_arvq5"), SubResource("BTPlayAnimation_yg7nc"), SubResource("BTAction_nufqr"), SubResource("BTAction_3jwwk"), SubResource("BTAction_hnqba"), SubResource("BTPlayAnimation_h7qfk")]
 
 [sub_resource type="BTCooldown" id="BTCooldown_y6dfc"]
 children = [SubResource("BTSequence_arvq5")]
@@ -171,11 +209,12 @@ children = [SubResource("BTSequence_arvq5")]
 custom_name = "Patrol"
 children = [SubResource("BTCheckVar_hsdvk"), SubResource("BTRandomWait_3c6mk"), SubResource("BTCooldown_y6dfc")]
 
-[sub_resource type="BTSelector" id="BTSelector_1kwu6"]
-children = [SubResource("BTCheckVar_yg7nc"), SubResource("BTSequence_ecge8"), SubResource("BTSequence_3c6mk")]
+[sub_resource type="BTSelector" id="BTSelector_h7qfk"]
+children = [SubResource("BTSequence_ecge8"), SubResource("BTSequence_3c6mk")]
 
 [sub_resource type="BTSequence" id="BTSequence_6xbjc"]
-children = [SubResource("BTSequence_4evon"), SubResource("BTSelector_1kwu6")]
+custom_name = "Overall Tree"
+children = [SubResource("BTCheckVar_yg7nc"), SubResource("BTSequence_4evon"), SubResource("BTSelector_h7qfk")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_ua8f2")

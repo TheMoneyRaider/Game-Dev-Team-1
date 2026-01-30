@@ -9,12 +9,12 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_llnr1"]
 shader = ExtResource("2_12o7h")
 shader_parameter/progress = 1.0
-shader_parameter/noise_desnity = 48.0
+shader_parameter/noise_density = 60.0
 shader_parameter/beam_size = 0.10000000405148
 shader_parameter/color = Color(0, 1, 1, 1)
 shader_parameter/hframes = 10
 shader_parameter/vframes = 44
-shader_parameter/frame = 0
+shader_parameter/frame = 1
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_phyc7"]
 size = Vector2(14, 18)
@@ -130,7 +130,10 @@ displays = Array[NodePath]([NodePath("Sprite2D")])
 min_timefabric = 20
 max_timefabric = 50
 can_sprint = true
+min_sprint_time = 3.0
+max_sprint_time = 5.0
 max_sprint_cooldown = 4.0
+sprint_multiplier = 3.0
 move_speed = 60.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

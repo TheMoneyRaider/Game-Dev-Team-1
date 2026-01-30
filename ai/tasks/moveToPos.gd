@@ -46,14 +46,13 @@ func _tick(_delta: float) -> Status:
 		agent.sprint(true)
 	var target_pos: Vector2 = path[waypoint_index]
 	var current_pos: Vector2 = agent.global_position
-	var distance = 32.0 if players and p_index else 16.0
+	var distance = 32.0 if blackboard.get_var("state")=="agro" else 16.0
 	if current_pos.distance_to(target_pos) <= distance: 
 		waypoint_index += 1
 		blackboard.set_var("waypoint_index", waypoint_index)
 	
 		#last waypoint reached
 		if waypoint_index >= path.size():
-
 			agent.sprint(false)
 			return SUCCESS
 		return RUNNING

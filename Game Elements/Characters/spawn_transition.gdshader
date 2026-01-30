@@ -10,12 +10,12 @@ the modified result on godotshaders.com.
 shader_type canvas_item;
 
 uniform float progress : hint_range(0.0, 1.0);
-uniform float noise_desnity = 60;
+uniform float noise_density = 60;
 uniform float beam_size : hint_range(0.01, 0.15);
 uniform vec4 color : source_color = vec4(0.0, 1.0, 1.0, 1.0);
-uniform int hframes : hint_range(1,50) = 10; // number of horizontal frames
-uniform int vframes : hint_range(1,50) = 44; // number of vertical frames
-uniform int frame : hint_range(0,255) = 0;  // current frame
+uniform int hframes : hint_range(1,100) = 10; // number of horizontal frames
+uniform int vframes : hint_range(1,100) = 44; // number of vertical frames
+uniform int frame : hint_range(0,10,000) = 0;  // current frame
 
 // We are generating our own noise here. You could experiment with the 
 // built in SimplexNoise or your own noise texture for other effects.
@@ -61,7 +61,7 @@ void fragment()
     // Sample the texture at the correct frame
     vec4 tex_color = texture(TEXTURE, frame_offset + uv_in_frame * frame_size);
 
-	float noise = noise(uv_in_frame * noise_desnity)*uv_in_frame.y;
+	float noise = noise(uv_in_frame * noise_density)*uv_in_frame.y;
 	
 	float d1 = step(progress, noise);
 	float d2 = step(progress - beam_size, noise);

@@ -23,7 +23,7 @@ var sprint_timer : float = 0.0
 var sprint_cool : float = 0.0
 var damage_taken = 0
 var debug_mode = false
-var look_direction : Vector2
+var look_direction : Vector2 = Vector2(0,1)
 @export var weapon_cooldowns : Array[float] = []
 @onready var i_frames : int = 0
 
@@ -57,7 +57,6 @@ func load_settings():
 func _ready():
 	if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("idle"):
 		$AnimationPlayer.play("idle")
-	look_direction = Vector2(randf_range(-1,1),randf_range(-1,1)).normalized()
 	current_health = max_health
 	add_to_group("enemy") #TODO might not be needed anymore. I added a global group and just put the scenes in that group
 	load_settings()
@@ -89,6 +88,7 @@ func sprint(start : bool):
 	if !can_sprint:
 		return
 	if !start and sprint_timer > 0.0:
+		print("End Sprint")
 		if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("move"):
 			$AnimationPlayer.play("move")
 		sprint_cool = randf_range(min_sprint_cooldown,max_sprint_cooldown)
@@ -96,6 +96,7 @@ func sprint(start : bool):
 		sprint_timer=0.0
 	else:
 		if sprint_timer == 0.0 and  sprint_cool == 0.0:
+			print("Start Sprint")
 			if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("sprint"):
 				$AnimationPlayer.play("sprint")
 			move_speed *=sprint_multiplier
