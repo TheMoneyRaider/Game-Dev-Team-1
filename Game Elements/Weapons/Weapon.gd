@@ -82,6 +82,8 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 		spawn_attack(attack_direction,attack_position)
 
 func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particle_effect : String = ""):
+	if !c_owner:
+		return
 	var instance = load(attack_scene).instantiate()
 	instance.direction = attack_direction
 	instance.global_position = attack_position
