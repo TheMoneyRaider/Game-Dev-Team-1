@@ -8,7 +8,7 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_754yq"]
 shader = ExtResource("3_wgna5")
-shader_parameter/sobel_enabled = true
+shader_parameter/sobel_enabled = false
 shader_parameter/inverse_output = false
 shader_parameter/sobel_strength = 1.0
 shader_parameter/edge_color = Vector3(1, 1, 1)

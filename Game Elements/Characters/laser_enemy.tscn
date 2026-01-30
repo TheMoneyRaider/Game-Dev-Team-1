@@ -48,7 +48,6 @@ collision_layer = 16
 collision_mask = 17
 script = ExtResource("1_8r1te")
 display_damage = false
-deagro_distance = 750.0
 agro_distance = 500.0
 enemy_type = "laser_e"
 displays = Array[NodePath]([NodePath("Segment1/Sprite2D"), NodePath("Segment2/Sprite2D")])

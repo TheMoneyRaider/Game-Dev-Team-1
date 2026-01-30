@@ -7,6 +7,7 @@
 size = Vector2(10, 13)
 
 [node name="Bullet" type="Area2D" groups=["attack"]]
+collision_mask = 33
 script = ExtResource("1_7y327")
 speed = 300.0
 lifespan = 0.75

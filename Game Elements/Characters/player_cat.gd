@@ -311,22 +311,27 @@ func check_liquids(delta):
 					
 					
 func _glitch_move() -> void:
-	var direct = -1 if randf() > .5 else 1
 	var ground_cells = get_tree().get_root().get_node("LayerManager").room_instance.get_node("Ground").get_used_cells()
-	var move_dir = velocity.normalized() *16
-	var check_pos = Vector2i(((position + move_dir)/16).floor())
+	var move_dir_l = velocity.normalized() *16
+	var move_dir_r = velocity.normalized() *16
+	var check_pos_r = Vector2i(((position + move_dir_r)/16).floor())
+	var check_pos_l = Vector2i(((position + move_dir_l)/16).floor())
 	var attempts = 0
 	var max_attempts = 36 # prevent infinite loops
-	var checked_cells = []
-	while check_pos not in ground_cells and attempts < max_attempts:
-		checked_cells.append(check_pos)
-		move_dir = move_dir.rotated(direct * deg_to_rad(5))
-		check_pos = Vector2i(((position + move_dir)/16).floor())
+	while check_pos_r not in ground_cells and check_pos_l not in ground_cells and attempts < max_attempts:
+		move_dir_r = move_dir_r.rotated(deg_to_rad(-5))
+		move_dir_l = move_dir_l.rotated(deg_to_rad(5))
+		check_pos_l = Vector2i(((position + move_dir_l)/16).floor())
+		check_pos_r = Vector2i(((position + move_dir_r)/16).floor())
 		attempts += 1
 	if velocity.length() < .1:
 		return
+	var move_dir =move_dir_r
+	if check_pos_l in ground_cells:
+		move_dir =move_dir_l
 	position+=move_dir/2.0
 	var saved_position = position
+	var saved_velocity = velocity
 	var position_variance = 16
 	var hue_variance = .08
 	var color1 = shift_hue(Color(0.0, 0.867, 0.318, 1.0),randf_range(-hue_variance,hue_variance))
@@ -334,11 +339,14 @@ func _glitch_move() -> void:
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
 	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
-	position+=move_dir/2.0
+	velocity=move_dir/2.0
+	move_and_slide()
 	saved_position = position
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
 	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
+	move_and_slide()
+	velocity = saved_velocity
 
 func shift_hue(color: Color, amount: float) -> Color:
 	var h = color.h + amount

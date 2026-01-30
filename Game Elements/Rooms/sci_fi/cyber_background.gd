@@ -10,7 +10,7 @@ func _ready() -> void:
 		make_new_string_ready()
 		
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	for child in get_children():
 		# Recycle when offscreen
 		if child.position.x > size.x + 50:

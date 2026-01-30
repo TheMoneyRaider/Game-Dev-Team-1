@@ -35,7 +35,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 20,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
 [.2,.8],																														#Weights for those enemies to spawn
 .5),room.Create_Room(																											#Chance for waves to be segmented
 "res://Game Elements/Rooms/sci_fi/factory2.tscn", 																				#Scene Location                       
@@ -57,7 +57,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 15,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
 [.9,.1],																														#Weights for those enemies to spawn
 .2),																															#Chance for waves to be segmented
 room.Create_Room(
@@ -80,7 +80,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 35,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
 [30,5],																															#Weights for those enemies to spawn
 .3),																															#Chance for waves to be segmented
 room.Create_Room(
@@ -103,7 +103,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 30,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/laser_enemy.tscn"],							#Enemies That can spawn in this room
 [12,18],																														#Weights for those enemies to spawn
 .7),																															#Chance for waves to be segmented
 room.Create_Room(
@@ -126,9 +126,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-.25),																															#Chance for waves to be segmented
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75),																															#Chance for waves to be segmented
 room.Create_Room(			
 "res://Game Elements/Rooms/sci_fi/cyberspace2.tscn", 																			#Scene Location                       
 5,																																#Num Liquids
@@ -149,9 +149,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 18,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-.25),																															#Chance for waves to be segmented
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75),																															#Chance for waves to be segmented
 room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/cyberspace3.tscn", 																			#Scene Location                      
 4,																																#Num Liquids
@@ -172,9 +172,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-.25),																															#Chance for waves to be segmented
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75),																															#Chance for waves to be segmented
 room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/cyberspace4.tscn", 																			#Scene Location                        
 2,																																#Num Liquids
@@ -195,9 +195,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 14,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-.25),																															#Chance for waves to be segmented
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75),																															#Chance for waves to be segmented
 room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/cyberspace5.tscn", 																			#Scene Location                       
 4,																																#Num Liquids
@@ -218,9 +218,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 16,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-.25),																															#Chance for waves to be segmented
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75),																															#Chance for waves to be segmented
 room.Create_Room(
 "res://Game Elements/Rooms/sci_fi/cyberspace6.tscn", 																			#Scene Location                        
 6,																																#Num Liquids
@@ -241,18 +241,18 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 8,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-.25)]																																#Chance for waves to be segmented
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75)]																															#Chance for waves to be segmented
 
 var sci_fi_shops : Array[Room]= []
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/sci_fi/cyberspace3.tscn", 																			#Scene Location                      
-4,																																#Num Liquids
-[Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch],										#Liquid Types 
-[.9,.8,.5,.5],																													#Liquid Chances                       
+"res://Game Elements/Rooms/testing_room.tscn", 																			#Scene Location                      
+0,																																#Num Liquids
+[],										#Liquid Types 
+[],																													#Liquid Chances                       
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       
@@ -263,11 +263,11 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 0,																																#Num Traps              
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
-4,																																#Num Pathways                   
-[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],									#Pathway Directions                       
-12,																																#Enemy Num Goal                               
+2,																																#Num Pathways                   
+[Globals.Direction.Up,Globals.Direction.Down],									#Pathway Directions                       
+0,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
+["res://Game Elements/Characters/robot.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 .25)
