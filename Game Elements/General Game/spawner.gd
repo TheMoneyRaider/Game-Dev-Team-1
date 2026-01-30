@@ -17,6 +17,9 @@ static var _edge_threshold_sq := edge_threshold * edge_threshold
 ###CACHES
 static var _enemy_extents_cache := {}      # scene_path -> Vector2
 static var _enemy_scene_cache := {}        # scene_path -> PackedScene
+static var player_penalty_field := {}
+static var edge_penalty_field := {}
+static var enemy_penalty_field := {}
 
 ###PUBLIC API
 static func spawn_enemies(
@@ -36,20 +39,23 @@ static func spawn_enemies(
 		cell_set[c] = true
 
 	var edges := _get_edges(cell_set)
-	var chosen_positions: Array[Vector2i] = []
 
 	var rechoose_enemy := not is_wave or room_data.wave_segment < randf()
+	# === PRECOMPUTE STATIC FIELDS ===
+	player_penalty_field = _build_player_field(cell_set, players)
+	edge_penalty_field = _build_edge_field(cell_set, edges)
+
+	enemy_penalty_field.clear()
+
+	var chosen_positions: Array[Vector2i] = []
+
 	var enemy_path := choose_enemy(room_data)
 	var enemy_scene := _get_enemy_scene(enemy_path)
-
 	var cells_needed := _cells_needed(_get_enemy_half_extents(enemy_path))
 
 	for _i in room_data.num_enemy_goal:
 		var best := _choose_best_cell(
 			cell_set,
-			chosen_positions,
-			players,
-			edges,
 			cells_needed
 		)
 
@@ -65,6 +71,7 @@ static func spawn_enemies(
 			enemy_path = choose_enemy(room_data)
 			enemy_scene = _get_enemy_scene(enemy_path)
 			cells_needed = _cells_needed(_get_enemy_half_extents(enemy_path))
+		_apply_enemy_influence(best)
 
 ###ENEMY SELECTION
 static func choose_enemy(room_data: Room) -> String:
@@ -85,29 +92,83 @@ static func choose_enemy(room_data: Room) -> String:
 ###CELL SELECTION
 static func _choose_best_cell(
 	cell_set: Dictionary,
-	chosen_positions: Array[Vector2i],
-	players: Array[Node],
-	edges: Array[Vector2i],
 	cells_needed: Vector2i
 ) -> Vector2i:
 	var total_weight := 0.0
-	var selected: Vector2i
+	var chosen: Vector2i
 
 	for cell in cell_set.keys():
 		if not _can_fit(cell, cells_needed, cell_set):
 			continue
 
-		var w := _score_cell(cell, chosen_positions, players, edges)
-		if w <= 0.0:
+		var score := 1.0
+		score -= player_penalty_field.get(cell, 0.0)
+		score -= edge_penalty_field.get(cell, 0.0)
+		score -= enemy_penalty_field.get(cell, 0.0)
+		score = clamp(score, 0.0, 1.0)
+
+		if score <= 0.0:
 			continue
 
-		total_weight += w
+		total_weight += score
+		if randf() * total_weight < score:
+			chosen = cell
 
-		# Reservoir-style weighted pick
-		if randf() * total_weight < w:
-			selected = cell
+	return chosen
 
-	return selected
+static func _build_player_field(cell_set: Dictionary, players: Array[Node]) -> Dictionary:
+	var field := {}
+	var thresh_sq := player_threshold * player_threshold
+
+	for cell in cell_set.keys():
+		var world_pos :Vector2 = cell * cell_world_size
+		var penalty := 0.0
+
+		for p in players:
+			var d2 := world_pos.distance_squared_to(p.global_position)
+			if d2 < thresh_sq:
+				penalty += player_penalty_weight * (1.0 - d2 / thresh_sq)
+
+		field[cell] = clamp(penalty, 0.0, 1.0)
+
+	return field
+
+static func _build_edge_field(cell_set: Dictionary, edges: Array[Vector2i]) -> Dictionary:
+	var field := {}
+	var thresh_sq := edge_threshold * edge_threshold
+
+	for cell in cell_set.keys():
+		var world_pos :Vector2 = cell * cell_world_size
+		var penalty := 0.0
+
+		for e in edges:
+			var d2 := world_pos.distance_squared_to(e * cell_world_size)
+			if d2 < thresh_sq:
+				penalty += edge_penalty_weight * (1.0 - d2 / thresh_sq)
+
+		field[cell] = clamp(penalty, 0.0, 1.0)
+
+	return field
+
+static func _apply_enemy_influence(center: Vector2i):
+	var radius := int(ceil(enemy_threshold / cell_world_size))
+	var thresh_sq := enemy_threshold * enemy_threshold
+
+	for x in range(-radius, radius + 1):
+		for y in range(-radius, radius + 1):
+			var cell := center + Vector2i(x, y)
+			var d2 := (cell * cell_world_size).distance_squared_to(center * cell_world_size)
+
+			if d2 >= thresh_sq:
+				continue
+
+			var penalty := enemy_penalty_weight * (1.0 - d2 / thresh_sq)
+			enemy_penalty_field[cell] = clamp(
+				enemy_penalty_field.get(cell, 0.0) + penalty,
+				0.0,
+				1.0
+			)
+
 
 ####SCORING
 static func _score_cell(
