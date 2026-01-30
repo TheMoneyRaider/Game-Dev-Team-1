@@ -5,6 +5,6 @@ extends BTAction
 
 func _tick(delta: float) -> Status:
 	randomize()
-	get_parent().duration = randf_range(min_time, max_time)
-	print(get_parent().duration)
+	get_parent().get_parent().duration = randf_range(min_time, max_time)
+	print(get_parent().get_parent().duration)
 	return SUCCESS

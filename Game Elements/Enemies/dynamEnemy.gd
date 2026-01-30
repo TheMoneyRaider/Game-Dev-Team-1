@@ -183,6 +183,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 func check_agro(dmg_owner : Node):
 	if dmg_owner.is_in_group("player"):
 		var board = get_node("BTPlayer").blackboard
+		if board.get_var("state") == "spawning":
+			return
 		var positions = board.get_var("player_positions")
 		var distances_squared = []
 		for pos in positions: 

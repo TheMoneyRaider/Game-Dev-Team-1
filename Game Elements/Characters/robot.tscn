@@ -1,9 +1,20 @@
-[gd_scene load_steps=13 format=3 uid="uid://btjthdmkvgfv0"]
+[gd_scene load_steps=15 format=3 uid="uid://btjthdmkvgfv0"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_phyc7"]
+[ext_resource type="Shader" uid="uid://jwdy7amsrtqm" path="res://Game Elements/Characters/spawn_transition.gdshader" id="2_12o7h"]
 [ext_resource type="Texture2D" uid="uid://d2ue7tghptx6f" path="res://art/characters/robot/Full sprite sheet.png" id="2_phyc7"]
 [ext_resource type="Script" uid="uid://chg34ggtxfi7k" path="res://Game Elements/Characters/robot.gd" id="3_8s1eb"]
 [ext_resource type="BehaviorTree" uid="uid://divr2rf3r2i0x" path="res://ai/trees/robot.tres" id="3_phyc7"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_llnr1"]
+shader = ExtResource("2_12o7h")
+shader_parameter/progress = 1.0
+shader_parameter/noise_desnity = 48.0
+shader_parameter/beam_size = 0.10000000405148
+shader_parameter/color = Color(0, 1, 1, 1)
+shader_parameter/hframes = 10
+shader_parameter/vframes = 44
+shader_parameter/frame = 0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_phyc7"]
 size = Vector2(14, 18)
@@ -101,6 +112,11 @@ _data = {
 }
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_8s1eb"]
+var/state/name = &"state"
+var/state/type = 4
+var/state/value = "spawning"
+var/state/hint = 0
+var/state/hint_string = ""
 
 [node name="Robot" type="CharacterBody2D" groups=["enemy"]]
 z_index = 20
@@ -119,6 +135,7 @@ move_speed = 60.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 y_sort_enabled = true
+material = SubResource("ShaderMaterial_llnr1")
 texture = ExtResource("2_phyc7")
 hframes = 10
 vframes = 44
