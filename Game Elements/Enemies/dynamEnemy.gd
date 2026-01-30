@@ -102,6 +102,8 @@ func sprint(start : bool):
 			sprint_timer = randf_range(min_sprint_time,max_sprint_time)
 	
 func _process(delta):
+	if sprint_timer!=0.0 and max(0.0,sprint_timer-delta)==0.0:
+		sprint(false)
 	sprint_timer = max(0.0,sprint_timer-delta)
 	if sprint_timer ==0.0:
 		sprint_cool = max(0.0,sprint_cool-delta)

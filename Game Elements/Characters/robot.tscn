@@ -114,6 +114,7 @@ displays = Array[NodePath]([NodePath("Sprite2D")])
 min_timefabric = 20
 max_timefabric = 50
 can_sprint = true
+max_sprint_cooldown = 4.0
 move_speed = 60.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
