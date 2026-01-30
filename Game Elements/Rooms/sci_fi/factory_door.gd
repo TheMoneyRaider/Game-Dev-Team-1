@@ -22,5 +22,7 @@ func _on_body_exited(body):
 	
 func open():
 	$TileMapLayer.set_cell(Vector2(0,0),3,Vector2(4,5))
+	$StaticBody2D.process_mode = Node.PROCESS_MODE_DISABLED
 func close():
 	$TileMapLayer.set_cell(Vector2(0,0),3,Vector2(4,4))
+	$StaticBody2D.process_mode = Node.PROCESS_MODE_INHERIT

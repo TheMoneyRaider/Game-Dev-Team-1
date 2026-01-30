@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=4 uid="uid://n0i0vcbm7wgp"]
+[gd_scene load_steps=5 format=4 uid="uid://n0i0vcbm7wgp"]
 
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_gu72j"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://Game Elements/tilesets/medival_tileset.tres" id="2_k31b3"]
+[ext_resource type="PackedScene" uid="uid://b4kys60pdrkmg" path="res://Game Elements/Rooms/sci_fi/factory_door.tscn" id="4_gu72j"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="4_vhrds"]
 
 [node name="Root" type="Node2D"]
@@ -35,3 +36,7 @@ z_index = 31
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAACAAUAAAADAAQAAAADAAUAAAADAAQAAAAEAAUAAAADAAQAAAAFAAUAAAADAAQAAAAGAAQAAAAHAAIAAAAFAAQAAAAHAAIAAAAEAAQAAAAGAAIAAAADAAQAAAAHAAIAAAACAAQAAAAGAAIAAAABAAQAAAAHAAIAAAAGAAMAAAACAAIAAAAGAAIAAAACAAIAAAAFAAMAAAADAAIAAAAFAAIAAAADAAIAAAAFAAEAAAACAAIAAAAEAAMAAAACAAIAAAAEAAIAAAADAAIAAAAEAAEAAAACAAIAAAADAAMAAAADAAIAAAADAAIAAAACAAIAAAADAAEAAAACAAIAAAACAAMAAAADAAIAAAACAAIAAAACAAIAAAACAAEAAAADAAIAAAABAAMAAAACAAIAAAABAAIAAAACAAIAAAABAAEAAAADAAIAAAAHAAIAAAADAAIAAAAAAAIAAAACAAIAAAAAAAEAAAACAAIAAAAGAAEAAAACAAIAAAAHAAEAAAACAAIAAAD//wEAAAADAAIAAAA=")
 tile_set = ExtResource("2_k31b3")
+
+[node name="FactoryDoor" parent="." instance=ExtResource("4_gu72j")]
+z_index = 30
+position = Vector2(17, 209)

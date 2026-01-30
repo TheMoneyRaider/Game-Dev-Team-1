@@ -29,6 +29,7 @@ var generated_room_metadata : = {}
 var generated_room_conflict : = {}
 var generated_room_entrance : = {}
 var global_conflict_cells= []
+var placable_cells= []
 var this_room_reward1 = Globals.Reward.Remnant
 var this_room_reward2 = Globals.Reward.Remnant
 var is_wave_room = false
@@ -116,10 +117,11 @@ func _ready() -> void:
 	place_liquids(room_instance, room_instance_data,conflict_cells)
 	place_traps(room_instance, room_instance_data,conflict_cells)
 	global_conflict_cells = conflict_cells
+	_placable_locations()
 	if Globals.is_multiplayer:
-		Spawner.spawn_enemies([player1,player2], room_instance, _placable_locations(),room_instance_data,self,false)
+		Spawner.spawn_enemies([player1,player2], room_instance, placable_cells.duplicate(),room_instance_data,self,false)
 	else:
-		Spawner.spawn_enemies([player1], room_instance, _placable_locations(),room_instance_data,self,false)
+		Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,false)
 	
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
@@ -177,11 +179,10 @@ func _process(delta: float) -> void:
 		if is_wave_room and total_waves > current_wave:
 			current_wave+=1
 			hud.display_notification("Wave "+str(current_wave)+" / "+str(total_waves))
-			var placable_locations = _placable_locations()
 			if Globals.is_multiplayer:
-				Spawner.spawn_enemies([player1,player2], room_instance, placable_locations,room_instance_data,self,true)
+				Spawner.spawn_enemies([player1,player2], room_instance, placable_cells.duplicate(),room_instance_data,self,true)
 			else:
-				Spawner.spawn_enemies([player1], room_instance, placable_locations,room_instance_data,self,true)
+				Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,true)
 			return
 		if !room_instance_data.has_shop:
 			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
@@ -1109,11 +1110,6 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	choose_pathways(direction, next_room_instance, next_room_data, conflict_cells)
 	place_liquids(next_room_instance, next_room_data, conflict_cells)
 	place_traps(next_room_instance, next_room_data, conflict_cells)
-	var placable_locations = next_room_instance.get_node("Ground").get_used_cells().filter(func(c): return c not in conflict_cells)
-	if Globals.is_multiplayer:
-		Spawner.spawn_enemies([player1,player2], next_room_instance, placable_locations,next_room_data,self,false)
-	else:
-		Spawner.spawn_enemies([player1], next_room_instance, placable_locations,next_room_data,self,false)
 	
 	# Async floor noise
 	var ground = next_room_instance.get_node("Ground")
@@ -1190,6 +1186,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	next_room.visible = true
 	next_room.process_mode = Node.PROCESS_MODE_INHERIT
 	room_instance = next_room
+	_placable_locations()
 	apply_shared_noise_offset(room_instance)
 	
 	# Teleport player to the entrance of the next room
@@ -1214,6 +1211,11 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	trap_cells = room_instance.trap_cells
 	blocked_cells = room_instance.blocked_cells
 	liquid_cells = room_instance.liquid_cells
+	
+	if Globals.is_multiplayer:
+		Spawner.spawn_enemies([player1,player2], room_instance, placable_cells.duplicate(),room_instance_data,self,is_wave_room)
+	else:
+		Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,is_wave_room)
 	
 	pathfinding.setup_from_room(room_instance.get_node("Ground"), 
 		room_instance.blocked_cells,
@@ -1417,13 +1419,12 @@ func check_node(n: Node,shared_offset : Vector2):
 		check_node(child,shared_offset)
 
 func _placable_locations():
-	var filling = room_instance.get_node("Filling").get_used_cells().map(func(c): return Vector2i(c.x, c.y))
-	var placable_locations : Array[Vector2i]
+	var temp_placable_locations : Array[Vector2i]
 	for cell in room_instance.get_node("Ground").get_used_cells():
 		var c = Vector2i(cell.x, cell.y)
-		if c not in global_conflict_cells and c not in filling:
-			placable_locations.append(c)
-	return placable_locations
+		if c not in global_conflict_cells:
+			temp_placable_locations.append(c)
+	placable_cells = temp_placable_locations
 
 
 func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):

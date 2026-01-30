@@ -6,7 +6,7 @@ extends BTAction
 
 func _tick(_delta: float) -> Status: 
 	var pos: Vector2 = agent.global_position
-	var place_locations : Array[Vector2i] = agent.get_tree().get_root().get_node("LayerManager")._placable_locations()
+	var place_locations : Array[Vector2i] = agent.get_tree().get_root().get_node("LayerManager").placable_cells
 	var attempts = 0
 	var x: float
 	var y: float
@@ -31,7 +31,7 @@ func _tick(_delta: float) -> Status:
 	
 	
 	
-	print("Player Pos: " + str(agent.global_transform.origin) + " Random Pos: " + str(pos))
+	#print("Player Pos: " + str(agent.global_transform.origin) + " Random Pos: " + str(pos))
 	
 	blackboard.set_var("target_pos", pos)
 	
