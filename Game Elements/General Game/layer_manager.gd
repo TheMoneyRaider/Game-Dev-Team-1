@@ -1406,7 +1406,7 @@ func calculate_reward(reward_probability : Array) -> int:
 	return 0
 
 func apply_shared_noise_offset(root: Node):
-	var shared_offset = Vector2(randf() * 1000.0, randf() * 1000.0)
+	var shared_offset = Vector2(floor(randf() * 1000.0)*16, floor(randf() * 1000.0)*16)
 	check_node(root,shared_offset)
 
 func check_node(n: Node,shared_offset : Vector2):
