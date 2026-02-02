@@ -184,6 +184,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			board.set_var("kill_damage", damage)
 			board.set_var("kill_direction", direction)
 		return
+	if current_health-damage < 0 and dmg_owner.is_in_group("player"):
+		dmg_owner.speed_boost_adrenal()
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 	current_health -= damage
 

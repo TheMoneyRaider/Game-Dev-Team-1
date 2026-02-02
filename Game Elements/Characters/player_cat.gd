@@ -1,7 +1,8 @@
 extends CharacterBody2D
 var mouse_sensitivity: float = 1.0
 
-@export var move_speed: float = 100
+@export var base_move_speed: float = 100
+var move_speed: float
 @export var max_health: float = 10
 @export var current_health: float = 10
 @onready var current_dmg_time: float = 0.0
@@ -62,6 +63,7 @@ signal swapped_color(player_node : Node)
 signal max_health_changed(new_max_health : int, new_current_health : int, player_node : Node)
 
 func _ready():
+	move_speed = base_move_speed
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
@@ -90,6 +92,7 @@ func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
 func _physics_process(delta):
+	#print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1
 	#Trap stuff
@@ -410,3 +413,22 @@ func update_weapon(resource_name : String):
 	weapons[is_purple as int] = Weapon.create_weapon(resource_loc,self)
 	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
 	weapon_sprite.weapon_type = weapons[is_purple as int].type
+	
+	
+func speed_boost_adrenal():
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var adrenal = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	for rem in remnants:
+		if rem.remnant_name == adrenal.remnant_name:
+			var effect = load("res://Game Elements/Effects/speed.tres").duplicate(true)
+			effect.cooldown = adrenal.variable_2_values[rem.rank-1]
+			effect.value1 = adrenal.variable_1_values[rem.rank-1] / 100.0
+			
+			effect.gained(self)
+			effects.append(effect)
+			
+	

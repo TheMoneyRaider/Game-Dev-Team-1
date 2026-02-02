@@ -90,10 +90,10 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/shido.tres")
-	var rem2 = load("res://Game Elements/Remnants/shido.tres")
-	rem.rank = 3
-	rem2.rank = 3
+	var rem = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	var rem2 = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	rem.rank = 4
+	rem2.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
