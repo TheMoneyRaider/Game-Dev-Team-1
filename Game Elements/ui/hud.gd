@@ -7,6 +7,7 @@ var is_multiplayer : bool = true
 @onready var MaceCooldownBar = $RootControl/MaceCooldownBar
 @onready var CrossCooldownBar = $RootControl/CrossCooldownBar
 @onready var IconSlotScene = preload("res://Game Elements/ui/remnant_icon.tscn")
+const HIGHLIGHT_SHADER := preload("res://Game Elements/ui/highlight.gdshader")
 var player1
 var player2
 
@@ -17,27 +18,44 @@ func _ready():
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 
-func set_remnant_icons(player1_remnants: Array, player2_remnants: Array):
+func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_up1: Array[String] = [], ranked_up2: Array[String] = []):
 	for child in $RootControl/RemnantIcons/LeftRemnants.get_children():
 		child.queue_free()
 	for child in $RootControl/RemnantIcons/RightRemnants.get_children():
 		child.queue_free()
 	for remnant in player1_remnants:
-		_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant)
+		if ranked_up1.has(remnant.remnant_name):
+			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,true)
+		else:
+			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,false)
 	#add in reverse so GridContainer displays them right->left
 	for i in range(player2_remnants.size() - 1, -1, -1):
-		_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i])
+		if ranked_up2.has(player2_remnants[i].remnant_name):
+			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],true)
+		else:
+			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false)
 	
 
-func _add_slot(grid: Node, remnant: Resource):
+func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false):
 	var slot := IconSlotScene.instantiate()
 	var tex := slot.get_node("TextureRect")
 	var label := slot.get_node("Label")
 	tex.texture = remnant.icon
 	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	tex.custom_minimum_size = remnant.icon.get_size() * 2
-	label.text = _num_to_roman(remnant.rank)
+	if has_ranked:
+		label.text = _num_to_roman(remnant.rank-1)
+	else:
+		label.text = _num_to_roman(remnant.rank)
 	grid.add_child(slot)
+	if has_ranked:
+		var mat := ShaderMaterial.new()
+		mat.shader = HIGHLIGHT_SHADER
+		mat.set_shader_parameter("start_time", Time.get_ticks_msec() / 1000.0)
+		slot.get_node("TextureRect").material = mat
+		await get_tree().create_timer(.5).timeout
+		label.text = _num_to_roman(remnant.rank)
+		
 
 
 
