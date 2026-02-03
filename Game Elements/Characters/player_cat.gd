@@ -158,6 +158,19 @@ func request_attack(t_weapon : Weapon) -> float:
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):
 	if(i_frames <= 0):
+		var remnants : Array[Remnant]
+		if is_purple:
+			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		else:
+			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		var phase = load("res://Game Elements/Remnants/body_phaser.tres")
+		for rem in remnants:
+			if rem.remnant_name == phase.remnant_name:
+				var temp_move = 0
+				if input_direction != Vector2.ZERO:
+					temp_move = move_speed
+				damage_amount *= (1.0-rem.variable_1_values[rem.rank-1]/100.0*((temp_move/base_move_speed)-1))
+				damage_amount = max(0,damage_amount)
 		i_frames = attack_i_frames
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
@@ -374,7 +387,8 @@ func _crafter_chance() -> bool:
 			
 	return true
 
-func hunter_percent_boost() -> float:
+func damage_boost() -> float:
+	var boost : float = 1.0
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
@@ -382,6 +396,7 @@ func hunter_percent_boost() -> float:
 	else:
 		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
 	var hunter = load("res://Game Elements/Remnants/hunter.tres")
+	var kinetic = load("res://Game Elements/Remnants/kinetic_battery.tres")
 	for rem in remnants:
 		if rem.remnant_name == hunter.remnant_name:
 			var min_dist = 100000
@@ -390,8 +405,14 @@ func hunter_percent_boost() -> float:
 					min_dist = min(min_dist,self.position.distance_to(child.position))
 			if rem.variable_2_values[rem.rank-1]*16 < min_dist:
 				print("boosted")
-				return float(rem.variable_1_values[rem.rank-1])
-	return 0.0
+				boost = (100+float(rem.variable_1_values[rem.rank-1]))/100.0
+	for rem in remnants:
+		if rem.remnant_name == kinetic.remnant_name:
+			var temp_move = 0
+			if input_direction != Vector2.ZERO:
+				temp_move = move_speed
+			boost *= (1.0+rem.variable_1_values[rem.rank-1]/100.0*((temp_move/base_move_speed)-1))
+	return boost
 
 func change_health(add_to_current : int, add_to_max : int = 0):
 	current_health+=add_to_current

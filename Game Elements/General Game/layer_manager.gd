@@ -92,10 +92,16 @@ func _ready() -> void:
 	
 	var rem = load("res://Game Elements/Remnants/adrenal_injector.tres")
 	var rem2 = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	var rem3 = load("res://Game Elements/Remnants/body_phaser.tres")
+	var rem4 = load("res://Game Elements/Remnants/body_phaser.tres")
 	rem.rank = 4
 	rem2.rank = 4
+	rem3.rank = 5
+	rem4.rank = 5
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem2.duplicate(true))
+	player_1_remnants.append(rem3.duplicate(true))
+	player_2_remnants.append(rem4.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 100000
 	####

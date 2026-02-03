@@ -89,7 +89,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particl
 	instance.global_position = attack_position
 	instance.c_owner = c_owner
 	instance.speed = speed
-	instance.damage = damage * (1+ c_owner.hunter_percent_boost()/100) if c_owner.is_in_group("players") else damage
+	instance.damage = damage * c_owner.damage_boost() if c_owner.is_in_group("player") else damage
 	instance.lifespan = lifespan
 	instance.hit_force = hit_force
 	instance.start_lag = start_lag
