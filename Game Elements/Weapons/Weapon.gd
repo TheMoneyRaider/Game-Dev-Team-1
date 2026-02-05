@@ -95,6 +95,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particl
 	instance.start_lag = start_lag
 	instance.cooldown = cooldown
 	instance.pierce = pierce
+	instance.is_purple = c_owner.is_purple if c_owner.is_in_group("player") else false
 	if(particle_effect != ""):
 		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
 		instance.add_child(effect)

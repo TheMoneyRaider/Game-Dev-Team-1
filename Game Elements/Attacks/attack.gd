@@ -23,6 +23,8 @@ var hit_nodes = {}
 @export var deflectable : bool = false
 @export var deflects : bool = false
 @export var i_frames : int = 20
+var combod : bool = false
+var is_purple : bool = false
 
 var frozen := true
 

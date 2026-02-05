@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://0hahdiffjt61"]
+[gd_scene load_steps=15 format=3 uid="uid://0hahdiffjt61"]
 
 [ext_resource type="Script" uid="uid://ttvprfi61vn4" path="res://Game Elements/ui/hud.gd" id="1_6fbih"]
 [ext_resource type="Script" uid="uid://cdv7ke8wr65tg" path="res://Game Elements/ui/health_bar.gd" id="1_e0onf"]
@@ -6,7 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://bxmiq87nvpvj8" path="res://art/notification.png" id="2_gp50j"]
 [ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="3_6fbih"]
 [ext_resource type="Script" uid="uid://d36yo1gmy8tkb" path="res://Game Elements/ui/cooldown_bar_1.gd" id="5_kgqo6"]
-[ext_resource type="Texture2D" uid="uid://dykkxim3f5y3g" path="res://art/mace_bright.png" id="6_65670"]
+[ext_resource type="Texture2D" uid="uid://dj6erg8qveqb0" path="res://art/ninja_2.png" id="5_p8pfh"]
+[ext_resource type="Texture2D" uid="uid://ds6fo2yfcafce" path="res://art/ninja_1.png" id="6_gp50j"]
 [ext_resource type="Texture2D" uid="uid://kdaw8in4wo0" path="res://art/crossbow_bright.png" id="9_gp50j"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_t1xeu"]
@@ -33,6 +34,7 @@ ProgressBar/styles/background = SubResource("StyleBoxFlat_bjfho")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_6fbih")
 
 [node name="Hud" type="CanvasLayer"]
+process_mode = 1
 scale = Vector2(0.5, 0.5)
 transform = Transform2D(0.5, 0, 0, 0.5, 0, 0)
 script = ExtResource("1_6fbih")
@@ -100,102 +102,6 @@ theme_override_font_sizes/font_size = 16
 text = "Num:"
 label_settings = SubResource("LabelSettings_t1xeu")
 
-[node name="HealthBar1" type="HBoxContainer" parent="RootControl"]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -37.0
-offset_right = 259.0
-grow_vertical = 0
-theme = SubResource("Theme_6fbih")
-script = ExtResource("1_e0onf")
-is_purple = true
-
-[node name="ProgressBar" type="ProgressBar" parent="RootControl/HealthBar1"]
-custom_minimum_size = Vector2(175, 37)
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-show_percentage = false
-
-[node name="Label" type="Label" parent="RootControl/HealthBar1"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "5/10 HP"
-
-[node name="HealthBar2" type="HBoxContainer" parent="RootControl"]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -259.0
-offset_top = -37.0
-grow_horizontal = 0
-grow_vertical = 0
-theme = SubResource("Theme_t1xeu")
-script = ExtResource("1_e0onf")
-
-[node name="Label" type="Label" parent="RootControl/HealthBar2"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "5/10 HP"
-horizontal_alignment = 2
-
-[node name="ProgressBar" type="ProgressBar" parent="RootControl/HealthBar2"]
-custom_minimum_size = Vector2(175, 37)
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-show_percentage = false
-
-[node name="MaceCooldownBar" type="Control" parent="RootControl"]
-layout_mode = 1
-anchor_bottom = 0.477
-offset_left = 2.0
-offset_top = 878.0
-offset_right = 120.0
-offset_bottom = 470.0
-script = ExtResource("5_kgqo6")
-
-[node name="CooldownBar" type="TextureProgressBar" parent="RootControl/MaceCooldownBar"]
-layout_mode = 1
-offset_top = 24.0
-offset_right = 23.0
-offset_bottom = 38.0
-scale = Vector2(4, 4)
-max_value = 0.5
-step = 0.005
-texture_under = ExtResource("6_65670")
-texture_progress = ExtResource("6_65670")
-tint_under = Color(0.15127593, 0.15127611, 0.15127605, 1)
-tint_over = Color(0.44313726, 0.44313726, 0.44313726, 0)
-tint_progress = Color(0.627451, 0.1254902, 0.9411765, 1)
-
-[node name="CrossCooldownBar" type="Control" parent="RootControl"]
-layout_mode = 1
-anchor_bottom = 0.477
-offset_left = 1838.0
-offset_top = 902.0
-offset_right = 1956.0
-offset_bottom = 494.0
-script = ExtResource("5_kgqo6")
-
-[node name="CooldownBar" type="TextureProgressBar" parent="RootControl/CrossCooldownBar"]
-layout_mode = 1
-offset_right = 23.0
-offset_bottom = 14.0
-scale = Vector2(4, 4)
-max_value = 0.5
-step = 0.005
-texture_under = ExtResource("9_gp50j")
-texture_progress = ExtResource("9_gp50j")
-tint_under = Color(0.15294118, 0.15294118, 0.15294118, 1)
-tint_over = Color(0.44313726, 0.44313726, 0.44313726, 0)
-tint_progress = Color(1, 0.64705884, 0, 1)
-
 [node name="Notification" type="VBoxContainer" parent="RootControl"]
 layout_mode = 1
 anchors_preset = 5
@@ -239,3 +145,189 @@ text = "Wave 1 / 10"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
+
+[node name="Left_Bottom_Corner" type="VBoxContainer" parent="RootControl"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 254.0
+grow_vertical = 0
+
+[node name="Combo" type="Control" parent="RootControl/Left_Bottom_Corner"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="RootControl/Left_Bottom_Corner/Combo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -126.0
+offset_bottom = -122.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+max_value = 3.0
+step = 0.0
+fill_mode = 5
+texture_under = ExtResource("5_p8pfh")
+texture_progress = ExtResource("6_gp50j")
+
+[node name="Label" type="Label" parent="RootControl/Left_Bottom_Corner/Combo/TextureProgressBar"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -375.0
+offset_top = -175.5
+offset_right = 375.0
+offset_bottom = 174.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.125, 0.125)
+pivot_offset = Vector2(375, 175)
+theme_override_font_sizes/font_size = 196
+text = "3.0x"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CooldownBar" type="Control" parent="RootControl/Left_Bottom_Corner"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+script = ExtResource("5_kgqo6")
+
+[node name="CooldownBar" type="TextureProgressBar" parent="RootControl/Left_Bottom_Corner/CooldownBar"]
+layout_mode = 1
+offset_top = 1.0
+offset_right = 20.0
+offset_bottom = 15.0
+scale = Vector2(4, 4)
+max_value = 0.5
+step = 0.005
+texture_under = ExtResource("9_gp50j")
+texture_over = ExtResource("9_gp50j")
+texture_progress = ExtResource("9_gp50j")
+tint_under = Color(0.15294118, 0.15294118, 0.15294118, 1)
+tint_over = Color(0.44313726, 0.44313726, 0.44313726, 0)
+tint_progress = Color(0.7191348, 0.1524289, 0.9021915, 1)
+
+[node name="HealthBar" type="HBoxContainer" parent="RootControl/Left_Bottom_Corner"]
+layout_mode = 2
+theme = SubResource("Theme_6fbih")
+script = ExtResource("1_e0onf")
+is_purple = true
+
+[node name="ProgressBar" type="ProgressBar" parent="RootControl/Left_Bottom_Corner/HealthBar"]
+custom_minimum_size = Vector2(175, 37)
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+show_percentage = false
+
+[node name="Label" type="Label" parent="RootControl/Left_Bottom_Corner/HealthBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "5/10 HP"
+
+[node name="Right_Bottom_Corner" type="VBoxContainer" parent="RootControl"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -254.0
+offset_top = -101.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Combo" type="Control" parent="RootControl/Right_Bottom_Corner"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="RootControl/Right_Bottom_Corner/Combo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -126.0
+offset_bottom = -122.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+max_value = 3.0
+step = 0.0
+fill_mode = 5
+texture_under = ExtResource("5_p8pfh")
+texture_progress = ExtResource("6_gp50j")
+
+[node name="Label" type="Label" parent="RootControl/Right_Bottom_Corner/Combo/TextureProgressBar"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -375.0
+offset_top = -175.5
+offset_right = 375.0
+offset_bottom = 174.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.125, 0.125)
+pivot_offset = Vector2(375, 175)
+theme_override_font_sizes/font_size = 196
+text = "3.0x"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CooldownBar" type="Control" parent="RootControl/Right_Bottom_Corner"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+script = ExtResource("5_kgqo6")
+
+[node name="CooldownBar" type="TextureProgressBar" parent="RootControl/Right_Bottom_Corner/CooldownBar"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -1.0
+offset_right = 18.0
+offset_bottom = 13.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(-4, -4)
+max_value = 0.5
+step = 0.005
+value = 0.25
+texture_under = ExtResource("9_gp50j")
+texture_over = ExtResource("9_gp50j")
+texture_progress = ExtResource("9_gp50j")
+tint_under = Color(0.15294118, 0.15294118, 0.15294118, 1)
+tint_over = Color(0.44297108, 0.44297108, 0.44297108, 0)
+tint_progress = Color(1, 0.64705884, 0, 1)
+
+[node name="HealthBar" type="HBoxContainer" parent="RootControl/Right_Bottom_Corner"]
+layout_mode = 2
+theme = SubResource("Theme_t1xeu")
+script = ExtResource("1_e0onf")
+
+[node name="Label" type="Label" parent="RootControl/Right_Bottom_Corner/HealthBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "5/10 HP"
+horizontal_alignment = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="RootControl/Right_Bottom_Corner/HealthBar"]
+custom_minimum_size = Vector2(175, 37)
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+show_percentage = false

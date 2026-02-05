@@ -92,8 +92,8 @@ func _ready() -> void:
 	
 	var rem = load("res://Game Elements/Remnants/adrenal_injector.tres")
 	var rem2 = load("res://Game Elements/Remnants/adrenal_injector.tres")
-	var rem3 = load("res://Game Elements/Remnants/body_phaser.tres")
-	var rem4 = load("res://Game Elements/Remnants/body_phaser.tres")
+	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
+	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
 	rem.rank = 4
 	rem2.rank = 4
 	rem3.rank = 5
@@ -102,6 +102,8 @@ func _ready() -> void:
 	player_2_remnants.append(rem2.duplicate(true))
 	player_1_remnants.append(rem3.duplicate(true))
 	player_2_remnants.append(rem4.duplicate(true))
+	player1.display_combo()
+	
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 100000
 	####
@@ -139,6 +141,7 @@ func _ready() -> void:
 	_prepare_timefabric()
 
 func _process(delta: float) -> void:
+	
 	time_passed += delta
 	if is_multiplayer:
 		camera.global_position = (player1.global_position + player2.global_position) / 2
@@ -1347,6 +1350,10 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	if is_multiplayer:
 		player2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+	player1.display_combo()
+	if Globals.is_multiplayer:
+		player2.display_combo()
 
 func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 	for i in range(player_1_remnants.size()):
@@ -1360,6 +1367,11 @@ func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 	if is_multiplayer:
 		player2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+	player1.display_combo()
+	if Globals.is_multiplayer:
+		player2.display_combo()
+		
 
 func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_collected+=1

@@ -62,7 +62,10 @@ signal special(player_node : Node)
 signal swapped_color(player_node : Node)
 signal max_health_changed(new_max_health : int, new_current_health : int, player_node : Node)
 
+var LayerManager: Node
+
 func _ready():
+	LayerManager = get_tree().get_root().get_node("LayerManager")
 	move_speed = base_move_speed
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
@@ -160,9 +163,9 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 	if(i_frames <= 0):
 		var remnants : Array[Remnant]
 		if is_purple:
-			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+			remnants = LayerManager.player_1_remnants
 		else:
-			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+			remnants = LayerManager.player_2_remnants
 		var phase = load("res://Game Elements/Remnants/body_phaser.tres")
 		for rem in remnants:
 			if rem.remnant_name == phase.remnant_name:
@@ -175,13 +178,13 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if current_health >= 0:
-			get_tree().get_root().get_node("LayerManager")._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
+			LayerManager._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
 		if(current_health <= 0):
 			if(die(true)):
 				var instance = revive.instantiate()
 				instance.global_position = position
 				instance.c_owner = self
-				get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+				LayerManager.room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
@@ -245,13 +248,13 @@ func die(death : bool , insta_die : bool = false) -> bool:
 		#Change to signal something
 		self.process_mode = PROCESS_MODE_DISABLED
 		visible = false
-		get_tree().get_root().get_node("LayerManager").open_death_menu()
+		LayerManager.open_death_menu()
 		return false
 	else:
 		if other_player.current_health <= 0:
 			insta_die = true
 		if insta_die:
-			get_tree().get_root().get_node("LayerManager").open_death_menu()
+			LayerManager.open_death_menu()
 			return false
 		if death:
 			max_health = max_health - 2
@@ -260,7 +263,7 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			visible = false
 			if(max_health <= 0):
 				#Change to signal 
-				get_tree().get_root().get_node("LayerManager").open_death_menu()
+				LayerManager.open_death_menu()
 				return false
 		else:
 			current_health = round(max_health / 2)
@@ -279,8 +282,8 @@ func handle_attack():
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").trap_cells:
-		var tile_data = get_tree().get_root().get_node("LayerManager").return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in LayerManager.trap_cells:
+		var tile_data = LayerManager.return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
@@ -309,8 +312,8 @@ func check_traps(delta):
 
 func check_liquids(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells[0]:
-		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in LayerManager.liquid_cells[0]:
+		var tile_data = LayerManager.return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var type = tile_data.get_custom_data("liquid")
 			match type:
@@ -327,7 +330,7 @@ func check_liquids(delta):
 					
 					
 func _glitch_move() -> void:
-	var ground_cells = get_tree().get_root().get_node("LayerManager").room_instance.get_node("Ground").get_used_cells()
+	var ground_cells = LayerManager.room_instance.get_node("Ground").get_used_cells()
 	var move_dir_l = velocity.normalized() *16
 	var move_dir_r = velocity.normalized() *16
 	var check_pos_r = Vector2i(((position + move_dir_r)/16).floor())
@@ -353,13 +356,13 @@ func _glitch_move() -> void:
 	var color1 = shift_hue(Color(0.0, 0.867, 0.318, 1.0),randf_range(-hue_variance,hue_variance))
 	var color2 = shift_hue(Color(0.0, 0.116, 0.014, 1.0),randf_range(-hue_variance,hue_variance))
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
+	Spawner.spawn_after_image(self,LayerManager,color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	velocity=move_dir/2.0
 	move_and_slide()
 	saved_position = position
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
+	Spawner.spawn_after_image(self,LayerManager,color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	move_and_slide()
 	velocity = saved_velocity
@@ -373,9 +376,9 @@ func _crafter_chance() -> bool:
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
-		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		remnants = LayerManager.player_1_remnants
 	else:
-		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		remnants = LayerManager.player_2_remnants
 	var crafter = load("res://Game Elements/Remnants/crafter.tres")
 	for rem in remnants:
 		if rem.remnant_name == crafter.remnant_name:
@@ -392,26 +395,32 @@ func damage_boost() -> float:
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
-		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		remnants = LayerManager.player_1_remnants
 	else:
-		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		remnants = LayerManager.player_2_remnants
 	var hunter = load("res://Game Elements/Remnants/hunter.tres")
 	var kinetic = load("res://Game Elements/Remnants/kinetic_battery.tres")
+	var ninja = load("res://Game Elements/Remnants/ninja.tres")
 	for rem in remnants:
 		if rem.remnant_name == hunter.remnant_name:
 			var min_dist = 100000
-			for child in get_tree().get_root().get_node("LayerManager").room_instance.get_children():
+			for child in LayerManager.room_instance.get_children():
 				if child is DynamEnemy:
 					min_dist = min(min_dist,self.position.distance_to(child.position))
 			if rem.variable_2_values[rem.rank-1]*16 < min_dist:
 				print("boosted")
 				boost = (100+float(rem.variable_1_values[rem.rank-1]))/100.0
-	for rem in remnants:
 		if rem.remnant_name == kinetic.remnant_name:
 			var temp_move = 0
 			if input_direction != Vector2.ZERO:
 				temp_move = move_speed
 			boost *= (1.0+rem.variable_1_values[rem.rank-1]/100.0*((temp_move/base_move_speed)-1))
+		if rem.remnant_name == ninja.remnant_name:
+			if is_purple:
+				boost *= LayerManager.hud.player1_combo
+			else:
+				boost *= LayerManager.hud.player2_combo
+	
 	return boost
 
 func change_health(add_to_current : int, add_to_max : int = 0):
@@ -435,13 +444,45 @@ func update_weapon(resource_name : String):
 	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
 	weapon_sprite.weapon_type = weapons[is_purple as int].type
 	
+
+func combo(input_purple : bool):
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	var ninja = load("res://Game Elements/Remnants/ninja.tres")
+	for rem in remnants:
+		if rem.remnant_name == ninja.remnant_name:
+			LayerManager.hud.combo_change(input_purple,true)
+			
+func display_combo():
+	var remnants : Array[Remnant]
+	var ninja = load("res://Game Elements/Remnants/ninja.tres")
+	if !Globals.is_multiplayer:
+		if !is_purple:
+			remnants = LayerManager.player_1_remnants
+		else:
+			remnants = LayerManager.player_2_remnants
+		for rem in remnants:
+			if rem.remnant_name == ninja.remnant_name:
+				LayerManager.hud.combo(rem,!self.is_purple)
+		
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	for rem in remnants:
+		if rem.remnant_name == ninja.remnant_name:
+			LayerManager.hud.combo(rem,self.is_purple)
 	
+
 func speed_boost_adrenal():
 	var remnants : Array[Remnant]
 	if is_purple:
-		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		remnants = LayerManager.player_1_remnants
 	else:
-		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		remnants = LayerManager.player_2_remnants
 	var adrenal = load("res://Game Elements/Remnants/adrenal_injector.tres")
 	for rem in remnants:
 		if rem.remnant_name == adrenal.remnant_name:

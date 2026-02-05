@@ -1,19 +1,32 @@
 extends CanvasLayer
 
 var is_multiplayer : bool = true
-@onready var health_bar_1 = $RootControl/HealthBar1
-@onready var health_bar_2 = $RootControl/HealthBar2
+@onready var health_bar_1 = $RootControl/Left_Bottom_Corner/HealthBar
+@onready var health_bar_2 = $RootControl/Right_Bottom_Corner/HealthBar
 @onready var TimeFabric = $RootControl/TimeFabric
-@onready var MaceCooldownBar = $RootControl/MaceCooldownBar
-@onready var CrossCooldownBar = $RootControl/CrossCooldownBar
+@onready var LeftCooldownBar = $RootControl/Left_Bottom_Corner/CooldownBar
+@onready var RightCooldownBar = $RootControl/Right_Bottom_Corner/CooldownBar
 @onready var IconSlotScene = preload("res://Game Elements/ui/remnant_icon.tscn")
 const HIGHLIGHT_SHADER := preload("res://Game Elements/ui/highlight.gdshader")
+@onready var combo1 = $RootControl/Left_Bottom_Corner/Combo
+@onready var combo2 = $RootControl/Right_Bottom_Corner/Combo
 var player1
 var player2
-
+var player1_max_time = 1.0
+var player1_time = 0.0
+var player1_combo = 1.0
+var player1_combo_inc = 1.0
+var player1_combo_max = 1.0
+var player2_max_time = 1.0
+var player2_time = 0.0
+var player2_combo = 1.0
+var player2_combo_inc = 1.0
+var player2_combo_max = 1.0
 
 func _ready():
 	$RootControl/Notification.modulate.a = 0.0
+	combo1.visible = false
+	combo2.visible = false
 
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
@@ -35,7 +48,6 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 		else:
 			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false)
 	
-
 func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false):
 	var slot := IconSlotScene.instantiate()
 	var tex := slot.get_node("TextureRect")
@@ -56,9 +68,6 @@ func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false):
 		await get_tree().create_timer(.5).timeout
 		label.text = _num_to_roman(remnant.rank)
 		
-
-
-
 func _num_to_roman(input : int) -> String:
 	match input:
 		1:
@@ -78,8 +87,7 @@ func set_players(player1_node : Node, player2_node : Node = null):
 	player2 = player2_node
 	if(player2_node == null):
 		is_multiplayer = false
-		CrossCooldownBar.cover_cooldown()
-		health_bar_2.visible = false
+		RightCooldownBar.cover_cooldown()
 	set_cooldown_icons()
 
 func connect_signals(player_node : Node):
@@ -89,50 +97,111 @@ func connect_signals(player_node : Node):
 
 func set_max_cooldowns():
 	if is_multiplayer:
-		MaceCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
-		CrossCooldownBar.set_max_cooldown(player2.attacks[0].cooldown)
+		LeftCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
+		RightCooldownBar.set_max_cooldown(player2.attacks[0].cooldown)
 	else:
-		MaceCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
-		CrossCooldownBar.set_max_cooldown(player1.attacks[0].cooldown)
+		LeftCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
+		RightCooldownBar.set_max_cooldown(player1.attacks[0].cooldown)
 
 func set_cooldowns():
 	if is_multiplayer:
-		MaceCooldownBar.set_current_cooldown(player1.cooldowns[1])
-		CrossCooldownBar.set_current_cooldown(player2.cooldowns[0])
+		LeftCooldownBar.set_current_cooldown(player1.cooldowns[1])
+		RightCooldownBar.set_current_cooldown(player2.cooldowns[0])
 	else:
-		MaceCooldownBar.set_current_cooldown(player1.cooldowns[1])
-		CrossCooldownBar.set_current_cooldown(player1.cooldowns[0])
+		LeftCooldownBar.set_current_cooldown(player1.cooldowns[1])
+		RightCooldownBar.set_current_cooldown(player1.cooldowns[0])
 
 func set_cooldown_icons():
 	if is_multiplayer:
-		MaceCooldownBar.set_cooldown_icon(player1.weapons[1].cooldown_icon)
-		CrossCooldownBar.set_cooldown_icon(player2.weapons[0].cooldown_icon)
+		LeftCooldownBar.set_cooldown_icon(player1.weapons[1].cooldown_icon)
+		RightCooldownBar.set_cooldown_icon(player2.weapons[0].cooldown_icon)
 	else:
-		MaceCooldownBar.set_cooldown_icon(player1.weapons[1].cooldown_icon)
-		CrossCooldownBar.set_cooldown_icon(player1.weapons[0].cooldown_icon)	
+		LeftCooldownBar.set_cooldown_icon(player1.weapons[1].cooldown_icon)
+		RightCooldownBar.set_cooldown_icon(player1.weapons[0].cooldown_icon)	
 
 func set_cross_position():
 	if is_multiplayer:
-		CrossCooldownBar.offset_left = 1838
-		CrossCooldownBar.offset_right = 1956
+		RightCooldownBar.offset_left = 1838
+		RightCooldownBar.offset_right = 1956
 	else:
-		CrossCooldownBar.offset_left = 94
-		CrossCooldownBar.offset_right = 212
+		RightCooldownBar.offset_left = 94
+		RightCooldownBar.offset_right = 212
 	
+	
+func combo(remnant: Remnant, is_purple : bool):
+	if is_purple:
+		combo1.visible = true
+		player1_max_time = remnant.variable_3_values[remnant.rank-1]
+		player1_combo_inc = remnant.variable_1_values[remnant.rank-1]/100.0
+		player1_combo_max = 1.0+remnant.variable_2_values[remnant.rank-1]/100.0
+		combo1.get_node("TextureProgressBar").max_value = player1_max_time
+		combo1.get_node("TextureProgressBar").value = player1_time
+		combo1.get_node("TextureProgressBar/Label").text = str(player1_combo)+"x"
+	else:
+		combo2.visible = true
+		player2_max_time = remnant.variable_3_values[remnant.rank-1]
+		player2_combo_inc = remnant.variable_1_values[remnant.rank-1]/100.0
+		player2_combo_max = 1.0+remnant.variable_2_values[remnant.rank-1]/100.0
+		combo2.get_node("TextureProgressBar").max_value = player2_max_time
+		combo2.get_node("TextureProgressBar").value = player2_time
+		combo2.get_node("TextureProgressBar/Label").text = str(player2_combo)+"x"
+	
+
+func combo_change(player_value : bool, increase_value : bool):
+	if player_value:
+		#Player1
+		if increase_value:
+			player1_combo = min(player1_combo+player1_combo_inc, player1_combo_max)
+			var tween = create_tween()
+			var scale_val = (1.0+(player1_combo-1.0)/2.0)*.125
+			tween.tween_property(combo1.get_node("TextureProgressBar/Label"), "scale", Vector2(scale_val, scale_val), 0.15)
+			tween.tween_property(combo1.get_node("TextureProgressBar/Label"), "scale", Vector2(.125, .125), 0.2)
+		else:
+			player1_combo = max(player1_combo-player1_combo_inc, 1.0)
+		player1_time = player1_max_time
+		combo1.get_node("TextureProgressBar/Label").text = str(player1_combo)+"x"
+	else:
+		#Player2
+		if increase_value:
+			player2_combo = min(player2_combo+player2_combo_inc, player2_combo_max)
+			var tween = create_tween()
+			var scale_val = (1.0+(player2_combo-1.0)/2.0)*.125
+			tween.tween_property(combo2.get_node("TextureProgressBar/Label"), "scale", Vector2(scale_val, scale_val), 0.15)
+			tween.tween_property(combo2.get_node("TextureProgressBar/Label"), "scale", Vector2(.125, .125), 0.2)
+		else:
+			player2_combo = max(player2_combo-player2_combo_inc, 1.0)
+		player2_time = player2_max_time
+		combo2.get_node("TextureProgressBar/Label").text = str(player2_combo)+"x"
+
+func _process(delta: float) -> void:
+	if is_multiplayer or player1.is_purple:
+		player1_time = max(player1_time-delta, 0.0)
+	if is_multiplayer or !player1.is_purple:
+		player2_time = max(player2_time-delta, 0.0)
+	if player1_time != 0.0:
+		combo1.get_node("TextureProgressBar").value = player1_time
+	if player1_time == 0.0:
+		if player1_combo > 1.0:
+			combo_change(true, false)
+	if player2_time != 0.0:
+		combo2.get_node("TextureProgressBar").value = player2_time
+	if player2_time == 0.0:
+		if player2_combo > 1.0:
+			combo_change(false, false)
+
 func _on_player_swap(player_node : Node):
 	if player1 == player_node:
-		health_bar_1.set_color(!player1.is_purple)
 		if(!is_multiplayer):
-			MaceCooldownBar.cover_cooldown()
-			CrossCooldownBar.cover_cooldown()
-	else:
-		health_bar_2.set_color(!player2.is_purple)
+			LeftCooldownBar.cover_cooldown()
+			RightCooldownBar.cover_cooldown()
 
 func _on_player_take_damage(_damage_amount : int, current_health : int, player_node : Node, _direction = Vector2(0,-1)):
 	if current_health < 0:
 		current_health = 0
 	if(player_node == player1):
 		health_bar_1.set_current_health(current_health)
+		if(!is_multiplayer):
+			health_bar_2.set_current_health(current_health)
 	else:
 		health_bar_2.set_current_health(current_health)
 
