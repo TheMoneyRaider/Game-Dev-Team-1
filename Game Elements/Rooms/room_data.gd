@@ -267,10 +267,10 @@ true,																															#Is a shop room?
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/sci_fi/factory_master.tscn", 																		#Scene Location                       
-6,																																#Num Liquids
-[Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Conveyer,Globals.Liquid.Glitch],																										#Liquid Types 
-[.65,.65,.65,.65,.65,.65,1.0],																										#Liquid Chances                     
+"res://Game Elements/Rooms/test_room_med.tscn", 																		#Scene Location                       
+0,																																#Num Liquids
+[],																										#Liquid Types 
+[],																										#Liquid Chances                     
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       
@@ -281,7 +281,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 0,																																#Num Traps              
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
-2,																																#Num Pathways                   
+4,																																#Num Pathways                   
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
