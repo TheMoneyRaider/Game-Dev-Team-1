@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Remnant" load_steps=4 format=3 uid="uid://fi3a2tqayc4n"]
+
+[ext_resource type="Texture2D" uid="uid://cw0mrb20w8ngf" path="res://art/remnants/emp.png" id="1_4lk6b"]
+[ext_resource type="Script" uid="uid://45mgcogqdr4c" path="res://Game Elements/Remnants/remnant.gd" id="1_d1u4f"]
+[ext_resource type="Texture2D" uid="uid://c5471gb586uns" path="res://art/remnants/emp_icon.png" id="2_m45qq"]
+
+[resource]
+script = ExtResource("1_d1u4f")
+remnant_name = "Remnant of E.M.P"
+description = "When you take damage, release a pulse that stuns enemies in a $X meter radius for $Y seconds."
+icon = ExtResource("2_m45qq")
+art = ExtResource("1_4lk6b")
+variable_names = Array[String](["$X", "$Y"])
+variable_1_values = [1, 2, 3, 4, 5]
+variable_2_values = [0.25, 0.5, 0.75, 1.0, 1.25]
+metadata/_custom_type_script = "uid://45mgcogqdr4c"

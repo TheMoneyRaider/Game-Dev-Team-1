@@ -11,4 +11,7 @@ class_name Remnant
 @export var variable_2_values: Array
 @export var variable_3_values: Array
 @export var variable_4_values: Array
+@export var variable_5_values: Array
+@export var variable_6_values: Array
+@export var variable_7_values: Array
 @export var rank: int

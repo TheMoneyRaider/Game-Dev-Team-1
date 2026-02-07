@@ -167,6 +167,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 		else:
 			remnants = LayerManager.player_2_remnants
 		var phase = load("res://Game Elements/Remnants/body_phaser.tres")
+		var invest = load("res://Game Elements/Remnants/investment.tres")
 		for rem in remnants:
 			if rem.remnant_name == phase.remnant_name:
 				var temp_move = 0
@@ -174,6 +175,8 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 					temp_move = move_speed
 				damage_amount *= (1.0-rem.variable_1_values[rem.rank-1]/100.0*((temp_move/base_move_speed)-1))
 				damage_amount = max(0,damage_amount)
+			if rem.remnant_name == invest.remnant_name:
+				LayerManager.timefabric_collected-= LayerManager.timefabric_collected * (rem.variable_2_values[rem.rank-1])/100.0
 		i_frames = attack_i_frames
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
@@ -476,6 +479,7 @@ func display_combo():
 		if rem.remnant_name == ninja.remnant_name:
 			LayerManager.hud.combo(rem,self.is_purple)
 	
+
 
 func speed_boost_adrenal():
 	var remnants : Array[Remnant]
