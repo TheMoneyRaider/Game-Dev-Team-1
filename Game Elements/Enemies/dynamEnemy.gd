@@ -40,7 +40,7 @@ func handle_attack(target_position: Vector2):
 	var attack_position = attack_direction * 0		 + global_position
 	if enemy_type=="robot":
 		if self and !self.is_queued_for_deletion():
-			weapon.request_attacks(attack_direction,global_position)
+			weapon.request_attacks(attack_direction,global_position,self)
 		return
 	request_attack(attacks[0], attack_position, attack_direction)
 

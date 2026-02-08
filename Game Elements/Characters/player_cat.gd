@@ -134,10 +134,10 @@ func _physics_process(delta):
 		emit_signal("activate",self)
 		
 	if Input.is_action_pressed("special_" + input_device):
-		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position)
+		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position,self)
 		emit_signal("special",self)
 	elif Input.is_action_just_released("special_" + input_device):
-		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position)
+		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position,self)
 		
 	adjust_cooldowns(delta)
 	red_flash()
@@ -156,7 +156,7 @@ func update_animation_parameters(move_input : Vector2):
 func request_attack(t_weapon : Weapon) -> float:
 	weapon_sprite.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
-	t_weapon.request_attacks(attack_direction,global_position)
+	t_weapon.request_attacks(attack_direction,global_position,self)
 	return t_weapon.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):

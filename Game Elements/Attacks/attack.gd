@@ -27,6 +27,7 @@ var combod : bool = false
 var is_purple : bool = false
 
 var frozen := true
+var intelligence : Remnant = null
 
 
 #Special Variables
@@ -60,7 +61,53 @@ func _ready():
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_orange.png")
 	rotation = direction.angle() + PI/2
 
+
+
+func change_direction():
+	var enemies = {}
+	
+	var dist_scale = intelligence.variable_2_values[intelligence.rank-1]
+	var max_angle = intelligence.variable_3_values[intelligence.rank-1]
+	var turn_strength = intelligence.variable_4_values[intelligence.rank-1]
+
+	var forward = direction.normalized()
+
+	# Collect valid enemies
+	for enemy in get_parent().get_children():
+		if !enemy.is_in_group("enemy"):
+			continue
+		var to_enemy = enemy.global_position - global_position
+		var dist = to_enemy.length() / dist_scale / 16.0
+		if dist > 1:
+			continue
+		var angle = abs(rad_to_deg(forward.angle_to(to_enemy)))
+		if angle <= max_angle:
+			# lower score = better
+			var score = dist + angle/max_angle
+			enemies[enemy] = score
+
+	if enemies.is_empty():
+		return
+	#Pick best enemy
+	var best_enemy = null
+	var best_score = INF
+
+	for enemy in enemies:
+		if enemies[enemy] < best_score:
+			best_score = enemies[enemy]
+			best_enemy = enemy
+	# Steer velocity smoothly
+	if best_enemy:
+		var to_enemy = (best_enemy.global_position - global_position).normalized()
+		var angle = abs(rad_to_deg(forward.angle_to(to_enemy)))
+		var angle_ratio = clamp(turn_strength/ float(angle),0.0,1.0)
+		direction = lerp(direction, to_enemy, angle_ratio)
+		rotation = direction.angle() + PI/2
+		
+
 func _process(delta):
+	if intelligence and speed > 0:
+		change_direction()
 	if frozen:
 		return
 	if attack_type == "laser":

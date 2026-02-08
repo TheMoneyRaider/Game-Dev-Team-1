@@ -51,7 +51,9 @@ static func create_weapon(resource_location : String, current_owner : Node2D):
 	
 	return new_weapon
 
-func request_attacks(direction : Vector2, char_position : Vector2):
+func request_attacks(direction : Vector2, char_position : Vector2, node_attacking : Node):
+	
+	
 	var attack_direction
 	if(!split_attacks):
 		attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
@@ -69,7 +71,7 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 				_:
 					pass
 			var attack_position = attack_direction * spawn_distance + char_position
-			spawn_attack(attack_direction,attack_position)
+			spawn_attack(attack_direction,attack_position,node_attacking)
 			if(!split_attacks):
 				attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
 			else:
@@ -79,12 +81,32 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 			
 	else:
 		var attack_position = attack_direction * spawn_distance + char_position
-		spawn_attack(attack_direction,attack_position)
+		spawn_attack(attack_direction,attack_position,node_attacking)
 
-func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particle_effect : String = ""):
+func check_for_intelligence(node_attacking: Node) -> Remnant:
+	if !node_attacking.is_in_group("player"):
+		return null
+	
+	var remnants : Array[Remnant]
+	if node_attacking.is_purple:
+		remnants = node_attacking.LayerManager.player_1_remnants
+	else:
+		remnants = node_attacking.LayerManager.player_2_remnants
+	var intelligence = load("res://Game Elements/Remnants/intelligence.tres")
+	for rem in remnants:
+		if rem.remnant_name == intelligence.remnant_name:
+			return rem.duplicate(true)
+	return null
+
+
+func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = ""):
+	var intelligence = check_for_intelligence(node_attacking)
+	
+	
 	if !c_owner:
 		return
 	var instance = load(attack_scene).instantiate()
+	instance.intelligence = intelligence
 	instance.direction = attack_direction
 	instance.global_position = attack_position
 	instance.c_owner = c_owner
@@ -101,7 +123,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particl
 		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 
-func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2) -> Array:
+func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node) -> Array:
 	var Effects : Array[Effect] = []
 	if(!is_released):
 		match type:
@@ -133,7 +155,7 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				if(special_time_elapsed >= 5.0):
 					damage += (special_start_damage / 2)
 				if(special_time_elapsed >= 1.0):
-					spawn_attack(special_direction,special_position, "charged_particles")
+					spawn_attack(special_direction,special_position, node_attacking,"charged_particles")
 					print(damage)
 					damage = special_start_damage
 			_:
