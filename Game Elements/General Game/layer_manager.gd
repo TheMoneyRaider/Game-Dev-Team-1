@@ -9,7 +9,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
-var weapon1 = "res://Game Elements/Weapons/Mace.tres"
+var weapon1 = "res://Game Elements/Weapons/LaserSword.tres"
 var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()

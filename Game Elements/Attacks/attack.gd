@@ -71,6 +71,8 @@ func _ready():
 	frozen = false
 	if attack_type == "robot melee":
 		$AnimationPlayer.play("main")
+	if attack_type == "ls_melee":
+		$AnimationPlayer.play("swing")
 	
 	if attack_type == "death mark":
 		if c_owner.is_purple:
@@ -124,6 +126,8 @@ func change_direction():
 		
 
 func _process(delta):
+	if attack_type == "ls_melee":
+		global_position = c_owner.global_position
 	if intelligence and speed > 0:
 		change_direction()
 	if frozen:
