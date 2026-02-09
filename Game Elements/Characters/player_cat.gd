@@ -161,6 +161,10 @@ func request_attack(t_weapon : Weapon) -> float:
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):
 	if(i_frames <= 0):
+		i_frames = attack_i_frames
+		if check_drones():
+			LayerManager._damage_indicator(0, _dmg_owner,_direction, attack_body,self,Color(0.0, 0.666, 0.85, 1.0))
+			return
 		var remnants : Array[Remnant]
 		if is_purple:
 			remnants = LayerManager.player_1_remnants
@@ -177,7 +181,6 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 				damage_amount = max(0,damage_amount)
 			if rem.remnant_name == invest.remnant_name:
 				LayerManager.timefabric_collected-= LayerManager.timefabric_collected * (rem.variable_2_values[rem.rank-1])/100.0
-		i_frames = attack_i_frames
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if current_health >= 0:
@@ -481,13 +484,34 @@ func display_combo():
 	
 
 
-func speed_boost_adrenal():
+func check_drones():
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	var drone = load("res://Game Elements/Remnants/drone.tres")
+	for rem in remnants:
+		if rem.remnant_name == drone.remnant_name:
+			var drones = get_tree().get_nodes_in_group("drones")
+			var drones_player = []
+			for drone_inst in drones:
+				if drone_inst.player == self and drone_inst.killed != true:
+					drones_player.append(drone_inst)
+			if drones_player.size()>0:
+				drones_player[0].kill()
+				return true
+	return false
+	
+
+func kill_enemy(enemy: Node):
 	var remnants : Array[Remnant]
 	if is_purple:
 		remnants = LayerManager.player_1_remnants
 	else:
 		remnants = LayerManager.player_2_remnants
 	var adrenal = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	var drone = load("res://Game Elements/Remnants/drone.tres")
 	for rem in remnants:
 		if rem.remnant_name == adrenal.remnant_name:
 			var effect = load("res://Game Elements/Effects/speed.tres").duplicate(true)
@@ -496,5 +520,15 @@ func speed_boost_adrenal():
 			
 			effect.gained(self)
 			effects.append(effect)
-			
-	
+		if rem.remnant_name == drone.remnant_name:
+			var drones = get_tree().get_nodes_in_group("drones")
+			var drone_num = 0
+			for drone_inst in drones:
+				if drone_inst.player == self:
+					drone_num+=1
+			if drone_num >= rem.variable_2_values[rem.rank-1]:
+				break
+			var dr_inst = load("res://Game Elements/Remnants/drone/drone.tscn").instantiate()
+			LayerManager.room_instance.add_child(dr_inst)
+			dr_inst.global_position = enemy.global_position
+			dr_inst.prep(self, rem.variable_1_values[rem.rank-1])

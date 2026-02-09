@@ -36,7 +36,7 @@ var special_time_elapsed : float = 0.0
 var special_start_damage : float = 1.0
 
 static func create_weapon(resource_location : String, current_owner : Node2D):
-	var new_weapon = load(resource_location)
+	var new_weapon = load(resource_location).duplicate(true)
 	var attack_instance = load(new_weapon.attack_scene).instantiate()
 	new_weapon.speed = attack_instance.speed
 	new_weapon.damage = attack_instance.damage

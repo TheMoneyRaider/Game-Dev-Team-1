@@ -90,8 +90,8 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/hack.tres")
-	var rem2 = load("res://Game Elements/Remnants/hack.tres")
+	var rem = load("res://Game Elements/Remnants/drone.tres")
+	var rem2 = load("res://Game Elements/Remnants/drone.tres")
 	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
 	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
 	#var rem5 = load("res://Game Elements/Remnants/intelligence.tres")
@@ -1467,7 +1467,7 @@ func _placable_locations():
 	placable_cells = temp_placable_locations
 
 
-func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):
+func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null,override_color : Color = Color(0.267, 0.394, 0.394, 1.0)):
 	var instance = load("res://Game Elements/Objects/damage_indicator.tscn").instantiate()
 	room_instance.add_child(instance)
-	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction)
+	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction,64, override_color)

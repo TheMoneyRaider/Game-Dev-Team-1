@@ -11,11 +11,13 @@ shader_type canvas_item;
 
 uniform float progress : hint_range(0.0, 1.0);
 uniform float noise_density = 60;
-uniform float beam_size : hint_range(0.01, 0.15);
+uniform float beam_size : hint_range(0.01, .15);
 uniform vec4 color : source_color = vec4(0.0, 1.0, 1.0, 1.0);
 uniform int hframes : hint_range(1,100) = 10; // number of horizontal frames
 uniform int vframes : hint_range(1,100) = 44; // number of vertical frames
 uniform int frame : hint_range(0,10,000) = 0;  // current frame
+uniform bool quantized = false;
+uniform bool wipe = true;
 
 // We are generating our own noise here. You could experiment with the 
 // built in SimplexNoise or your own noise texture for other effects.
@@ -33,7 +35,7 @@ vec2 get_frame_uv(vec2 uv) {
     return uv * size + vec2(fx * size.x, fy * size.y);
 }
 
-float noise(vec2 uv) {
+float shader_noise(vec2 uv) {
     vec2 uv_index = floor(uv);
     vec2 uv_fract = fract(uv);
 
@@ -60,8 +62,16 @@ void fragment()
 
     // Sample the texture at the correct frame
     vec4 tex_color = texture(TEXTURE, frame_offset + uv_in_frame * frame_size);
-
-	float noise = noise(uv_in_frame * noise_density)*uv_in_frame.y;
+	float noise = 0.0;
+	if (quantized){
+	    vec2 texel = TEXTURE_PIXEL_SIZE * vec2(float(hframes), float(vframes));
+	    uv_in_frame = floor(uv_in_frame / texel) * texel;
+	}
+	if(wipe){
+    	noise = shader_noise(uv_in_frame * noise_density) * uv_in_frame.y;
+	}else{
+    	noise = shader_noise(uv_in_frame * noise_density);
+	}
 	
 	float d1 = step(progress, noise);
 	float d2 = step(progress - beam_size, noise);
