@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_qs1v7")
 remnant_name = "Remnant of Computer Hack"
-description = "Whenever you deflect an attack, that attack has a $X% chance to gain a random debuff."
+description = "Enemy attacks have a $X% chance to hit other enemies"
 icon = ExtResource("2_fsm7q")
 art = ExtResource("1_hirxq")
 variable_names = Array[String](["$X"])
-variable_1_values = [20, 30, 40, 60, 80]
+variable_1_values = [2, 4, 8, 12, 16]
 metadata/_custom_type_script = "uid://45mgcogqdr4c"

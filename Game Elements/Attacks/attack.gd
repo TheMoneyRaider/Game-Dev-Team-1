@@ -26,9 +26,13 @@ var hit_nodes = {}
 var combod : bool = false
 var is_purple : bool = false
 
+var hack1 : Remnant = null
+var hack2 : Remnant = null
+
 var frozen := true
 var intelligence : Remnant = null
 
+var LayerManager : Node = null
 
 #Special Variables
 var life = 0.0
@@ -46,7 +50,21 @@ func set_values(attack_speed = self.attack_speed, attack_damage = self.damage, a
 	self.lifespan = attack_lifespan
 	self.hit_force = attack_hit_force
 
+func ready_hacks():
+	var hack = load("res://Game Elements/Remnants/hack.tres")
+	for rem in LayerManager.player_1_remnants:
+		if rem.remnant_name == hack.remnant_name:
+			hack1=rem.duplicate(true)
+			break
+	for rem in LayerManager.player_2_remnants:
+		if rem.remnant_name == hack.remnant_name:
+			hack2=rem.duplicate(true)
+			break
+			
+
 func _ready():
+	LayerManager = get_tree().get_root().get_node("LayerManager")
+	ready_hacks()
 	frozen = true
 	if start_lag > 0.0:
 		await get_tree().create_timer(start_lag).timeout
@@ -124,6 +142,17 @@ func _process(delta):
 	queue_free()
 	
 func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: Vector2) -> int:
+	#Computer Hack Remnant
+	var hack_chance1 = 0.0 if !hack1 else hack1.variable_1_values[hack1.rank-1]/100.0
+	var hack_chance2 = 0.0 if !hack2 else hack2.variable_1_values[hack2.rank-1]/100.0
+	if hack_chance1 > randf():
+		n_owner = LayerManager.player1
+	if hack_chance2 > randf():
+		n_owner = LayerManager.player1
+		if Globals.is_multiplayer:
+			n_owner = LayerManager.player2
+	if body == n_owner:
+		return 0
 	if n_owner.is_in_group("player") and body.is_in_group("player"):
 		return 0
 	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
