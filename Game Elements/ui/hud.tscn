@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://0hahdiffjt61"]
+[gd_scene load_steps=18 format=3 uid="uid://0hahdiffjt61"]
 
 [ext_resource type="Script" uid="uid://ttvprfi61vn4" path="res://Game Elements/ui/hud.gd" id="1_6fbih"]
 [ext_resource type="Script" uid="uid://cdv7ke8wr65tg" path="res://Game Elements/ui/health_bar.gd" id="1_e0onf"]
@@ -8,10 +8,22 @@
 [ext_resource type="Script" uid="uid://d36yo1gmy8tkb" path="res://Game Elements/ui/cooldown_bar_1.gd" id="5_kgqo6"]
 [ext_resource type="Texture2D" uid="uid://dj6erg8qveqb0" path="res://art/ninja_2.png" id="5_p8pfh"]
 [ext_resource type="Texture2D" uid="uid://ds6fo2yfcafce" path="res://art/ninja_1.png" id="6_gp50j"]
-[ext_resource type="Texture2D" uid="uid://kdaw8in4wo0" path="res://art/crossbow_bright.png" id="9_gp50j"]
+[ext_resource type="Shader" uid="uid://dtp2e4p3wbgyp" path="res://Game Elements/ui/special_cooldown.gdshader" id="8_gp50j"]
+[ext_resource type="Texture2D" uid="uid://kdaw8in4wo0" path="res://art/weapons/crossbow/crossbow_bright.png" id="9_gp50j"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_t1xeu"]
 font_size = 35
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sjf6p"]
+shader = ExtResource("8_gp50j")
+shader_parameter/u_speed = 0.5
+shader_parameter/u_color_low = Color(0, 0, 0, 1)
+shader_parameter/u_color_mid_red = Color(0.36750364, 0.0016963201, 0.6819386, 1)
+shader_parameter/u_color_high = Color(0.9880591, 0.7400065, 1, 1)
+shader_parameter/scale = 24.0
+shader_parameter/progress = 1.0
+shader_parameter/interp_time = 0.4
+shader_parameter/time_offset = 0.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bjfho"]
 bg_color = Color(0.38210395, 0.030576311, 0.5883771, 1)
@@ -25,6 +37,17 @@ Label/colors/font_color = Color(0.69411767, 0.32156864, 0.9843137, 1)
 Label/font_sizes/font_size = 40
 ProgressBar/styles/background = SubResource("StyleBoxFlat_bjfho")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_6fbih")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gp50j"]
+shader = ExtResource("8_gp50j")
+shader_parameter/u_speed = 0.5
+shader_parameter/u_color_low = Color(0, 0, 0, 1)
+shader_parameter/u_color_mid_red = Color(0.73857963, 0.40337113, 0, 1)
+shader_parameter/u_color_high = Color(1, 0.8032116, 0.5074572, 1)
+shader_parameter/scale = 24.0
+shader_parameter/progress = 0.750000035625
+shader_parameter/interp_time = 0.4
+shader_parameter/time_offset = 0.0
 
 [sub_resource type="Theme" id="Theme_t1xeu"]
 resource_local_to_scene = true
@@ -201,6 +224,7 @@ layout_mode = 2
 script = ExtResource("5_kgqo6")
 
 [node name="CooldownBar" type="TextureProgressBar" parent="RootControl/Left_Bottom_Corner/CooldownBar"]
+material = SubResource("ShaderMaterial_sjf6p")
 layout_mode = 1
 offset_top = 1.0
 offset_right = 20.0
@@ -208,6 +232,7 @@ offset_bottom = 15.0
 scale = Vector2(4, 4)
 max_value = 0.5
 step = 0.005
+value = 0.25
 texture_under = ExtResource("9_gp50j")
 texture_over = ExtResource("9_gp50j")
 texture_progress = ExtResource("9_gp50j")
@@ -291,6 +316,7 @@ layout_mode = 2
 script = ExtResource("5_kgqo6")
 
 [node name="CooldownBar" type="TextureProgressBar" parent="RootControl/Right_Bottom_Corner/CooldownBar"]
+material = SubResource("ShaderMaterial_gp50j")
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0

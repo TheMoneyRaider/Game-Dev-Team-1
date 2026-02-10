@@ -3,7 +3,7 @@ class_name Weapon
 
 # Exposed fields for editor
 @export var type: String = "Error"
-@export var cooldown_icon: Resource = preload("res://art/mace_bright.png")
+@export var cooldown_icon: Resource = preload("res://art/weapons/mace/mace_bright.png")
 @export var weapon_sprite: Resource = null
 @export var num_attacks: int = 1
 
