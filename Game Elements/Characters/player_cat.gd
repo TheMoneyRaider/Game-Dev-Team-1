@@ -279,8 +279,9 @@ func die(death : bool , insta_die : bool = false) -> bool:
 	return true
 
 func adjust_cooldowns(time_elapsed : float):
+	
 	if cooldowns[is_purple as int] > 0:
-		cooldowns[is_purple as int] -= time_elapsed
+		cooldowns[is_purple as int] = max(cooldowns[is_purple as int]-time_elapsed,0.0)
 
 func handle_attack():
 	if cooldowns[is_purple as int] <= 0:

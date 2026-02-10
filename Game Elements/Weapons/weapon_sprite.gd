@@ -14,7 +14,8 @@ func _process(_delta: float):
 		"Mace":
 			rotation = (flip * weapon_direction).angle()
 		"L_Sword":
-			rotation = weapon_direction.angle()+ PI / 2
+			print(player.cooldowns[player.is_purple as int])
+			rotation = weapon_direction.angle()+ PI / 2 - TAU*(player.cooldowns[player.is_purple as int] / .3)
 		_:
 			rotation = weapon_direction.angle() + + PI / 2
 
