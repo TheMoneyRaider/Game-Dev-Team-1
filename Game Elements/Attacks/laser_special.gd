@@ -13,10 +13,14 @@ func _setup_mesh():
 	quad.size = texture.get_size()
 	multimesh.mesh = quad
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-
+	get_tree().create_tween().tween_property(self,"modulate", Color(1.0, 1.0, 1.0, 1.0),.5)
+			
+func kill():
+	var tween = get_tree().create_tween().tween_property(self,"modulate", Color(1.0, 1.0, 1.0, 0.0),.35)
+	await tween.finished
+	queue_free()
 
 func draw_path(points: PackedVector2Array):
-	print("hey")
 	if points.size() < 2:
 		multimesh.instance_count = 0
 		return

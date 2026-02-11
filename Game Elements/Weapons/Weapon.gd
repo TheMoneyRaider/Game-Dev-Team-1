@@ -13,8 +13,10 @@ class_name Weapon
 
 @export var attack_type: String = "smash"
 @export var attack_scene: String = "res://Game Elements/Attacks/smash.tscn"
+@export var special_attack_scene: String = "res://Game Elements/Attacks/smash.tscn"
 @export var spawn_distance: float = 20
 @export var special_hits : int = 5
+@export var special_on_release : bool =  true
 var current_special_hits = 0
 
 var speed = 60.0
@@ -35,6 +37,7 @@ var c_owner: Node = null
 
 #Variables for Specials
 var special_time_elapsed : float = 0.0
+var special_time_period_elapsed : int = 0
 var special_start_damage : float = 1.0
 var special_started : bool = false
 var special_nodes = []
@@ -103,27 +106,37 @@ func check_for_intelligence(node_attacking: Node) -> Remnant:
 	return null
 
 
-func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = ""):
+func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", variant : bool = false):
 	var intelligence = check_for_intelligence(node_attacking)
 	
 	
 	if !c_owner:
 		return
-	var instance = load(attack_scene).instantiate()
-	instance.intelligence = intelligence
-	instance.direction = attack_direction
-	instance.global_position = attack_position
-	instance.c_owner = c_owner
-	instance.speed = speed
-	if c_owner.is_in_group("player"):
-		instance.damage = damage * c_owner.damage_boost()
+	var instance
+	if variant:
+		instance = load(special_attack_scene).instantiate()
+		instance.intelligence = intelligence
+		instance.direction = attack_direction
+		instance.global_position = attack_position
+		instance.c_owner = c_owner
+		if c_owner.is_in_group("player"):
+			instance.damage *= c_owner.damage_boost()
 	else:
-		instance.damage = damage
-	instance.lifespan = lifespan
-	instance.hit_force = hit_force
-	instance.start_lag = start_lag
-	instance.cooldown = cooldown
-	instance.pierce = pierce
+		instance = load(attack_scene).instantiate()
+		instance.intelligence = intelligence
+		instance.direction = attack_direction
+		instance.global_position = attack_position
+		instance.c_owner = c_owner
+		instance.speed = speed
+		if c_owner.is_in_group("player"):
+			instance.damage = damage * c_owner.damage_boost()
+		else:
+			instance.damage = damage
+		instance.lifespan = lifespan
+		instance.hit_force = hit_force
+		instance.start_lag = start_lag
+		instance.cooldown = cooldown
+		instance.pierce = pierce
 	instance.is_purple = c_owner.is_purple if c_owner.is_in_group("player") else false
 	if(particle_effect != ""):
 		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
@@ -133,11 +146,12 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 
 var laser_camera_distancex = 240
 var laser_camera_distancey = 128
-func start_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node):
+func start_special(special_direction : Vector2, node_attacking : Node):
 	match type:
 		"Laser_Sword":
 			var mesh_inst = load("res://Game Elements/Attacks/laser_special.tscn").instantiate()
 			node_attacking.LayerManager.room_instance.add_child(mesh_inst)
+
 			special_nodes.append(mesh_inst)
 			var camera_position = node_attacking.LayerManager.camera.global_position
 			var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
@@ -145,21 +159,23 @@ func start_special(time_elapsed : float, is_released : bool, special_direction :
 												return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
 												)
 			
-			var locations : Array[Vector2] = get_locations(camera_position,
-															node_attacking,
-															enemies)
+			var locations : Array[Vector2] = get_locations(node_attacking,
+															enemies,
+															special_direction)
 			mesh_inst.draw_path(PackedVector2Array(locations))
 			
 		_ :
 			pass
 
-var laser_distance = 128 
-var laser_angle =90 
-func get_locations(camera_position : Vector2, start_node : Node, all_enemies : Array) -> Array[Vector2]: 
+var laser_max_distance = 128 
+var laser_min_distance = 32 
+var laser_enemy_max = 5
+#var laser_angle =PI/2
+func get_locations(start_node : Node, all_enemies : Array, inital_direction : Vector2) -> Array[Vector2]: 
 	var best_chain: Array[Vector2] = [] # Stack stores: node, chain_length (index in chain), direction 
 	var stack: Array = [] # Single mutable chain array reused across all frames 
 	stack.push_back({ 	"node": start_node, 
-						"direction": start_node.last_input_direction,
+						"direction": inital_direction,
 						"chain": [start_node.global_position] as Array[Vector2]
 						}) 
 	while stack.size() > 0: 
@@ -173,16 +189,19 @@ func get_locations(camera_position : Vector2, start_node : Node, all_enemies : A
 			if enemy.global_position in chain:
 				continue  # already visited in this path
 			var offset = enemy.global_position - current_node.global_position 
-			if offset.length_squared() > laser_distance * laser_distance: 
+			var offset_sq = offset.length_squared()
+			if offset_sq > laser_max_distance * laser_max_distance or offset_sq < laser_min_distance * laser_min_distance: 
 				continue 
 			var offset_norm = offset.normalized() 
-			var angle_diff = rad_to_deg(direction.angle_to(offset_norm)) 
-			if abs(angle_diff) > laser_angle: 
+			# Instead of normalized vector + angle_to:
+			var cos_angle = direction.dot(offset) / sqrt(offset_sq)  # direction is normalized
+			if cos_angle < 0.0: #90 degrees
 				continue # Push next frame onto stack 
 			# Create a new chain for this path
 			var new_chain = chain.duplicate()
 			new_chain.append(enemy.global_position)
-
+			if new_chain.size() >= laser_enemy_max:
+				return new_chain
 			stack.push_back({
 				"node": enemy,
 				"direction": offset_norm,
@@ -191,12 +210,29 @@ func get_locations(camera_position : Vector2, start_node : Node, all_enemies : A
 
 	return best_chain
 	
+	
+func special_tick(special_direction : Vector2, node_attacking : Node):
+	match type:
+			"Laser_Sword":
+				var camera_position = node_attacking.LayerManager.camera.global_position
+				var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
+													func(e) -> bool:
+													return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
+													)
+				
+				var locations : Array[Vector2] = get_locations(node_attacking,
+																enemies,special_direction)
+				special_nodes[0].draw_path(PackedVector2Array(locations))
+			_:
+				pass
+	
+	
 func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node) -> Array:
 	var Effects : Array[Effect] = []
 	if current_special_hits < special_hits:
 		return Effects
 	if !special_started:
-		start_special(time_elapsed, is_released, special_direction , special_position , node_attacking)
+		start_special(special_direction ,  node_attacking)
 		special_started = true
 	if(!is_released):
 		match type:
@@ -221,13 +257,37 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 			_:
 				pass
 	else:
+		if special_on_release:
+			end_special(special_direction , special_position , node_attacking)
+		else:
+			special_started = false
+			for node in special_nodes:
+				if node.has_method("kill"):
+					node.kill()
+				else:
+					node.queue_free()
+			special_nodes = []
+			special_time_elapsed = 0.0
+			special_time_period_elapsed = 0
+		return Effects
+		
+	match type:
+		"Laser_Sword":
+			if floor(special_time_elapsed*8) !=special_time_period_elapsed:
+				special_time_period_elapsed = floor(special_time_elapsed*8)
+				special_tick(special_direction, node_attacking)
+		_:
+			pass
+	special_time_elapsed += time_elapsed
+	return Effects
+
+func end_special(special_direction : Vector2, special_position : Vector2, node_attacking : Node):
 		special_started = false
-		for node in special_nodes:
-			node.queue_free()
-		special_nodes = []
 		match type:
 			"Mace":
 				pass
+			"Laser_Sword":
+				laser_special_attack(special_direction,node_attacking)
 			"Crossbow":
 				if(special_time_elapsed >= 5.0):
 					damage += (special_start_damage / 2)
@@ -240,7 +300,82 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 			_:
 				pass
 		special_time_elapsed = 0.0
-		return Effects
-	special_time_elapsed += time_elapsed
-	return Effects
+		special_time_period_elapsed = 0
+		for node in special_nodes:
+			if node and !node.is_queued_for_deletion():
+				if node.has_method("kill"):
+					node.kill()
+				else:
+					node.queue_free()
+		special_nodes = []
+
+func laser_special_attack(special_direction : Vector2,node_attacking : Node):
+	current_special_hits = 0
+	special_time_elapsed = 0.0
+	special_time_period_elapsed = 0
+	for node in special_nodes:
+		node.queue_free()
+	special_nodes = []
 	
+	var camera_position = node_attacking.LayerManager.camera.global_position
+	var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
+										func(e) -> bool:
+										return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
+										)
+	
+	var locations : Array[Vector2] = get_locations(node_attacking,
+													enemies,special_direction)
+	if locations.size() < 2:
+		return # nothing to spawn
+
+	var image_distance = 8.0 # distance between afterimages, adjust as needed
+	var prev_pos = locations[0]
+
+	# Spawn initial afterimage
+	Spawner.spawn_after_image(
+		node_attacking,
+		node_attacking.LayerManager,
+		Color(0.608, 1.0, 0.463, 1.0),Color(0.608, 1.0, 0.463, 1.0),
+		0, 1.0, 1, 1,
+		true,
+		prev_pos
+	)
+	var count = 0
+	node_attacking.move_speed *= 4.0
+	for i in range(1, locations.size()):
+		node_attacking.input_direction = (locations[i - 1] -locations[i]).normalized()
+		spawn_attack(special_direction,locations[i], node_attacking,"",true)
+		var start_pos = locations[i - 1]
+		var end_pos = locations[i]
+		var segment_vec = end_pos - start_pos
+		var segment_length = segment_vec.length()
+		var direction = segment_vec.normalized()
+		var traveled = 0.0
+		var spawn_pos = start_pos
+		Spawner.spawn_after_image(
+				node_attacking,
+				node_attacking.LayerManager,
+				Color(0.608, 1.0, 0.463, 1.0), Color(0.608, 1.0, 0.463, 1.0),
+				0, 1.0, 1,1,
+				true,
+				spawn_pos
+			)
+		while traveled + image_distance <= segment_length:
+			count = (count+1)% 8
+			traveled += image_distance
+			spawn_pos = start_pos + direction * traveled
+			Spawner.spawn_after_image(
+				node_attacking,
+				node_attacking.LayerManager,
+				Color(0.608, 1.0, 0.463, 1.0), Color(0.608, 1.0, 0.463, 1.0),
+				0, 1.0, 1,1,
+				true,
+				spawn_pos
+			)
+			if count == 2:
+				node_attacking.global_position = spawn_pos
+				# Wait for the next frame before continuing
+				await node_attacking.get_tree().process_frame
+		if i == locations.size()-1:
+			node_attacking.global_position = spawn_pos
+	node_attacking.move_speed /= 4.0

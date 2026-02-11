@@ -230,13 +230,12 @@ func _on_special_changed(is_purple : bool, new_progress):
 
 func update_shader(material: ShaderMaterial, new_prog : float, reset : bool = false):
 	if reset:
-		print("reset")
 		material.set_shader_parameter("prev_progress", 0.0)
 		material.set_shader_parameter("progress",  0.0)
 		material.set_shader_parameter("time_offset", Time.get_ticks_msec() / 1000.0+material.get_shader_parameter("interp_time"))
 		return
 		
-	print("normal")
+	
 	var t = clamp((Time.get_ticks_msec() / 1000.0 - material.get_shader_parameter("time_offset")) / material.get_shader_parameter("interp_time"), 0.0, 1.0);
 	if t >= .98:
 		material.set_shader_parameter("prev_progress", material.get_shader_parameter("progress"))

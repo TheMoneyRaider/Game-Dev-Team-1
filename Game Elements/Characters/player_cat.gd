@@ -134,7 +134,10 @@ func _physics_process(delta):
 	
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
-		handle_attack()
+		if Input.is_action_pressed("special_" + input_device) and weapons[is_purple as int].current_special_hits >= weapons[is_purple as int].special_hits:
+			weapons[is_purple as int].end_special((crosshair.position).normalized(), global_position,self)
+		else:
+			handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
 		
@@ -431,7 +434,6 @@ func damage_boost() -> float:
 				boost *= LayerManager.hud.player1_combo
 			else:
 				boost *= LayerManager.hud.player2_combo
-	
 	return boost
 
 func change_health(add_to_current : int, add_to_max : int = 0):

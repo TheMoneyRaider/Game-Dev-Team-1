@@ -4,7 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://dvuoi6pbvux07" path="res://art/attacks/laser_special.png" id="2_bweq8"]
 
 [node name="PathDots" type="MultiMeshInstance2D"]
-z_index = 21
+modulate = Color(1, 1, 1, 0)
+z_index = 19
 z_as_relative = false
 y_sort_enabled = true
 texture_filter = 1
