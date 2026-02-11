@@ -49,6 +49,10 @@ func gained(node_to_change : Node):
 					failed = true
 					return
 				play.active = false
+		"forcefield":
+			if node_to_change.is_in_group("player"):
+				if !node_to_change.forcefield_active:
+					node_to_change.show_forcefield(.25)
 					
 			
 
@@ -68,6 +72,15 @@ func lost(node_to_change : Node):
 			var play = node_to_change.get_node_or_null("BTPlayer")
 			if play:
 				play.active = true
+		"forcefield":
+			if node_to_change.is_in_group("player"):
+				if node_to_change.forcefield_active:
+					var has_more = 0
+					for effect in node_to_change.effects:
+						if effect.type=="forcefield":
+							has_more +=1
+					if has_more <= 1:
+						node_to_change.hide_forcefield(.25)
 	
 	for node in saved_nodes:
 		if node and !node.is_queued_for_deletion():

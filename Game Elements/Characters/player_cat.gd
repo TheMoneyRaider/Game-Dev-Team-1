@@ -46,6 +46,7 @@ var last_input_direction : Vector2 = Vector2.ZERO
 
 var effects : Array[Effect] = []
 
+var forcefield_active : bool = false
 
 
 #The scripts for loading default values into the attack
@@ -68,6 +69,7 @@ signal special_reset(is_purple : int)
 var LayerManager: Node
 
 func _ready():
+	$Forcefield/AnimationPlayer2.play("fritz")
 	LayerManager = get_tree().get_root().get_node("LayerManager")
 	move_speed = base_move_speed
 	_initialize_state_machine()
@@ -79,7 +81,28 @@ func _ready():
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
 		tether_line.gradient = null			
+	hide_forcefield(0.0)
 
+
+func hide_forcefield(interp_time : float):
+	forcefield_active = false
+	if interp_time == 0.0:
+		$Forcefield/CollisionShape2D.disabled  =true
+		$Forcefield/Forcefield.modulate.a = 0.0
+		return
+	$Forcefield/CollisionShape2D.disabled  =true
+	create_tween().tween_property($Forcefield/Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),interp_time)
+
+func show_forcefield(interp_time : float):
+	forcefield_active = true
+	if interp_time == 0.0:
+		$Forcefield/CollisionShape2D.disabled  =false
+		$Forcefield/Forcefield.modulate.a = 1.0
+		return
+	$Forcefield/CollisionShape2D.disabled  =false
+	$Forcefield/Forcefield.modulate.a = 0.0
+	create_tween().tween_property($Forcefield/Forcefield,"modulate",Color(1.0,1.0,1.0,1.0),interp_time)
+	
 
 func update_input_device(in_dev : String):
 	input_device = in_dev
@@ -209,6 +232,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
+	check_forcefield()
 	emit_signal("swapped_color", self)
 	if(is_purple):
 		is_purple = false
@@ -232,6 +256,7 @@ func tether(delta : float):
 		tether_momentum += (other_player.position - position) / 1
 		is_tethered = true
 	if Input.is_action_pressed("swap_" + input_device):
+		check_forcefield()
 		var effect = load("res://Game Elements/Effects/tether.tres").duplicate(true)
 		effect.cooldown = delta
 		effect.value1 = 0.5
@@ -557,7 +582,23 @@ func check_drones():
 				drones_player[0].kill()
 				return true
 	return false
+
+func check_forcefield():
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	var force = load("res://Game Elements/Remnants/forcefield.tres")
+	for rem in remnants:
+		if rem.remnant_name == force.remnant_name:
+			var effect = load("res://Game Elements/Effects/forcefield.tres").duplicate(true)
+			effect.cooldown = force.variable_1_values[rem.rank-1]
+			$Forcefield.damage = force.variable_2_values[rem.rank-1]
+			effect.gained(self)
+			effects.append(effect)
 	
+
 
 func kill_enemy(enemy: Node):
 	var remnants : Array[Remnant]
@@ -577,7 +618,6 @@ func kill_enemy(enemy: Node):
 					effect.value1 = 4*base_move_speed/move_speed - 1
 				effect.gained(self)
 				effects.append(effect)
-				print(move_speed)
 		if rem.remnant_name == drone.remnant_name:
 			var drones = get_tree().get_nodes_in_group("drones")
 			var drone_num = 0

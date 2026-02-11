@@ -14,7 +14,6 @@ var direction = Vector2.RIGHT
 @export var cooldown = .5
 #How many enemies the attack will pierce through (-2 for inf)
 @export var pierce = 0.0
-var c_owner: Node = null
 #If the attack can hit walls
 @export var wall_collision = true
 var hit_nodes = {}
@@ -23,6 +22,7 @@ var hit_nodes = {}
 @export var deflectable : bool = false
 @export var deflects : bool = false
 @export var i_frames : int = 20
+@export var c_owner: Node = null
 var combod : bool = false
 var is_purple : bool = false
 
@@ -239,3 +239,9 @@ func _on_area_entered(area: Area2D) -> void:
 			area._on_body_entered(area_intr)
 	if area.is_in_group("enemy") or area.is_in_group("player"):
 		intersection(area)
+
+
+func _on_body_exited(body: Node2D) -> void:
+	if attack_type != "forcefield":
+		return
+	hit_nodes.erase(body)
