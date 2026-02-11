@@ -1,13 +1,12 @@
 [gd_scene load_steps=3 format=3 uid="uid://wymaxwjxh1tp"]
 
 [ext_resource type="Script" uid="uid://b8lj8jb4ye2c4" path="res://Game Elements/Weapons/weapon_sprite.gd" id="1_56kly"]
-[ext_resource type="Texture2D" uid="uid://cssultbqinlrb" path="res://art/Mace_long.png" id="2_56kly"]
+[ext_resource type="Texture2D" uid="uid://bgt0rbmptp3qg" path="res://art/weapons/laser_sword/laser_sword.png" id="2_56kly"]
 
 [node name="WeaponSprite" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_56kly")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-8, -28)
 texture = ExtResource("2_56kly")
 centered = false

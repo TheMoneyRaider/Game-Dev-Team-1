@@ -3,7 +3,7 @@ class_name Weapon
 
 # Exposed fields for editor
 @export var type: String = "Error"
-@export var cooldown_icon: Resource = preload("res://art/mace_bright.png")
+@export var cooldown_icon: Resource = preload("res://art/weapons/mace/mace_bright.png")
 @export var weapon_sprite: Resource = null
 @export var num_attacks: int = 1
 
@@ -14,6 +14,8 @@ class_name Weapon
 @export var attack_type: String = "smash"
 @export var attack_scene: String = "res://Game Elements/Attacks/smash.tscn"
 @export var spawn_distance: float = 20
+@export var special_hits : int = 5
+var current_special_hits = 0
 
 var speed = 60.0
 #How fast the attack is moving
@@ -36,7 +38,7 @@ var special_time_elapsed : float = 0.0
 var special_start_damage : float = 1.0
 
 static func create_weapon(resource_location : String, current_owner : Node2D):
-	var new_weapon = load(resource_location)
+	var new_weapon = load(resource_location).duplicate(true)
 	var attack_instance = load(new_weapon.attack_scene).instantiate()
 	new_weapon.speed = attack_instance.speed
 	new_weapon.damage = attack_instance.damage
@@ -51,7 +53,9 @@ static func create_weapon(resource_location : String, current_owner : Node2D):
 	
 	return new_weapon
 
-func request_attacks(direction : Vector2, char_position : Vector2):
+func request_attacks(direction : Vector2, char_position : Vector2, node_attacking : Node):
+	
+	
 	var attack_direction
 	if(!split_attacks):
 		attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
@@ -69,7 +73,7 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 				_:
 					pass
 			var attack_position = attack_direction * spawn_distance + char_position
-			spawn_attack(attack_direction,attack_position)
+			spawn_attack(attack_direction,attack_position,node_attacking)
 			if(!split_attacks):
 				attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
 			else:
@@ -79,29 +83,55 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 			
 	else:
 		var attack_position = attack_direction * spawn_distance + char_position
-		spawn_attack(attack_direction,attack_position)
+		spawn_attack(attack_direction,attack_position,node_attacking)
 
-func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particle_effect : String = ""):
+func check_for_intelligence(node_attacking: Node) -> Remnant:
+	if !node_attacking.is_in_group("player"):
+		return null
+	
+	var remnants : Array[Remnant]
+	if node_attacking.is_purple:
+		remnants = node_attacking.LayerManager.player_1_remnants
+	else:
+		remnants = node_attacking.LayerManager.player_2_remnants
+	var intelligence = load("res://Game Elements/Remnants/intelligence.tres")
+	for rem in remnants:
+		if rem.remnant_name == intelligence.remnant_name:
+			return rem.duplicate(true)
+	return null
+
+
+func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = ""):
+	var intelligence = check_for_intelligence(node_attacking)
+	
+	
 	if !c_owner:
 		return
 	var instance = load(attack_scene).instantiate()
+	instance.intelligence = intelligence
 	instance.direction = attack_direction
 	instance.global_position = attack_position
 	instance.c_owner = c_owner
 	instance.speed = speed
-	instance.damage = damage * (1+ c_owner.hunter_percent_boost()/100) if c_owner.is_in_group("players") else damage
+	if c_owner.is_in_group("player"):
+		instance.damage = damage * c_owner.damage_boost()
+	else:
+		instance.damage = damage
 	instance.lifespan = lifespan
 	instance.hit_force = hit_force
 	instance.start_lag = start_lag
 	instance.cooldown = cooldown
 	instance.pierce = pierce
+	instance.is_purple = c_owner.is_purple if c_owner.is_in_group("player") else false
 	if(particle_effect != ""):
 		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
 		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 
-func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2) -> Array:
+func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node) -> Array:
 	var Effects : Array[Effect] = []
+	if current_special_hits < special_hits:
+		return Effects
 	if(!is_released):
 		match type:
 			"Mace":
@@ -132,8 +162,10 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				if(special_time_elapsed >= 5.0):
 					damage += (special_start_damage / 2)
 				if(special_time_elapsed >= 1.0):
-					spawn_attack(special_direction,special_position, "charged_particles")
-					print(damage)
+					
+					node_attacking.player_special_reset()
+					spawn_attack(special_direction,special_position, node_attacking,"charged_particles")
+					current_special_hits = 0
 					damage = special_start_damage
 			_:
 				pass

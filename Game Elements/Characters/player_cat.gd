@@ -1,7 +1,8 @@
 extends CharacterBody2D
 var mouse_sensitivity: float = 1.0
 
-@export var move_speed: float = 100
+@export var base_move_speed: float = 100
+var move_speed: float
 @export var max_health: float = 10
 @export var current_health: float = 10
 @onready var current_dmg_time: float = 0.0
@@ -48,7 +49,7 @@ var effects : Array[Effect] = []
 
 #The scripts for loading default values into the attack
 #The list of attacks for playercharacter
-var weapons = [Weapon.create_weapon("res://Game Elements/Weapons/Crossbow.tres",self),Weapon.create_weapon("res://Game Elements/Weapons/Mace.tres",self)]
+var weapons = [Weapon.create_weapon("res://Game Elements/Weapons/Crossbow.tres",self),Weapon.create_weapon("res://Game Elements/Weapons/LaserSword.tres",self)]
 var attacks = [preload("res://Game Elements/Attacks/bolt.tscn"),preload("res://Game Elements/Attacks/smash.tscn")]
 var revive = preload("res://Game Elements/Attacks/death_mark.tscn")
 var cooldowns = [0,0]
@@ -60,8 +61,14 @@ signal activate(player_node : Node)
 signal special(player_node : Node)
 signal swapped_color(player_node : Node)
 signal max_health_changed(new_max_health : int, new_current_health : int, player_node : Node)
+signal special_changed(is_purple : int, new_progress : int)
+signal special_reset(is_purple : int)
+
+var LayerManager: Node
 
 func _ready():
+	LayerManager = get_tree().get_root().get_node("LayerManager")
+	move_speed = base_move_speed
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
@@ -90,6 +97,7 @@ func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
 func _physics_process(delta):
+	#print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1
 	#Trap stuff
@@ -128,10 +136,10 @@ func _physics_process(delta):
 		emit_signal("activate",self)
 		
 	if Input.is_action_pressed("special_" + input_device):
-		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position)
+		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position,self)
 		emit_signal("special",self)
 	elif Input.is_action_just_released("special_" + input_device):
-		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position)
+		effects += weapons[is_purple as int].use_special(delta, true, (crosshair.position).normalized(), global_position,self)
 		
 	adjust_cooldowns(delta)
 	red_flash()
@@ -150,22 +158,41 @@ func update_animation_parameters(move_input : Vector2):
 func request_attack(t_weapon : Weapon) -> float:
 	weapon_sprite.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
-	t_weapon.request_attacks(attack_direction,global_position)
+	t_weapon.request_attacks(attack_direction,global_position,self)
 	return t_weapon.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20):
 	if(i_frames <= 0):
 		i_frames = attack_i_frames
+		if check_drones():
+			LayerManager._damage_indicator(0, _dmg_owner,_direction, attack_body,self,Color(0.0, 0.666, 0.85, 1.0))
+			return
+		var remnants : Array[Remnant]
+		if is_purple:
+			remnants = LayerManager.player_1_remnants
+		else:
+			remnants = LayerManager.player_2_remnants
+		var phase = load("res://Game Elements/Remnants/body_phaser.tres")
+		var invest = load("res://Game Elements/Remnants/investment.tres")
+		for rem in remnants:
+			if rem.remnant_name == phase.remnant_name:
+				var temp_move = 0
+				if input_direction != Vector2.ZERO:
+					temp_move = move_speed
+				damage_amount *= (1.0-rem.variable_1_values[rem.rank-1]/100.0*((temp_move/base_move_speed)-1))
+				damage_amount = max(0,damage_amount)
+			if rem.remnant_name == invest.remnant_name:
+				LayerManager.timefabric_collected-= LayerManager.timefabric_collected * (rem.variable_2_values[rem.rank-1])/100.0
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if current_health >= 0:
-			get_tree().get_root().get_node("LayerManager")._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
+			LayerManager._damage_indicator(damage_amount, _dmg_owner,_direction, attack_body,self)
 		if(current_health <= 0):
 			if(die(true)):
 				var instance = revive.instantiate()
 				instance.global_position = position
 				instance.c_owner = self
-				get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+				LayerManager.room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 	
 func swap_color():
@@ -229,13 +256,13 @@ func die(death : bool , insta_die : bool = false) -> bool:
 		#Change to signal something
 		self.process_mode = PROCESS_MODE_DISABLED
 		visible = false
-		get_tree().get_root().get_node("LayerManager").open_death_menu()
+		LayerManager.open_death_menu()
 		return false
 	else:
 		if other_player.current_health <= 0:
 			insta_die = true
 		if insta_die:
-			get_tree().get_root().get_node("LayerManager").open_death_menu()
+			LayerManager.open_death_menu()
 			return false
 		if death:
 			max_health = max_health - 2
@@ -244,7 +271,7 @@ func die(death : bool , insta_die : bool = false) -> bool:
 			visible = false
 			if(max_health <= 0):
 				#Change to signal 
-				get_tree().get_root().get_node("LayerManager").open_death_menu()
+				LayerManager.open_death_menu()
 				return false
 		else:
 			current_health = round(max_health / 2)
@@ -254,8 +281,9 @@ func die(death : bool , insta_die : bool = false) -> bool:
 	return true
 
 func adjust_cooldowns(time_elapsed : float):
+	
 	if cooldowns[is_purple as int] > 0:
-		cooldowns[is_purple as int] -= time_elapsed
+		cooldowns[is_purple as int] = max(cooldowns[is_purple as int]-time_elapsed,0.0)
 
 func handle_attack():
 	if cooldowns[is_purple as int] <= 0:
@@ -263,8 +291,8 @@ func handle_attack():
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").trap_cells:
-		var tile_data = get_tree().get_root().get_node("LayerManager").return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in LayerManager.trap_cells:
+		var tile_data = LayerManager.return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
@@ -293,8 +321,8 @@ func check_traps(delta):
 
 func check_liquids(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells[0]:
-		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in LayerManager.liquid_cells[0]:
+		var tile_data = LayerManager.return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var type = tile_data.get_custom_data("liquid")
 			match type:
@@ -311,7 +339,7 @@ func check_liquids(delta):
 					
 					
 func _glitch_move() -> void:
-	var ground_cells = get_tree().get_root().get_node("LayerManager").room_instance.get_node("Ground").get_used_cells()
+	var ground_cells = LayerManager.room_instance.get_node("Ground").get_used_cells()
 	var move_dir_l = velocity.normalized() *16
 	var move_dir_r = velocity.normalized() *16
 	var check_pos_r = Vector2i(((position + move_dir_r)/16).floor())
@@ -337,13 +365,13 @@ func _glitch_move() -> void:
 	var color1 = shift_hue(Color(0.0, 0.867, 0.318, 1.0),randf_range(-hue_variance,hue_variance))
 	var color2 = shift_hue(Color(0.0, 0.116, 0.014, 1.0),randf_range(-hue_variance,hue_variance))
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
+	Spawner.spawn_after_image(self,LayerManager,color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	velocity=move_dir/2.0
 	move_and_slide()
 	saved_position = position
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
+	Spawner.spawn_after_image(self,LayerManager,color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	move_and_slide()
 	velocity = saved_velocity
@@ -357,9 +385,9 @@ func _crafter_chance() -> bool:
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
-		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		remnants = LayerManager.player_1_remnants
 	else:
-		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		remnants = LayerManager.player_2_remnants
 	var crafter = load("res://Game Elements/Remnants/crafter.tres")
 	for rem in remnants:
 		if rem.remnant_name == crafter.remnant_name:
@@ -371,24 +399,37 @@ func _crafter_chance() -> bool:
 			
 	return true
 
-func hunter_percent_boost() -> float:
+func damage_boost() -> float:
+	var boost : float = 1.0
 	randomize()
 	var remnants : Array[Remnant]
 	if is_purple:
-		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		remnants = LayerManager.player_1_remnants
 	else:
-		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		remnants = LayerManager.player_2_remnants
 	var hunter = load("res://Game Elements/Remnants/hunter.tres")
+	var kinetic = load("res://Game Elements/Remnants/kinetic_battery.tres")
+	var ninja = load("res://Game Elements/Remnants/ninja.tres")
 	for rem in remnants:
 		if rem.remnant_name == hunter.remnant_name:
 			var min_dist = 100000
-			for child in get_tree().get_root().get_node("LayerManager").room_instance.get_children():
+			for child in LayerManager.room_instance.get_children():
 				if child is DynamEnemy:
 					min_dist = min(min_dist,self.position.distance_to(child.position))
 			if rem.variable_2_values[rem.rank-1]*16 < min_dist:
-				print("boosted")
-				return float(rem.variable_1_values[rem.rank-1])
-	return 0.0
+				boost = (100+float(rem.variable_1_values[rem.rank-1]))/100.0
+		if rem.remnant_name == kinetic.remnant_name:
+			var temp_move = 0
+			if input_direction != Vector2.ZERO:
+				temp_move = move_speed
+			boost *= (1.0+rem.variable_1_values[rem.rank-1]/100.0*((temp_move/base_move_speed)-1))
+		if rem.remnant_name == ninja.remnant_name:
+			if is_purple:
+				boost *= LayerManager.hud.player1_combo
+			else:
+				boost *= LayerManager.hud.player2_combo
+	
+	return boost
 
 func change_health(add_to_current : int, add_to_max : int = 0):
 	current_health+=add_to_current
@@ -410,3 +451,113 @@ func update_weapon(resource_name : String):
 	weapons[is_purple as int] = Weapon.create_weapon(resource_loc,self)
 	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
 	weapon_sprite.weapon_type = weapons[is_purple as int].type
+	
+
+func combo(input_purple : bool):
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	var ninja = load("res://Game Elements/Remnants/ninja.tres")
+	for rem in remnants:
+		if rem.remnant_name == ninja.remnant_name:
+			LayerManager.hud.combo_change(input_purple,true)
+			
+func display_combo():
+	var remnants : Array[Remnant]
+	var ninja = load("res://Game Elements/Remnants/ninja.tres")
+	if !Globals.is_multiplayer:
+		if !is_purple:
+			remnants = LayerManager.player_1_remnants
+		else:
+			remnants = LayerManager.player_2_remnants
+		for rem in remnants:
+			if rem.remnant_name == ninja.remnant_name:
+				LayerManager.hud.combo(rem,!self.is_purple)
+		
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	for rem in remnants:
+		if rem.remnant_name == ninja.remnant_name:
+			LayerManager.hud.combo(rem,self.is_purple)
+	
+
+func player_special_reset():
+	emit_signal("special_reset", is_purple)
+
+func hit_enemy(attack_body : Node):
+	var cur_weapon = weapons[attack_body.is_purple as int]
+	cur_weapon.current_special_hits +=1
+	if cur_weapon.current_special_hits > cur_weapon.special_hits:
+		cur_weapon.current_special_hits = cur_weapon.special_hits
+	else:
+		emit_signal("special_changed",attack_body.is_purple,cur_weapon.current_special_hits/float(cur_weapon.special_hits))
+		
+	
+	var remnants : Array[Remnant] = []
+	if attack_body.is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
+	var effect : Effect
+	for rem in remnants:
+		if rem.remnant_name == winter.remnant_name:
+			effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
+			effect.cooldown = rem.variable_2_values[rem.rank-1]
+			effect.value1 =  rem.variable_1_values[rem.rank-1]
+			effect.gained(self)
+			effects.append(effect)
+
+
+func check_drones():
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	var drone = load("res://Game Elements/Remnants/drone.tres")
+	for rem in remnants:
+		if rem.remnant_name == drone.remnant_name:
+			var drones = get_tree().get_nodes_in_group("drones")
+			var drones_player = []
+			for drone_inst in drones:
+				if drone_inst.player == self and drone_inst.killed != true:
+					drones_player.append(drone_inst)
+			if drones_player.size()>0:
+				drones_player[0].kill()
+				return true
+	return false
+	
+
+func kill_enemy(enemy: Node):
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = LayerManager.player_1_remnants
+	else:
+		remnants = LayerManager.player_2_remnants
+	var adrenal = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	var drone = load("res://Game Elements/Remnants/drone.tres")
+	for rem in remnants:
+		if rem.remnant_name == adrenal.remnant_name:
+			var effect = load("res://Game Elements/Effects/speed.tres").duplicate(true)
+			effect.cooldown = adrenal.variable_2_values[rem.rank-1]
+			effect.value1 = adrenal.variable_1_values[rem.rank-1] / 100.0
+			
+			effect.gained(self)
+			effects.append(effect)
+		if rem.remnant_name == drone.remnant_name:
+			var drones = get_tree().get_nodes_in_group("drones")
+			var drone_num = 0
+			for drone_inst in drones:
+				if drone_inst.player == self:
+					drone_num+=1
+			if drone_num >= rem.variable_2_values[rem.rank-1]:
+				break
+			var dr_inst = load("res://Game Elements/Remnants/drone/drone.tscn").instantiate()
+			LayerManager.room_instance.add_child(dr_inst)
+			dr_inst.global_position = enemy.global_position
+			dr_inst.prep(self, rem.variable_1_values[rem.rank-1])

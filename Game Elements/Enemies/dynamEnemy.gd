@@ -32,7 +32,7 @@ var effects : Array[Effect] = []
 var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res://Game Elements/Attacks/robot_melee.tscn")]
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
-signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direection : Vector2)
+signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direction : Vector2)
 
 
 func handle_attack(target_position: Vector2):
@@ -40,7 +40,7 @@ func handle_attack(target_position: Vector2):
 	var attack_position = attack_direction * 0		 + global_position
 	if enemy_type=="robot":
 		if self and !self.is_queued_for_deletion():
-			weapon.request_attacks(attack_direction,global_position)
+			weapon.request_attacks(attack_direction,global_position,self)
 		return
 	request_attack(attacks[0], attack_position, attack_direction)
 
@@ -94,7 +94,6 @@ func sprint(start : bool):
 	if !can_sprint:
 		return
 	if !start and sprint_timer > 0.0:
-		print("End Sprint")
 		if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("move"):
 			$AnimationPlayer.play("move")
 		sprint_cool = randf_range(min_sprint_cooldown,max_sprint_cooldown)
@@ -102,7 +101,6 @@ func sprint(start : bool):
 		sprint_timer=0.0
 	else:
 		if sprint_timer == 0.0 and  sprint_cool == 0.0:
-			print("Start Sprint")
 			if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("sprint"):
 				$AnimationPlayer.play("sprint")
 			move_speed *=sprint_multiplier
@@ -153,6 +151,8 @@ func _robot_process():
 
 
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0):
+	if current_health< 0:
+		return
 	check_agro(dmg_owner)
 	if(i_frames <= 0) and enemy_type=="binary_bot":
 		i_frames = 20
@@ -160,23 +160,14 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	if current_health >= 0 and display_damage:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
-		var remnants : Array[Remnant] = []
-		if dmg_owner.is_purple:
-			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
-		else:
-			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
-		var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
-		var effect : Effect
-		for rem in remnants:
-			if rem.remnant_name == winter.remnant_name:
-				effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
-				effect.cooldown = rem.variable_2_values[rem.rank-1]
-				effect.value1 =  rem.variable_1_values[rem.rank-1]
-				effect.gained(self)
-				effects.append(effect)
+		if attack_body and !attack_body.combod:
+			attack_body.combod = true
+			dmg_owner.combo(attack_body.is_purple)
+		dmg_owner.hit_enemy(attack_body)
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
-	if current_health-damage < 0 and enemy_type == "laser_e":
+	current_health -= damage
+	if current_health < 0 and enemy_type == "laser_e":
 		var bt_player = get_node("BTPlayer")
 		var board = bt_player.blackboard
 		if board:
@@ -184,11 +175,14 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			board.set_var("kill_damage", damage)
 			board.set_var("kill_direction", direction)
 		return
+	if current_health < 0 and dmg_owner.is_in_group("player"):
+		dmg_owner.kill_enemy(self)
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
-	current_health -= damage
 
 func check_agro(dmg_owner : Node):
 	if dmg_owner.is_in_group("player"):
+		if get_node_or_null("BTPlayer") == null:
+			return
 		var board = get_node("BTPlayer").blackboard
 		if board.get_var("state") == "spawning":
 			return

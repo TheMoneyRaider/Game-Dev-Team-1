@@ -36,6 +36,7 @@ holds_reward=""
 attack=""
 enemy=""
 timefabric=""
+drones=""
 
 [input]
 

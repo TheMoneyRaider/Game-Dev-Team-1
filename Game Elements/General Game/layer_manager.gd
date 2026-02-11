@@ -9,7 +9,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
-var weapon1 = "res://Game Elements/Weapons/Mace.tres"
+var weapon1 = "res://Game Elements/Weapons/LaserSword.tres"
 var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
@@ -90,13 +90,33 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	#var rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	#var rem2 = load("res://Game Elements/Remnants/winters_embrace.tres")
-	#rem.rank = 3
-	#rem2.rank = 3
-	#player_1_remnants.append(rem.duplicate(true))
-	#player_2_remnants.append(rem2.duplicate(true))
-	#hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	var rem = load("res://Game Elements/Remnants/drone.tres")
+	var rem2 = load("res://Game Elements/Remnants/drone.tres")
+	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
+	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
+	#var rem5 = load("res://Game Elements/Remnants/intelligence.tres")
+	#var rem6 = load("res://Game Elements/Remnants/intelligence.tres")
+	#var rem7 = load("res://Game Elements/Remnants/investment.tres")
+	#var rem8 = load("res://Game Elements/Remnants/investment.tres")
+	rem.rank = 4
+	rem2.rank = 4
+	rem3.rank = 5
+	rem4.rank = 5
+	#rem5.rank = 4
+	#rem6.rank = 4
+	#rem7.rank = 4
+	#rem8.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem2.duplicate(true))
+	player_1_remnants.append(rem3.duplicate(true))
+	player_2_remnants.append(rem4.duplicate(true))
+	#player_1_remnants.append(rem5.duplicate(true))
+	#player_2_remnants.append(rem6.duplicate(true))
+	#player_1_remnants.append(rem7.duplicate(true))
+	#player_2_remnants.append(rem8.duplicate(true))
+	player1.display_combo()
+	
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 100000
 	####
 	game_root.add_child(pathfinding)
@@ -133,6 +153,7 @@ func _ready() -> void:
 	_prepare_timefabric()
 
 func _process(delta: float) -> void:
+	
 	time_passed += delta
 	if is_multiplayer:
 		camera.global_position = (player1.global_position + player2.global_position) / 2
@@ -1136,23 +1157,27 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 func _move_to_pathway_room(pathway_id: String) -> void:
 	var shido1 = 0.0
 	var shido2 = 0.0
+	var player1_ranked_up : Array[String] = []
+	var player2_ranked_up : Array[String] = []
 	for rem in player_1_remnants:
 		if rem.remnant_name == "Remnant of Shido":
 			shido1 = rem.variable_1_values[rem.rank-1]/100.0
 			break
 	for rem in player_2_remnants:
 		if rem.remnant_name == "Remnant of Shido":
-			shido1 = rem.variable_1_values[rem.rank-1]/100.0
+			shido2 = rem.variable_1_values[rem.rank-1]/100.0
 			break
 	if shido1!=0.0:
 		for rem in player_1_remnants:
 			if randf() < shido1:
 				rem.rank +=1
+				player1_ranked_up.append(rem.remnant_name)
 	if shido2!=0.0:
-		for rem in player_1_remnants:
+		for rem in player_2_remnants:
 			if randf() < shido2:
 				rem.rank +=1
-	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+				player2_ranked_up.append(rem.remnant_name)
+	hud.set_remnant_icons(player_1_remnants,player_2_remnants,player1_ranked_up,player2_ranked_up)
 		
 	
 	
@@ -1206,6 +1231,12 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 
 	# Assign a new generated_room_data definition for metadata
 	room_instance_data = next_room_data
+	
+	if !room_instance_data.has_shop:
+		var investment = load("res://Game Elements/Remnants/investment.tres")
+		for rem in player_1_remnants:
+			if rem.remnant_name == investment.remnant_name:
+				timefabric_collected+= timefabric_collected * (rem.variable_1_values[rem.rank-1])/100.0
 
 	# Update layers and other arrays
 	trap_cells = room_instance.trap_cells
@@ -1337,6 +1368,10 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 	if is_multiplayer:
 		player2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+	player1.display_combo()
+	if Globals.is_multiplayer:
+		player2.display_combo()
 
 func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 	for i in range(player_1_remnants.size()):
@@ -1350,6 +1385,11 @@ func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 	if is_multiplayer:
 		player2.get_node("Crosshair").visible = true
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
+	
+	player1.display_combo()
+	if Globals.is_multiplayer:
+		player2.display_combo()
+		
 
 func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_collected+=1
@@ -1406,7 +1446,7 @@ func calculate_reward(reward_probability : Array) -> int:
 	return 0
 
 func apply_shared_noise_offset(root: Node):
-	var shared_offset = Vector2(randf() * 1000.0, randf() * 1000.0)
+	var shared_offset = Vector2(floor(randf() * 1000.0)*16, floor(randf() * 1000.0)*16)
 	check_node(root,shared_offset)
 
 func check_node(n: Node,shared_offset : Vector2):
@@ -1427,7 +1467,7 @@ func _placable_locations():
 	placable_cells = temp_placable_locations
 
 
-func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null):
+func _damage_indicator(damage : int, dmg_owner : Node,direction : Vector2 , attack_body: Node = null, c_owner : Node = null,override_color : Color = Color(0.267, 0.394, 0.394, 1.0)):
 	var instance = load("res://Game Elements/Objects/damage_indicator.tscn").instantiate()
 	room_instance.add_child(instance)
-	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction)
+	instance.set_values(c_owner, attack_body, dmg_owner, damage, direction,64, override_color)

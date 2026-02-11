@@ -23,9 +23,16 @@ var hit_nodes = {}
 @export var deflectable : bool = false
 @export var deflects : bool = false
 @export var i_frames : int = 20
+var combod : bool = false
+var is_purple : bool = false
+
+var hack1 : Remnant = null
+var hack2 : Remnant = null
 
 var frozen := true
+var intelligence : Remnant = null
 
+var LayerManager : Node = null
 
 #Special Variables
 var life = 0.0
@@ -43,13 +50,29 @@ func set_values(attack_speed = self.attack_speed, attack_damage = self.damage, a
 	self.lifespan = attack_lifespan
 	self.hit_force = attack_hit_force
 
+func ready_hacks():
+	var hack = load("res://Game Elements/Remnants/hack.tres")
+	for rem in LayerManager.player_1_remnants:
+		if rem.remnant_name == hack.remnant_name:
+			hack1=rem.duplicate(true)
+			break
+	for rem in LayerManager.player_2_remnants:
+		if rem.remnant_name == hack.remnant_name:
+			hack2=rem.duplicate(true)
+			break
+			
+
 func _ready():
+	LayerManager = get_tree().get_root().get_node("LayerManager")
+	ready_hacks()
 	frozen = true
 	if start_lag > 0.0:
 		await get_tree().create_timer(start_lag).timeout
 	frozen = false
 	if attack_type == "robot melee":
 		$AnimationPlayer.play("main")
+	if attack_type == "ls_melee":
+		$AnimationPlayer.play("swing")
 	
 	if attack_type == "death mark":
 		if c_owner.is_purple:
@@ -58,7 +81,55 @@ func _ready():
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_orange.png")
 	rotation = direction.angle() + PI/2
 
+
+
+func change_direction():
+	var enemies = {}
+	
+	var dist_scale = intelligence.variable_2_values[intelligence.rank-1]
+	var max_angle = intelligence.variable_3_values[intelligence.rank-1]
+	var turn_strength = intelligence.variable_4_values[intelligence.rank-1]
+
+	var forward = direction.normalized()
+
+	# Collect valid enemies
+	for enemy in get_parent().get_children():
+		if !enemy.is_in_group("enemy"):
+			continue
+		var to_enemy = enemy.global_position - global_position
+		var dist = to_enemy.length() / dist_scale / 16.0
+		if dist > 1:
+			continue
+		var angle = abs(rad_to_deg(forward.angle_to(to_enemy)))
+		if angle <= max_angle:
+			# lower score = better
+			var score = dist + angle/max_angle
+			enemies[enemy] = score
+
+	if enemies.is_empty():
+		return
+	#Pick best enemy
+	var best_enemy = null
+	var best_score = INF
+
+	for enemy in enemies:
+		if enemies[enemy] < best_score:
+			best_score = enemies[enemy]
+			best_enemy = enemy
+	# Steer velocity smoothly
+	if best_enemy:
+		var to_enemy = (best_enemy.global_position - global_position).normalized()
+		var angle = abs(rad_to_deg(forward.angle_to(to_enemy)))
+		var angle_ratio = clamp(turn_strength/ float(angle),0.0,1.0)
+		direction = lerp(direction, to_enemy, angle_ratio)
+		rotation = direction.angle() + PI/2
+		
+
 func _process(delta):
+	if attack_type == "ls_melee":
+		global_position = c_owner.global_position
+	if intelligence and speed > 0:
+		change_direction()
 	if frozen:
 		return
 	if attack_type == "laser":
@@ -75,6 +146,17 @@ func _process(delta):
 	queue_free()
 	
 func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: Vector2) -> int:
+	#Computer Hack Remnant
+	var hack_chance1 = 0.0 if !hack1 else hack1.variable_1_values[hack1.rank-1]/100.0
+	var hack_chance2 = 0.0 if !hack2 else hack2.variable_1_values[hack2.rank-1]/100.0
+	if hack_chance1 > randf():
+		n_owner = LayerManager.player1
+	if hack_chance2 > randf():
+		n_owner = LayerManager.player1
+		if Globals.is_multiplayer:
+			n_owner = LayerManager.player2
+	if body == n_owner:
+		return 0
 	if n_owner.is_in_group("player") and body.is_in_group("player"):
 		return 0
 	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
@@ -149,6 +231,7 @@ func _on_area_entered(area: Area2D) -> void:
 			return
 		area.deflect(direction, hit_force,self)
 		area.c_owner = c_owner
+		area.is_purple = is_purple
 		area.hit_nodes = {}
 		for area_intr in area.get_overlapping_areas():
 			area._on_body_entered(area_intr)

@@ -35,6 +35,8 @@ func gained(node_to_change : Node):
 			var particle =  load("res://Game Elements/Effects/charged_particles.tscn").instantiate()
 			particle.position = node_to_change.position
 			node_to_change.get_parent().add_child(particle)
+		"speed":
+			node_to_change.move_speed = ((1+value1) * node_to_change.move_speed)
 			
 
 func lost(node_to_change : Node):
@@ -47,3 +49,5 @@ func lost(node_to_change : Node):
 			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
 		"charged":
 			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
+		"speed":
+			node_to_change.move_speed = node_to_change.move_speed * 1 / (1+value1)
