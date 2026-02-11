@@ -94,8 +94,8 @@ func _ready() -> void:
 	var rem2 = load("res://Game Elements/Remnants/drone.tres")
 	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
 	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
-	var rem5 = load("res://Game Elements/Remnants/adrenal_injector.tres")
-	var rem6 = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	var rem5 = load("res://Game Elements/Remnants/emp.tres")
+	var rem6 = load("res://Game Elements/Remnants/emp.tres")
 	#var rem7 = load("res://Game Elements/Remnants/investment.tres")
 	#var rem8 = load("res://Game Elements/Remnants/investment.tres")
 	rem.rank = 4

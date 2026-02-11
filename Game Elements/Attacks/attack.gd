@@ -73,6 +73,8 @@ func _ready():
 		$AnimationPlayer.play("main")
 	if attack_type == "ls_melee":
 		$AnimationPlayer.play("swing")
+	if attack_type == "emp":
+		$AnimationPlayer.play("explode")
 	
 	if attack_type == "death mark":
 		if c_owner.is_purple:

@@ -164,7 +164,7 @@ func start_special(special_direction : Vector2, node_attacking : Node):
 var laser_max_distance = 128 
 var laser_min_distance = 16 
 var laser_enemy_max = 7
-var laser_angle =cos(PI/2)
+var laser_angle =cos(PI/3)
 func get_locations(start_node : Node,inital_direction : Vector2) -> Array[Vector2]: 
 	
 	
@@ -365,6 +365,7 @@ func laser_special_attack(special_direction : Vector2,node_attacking : Node):
 				node_attacking.global_position = spawn_pos
 				# Wait for the next frame before continuing
 				await node_attacking.get_tree().process_frame
+				current_special_hits = 0
 		if i == locations.size()-1:
 			node_attacking.global_position = spawn_pos
 	node_attacking.move_speed /= 4.0

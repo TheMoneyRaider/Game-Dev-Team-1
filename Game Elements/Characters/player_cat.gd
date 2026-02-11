@@ -180,6 +180,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 			remnants = LayerManager.player_2_remnants
 		var phase = load("res://Game Elements/Remnants/body_phaser.tres")
 		var invest = load("res://Game Elements/Remnants/investment.tres")
+		var emp = load("res://Game Elements/Remnants/emp.tres")
 		for rem in remnants:
 			if rem.remnant_name == phase.remnant_name:
 				var temp_move = 0
@@ -189,6 +190,12 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 				damage_amount = max(0,damage_amount)
 			if rem.remnant_name == invest.remnant_name:
 				LayerManager.timefabric_collected-= LayerManager.timefabric_collected * (rem.variable_2_values[rem.rank-1])/100.0
+			if rem.remnant_name == emp.remnant_name and _dmg_owner and _dmg_owner.is_in_group("enemy"):
+				var instance = load("res://Game Elements/Attacks/emp.tscn").instantiate()
+				instance.c_owner = self
+				instance.global_position = global_position
+				LayerManager.room_instance.call_deferred("add_child",instance)
+				
 		current_health = current_health - damage_amount
 		emit_signal("player_took_damage",damage_amount,current_health,self)
 		if current_health >= 0:
@@ -493,7 +500,23 @@ func display_combo():
 func player_special_reset():
 	emit_signal("special_reset", is_purple)
 
-func hit_enemy(attack_body : Node):
+func hit_enemy(attack_body : Node, enemy : Node):
+	var remnants : Array[Remnant] = []
+	var effect : Effect
+	if attack_body.attack_type == "emp":
+		if attack_body.is_purple:
+			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		else:
+			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		var emp = load("res://Game Elements/Remnants/emp.tres")
+		for rem in remnants:
+			if rem.remnant_name == emp.remnant_name:
+				effect = load("res://Game Elements/Effects/stun.tres").duplicate(true)
+				effect.cooldown = rem.variable_1_values[rem.rank-1]
+				effect.gained(enemy)
+				enemy.effects.append(effect)
+		
+		return
 	var cur_weapon = weapons[attack_body.is_purple as int]
 	cur_weapon.current_special_hits +=1
 	if cur_weapon.current_special_hits > cur_weapon.special_hits:
@@ -502,20 +525,18 @@ func hit_enemy(attack_body : Node):
 		emit_signal("special_changed",attack_body.is_purple,cur_weapon.current_special_hits/float(cur_weapon.special_hits))
 		
 	
-	var remnants : Array[Remnant] = []
 	if attack_body.is_purple:
 		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
 	else:
 		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
 	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
-	var effect : Effect
 	for rem in remnants:
 		if rem.remnant_name == winter.remnant_name:
 			effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
 			effect.cooldown = rem.variable_2_values[rem.rank-1]
 			effect.value1 =  rem.variable_1_values[rem.rank-1]
-			effect.gained(self)
-			effects.append(effect)
+			effect.gained(enemy)
+			enemy.effects.append(effect)
 
 
 func check_drones():
