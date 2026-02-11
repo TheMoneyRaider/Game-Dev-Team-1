@@ -94,24 +94,24 @@ func _ready() -> void:
 	var rem2 = load("res://Game Elements/Remnants/drone.tres")
 	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
 	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
-	#var rem5 = load("res://Game Elements/Remnants/intelligence.tres")
-	#var rem6 = load("res://Game Elements/Remnants/intelligence.tres")
+	var rem5 = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	var rem6 = load("res://Game Elements/Remnants/adrenal_injector.tres")
 	#var rem7 = load("res://Game Elements/Remnants/investment.tres")
 	#var rem8 = load("res://Game Elements/Remnants/investment.tres")
 	rem.rank = 4
 	rem2.rank = 4
 	rem3.rank = 5
 	rem4.rank = 5
-	#rem5.rank = 4
-	#rem6.rank = 4
+	rem5.rank = 4
+	rem6.rank = 4
 	#rem7.rank = 4
 	#rem8.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem2.duplicate(true))
 	player_1_remnants.append(rem3.duplicate(true))
 	player_2_remnants.append(rem4.duplicate(true))
-	#player_1_remnants.append(rem5.duplicate(true))
-	#player_2_remnants.append(rem6.duplicate(true))
+	player_1_remnants.append(rem5.duplicate(true))
+	player_2_remnants.append(rem6.duplicate(true))
 	#player_1_remnants.append(rem7.duplicate(true))
 	#player_2_remnants.append(rem8.duplicate(true))
 	player1.display_combo()

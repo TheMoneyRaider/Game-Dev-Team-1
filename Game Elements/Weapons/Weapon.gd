@@ -153,25 +153,29 @@ func start_special(special_direction : Vector2, node_attacking : Node):
 			node_attacking.LayerManager.room_instance.add_child(mesh_inst)
 
 			special_nodes.append(mesh_inst)
-			var camera_position = node_attacking.LayerManager.camera.global_position
-			var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
-												func(e) -> bool:
-												return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
-												)
 			
-			var locations : Array[Vector2] = get_locations(node_attacking,
-															enemies,
-															special_direction)
+
+			var locations : Array[Vector2] = get_locations(node_attacking, special_direction)
 			mesh_inst.draw_path(PackedVector2Array(locations))
 			
 		_ :
 			pass
 
 var laser_max_distance = 128 
-var laser_min_distance = 32 
-var laser_enemy_max = 5
-#var laser_angle =PI/2
-func get_locations(start_node : Node, all_enemies : Array, inital_direction : Vector2) -> Array[Vector2]: 
+var laser_min_distance = 16 
+var laser_enemy_max = 7
+var laser_angle =cos(PI/2)
+func get_locations(start_node : Node,inital_direction : Vector2) -> Array[Vector2]: 
+	
+	
+	var camera_position = start_node.LayerManager.camera.global_position
+	var all_enemies = start_node.get_tree().get_nodes_in_group("enemy").filter(
+		func(e) -> bool:
+		return (abs(e.global_position.x-camera_position.x) < laser_camera_distancex 
+			and abs(e.global_position.y-camera_position.y) < laser_camera_distancey 
+			and e.hitable)
+		)
+	
 	var best_chain: Array[Vector2] = [] # Stack stores: node, chain_length (index in chain), direction 
 	var stack: Array = [] # Single mutable chain array reused across all frames 
 	stack.push_back({ 	"node": start_node, 
@@ -195,7 +199,7 @@ func get_locations(start_node : Node, all_enemies : Array, inital_direction : Ve
 			var offset_norm = offset.normalized() 
 			# Instead of normalized vector + angle_to:
 			var cos_angle = direction.dot(offset) / sqrt(offset_sq)  # direction is normalized
-			if cos_angle < 0.0: #90 degrees
+			if cos_angle < laser_angle:
 				continue # Push next frame onto stack 
 			# Create a new chain for this path
 			var new_chain = chain.duplicate()
@@ -214,14 +218,7 @@ func get_locations(start_node : Node, all_enemies : Array, inital_direction : Ve
 func special_tick(special_direction : Vector2, node_attacking : Node):
 	match type:
 			"Laser_Sword":
-				var camera_position = node_attacking.LayerManager.camera.global_position
-				var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
-													func(e) -> bool:
-													return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
-													)
-				
-				var locations : Array[Vector2] = get_locations(node_attacking,
-																enemies,special_direction)
+				var locations : Array[Vector2] = get_locations(node_attacking, special_direction)
 				special_nodes[0].draw_path(PackedVector2Array(locations))
 			_:
 				pass
@@ -316,15 +313,7 @@ func laser_special_attack(special_direction : Vector2,node_attacking : Node):
 	for node in special_nodes:
 		node.queue_free()
 	special_nodes = []
-	
-	var camera_position = node_attacking.LayerManager.camera.global_position
-	var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
-										func(e) -> bool:
-										return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
-										)
-	
-	var locations : Array[Vector2] = get_locations(node_attacking,
-													enemies,special_direction)
+	var locations : Array[Vector2] = get_locations(node_attacking, special_direction)
 	if locations.size() < 2:
 		return # nothing to spawn
 
@@ -361,7 +350,7 @@ func laser_special_attack(special_direction : Vector2,node_attacking : Node):
 				spawn_pos
 			)
 		while traveled + image_distance <= segment_length:
-			count = (count+1)% 8
+			count = (count+1)% 4
 			traveled += image_distance
 			spawn_pos = start_pos + direction * traveled
 			Spawner.spawn_after_image(

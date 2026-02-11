@@ -548,12 +548,15 @@ func kill_enemy(enemy: Node):
 	var drone = load("res://Game Elements/Remnants/drone.tres")
 	for rem in remnants:
 		if rem.remnant_name == adrenal.remnant_name:
-			var effect = load("res://Game Elements/Effects/speed.tres").duplicate(true)
-			effect.cooldown = adrenal.variable_2_values[rem.rank-1]
-			effect.value1 = adrenal.variable_1_values[rem.rank-1] / 100.0
-			
-			effect.gained(self)
-			effects.append(effect)
+			if move_speed < 3*base_move_speed:
+				var effect = load("res://Game Elements/Effects/speed.tres").duplicate(true)
+				effect.cooldown = adrenal.variable_2_values[rem.rank-1]
+				effect.value1 = adrenal.variable_1_values[rem.rank-1] / 100.0
+				if move_speed * (1+effect.value1) >3*base_move_speed:
+					effect.value1 = 4*base_move_speed/move_speed - 1
+				effect.gained(self)
+				effects.append(effect)
+				print(move_speed)
 		if rem.remnant_name == drone.remnant_name:
 			var drones = get_tree().get_nodes_in_group("drones")
 			var drone_num = 0

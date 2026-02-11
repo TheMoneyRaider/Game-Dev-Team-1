@@ -25,6 +25,7 @@ var damage_taken = 0
 var debug_mode = false
 var look_direction : Vector2 = Vector2(0,1)
 @export var weapon_cooldowns : Array[float] = []
+@export var hitable : bool = true
 @onready var i_frames : int = 0
 var weapon = null
 var effects : Array[Effect] = []
