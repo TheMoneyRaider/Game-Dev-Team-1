@@ -31,6 +31,7 @@ scale_curve = SubResource("CurveTexture_oxh06")
 color_ramp = SubResource("GradientTexture1D_2l04d")
 
 [node name="ChargedParticles" type="GPUParticles2D"]
+z_index = 19
 emitting = false
 amount = 10
 lifetime = 3.0

@@ -14,6 +14,8 @@ class_name Weapon
 @export var attack_type: String = "smash"
 @export var attack_scene: String = "res://Game Elements/Attacks/smash.tscn"
 @export var spawn_distance: float = 20
+@export var special_hits : int = 5
+var current_special_hits = 0
 
 var speed = 60.0
 #How fast the attack is moving
@@ -111,7 +113,10 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 	instance.global_position = attack_position
 	instance.c_owner = c_owner
 	instance.speed = speed
-	instance.damage = damage * c_owner.damage_boost() if c_owner.is_in_group("player") else damage
+	if c_owner.is_in_group("player"):
+		instance.damage = damage * c_owner.damage_boost()
+	else:
+		instance.damage = damage
 	instance.lifespan = lifespan
 	instance.hit_force = hit_force
 	instance.start_lag = start_lag
@@ -125,6 +130,8 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 
 func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node) -> Array:
 	var Effects : Array[Effect] = []
+	if current_special_hits < special_hits:
+		return Effects
 	if(!is_released):
 		match type:
 			"Mace":
@@ -155,8 +162,10 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				if(special_time_elapsed >= 5.0):
 					damage += (special_start_damage / 2)
 				if(special_time_elapsed >= 1.0):
+					
+					node_attacking.player_special_reset()
 					spawn_attack(special_direction,special_position, node_attacking,"charged_particles")
-					print(damage)
+					current_special_hits = 0
 					damage = special_start_damage
 			_:
 				pass

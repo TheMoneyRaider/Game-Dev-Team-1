@@ -27,6 +27,8 @@ func _ready():
 	$RootControl/Notification.modulate.a = 0.0
 	combo1.visible = false
 	combo2.visible = false
+	LeftCooldownBar.get_node("CooldownBar").material =LeftCooldownBar.get_node("CooldownBar").material.duplicate(true)
+	RightCooldownBar.get_node("CooldownBar").material =RightCooldownBar.get_node("CooldownBar").material.duplicate(true)
 
 func set_timefabric_amount(timefabric_collected : int):
 	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
@@ -94,6 +96,8 @@ func connect_signals(player_node : Node):
 	player_node.player_took_damage.connect(_on_player_take_damage)
 	player_node.swapped_color.connect(_on_player_swap)
 	player_node.max_health_changed.connect(_on_max_health_changed)
+	player_node.special_changed.connect(_on_special_changed)
+	player_node.special_reset.connect(_on_special_reset)
 
 func set_max_cooldowns():
 	if is_multiplayer:
@@ -127,7 +131,6 @@ func set_cross_position():
 		RightCooldownBar.offset_left = 94
 		RightCooldownBar.offset_right = 212
 	
-	
 func combo(remnant: Remnant, is_purple : bool):
 	if is_purple:
 		combo1.visible = true
@@ -146,7 +149,6 @@ func combo(remnant: Remnant, is_purple : bool):
 		combo2.get_node("TextureProgressBar").value = player2_time
 		combo2.get_node("TextureProgressBar/Label").text = str(player2_combo)+"x"
 	
-
 func combo_change(player_value : bool, increase_value : bool):
 	if player_value:
 		#Player1
@@ -212,6 +214,37 @@ func _on_max_health_changed(max_health : int, current_health : int,player_node :
 	else:
 		health_bar_2.set_max_health(max_health)
 		health_bar_2.set_current_health(current_health)
+
+func _on_special_reset(is_purple : bool):
+	if is_purple:
+		update_shader(LeftCooldownBar.get_node("CooldownBar").material,0.0, true)
+		return
+	update_shader(RightCooldownBar.get_node("CooldownBar").material,0.0, true)
+
+
+func _on_special_changed(is_purple : bool, new_progress):
+	if is_purple:
+		update_shader(LeftCooldownBar.get_node("CooldownBar").material,new_progress)
+		return
+	update_shader(RightCooldownBar.get_node("CooldownBar").material,new_progress)
+
+func update_shader(material: ShaderMaterial, new_prog : float, reset : bool = false):
+	if reset:
+		material.set_shader_parameter("prev_progress", 0.0)
+		material.set_shader_parameter("progress",  0.0)
+		material.set_shader_parameter("time_offset", Time.get_ticks_msec() / 1000.0+material.get_shader_parameter("interp_time"))
+		return
+		
+	var t = clamp((Time.get_ticks_msec() / 1000.0 - material.get_shader_parameter("time_offset")) / material.get_shader_parameter("interp_time"), 0.0, 1.0);
+	if t >= .98:
+		material.set_shader_parameter("prev_progress", material.get_shader_parameter("progress"))
+		material.set_shader_parameter("progress", new_prog)
+		material.set_shader_parameter("time_offset", Time.get_ticks_msec() / 1000.0)
+	else:
+		var current_progress = lerp(material.get_shader_parameter("prev_progress"), material.get_shader_parameter("progress"), t);
+		material.set_shader_parameter("prev_progress", current_progress)
+		material.set_shader_parameter("progress", new_prog)
+		material.set_shader_parameter("time_offset", Time.get_ticks_msec() / 1000.0)
 		
 func display_notification(text : String, fade_in : float = 1.0, hold : float= 1.0, fade_out : float= 1.0):
 	var hud_notification := $RootControl/Notification

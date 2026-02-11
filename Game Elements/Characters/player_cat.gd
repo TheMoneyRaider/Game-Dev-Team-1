@@ -61,6 +61,8 @@ signal activate(player_node : Node)
 signal special(player_node : Node)
 signal swapped_color(player_node : Node)
 signal max_health_changed(new_max_health : int, new_current_health : int, player_node : Node)
+signal special_changed(is_purple : int, new_progress : int)
+signal special_reset(is_purple : int)
 
 var LayerManager: Node
 
@@ -415,7 +417,6 @@ func damage_boost() -> float:
 				if child is DynamEnemy:
 					min_dist = min(min_dist,self.position.distance_to(child.position))
 			if rem.variable_2_values[rem.rank-1]*16 < min_dist:
-				print("boosted")
 				boost = (100+float(rem.variable_1_values[rem.rank-1]))/100.0
 		if rem.remnant_name == kinetic.remnant_name:
 			var temp_move = 0
@@ -483,6 +484,33 @@ func display_combo():
 		if rem.remnant_name == ninja.remnant_name:
 			LayerManager.hud.combo(rem,self.is_purple)
 	
+
+func player_special_reset():
+	emit_signal("special_reset", is_purple)
+
+func hit_enemy(attack_body : Node):
+	var cur_weapon = weapons[attack_body.is_purple as int]
+	cur_weapon.current_special_hits +=1
+	if cur_weapon.current_special_hits > cur_weapon.special_hits:
+		cur_weapon.current_special_hits = cur_weapon.special_hits
+	else:
+		emit_signal("special_changed",attack_body.is_purple,cur_weapon.current_special_hits/float(cur_weapon.special_hits))
+		
+	
+	var remnants : Array[Remnant] = []
+	if attack_body.is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
+	var effect : Effect
+	for rem in remnants:
+		if rem.remnant_name == winter.remnant_name:
+			effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
+			effect.cooldown = rem.variable_2_values[rem.rank-1]
+			effect.value1 =  rem.variable_1_values[rem.rank-1]
+			effect.gained(self)
+			effects.append(effect)
 
 
 func check_drones():

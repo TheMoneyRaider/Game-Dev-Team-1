@@ -167,7 +167,6 @@ func _start_melee_attack():
 	melee_phase = MeleePhase.SHRINK
 	melee_timer = 0.0
 
-	print("Shrink")
 	melee_tween = create_tween()
 	melee_tween.tween_property(self, "repulsion_force", repulsion_force / 8.0, 0.5)
 	_change_glyph_colors(Color(0.487, 0.496, 0.157, 1.0), 0.5, 0.0)
@@ -224,8 +223,6 @@ func _process_melee_attack(delta):
 				_change_glyph_colors(Color(0.0, 0.373, 0.067, 1.0), 2.0, 0.0)
 				melee_tween = create_tween()
 				melee_tween.tween_property(self, "repulsion_force", repulsion_force * 8.0, 1.0)
-				print("Expanding")
-
 		MeleePhase.EXPAND:
 				
 			
@@ -236,7 +233,6 @@ func _process_melee_attack(delta):
 				if is_instance_valid(board):
 					board.set_var("attack_status", " DONE")
 				melee_phase = MeleePhase.NONE
-				print("Done")
 
 func damage_glyphs():
 	var delay

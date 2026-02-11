@@ -74,7 +74,7 @@ void vertex(){
 
 
 /* ============ MAGIC PART ============ */
-
+uniform float prev_progress = 0.0;
 void fragment(){
 
     vec4 tex = texture(TEXTURE, UV);
@@ -88,10 +88,7 @@ void fragment(){
     /* ----- smooth progress interpolation ----- */
     float t = clamp((TIME - time_offset) / interp_time, 0.0, 1.0);
 
-    /* smoothstep makes it buttery */
-    float smooth_t = smoothstep(0.0, 1.0, t);
-
-    float current_progress = progress * smooth_t;
+    float current_progress = mix(prev_progress, progress, t);
 
     /* ----- progress bar mask (left → right) ----- */
     float mask = step(UV.x, current_progress);

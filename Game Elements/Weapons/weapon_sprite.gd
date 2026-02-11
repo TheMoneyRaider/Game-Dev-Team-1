@@ -27,7 +27,6 @@ func _cubic_bezier(p0: float, p1: float, p2: float, p3: float, t: float):
 	var r1 = lerp(q1, q2, t)
 
 	var s = lerp(r0, r1, t)
-	print(s)
 	return s
 
 

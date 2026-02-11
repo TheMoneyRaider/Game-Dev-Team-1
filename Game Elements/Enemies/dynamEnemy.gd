@@ -163,20 +163,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 		if attack_body and !attack_body.combod:
 			attack_body.combod = true
 			dmg_owner.combo(attack_body.is_purple)
-		var remnants : Array[Remnant] = []
-		if dmg_owner.is_purple:
-			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
-		else:
-			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
-		var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
-		var effect : Effect
-		for rem in remnants:
-			if rem.remnant_name == winter.remnant_name:
-				effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
-				effect.cooldown = rem.variable_2_values[rem.rank-1]
-				effect.value1 =  rem.variable_1_values[rem.rank-1]
-				effect.gained(self)
-				effects.append(effect)
+		dmg_owner.hit_enemy(attack_body)
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
 	current_health -= damage
