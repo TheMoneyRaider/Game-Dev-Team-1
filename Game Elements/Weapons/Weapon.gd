@@ -36,6 +36,8 @@ var c_owner: Node = null
 #Variables for Specials
 var special_time_elapsed : float = 0.0
 var special_start_damage : float = 1.0
+var special_started : bool = false
+var special_nodes = []
 
 static func create_weapon(resource_location : String, current_owner : Node2D):
 	var new_weapon = load(resource_location).duplicate(true)
@@ -128,10 +130,74 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 
+
+var laser_camera_distancex = 240
+var laser_camera_distancey = 128
+func start_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node):
+	match type:
+		"Laser_Sword":
+			var mesh_inst = load("res://Game Elements/Attacks/laser_special.tscn").instantiate()
+			node_attacking.LayerManager.room_instance.add_child(mesh_inst)
+			special_nodes.append(mesh_inst)
+			var camera_position = node_attacking.LayerManager.camera.global_position
+			var enemies = node_attacking.get_tree().get_nodes_in_group("enemy").filter(
+												func(e) -> bool:
+												return abs(e.global_position.x-camera_position.x) < laser_camera_distancex and abs(e.global_position.y-camera_position.y) < laser_camera_distancey
+												)
+			
+			var locations : Array[Vector2] = get_locations(camera_position,
+															node_attacking,
+															enemies)
+			mesh_inst.draw_path(PackedVector2Array(locations))
+			
+		_ :
+			pass
+
+var laser_distance = 128 
+var laser_angle =90 
+func get_locations(camera_position : Vector2, start_node : Node, all_enemies : Array) -> Array[Vector2]: 
+	var best_chain: Array[Vector2] = [] # Stack stores: node, chain_length (index in chain), direction 
+	var stack: Array = [] # Single mutable chain array reused across all frames 
+	stack.push_back({ 	"node": start_node, 
+						"direction": start_node.last_input_direction,
+						"chain": [start_node.global_position] as Array[Vector2]
+						}) 
+	while stack.size() > 0: 
+		var frame = stack.pop_back() 
+		var current_node: Node = frame["node"]
+		var direction: Vector2 = frame["direction"]
+		var chain: Array[Vector2] = frame["chain"]
+		if chain.size() > best_chain.size(): 
+			best_chain = chain.duplicate() # only duplicate when saving best 
+		for enemy in all_enemies: 
+			if enemy.global_position in chain:
+				continue  # already visited in this path
+			var offset = enemy.global_position - current_node.global_position 
+			if offset.length_squared() > laser_distance * laser_distance: 
+				continue 
+			var offset_norm = offset.normalized() 
+			var angle_diff = rad_to_deg(direction.angle_to(offset_norm)) 
+			if abs(angle_diff) > laser_angle: 
+				continue # Push next frame onto stack 
+			# Create a new chain for this path
+			var new_chain = chain.duplicate()
+			new_chain.append(enemy.global_position)
+
+			stack.push_back({
+				"node": enemy,
+				"direction": offset_norm,
+				"chain": new_chain
+			})
+
+	return best_chain
+	
 func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2, node_attacking : Node) -> Array:
 	var Effects : Array[Effect] = []
 	if current_special_hits < special_hits:
 		return Effects
+	if !special_started:
+		start_special(time_elapsed, is_released, special_direction , special_position , node_attacking)
+		special_started = true
 	if(!is_released):
 		match type:
 			"Mace":
@@ -155,6 +221,10 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 			_:
 				pass
 	else:
+		special_started = false
+		for node in special_nodes:
+			node.queue_free()
+		special_nodes = []
 		match type:
 			"Mace":
 				pass

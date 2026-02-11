@@ -42,6 +42,7 @@ var tether_width_curve
 var is_multiplayer = false
 var input_device = "-1"
 var input_direction : Vector2 = Vector2.ZERO
+var last_input_direction : Vector2 = Vector2.ZERO
 
 var effects : Array[Effect] = []
 
@@ -118,6 +119,8 @@ func _physics_process(delta):
 		Input.get_action_strength("down_" + input_device) - Input.get_action_strength("up_" + input_device)
 	)
 	input_direction = input_direction.normalized()
+	if input_direction != Vector2.ZERO:
+		last_input_direction = input_direction
 	
 	update_animation_parameters(input_direction)	
 	

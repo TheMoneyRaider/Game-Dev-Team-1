@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=4 uid="uid://n0i0vcbm7wgp"]
+[gd_scene load_steps=5 format=4 uid="uid://n0i0vcbm7wgp"]
 
 [ext_resource type="Script" uid="uid://00rnhke2atmb" path="res://Game Elements/Rooms/room_script.gd" id="1_gu72j"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://Game Elements/tilesets/medival_tileset.tres" id="2_k31b3"]
+[ext_resource type="PackedScene" uid="uid://o7jaiybdcito" path="res://Game Elements/Characters/duck.tscn" id="4_gu72j"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="4_vhrds"]
 
 [node name="Root" type="Node2D"]
@@ -25,6 +26,7 @@ position = Vector2(56, 57)
 position = Vector2(25, 327)
 
 [node name="PathwayD1" type="TileMapLayer" parent="."]
+visible = false
 z_index = 31
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAEABgAAAADAAIAAAAEABcAAAACAAIAAAAEABYAAAACAAIAAAAEABUAAAADAAIAAAAEABQAAAADAAIAAAADABgAAAADAAIAAAADABcAAAADAAIAAAADABYAAAADAAIAAAADABUAAAACAAIAAAADABQAAAACAAIAAAACABgAAAADAAIAAAACABcAAAADAAIAAAACABYAAAADAAIAAAACABUAAAADAAIAAAACABQAAAADAAIAAAABABgAAAADAAIAAAABABcAAAACAAIAAAABABYAAAADAAIAAAABABUAAAACAAIAAAABABQAAAADAAIAAAAAABgAAAACAAIAAAAAABcAAAACAAIAAAAAABYAAAACAAIAAAAAABUAAAACAAIAAAAAABQAAAADAAIAAAD//xgAAAADAAIAAAD//xcAAAACAAIAAAD//xYAAAACAAIAAAD//xUAAAADAAIAAAD//xQAAAACAAIAAAAEABMAAAAIAAMAAAADABMAAAAJAAMAAAACABMAAAAJAAMAAAABABMAAAAIAAMAAAAAABMAAAAJAAMAAAD//xMAAAAJAAMAAAA=")
@@ -35,3 +37,75 @@ z_index = 31
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAACAAUAAAADAAQAAAADAAUAAAADAAQAAAAEAAUAAAADAAQAAAAFAAUAAAADAAQAAAAGAAQAAAAHAAIAAAAFAAQAAAAHAAIAAAAEAAQAAAAGAAIAAAADAAQAAAAHAAIAAAACAAQAAAAGAAIAAAABAAQAAAAHAAIAAAAGAAMAAAACAAIAAAAGAAIAAAACAAIAAAAFAAMAAAADAAIAAAAFAAIAAAADAAIAAAAFAAEAAAACAAIAAAAEAAMAAAACAAIAAAAEAAIAAAADAAIAAAAEAAEAAAACAAIAAAADAAMAAAADAAIAAAADAAIAAAACAAIAAAADAAEAAAACAAIAAAACAAMAAAADAAIAAAACAAIAAAACAAIAAAACAAEAAAADAAIAAAABAAMAAAACAAIAAAABAAIAAAACAAIAAAABAAEAAAADAAIAAAAHAAIAAAADAAIAAAAAAAIAAAACAAIAAAAAAAEAAAACAAIAAAAGAAEAAAACAAIAAAAHAAEAAAACAAIAAAD//wEAAAADAAIAAAA=")
 tile_set = ExtResource("2_k31b3")
+
+[node name="Duck" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-88, 192)
+
+[node name="Duck2" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-23, 189)
+
+[node name="Duck3" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-56, 232)
+
+[node name="Duck4" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-57, 147)
+
+[node name="Duck5" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(2, 233)
+
+[node name="Duck6" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(67, 230)
+
+[node name="Duck7" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(34, 273)
+
+[node name="Duck8" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(33, 188)
+
+[node name="Duck9" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(86, 185)
+
+[node name="Duck10" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(151, 182)
+
+[node name="Duck11" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(118, 225)
+
+[node name="Duck12" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(117, 140)
+
+[node name="Duck13" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(176, 226)
+
+[node name="Duck14" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(241, 223)
+
+[node name="Duck15" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(208, 266)
+
+[node name="Duck16" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(207, 181)
+
+[node name="Duck17" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-256, 193)
+
+[node name="Duck18" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-191, 190)
+
+[node name="Duck19" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-224, 233)
+
+[node name="Duck20" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-225, 148)
+
+[node name="Duck21" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-166, 234)
+
+[node name="Duck22" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-101, 231)
+
+[node name="Duck23" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-134, 274)
+
+[node name="Duck24" parent="." instance=ExtResource("4_gu72j")]
+position = Vector2(-135, 189)
