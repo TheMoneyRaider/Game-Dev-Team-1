@@ -13,7 +13,7 @@ func _process(_delta: float):
 	match weapon_type:
 		"Mace":
 			rotation = (flip * weapon_direction).angle()
-		"L_Sword":
+		"Laser_Sword":
 			rotation = weapon_direction.angle()+ PI / 2 - TAU* _cubic_bezier(0,.42, .58, 1.0,(player.cooldowns[player.is_purple as int] / .3))
 		_:
 			rotation = weapon_direction.angle() + + PI / 2
@@ -38,7 +38,7 @@ func update_weapon_location():
 	match weapon_type:
 		"Mace":
 			$Sprite2D.position = Vector2(-8,-27)
-		"L_Sword":
+		"Laser_Sword":
 			$Sprite2D.position = Vector2(-16,-28)
 		_:
 			$Sprite2D.position = Vector2(0,0)

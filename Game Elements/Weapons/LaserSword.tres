@@ -6,10 +6,13 @@
 
 [resource]
 script = ExtResource("2_n5u2p")
-type = "L_Sword"
+type = "Laser_Sword"
 cooldown_icon = ExtResource("1_jwlky")
 weapon_sprite = ExtResource("3_n5u2p")
 random_spread = false
 attack_type = "ls_attack"
 attack_scene = "res://Game Elements/Attacks/ls_melee.tscn"
+special_attack_scene = "res://Game Elements/Attacks/ls_range.tscn"
 spawn_distance = 0.0
+special_hits = 12
+special_on_release = false

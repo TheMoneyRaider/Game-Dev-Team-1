@@ -260,13 +260,16 @@ static func _spawn_enemy(cell: Vector2i, scene: Node, enemy: PackedScene, layer_
 	scene.add_child(inst)
 	inst.enemy_took_damage.connect(layer_manager._on_enemy_take_damage)
 	
-static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0, start_alpha : float  = 1):
+static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0, start_alpha : float  = 1, mono : bool = false, position_override : Vector2 = Vector2(-999,-999)):
 	
 	# Instance the after image
 	var after_image = load("res://Game Elements/Objects/after_image.tscn").instantiate()
 
 	# Match position and rotation
-	after_image.global_position = entity.global_position
+	if position_override != Vector2(-999,-999):
+		after_image.global_position = position_override
+	else:
+		after_image.global_position = entity.global_position
 	after_image.global_rotation = entity.global_rotation
 	after_image.scale = entity.scale
 
@@ -283,6 +286,7 @@ static func spawn_after_image(entity : Node, layer_manager : Node, start_color :
 	
 
 	after_image.start_color = start_color
+	after_image.mono = mono
 	after_image.start_color_strength = start_color_strength
 	after_image.end_color = end_color
 	after_image.end_color_strength = end_color_strength
