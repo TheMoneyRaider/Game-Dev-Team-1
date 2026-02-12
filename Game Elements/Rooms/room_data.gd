@@ -262,12 +262,9 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 true,																															#Is a shop room?
 [],																																#Enemies That can spawn in this room
 [],																															#Weights for those enemies to spawn
-0)]																															#Chance for waves to be segmented
-
-
-
-var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/test_room_med.tscn", 																		#Scene Location                       
+0),
+room.Create_Room(
+"res://Game Elements/Rooms/outside1.tscn", 																		#Scene Location                       
 0,																																#Num Liquids
 [],																										#Liquid Types 
 [],																										#Liquid Chances                     
@@ -288,4 +285,30 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 false,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
-0)																																#Chance for waves to be segmented
+0)]																															#Chance for waves to be segmented
+
+
+
+var testing_room : Room = room.Create_Room(
+"res://Game Elements/Rooms/outside2.tscn", 																		#Scene Location                       
+0,																																#Num Liquids
+[Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water],																										#Liquid Types 
+[.9,.9,.9,1,1],																										#Liquid Chances                     
+0,																																#Num Fillings              
+[],																																#Terrain Set                                      
+[],																																#Terrain ID                       
+[],																																#Threshold            
+randi(),																														#Noise Seed           
+FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+.1,																																#Noise Frequency                        
+0,																																#Num Traps              
+[],																																#Trap Chances                                
+[],																																#Trap Types                         
+4,																																#Num Pathways                   
+[Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
+10,																																#Enemy Num Goal                               
+0,																																#NPC Spawnpoints   
+false,																															#Is a shop room?
+["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
+[1.0],																															#Weights for those enemies to spawn
+0)																															#Chance for waves to be segmented
