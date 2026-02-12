@@ -17,6 +17,10 @@ class_name Weapon
 @export var spawn_distance: float = 20
 @export var special_hits : int = 5
 @export var special_on_release : bool =  true
+@export var has_animation : bool = false
+@export var sprite_animation : String = ""
+@export var sprite_hframes : int = 1
+@export var sprite_vframes : int = 1
 var current_special_hits = 0
 
 var speed = 60.0
