@@ -264,7 +264,7 @@ true,																															#Is a shop room?
 [],																															#Weights for those enemies to spawn
 0),
 room.Create_Room(
-"res://Game Elements/Rooms/outside1.tscn", 																		#Scene Location                       
+"res://Game Elements/Rooms/medieval/outside1.tscn", 																		#Scene Location                       
 0,																																#Num Liquids
 [],																										#Liquid Types 
 [],																										#Liquid Chances                     
@@ -290,7 +290,7 @@ false,																															#Is a shop room?
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/outside2.tscn", 																		#Scene Location                       
+"res://Game Elements/Rooms/medieval/outside2.tscn", 																		#Scene Location                       
 0,																																#Num Liquids
 [Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water,Globals.Liquid.Water],																										#Liquid Types 
 [.9,.9,.9,1,1],																										#Liquid Chances                     
@@ -306,7 +306,7 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [],																																#Trap Types                         
 4,																																#Num Pathways                   
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
-10,																																#Enemy Num Goal                               
+12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
