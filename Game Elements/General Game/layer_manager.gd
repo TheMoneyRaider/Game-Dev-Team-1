@@ -10,7 +10,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 var player1 = null
 var player2 = null
 var weapon1 = "res://Game Elements/Weapons/LaserSword.tres"
-var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
+var weapon2 = "res://Game Elements/Weapons/Railgun.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
@@ -49,6 +49,7 @@ var thread_running := false
 @onready var camera = $game_container/game_viewport/game_root/Camera2D
 @onready var game_root = $game_container/game_viewport/game_root
 @onready var hud = $game_container/game_viewport/Hud
+@onready var awareness_display = $game_container/game_viewport/EnemyAwareness/AwarenessManager
 
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
@@ -143,6 +144,11 @@ func _ready() -> void:
 	else:
 		Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,false)
 	
+	var enemies : Array[Node]= []
+	for child in room_instance.get_children():
+		if child.is_in_group("enemy"):
+			enemies.append(child)
+	awareness_display.enemies = enemies.duplicate()
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	trap_cells = room_instance.trap_cells
@@ -204,6 +210,12 @@ func _process(delta: float) -> void:
 				Spawner.spawn_enemies([player1,player2], room_instance, placable_cells.duplicate(),room_instance_data,self,true)
 			else:
 				Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,true)
+			
+			var enemies : Array[Node]= []
+			for child in room_instance.get_children():
+				if child.is_in_group("enemy"):
+					enemies.append(child)
+			awareness_display.enemies = enemies.duplicate()
 			return
 		if !room_instance_data.has_shop:
 			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
@@ -1256,6 +1268,12 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	
 	room_cleared= false
 	reward_claimed = false
+	
+	var enemies : Array[Node]= []
+	for child in room_instance.get_children():
+		if child.is_in_group("enemy"):
+			enemies.append(child)
+	awareness_display.enemies = enemies.duplicate()
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():

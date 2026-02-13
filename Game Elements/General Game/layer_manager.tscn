@@ -1,10 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=12 format=3 uid="uid://bjlqt0ad4do23"]
 
 [ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Game Elements/General Game/layer_manager.gd" id="1_gynnh"]
 [ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
 [ext_resource type="PackedScene" uid="uid://bmb5ip00tidvr" path="res://Game Elements/ui/death_menu.tscn" id="3_aya3e"]
 [ext_resource type="Shader" uid="uid://b7787fo6f7qd6" path="res://Game Elements/General Game/layer_manager.gdshader" id="3_wgna5"]
 [ext_resource type="PackedScene" uid="uid://dx87pme08xv7f" path="res://Game Elements/ui/pause_menu.tscn" id="4_qhni4"]
+[ext_resource type="PackedScene" uid="uid://cve6yfoeuc5u0" path="res://Game Elements/Objects/GlowCircle.tscn" id="5_570vf"]
+[ext_resource type="Script" uid="uid://btw80vi8hk0iu" path="res://Game Elements/General Game/enemy_awareness.gd" id="6_754yq"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_754yq"]
 shader = ExtResource("3_wgna5")
@@ -20,6 +22,22 @@ func _unhandled_input(event):
 	if event is InputEventMouseButton and event.pressed:
 		print(\"game-viewport sees click at: \", event.position)
 "
+
+[sub_resource type="Shader" id="Shader_alv7a"]
+code = "shader_type canvas_item;
+
+uniform vec4 color : source_color;
+
+void fragment() {
+	float d = distance(UV, vec2(0.5));
+	float alpha = smoothstep(0.5, 0.0, d); // soft falloff
+	
+	COLOR = vec4(color.rgb, color.a * alpha);
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_alv7a"]
+shader = SubResource("Shader_alv7a")
+shader_parameter/color = Color(0, 0, 0, 1)
 
 [node name="LayerManager" type="Node2D"]
 process_mode = 3
@@ -43,6 +61,14 @@ canvas_item_default_texture_filter = 0
 size = Vector2i(1920, 1000)
 render_target_update_mode = 4
 script = SubResource("GDScript_n323y")
+
+[node name="EnemyAwareness" type="CanvasLayer" parent="game_container/game_viewport"]
+
+[node name="AwarenessManager" type="Node2D" parent="game_container/game_viewport/EnemyAwareness" node_paths=PackedStringArray("camera")]
+material = SubResource("ShaderMaterial_alv7a")
+script = ExtResource("6_754yq")
+camera = NodePath("../../game_root/Camera2D")
+glow_scene = ExtResource("5_570vf")
 
 [node name="Hud" parent="game_container/game_viewport" instance=ExtResource("2_4xk7e")]
 scale = Vector2(1, 1)

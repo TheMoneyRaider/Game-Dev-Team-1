@@ -165,8 +165,8 @@ func cast_ray(origin: Vector2, in_direction: Vector2, distance: float, player_no
 	query.collision_mask = 1 << 0
 	return space.intersect_ray(query)
 
-var _debug_rays : Array = []   # [{from, to, hit}]
-@export var debug_draw_detection := true
+var _debug_rays : Array = []   # [{from, to, hit, score}]
+@export var debug_draw_detection := false
 func _draw() -> void:
 	if !debug_draw_detection:
 		return
