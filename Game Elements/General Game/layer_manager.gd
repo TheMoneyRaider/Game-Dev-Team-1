@@ -887,10 +887,10 @@ func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vecto
 	var i = 0
 	for node in sprites:
 		var sprite = enemy.get_node(node)
-		_sprite_to_timefabric(sprite,direction, amount_range * (areas[i]/total_area))
+		_sprite_to_timefabric(sprite,direction, amount_range * (areas[i]/total_area),enemy)
 		i+=1
 		
-func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vector2) -> void:
+func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vector2, enemy : Node) -> void:
 	var amount_variance = (amount_range.y-amount_range.x) * randf() * .5
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
 	var return_values : Array = _load_enemy_image(sprite)
@@ -932,7 +932,10 @@ func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vec
 	while timefabrics_to_place.size() < amount_range.x+amount_variance:
 		timefabrics_to_place.append(timefabrics_to_place[randi() % timefabrics_to_place.size()])
 	for fabric in timefabrics_to_place:
-		_place_timefabric(fabric[0],fabric[1],current_position,direction)
+		if enemy.enemy_type=="laser_e":
+			_place_timefabric(fabric[0],fabric[1],current_position,(enemy.global_position-sprite.global_position).normalized())
+		else:
+			_place_timefabric(fabric[0],fabric[1],current_position,direction)
 
 func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vector2, direction : Vector2) -> void:
 	var timefabric_instance = timefabric.instantiate()

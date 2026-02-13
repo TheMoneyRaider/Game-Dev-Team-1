@@ -58,7 +58,7 @@ func _process(_d):
 		else:
 			t = 1.0 - clamp(d / out_fade_dist, 0.0, 1.0)
 
-		glow.scale = Vector2(1.0,1.0) * lerp(0.0, .5, t)  # radius scaling
+		glow.scale = Vector2(1.0,1.0) * lerp(0.0, .3, t)  # radius scaling
 		# screen_pos is already in screen coordinates
 		var screen_width = rect.size.x
 		var t_color = clamp((glow.global_position.x -camera.global_position.x+screen_width/2.0) / (screen_width * camera.zoom.x), 0.0, 1.0)
