@@ -296,6 +296,7 @@ wall_collision = false
 attack_type = "forcefield"
 i_frames = 10
 c_owner = NodePath("..")
+repeat_hits = true
 
 [node name="AnimationPlayer2" type="AnimationPlayer" parent="Forcefield"]
 root_node = NodePath("../..")

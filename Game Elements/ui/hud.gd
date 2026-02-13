@@ -91,6 +91,7 @@ func set_players(player1_node : Node, player2_node : Node = null):
 		is_multiplayer = false
 		RightCooldownBar.cover_cooldown()
 	set_cooldown_icons()
+	set_max_cooldowns()
 
 func connect_signals(player_node : Node):
 	player_node.player_took_damage.connect(_on_player_take_damage)
@@ -100,12 +101,8 @@ func connect_signals(player_node : Node):
 	player_node.special_reset.connect(_on_special_reset)
 
 func set_max_cooldowns():
-	if is_multiplayer:
-		LeftCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
-		RightCooldownBar.set_max_cooldown(player2.attacks[0].cooldown)
-	else:
-		LeftCooldownBar.set_max_cooldown(player1.attacks[1].cooldown)
-		RightCooldownBar.set_max_cooldown(player1.attacks[0].cooldown)
+	LeftCooldownBar.set_max_cooldown(player1.weapons[1].cooldown)
+	RightCooldownBar.set_max_cooldown(player1.weapons[0].cooldown)
 
 func set_cooldowns():
 	if is_multiplayer:
