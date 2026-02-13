@@ -15,8 +15,11 @@ func _process(_delta: float):
 			rotation = (flip * weapon_direction).angle()
 		"Laser_Sword":
 			rotation = weapon_direction.angle()+ PI / 2 - TAU* _cubic_bezier(0,.42, .58, 1.0,(player.cooldowns[player.is_purple as int] / .3))
+			
+		"Railgun":
+			rotation = weapon_direction.angle()+ PI / 2
 		_:
-			rotation = weapon_direction.angle() + + PI / 2
+			rotation = weapon_direction.angle() + PI / 2
 
 func _cubic_bezier(p0: float, p1: float, p2: float, p3: float, t: float):
 	var q0 = lerp(p0, p1, t)
@@ -40,6 +43,8 @@ func update_weapon_location():
 			$Sprite2D.position = Vector2(-8,-27)
 		"Laser_Sword":
 			$Sprite2D.position = Vector2(-16,-28)
+		"Railgun":
+			$Sprite2D.position = Vector2(-11,-48)
 		_:
 			$Sprite2D.position = Vector2(0,0)
 	

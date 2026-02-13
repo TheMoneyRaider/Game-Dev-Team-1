@@ -24,8 +24,7 @@ var move_speed: float
 @onready var crosshair = $Crosshair
 @onready var crosshair_sprite = $Crosshair/Sprite2D
 
-@onready var weapon_sprite = $WeaponSprite
-@onready var weapon_texture = $WeaponSprite/Sprite2D
+@onready var weapon_node = $WeaponSprite
 
 @onready var sprite = $Sprite2D
 @onready var purple_crosshair = preload("res://art/purple_crosshair.png")
@@ -75,8 +74,7 @@ func _ready():
 	_initialize_state_machine()
 	update_animation_parameters(starting_direction)
 	add_to_group("player")
-	weapon_sprite.weapon_type = weapons[is_purple as int].type
-	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
+	set_weapon_sprite(weapons[is_purple as int],weapon_node)
 	if is_multiplayer:
 		tether_gradient = tether_line.gradient
 		tether_width_curve = tether_line.width_curve
@@ -153,8 +151,10 @@ func _physics_process(delta):
 	else:
 		tether(delta)
 	input_direction += (tether_momentum / move_speed)
-	weapon_sprite.weapon_direction = (crosshair.position).normalized()
-	
+	weapon_node.weapon_direction = (crosshair.position).normalized()
+	#move and slide function
+	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
+		move_and_slide()
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if Input.is_action_pressed("special_" + input_device) and weapons[is_purple as int].current_special_hits >= weapons[is_purple as int].special_hits:
@@ -172,9 +172,6 @@ func _physics_process(delta):
 		
 	adjust_cooldowns(delta)
 	red_flash()
-	#move and slide function
-	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
-		move_and_slide()
 	if disabled_countdown >= 1:
 		disabled_countdown-=1
 
@@ -185,7 +182,7 @@ func update_animation_parameters(move_input : Vector2):
 		
 
 func request_attack(t_weapon : Weapon) -> float:
-	weapon_sprite.flip_direction()
+	weapon_node.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
 	t_weapon.request_attacks(attack_direction,global_position,self)
 	return t_weapon.cooldown
@@ -230,7 +227,20 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 				instance.c_owner = self
 				LayerManager.room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
+
+func set_weapon_sprite(weapon : Weapon, f_weapon_node : Node):
+	var w_sprite = f_weapon_node.get_node("Sprite2D")
+	w_sprite.texture = weapon.weapon_sprite
+	f_weapon_node.weapon_type = weapon.type
+	w_sprite.hframes = weapon.sprite_hframes
+	w_sprite.vframes = weapon.sprite_vframes
+	if weapon.has_animation:
+		f_weapon_node.get_node("AnimationPlayer").play(weapon.sprite_animation)
+	else:
+		f_weapon_node.get_node("AnimationPlayer").play("RESET")
 	
+
+
 func swap_color():
 	check_forcefield()
 	emit_signal("swapped_color", self)
@@ -238,16 +248,14 @@ func swap_color():
 		is_purple = false
 		sprite.texture = orange_texture
 		crosshair_sprite.texture = orange_crosshair
-		weapon_texture.texture = weapons[0].weapon_sprite
-		weapon_sprite.weapon_type = weapons[0].type
+		set_weapon_sprite(weapons[0],weapon_node)
 		tether_line.default_color = Color("Orange")
 		weapons[1].special_time_elapsed = 0.0
 	else:
 		is_purple = true
 		sprite.texture = purple_texture
 		crosshair_sprite.texture = purple_crosshair
-		weapon_texture.texture = weapons[1].weapon_sprite
-		weapon_sprite.weapon_type = weapons[1].type
+		set_weapon_sprite(weapons[1],weapon_node)
 		tether_line.default_color = Color("Purple")
 		weapons[0].special_time_elapsed = 0.0
 
@@ -482,12 +490,13 @@ func red_flash() -> void:
 
 func set_weapon(purple : bool, resource_loc : String):
 	weapons[purple as int] = Weapon.create_weapon(resource_loc,self)
+	if LayerManager:
+		LayerManager.hud.set_max_cooldowns()
 	
 func update_weapon(resource_name : String):
 	var resource_loc = "res://Game Elements/Weapons/" + resource_name + ".tres"
 	weapons[is_purple as int] = Weapon.create_weapon(resource_loc,self)
-	weapon_texture.texture = weapons[is_purple as int].weapon_sprite
-	weapon_sprite.weapon_type = weapons[is_purple as int].type
+	set_weapon_sprite(weapons[is_purple as int],weapon_node)
 	
 
 func combo(input_purple : bool):

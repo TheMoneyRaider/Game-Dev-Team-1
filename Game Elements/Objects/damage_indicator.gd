@@ -45,6 +45,13 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 		var new_pos = intersection_center(c_owner,attack)
 		if new_pos != Vector2.ZERO:
 			position= new_pos
+			
+			
+	if attack and attack.attack_type=="laser":
+		var sparks = preload("res://Game Elements/particles/sparks_enemy.tscn").instantiate()
+		get_parent().add_child(sparks)
+		sparks.global_position = global_position
+		sparks.emitting = true
 		
 	
 	var color = Color(0.564, 0.0, 0.061, 1.0)
