@@ -96,6 +96,8 @@ func _ready():
 
 
 func change_direction():
+	if debug_draw_detection:
+		_debug_rays.clear()
 	var enemies = {}
 	
 	var dist_scale = intelligence.variable_2_values[intelligence.rank-1]
@@ -116,8 +118,27 @@ func change_direction():
 		if angle <= max_angle:
 			# lower score = better
 			var score = dist + angle/max_angle
-			enemies[enemy] = score
+			var ray = cast_ray(global_position, to_enemy.normalized(), 1600, self)
+			if dist * dist_scale <= (ray.position -global_position).length() / 16.0:
+				enemies[enemy] = score
+				if debug_draw_detection:
+					_debug_rays.append({
+						"from": global_position,
+						"to": enemy.global_position,
+						"hit": true,
+						"score": score
+					})
+			elif debug_draw_detection:
+				_debug_rays.append({
+					"from": global_position,
+					"to": ray.position,
+					"hit": false,
+					"score": 0.0
+				})
+				
 
+	if debug_draw_detection:
+		queue_redraw()
 	if enemies.is_empty():
 		return
 	#Pick best enemy
@@ -135,6 +156,30 @@ func change_direction():
 		var angle_ratio = clamp(turn_strength/ float(angle),0.0,1.0)
 		direction = lerp(direction, to_enemy, angle_ratio)
 		rotation = direction.angle() + PI/2
+
+func cast_ray(origin: Vector2, in_direction: Vector2, distance: float, player_node : Node) -> Dictionary:
+	var space = player_node.get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(origin - in_direction, origin + in_direction * distance)
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	query.collision_mask = 1 << 0
+	return space.intersect_ray(query)
+
+var _debug_rays : Array = []   # [{from, to, hit}]
+@export var debug_draw_detection := true
+func _draw() -> void:
+	if !debug_draw_detection:
+		return
+
+	for r in _debug_rays:
+		var from_local = to_local(r.from)
+		var to_local_pos = to_local(r.to)
+
+		var color = Color.RED if !r.hit else Color.GREEN
+		color.a = 1.0-(r.score / 2.0)
+
+		draw_line(from_local, to_local_pos, color, 2.0)
+		draw_circle(to_local_pos, 3.0, color)
 	
 
 func _process(delta):

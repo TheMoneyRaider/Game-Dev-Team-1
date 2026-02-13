@@ -10,7 +10,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 var player1 = null
 var player2 = null
 var weapon1 = "res://Game Elements/Weapons/LaserSword.tres"
-var weapon2 = "res://Game Elements/Weapons/Railgun.tres"
+var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
@@ -108,10 +108,10 @@ func _ready() -> void:
 	var rem6 = load("res://Game Elements/Remnants/emp.tres")
 	rem6.rank = 4
 	player_2_remnants.append(rem6.duplicate(true))
-	var rem7 = load("res://Game Elements/Remnants/forcefield.tres")
+	var rem7 = load("res://Game Elements/Remnants/intelligence.tres")
 	rem7.rank = 4
 	player_1_remnants.append(rem7.duplicate(true))
-	var rem8 = load("res://Game Elements/Remnants/forcefield.tres")
+	var rem8 = load("res://Game Elements/Remnants/intelligence.tres")
 	rem8.rank = 4
 	player_2_remnants.append(rem8.duplicate(true))
 	player1.display_combo()
