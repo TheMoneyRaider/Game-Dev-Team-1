@@ -109,7 +109,6 @@ func check_for_intelligence(node_attacking: Node) -> Remnant:
 			return rem.duplicate(true)
 	return null
 
-
 func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", variant : bool = false):
 	var intelligence = check_for_intelligence(node_attacking)
 	

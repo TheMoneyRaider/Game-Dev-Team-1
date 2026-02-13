@@ -35,6 +35,8 @@ var intelligence : Remnant = null
 
 var LayerManager : Node = null
 
+var special_nodes : Array[Node] = []
+
 #Special Variables
 var life = 0.0
 
@@ -83,6 +85,12 @@ func _ready():
 		else:
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_orange.png")
 	rotation = direction.angle() + PI/2
+	if attack_type == "slug":
+		special_nodes.append(load("res://Game Elements/Attacks/slug_seperate.tscn").instantiate())
+		special_nodes[-1].global_position = global_position
+		special_nodes[-1].global_rotation = global_rotation
+		get_parent().add_child(special_nodes[-1])
+		special_nodes[-1].setup(self)
 	
 
 
@@ -132,7 +140,7 @@ func change_direction():
 func _process(delta):
 	if attack_type == "ls_melee":
 		global_position = c_owner.global_position
-	if intelligence and speed > 0:
+	if intelligence and speed > 0 and attack_type != "slug":
 		change_direction()
 	if frozen:
 		return
@@ -149,6 +157,8 @@ func _process(delta):
 		return
 	if attack_type == "death mark":
 		c_owner.die(true,true)
+	for node in special_nodes:
+		node.queue_free()
 	queue_free()
 	
 func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: Vector2) -> int:
@@ -205,6 +215,7 @@ func intersection(body):
 func _on_body_entered(body):
 	if body.is_in_group("player") and attack_type == "slug" and body == c_owner:
 		c_owner.cooldowns[is_purple as int]=max(c_owner.cooldowns[is_purple as int]-3,0.0)
+		special_nodes[-1].queue_free()
 		queue_free()
 		return
 	intersection(body)
