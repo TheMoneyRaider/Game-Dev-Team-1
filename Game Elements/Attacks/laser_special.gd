@@ -1,52 +1,88 @@
-extends MultiMeshInstance2D
+extends SubViewportContainer
 
-func _ready():
-	_setup_mesh()
+@export var delay_time := .5        # seconds before animation
+@export var power_speed := 500.0       # pixels per second for powering up
+@export var decay_speed := 800.0       # pixels per second for powering down
 
+var powering_distance := 0.0        # 0–1 (power up)
+var powering_down_distance := -1.0   # 0–1 (power down)
+var active := false
 
-func _setup_mesh():
-	multimesh = MultiMesh.new()
-	multimesh.transform_format = MultiMesh.TRANSFORM_2D
+@onready var laser_attack : Node
+@onready var line = $SubViewport/LaserBeam
+@onready var light = $Light
+
+var point1  = Vector2.ZERO
+var point2  = Vector2.ZERO
+
+func update_points(from_point : Vector2, to_point : Vector2):
+	point1 = from_point
+	point2 = to_point
+
+func fire_laser(from_point : Vector2, to_point : Vector2,node : Node):
+	point1 = from_point
+	point2 = to_point
+	active = true
+	powering_distance = 0.0
+	powering_down_distance = -1.0
+	line.clear_points()
+	light.scale.y = .25
 	
-	# create quad mesh that displays the texture
-	var quad := QuadMesh.new()
-	quad.size = texture.get_size()
-	multimesh.mesh = quad
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	get_tree().create_tween().tween_property(self,"modulate", Color(1.0, 1.0, 1.0, 1.0),.5)
-			
-func kill():
-	var tween = get_tree().create_tween().tween_property(self,"modulate", Color(1.0, 1.0, 1.0, 0.0),.35)
-	await tween.finished
-	queue_free()
+	var instance = load("res://Game Elements/Attacks/laser.tscn").instantiate()
+	instance.c_owner = node
+	get_parent().add_child(instance)
+	laser_attack = instance
+	laser_attack.deflectable = false
+	var new_shape = RectangleShape2D.new()
+	new_shape.size.x = 0
+	laser_attack.get_child(0).shape = new_shape
+	laser_attack.get_child(0).shape.size.y = 8
 
-func draw_path(points: PackedVector2Array):
-	if points.size() < 2:
-		multimesh.instance_count = 0
+func kill():
+	powering_down_distance = 0.0
+
+func _process(delta):
+	if !active:
 		return
 
-	
-	var transforms : Array[Transform2D] = []
-	var tile_width = texture.get_size().x
-	var half_width = tile_width * 0.5
+	var total_distance = point1.distance_to(point2)
 
-	for i in range(points.size() - 1):
-		var a = points[i]
-		var b = points[i + 1]
+		# Powering up
+	if powering_distance < total_distance:
+		powering_distance += power_speed * delta
+		powering_distance = min(powering_distance, total_distance)
 
-		var dir = b - a
-		var length = dir.length()
-		var angle = dir.angle()
-		dir = dir.normalized()
+	# Powering down
+	if powering_down_distance >= 0.0:
+		powering_down_distance += decay_speed * delta
+		if powering_down_distance > total_distance:
+			queue_free()
+			return
 
 
-		var dist = half_width
-		while dist < length:
-			var pos = a + dir * dist
-			transforms.append(Transform2D(angle, pos))
-			dist += tile_width
+	# Compute effective powered distance
+	var powered_length := powering_distance
+	var start_pos : Vector2= point1
+	var end_pos : Vector2= point1 + (point2 - point1).normalized() * powered_length
 
-	multimesh.instance_count = transforms.size()
+	if powering_down_distance > 0.0:
+		powered_length = total_distance - powering_down_distance
+		start_pos = point2 - (point2 - point1).normalized() * powered_length
+		end_pos = point2
 
-	for i in transforms.size():
-		multimesh.set_instance_transform_2d(i, transforms[i])
+	# Update line points
+	line.clear_points()
+	line.add_point(start_pos + size/2 - point1)
+	line.add_point(end_pos + size/2 - point1)
+
+	# Update laser_attack position
+	laser_attack.global_position = (start_pos + end_pos) / 2.0
+
+	# Update laser shape
+	laser_attack.get_child(0).shape.size.x = powered_length
+	laser_attack.rotation = (point2 - point1).angle()
+
+	# Update light
+	light.global_position = (start_pos + end_pos) / 2.0
+	light.rotation = laser_attack.rotation
+	light.scale.x = (powered_length / 256) * 1.25

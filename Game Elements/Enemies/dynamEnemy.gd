@@ -154,9 +154,11 @@ func _robot_process():
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0):
 	if current_health< 0:
 		return
+	if(i_frames > 0):
+		return
+	i_frames = attack_i_frames
 	check_agro(dmg_owner)
-	if(i_frames <= 0) and enemy_type=="binary_bot":
-		i_frames = 20
+	if enemy_type=="binary_bot":
 		$Core.damage_glyphs()
 	if current_health >= 0 and display_damage and attack_body.attack_type != "emp":
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)

@@ -135,7 +135,7 @@ func change_direction():
 		var angle_ratio = clamp(turn_strength/ float(angle),0.0,1.0)
 		direction = lerp(direction, to_enemy, angle_ratio)
 		rotation = direction.angle() + PI/2
-		
+	
 
 func _process(delta):
 	if attack_type == "ls_melee":
@@ -147,6 +147,8 @@ func _process(delta):
 	if attack_type == "laser":
 		if has_method("get_overlapping_bodies"):
 			for body in get_overlapping_bodies():
+				print("hey")
+				print(body)
 				intersection(body)
 	if attack_type != "slug":
 		position += direction * speed * delta
