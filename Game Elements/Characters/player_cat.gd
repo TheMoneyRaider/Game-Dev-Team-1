@@ -152,7 +152,9 @@ func _physics_process(delta):
 		tether(delta)
 	input_direction += (tether_momentum / move_speed)
 	weapon_node.weapon_direction = (crosshair.position).normalized()
-	
+	#move and slide function
+	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
+		move_and_slide()
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if Input.is_action_pressed("special_" + input_device) and weapons[is_purple as int].current_special_hits >= weapons[is_purple as int].special_hits:
@@ -170,9 +172,6 @@ func _physics_process(delta):
 		
 	adjust_cooldowns(delta)
 	red_flash()
-	#move and slide function
-	if(self.process_mode != PROCESS_MODE_DISABLED and disabled_countdown <= 0):
-		move_and_slide()
 	if disabled_countdown >= 1:
 		disabled_countdown-=1
 

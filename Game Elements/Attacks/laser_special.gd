@@ -1,6 +1,5 @@
 extends SubViewportContainer
 
-@export var delay_time := .5        # seconds before animation
 @export var power_speed := 500.0       # pixels per second for powering up
 @export var decay_speed := 800.0       # pixels per second for powering down
 
@@ -16,8 +15,25 @@ var point1  = Vector2.ZERO
 var point2  = Vector2.ZERO
 
 func update_points(from_point : Vector2, to_point : Vector2):
+	# Save previous total distance and powered fraction
+	var old_distance = point1.distance_to(point2)
+	var powered_fraction = 0.0
+	if old_distance > 0:
+		powered_fraction = powering_distance / old_distance
+
+	var powered_down_fraction = 0.0
+	if old_distance > 0 and powering_down_distance >= 0:
+		powered_down_fraction = powering_down_distance / old_distance
+
+	# Update points
 	point1 = from_point
 	point2 = to_point
+	var new_distance = point1.distance_to(point2)
+
+	# Update powering distances proportionally to new distance
+	powering_distance = powered_fraction * new_distance
+	if powering_down_distance >= 0:
+		powering_down_distance = powered_down_fraction * new_distance
 
 func fire_laser(from_point : Vector2, to_point : Vector2,node : Node):
 	point1 = from_point
@@ -33,6 +49,7 @@ func fire_laser(from_point : Vector2, to_point : Vector2,node : Node):
 	get_parent().add_child(instance)
 	laser_attack = instance
 	laser_attack.deflectable = false
+	laser_attack.i_frames = 4
 	var new_shape = RectangleShape2D.new()
 	new_shape.size.x = 0
 	laser_attack.get_child(0).shape = new_shape

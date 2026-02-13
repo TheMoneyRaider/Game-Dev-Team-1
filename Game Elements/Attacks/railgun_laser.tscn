@@ -43,7 +43,7 @@ render_target_update_mode = 4
 y_sort_enabled = true
 points = PackedVector2Array(1147, 1091, 1036, 1040)
 width = 4.0
-default_color = Color(1, 0, 0, 0.492)
+default_color = Color(1, 0, 0, 1)
 
 [node name="Light" type="PointLight2D" parent="."]
 shadow_enabled = true

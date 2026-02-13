@@ -147,8 +147,6 @@ func _process(delta):
 	if attack_type == "laser":
 		if has_method("get_overlapping_bodies"):
 			for body in get_overlapping_bodies():
-				print("hey")
-				print(body)
 				intersection(body)
 	if attack_type != "slug":
 		position += direction * speed * delta
