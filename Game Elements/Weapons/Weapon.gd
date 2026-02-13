@@ -264,16 +264,16 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 					effect.gained(c_owner)
 					Effects.append(effect)
 			"Railgun":
-				if(special_time_elapsed <= 2.0):
+				if(special_time_elapsed <= 1.0):
 					var effect = load("res://Game Elements/Effects/rail_charge.tres").duplicate(true)
 					effect.cooldown = 20*time_elapsed
-					effect.value1 = 0.05
+					effect.value1 = 0.04
 					effect.gained(c_owner)
 					Effects.append(effect)
 				else:
 					var check_forward
 					if special_nodes.size() < 1:
-						node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 0.0, 0.0, 1.0),2.0)
+						node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 0.0, 0.0, 1.0),1.0)
 						var inst = load("res://Game Elements/Attacks/railgun_laser.tscn").instantiate()
 						special_nodes.append(inst)
 						inst.global_position = node_attacking.global_position + inst.size/-2.0 + special_direction*spawn_distance
@@ -287,7 +287,7 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 					
 					var effect = load("res://Game Elements/Effects/tether.tres").duplicate(true)
 					effect.cooldown = 20*time_elapsed
-					effect.value1 = 0.05
+					effect.value1 = 0.02
 					effect.gained(c_owner)
 					Effects.append(effect)
 			
@@ -314,15 +314,15 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				special_time_period_elapsed = floor(special_time_elapsed*8)
 				special_tick(special_direction, node_attacking)
 		"Railgun":
-			if(special_time_elapsed >= 4.0 and special_time_elapsed < 8.0):
+			if(special_time_elapsed >= 6.0 and special_time_elapsed < 12.0):
 				if floor(special_time_elapsed*.5) !=special_time_period_elapsed:
 					special_time_period_elapsed = floor(special_time_elapsed*.5)
 					special_tick(special_direction, node_attacking)
-			elif(special_time_elapsed >= 8.0 and special_time_elapsed < 12.0):
+			elif(special_time_elapsed >= 12.0 and special_time_elapsed < 16.0):
 				if floor(special_time_elapsed) !=special_time_period_elapsed:
 					special_time_period_elapsed = floor(special_time_elapsed)
 					special_tick(special_direction, node_attacking)
-			elif(special_time_elapsed >= 12.0):
+			elif(special_time_elapsed >= 16.0):
 				if floor(special_time_elapsed*2) !=special_time_period_elapsed:
 					special_time_period_elapsed = floor(special_time_elapsed*2)
 					special_tick(special_direction, node_attacking)

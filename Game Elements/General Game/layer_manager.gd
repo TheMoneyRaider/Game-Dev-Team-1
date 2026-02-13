@@ -90,10 +90,10 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/drone.tres")
+	var rem = load("res://Game Elements/Remnants/hack.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
-	var rem2 = load("res://Game Elements/Remnants/drone.tres")
+	var rem2 = load("res://Game Elements/Remnants/hack.tres")
 	rem2.rank = 4
 	player_2_remnants.append(rem2.duplicate(true))
 	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
@@ -102,10 +102,10 @@ func _ready() -> void:
 	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
 	rem4.rank = 5
 	player_2_remnants.append(rem4.duplicate(true))
-	var rem5 = load("res://Game Elements/Remnants/intelligence.tres")
+	var rem5 = load("res://Game Elements/Remnants/emp.tres")
 	rem5.rank = 4
 	player_1_remnants.append(rem5.duplicate(true))
-	var rem6 = load("res://Game Elements/Remnants/intelligence.tres")
+	var rem6 = load("res://Game Elements/Remnants/emp.tres")
 	rem6.rank = 4
 	player_2_remnants.append(rem6.duplicate(true))
 	var rem7 = load("res://Game Elements/Remnants/forcefield.tres")
