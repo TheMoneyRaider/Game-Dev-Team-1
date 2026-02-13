@@ -82,6 +82,12 @@ func _process(delta):
 	var start_pos : Vector2= point1
 	var end_pos : Vector2= point1 + (point2 - point1).normalized() * powered_length
 
+	
+	var sparks = preload("res://Game Elements/particles/sparks.tscn").instantiate()
+	get_parent().add_child(sparks)
+	sparks.global_position = point2
+	sparks.emitting = true
+	
 	if powering_down_distance > 0.0:
 		powered_length = total_distance - powering_down_distance
 		start_pos = point2 - (point2 - point1).normalized() * powered_length
