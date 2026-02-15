@@ -168,6 +168,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 				instance.c_owner = self
 				get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
+		_cleric_chance()
 	
 func swap_color():
 	emit_signal("swapped_color", self)
@@ -368,6 +369,22 @@ func _crafter_chance() -> bool:
 				return false
 			
 	return true
+
+func _cleric_chance():
+	randomize()
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var cleric = load("res://Game Elements/Remnants/cleric.tres")
+	for rem in remnants:
+		if rem.remnant_name == cleric.remnant_name:
+			if rem.variable_1_values[rem.rank-1] > randf()*100:
+				var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+				particle.position = self.position
+				get_parent().add_child(particle)
+				change_health(rem.variable_2_values[rem.rank-1])
 
 func hunter_percent_boost() -> float:
 	randomize()
