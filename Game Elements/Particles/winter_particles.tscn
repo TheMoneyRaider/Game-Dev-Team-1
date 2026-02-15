@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://ch3iaotjloivh"]
 
-[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Effects/effect_particles.gd" id="1_4w8jb"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/effect_particles.gd" id="1_4w8jb"]
 
 [sub_resource type="Curve" id="Curve_4w8jb"]
 _data = [Vector2(0, 0), 0.0, 6.7659764, 0, 0, Vector2(0.2385321, 1), 0.0, 0.0, 0, 0, Vector2(0.5168196, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -13,7 +13,7 @@ curve = SubResource("Curve_4w8jb")
 lifetime_randomness = 0.5
 particle_flag_disable_z = true
 emission_shape = 1
-emission_sphere_radius = 20.0
+emission_sphere_radius = 14.0
 gravity = Vector3(0, 98, 0)
 scale_max = 4.0
 scale_curve = SubResource("CurveTexture_k7ydx")
@@ -25,7 +25,7 @@ hue_variation_max = 0.019999977
 z_index = 21
 y_sort_enabled = true
 emitting = false
-amount = 100
+amount = 60
 lifetime = 0.75
 one_shot = true
 explosiveness = 1.0

@@ -48,7 +48,9 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 			
 			
 	if attack and "attack_type" in attack and attack.attack_type=="laser":
-		var sparks = preload("res://Game Elements/particles/sparks_enemy.tscn").instantiate()
+		var sparks = preload("res://Game Elements/Particles/sparks_enemy.tscn").instantiate()
+		if attack.c_owner and attack.c_owner.is_in_group("player"):
+			sparks.range_choice = 1
 		get_parent().add_child(sparks)
 		sparks.global_position = global_position
 		sparks.emitting = true

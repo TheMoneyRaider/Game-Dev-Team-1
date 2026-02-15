@@ -227,7 +227,7 @@ func special_tick(special_direction : Vector2, node_attacking : Node):
 				special_nodes[0].draw_path(PackedVector2Array(locations))
 			"Railgun":
 				node_attacking.take_damage(1, null,Vector2(0,-1))
-				var fire = preload("res://Game Elements/particles/fire_damage.tscn").instantiate()
+				var fire = preload("res://Game Elements/Particles/fire_damage.tscn").instantiate()
 				fire.position = node_attacking.position
 				node_attacking.LayerManager.room_instance.add_child(fire)
 				fire.emitting = true

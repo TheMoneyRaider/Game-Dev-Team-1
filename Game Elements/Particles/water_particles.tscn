@@ -1,12 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://d10clhphx5tgq"]
+[gd_scene load_steps=7 format=3 uid="uid://bw4not86lhrvx"]
 
-[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Effects/effect_particles.gd" id="1_0u0kg"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/effect_particles.gd" id="1_tw3vm"]
 
-[sub_resource type="Gradient" id="Gradient_0u0kg"]
-colors = PackedColorArray(0.8869545, 0.36672762, 0.82245046, 1, 0.91907126, 0.533606, 0.28104436, 1)
+[sub_resource type="Gradient" id="Gradient_tw3vm"]
+offsets = PackedFloat32Array(0, 0.62376237)
+colors = PackedColorArray(1, 1, 1, 0.29803923, 1, 1, 1, 1)
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_2l04d"]
-gradient = SubResource("Gradient_0u0kg")
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_oxh06"]
+gradient = SubResource("Gradient_tw3vm")
 
 [sub_resource type="Curve" id="Curve_tw3vm"]
 _data = [Vector2(0, 0), 0.0, 6.7659764, 0, 0, Vector2(0.2385321, 1), 0.0, 0.0, 0, 0, Vector2(0.5168196, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -19,23 +20,20 @@ curve = SubResource("Curve_tw3vm")
 lifetime_randomness = 0.5
 particle_flag_disable_z = true
 emission_shape = 1
-emission_sphere_radius = 32.0
-orbit_velocity_min = 9.49949e-08
-orbit_velocity_max = 0.1000001
+emission_sphere_radius = 16.0
 gravity = Vector3(0, -2, 0)
-radial_accel_min = -15.000002
-radial_accel_max = -2.2351742e-06
 scale_min = 0.25
 scale_max = 2.0
 scale_curve = SubResource("CurveTexture_oxh06")
-color_ramp = SubResource("GradientTexture1D_2l04d")
+color_ramp = SubResource("GradientTexture1D_oxh06")
 
-[node name="ChargedParticles" type="GPUParticles2D"]
+[node name="WinterParticles" type="GPUParticles2D"]
 z_index = 19
+y_sort_enabled = true
 emitting = false
 amount = 10
 lifetime = 3.0
 one_shot = true
 explosiveness = 1.0
 process_material = SubResource("ParticleProcessMaterial_fkrmo")
-script = ExtResource("1_0u0kg")
+script = ExtResource("1_tw3vm")

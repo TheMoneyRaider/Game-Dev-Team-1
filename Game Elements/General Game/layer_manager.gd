@@ -143,10 +143,10 @@ func _ready() -> void:
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem.duplicate(true))
-	rem = load("res://Game Elements/Remnants/winters_embrace.tres")
-	rem.rank = 4
-	player_1_remnants.append(rem.duplicate(true))
-	player_2_remnants.append(rem.duplicate(true))
+	#rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#rem.rank = 4
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem.duplicate(true))
 	
 	
 	player1.display_combo()
@@ -551,7 +551,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			if is_multiplayer:
 				player2.change_health(5,5)
 			player1.change_health(5,5)
-			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			var particle =  load("res://Game Elements/Particles/heal_particles.tscn").instantiate()
 			particle.position = orb.position
 			generated_room.add_child(particle)
 			orb.queue_free()
@@ -562,7 +562,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			if is_multiplayer:
 				player2.change_health(5)
 			player1.change_health(5)
-			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			var particle =  load("res://Game Elements/Particles/heal_particles.tscn").instantiate()
 			particle.position = orb.position
 			generated_room.add_child(particle)
 			orb.queue_free()
