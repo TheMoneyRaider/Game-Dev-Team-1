@@ -45,12 +45,37 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,true,true)
 		else:
 			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,false,true)
-	#add in reverse so GridContainer displays them right->left
-	for i in range(player2_remnants.size() - 1, -1, -1):
-		if ranked_up2.has(player2_remnants[i].remnant_name):
-			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],true,false)
-		else:
-			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false,false)
+			
+	# --- Populate RIGHT (R->L per row with padding) ---
+	var right_grid = $RootControl/RemnantIcons/RightRemnants
+	var columns = right_grid.columns
+	var total_icons = player2_remnants.size()
+
+	for row_start in range(0, total_icons, columns):
+		var row := player2_remnants.slice(row_start, row_start + columns)
+
+		var padding = columns - row.size()  # number of empty slots for incomplete row
+		var visual_row := []  # final order of things to add (with dummies)
+		# Add invisible placeholders first
+		for i in range(padding):
+			var dummy = Control.new()
+			visual_row.append(dummy)
+
+		# Add real remnants, reversed for right->left fill
+		row.reverse()
+		for remnant in row:
+			visual_row.append(remnant)
+			# Add to grid
+		for item in visual_row:
+			if item is Remnant:  # normal remnant
+				if ranked_up2.has(item.remnant_name):
+					_add_slot(right_grid, item,true,false)
+				else:
+					_add_slot(right_grid, item,false,false)
+			else:  # dummy Control
+				right_grid.add_child(item)
+
+	# --- Setup pause menu & focus ---
 	if !pause_menu:
 		pause_menu = get_node_or_null("../PauseMenu")
 	if pause_menu:
@@ -77,7 +102,6 @@ func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purp
 		await get_tree().create_timer(.5).timeout
 		label.text = _num_to_roman(remnant.rank)
 
-
 func _setup_focus_connections():
 	var left_grid = $RootControl/RemnantIcons/LeftRemnants
 	var right_grid = $RootControl/RemnantIcons/RightRemnants
@@ -93,59 +117,68 @@ func _setup_focus_connections():
 func _setup_grid_focus(grid: GridContainer, columns: int, is_reversed: bool):
 	var children = grid.get_children()
 
+	# Compute rows
+	var num_rows = ceil(children.size() / float(columns))
+
 	for i in range(children.size()):
+		if "remnant" not in children[i]:
+			continue
 		var btn = children[i].button
 		btn.focus_mode = Control.FOCUS_ALL
 
 		var row = i / columns
 		var col = i % columns
-		
-		# Flip visual column for reversed grid
-		var visual_col: int = (columns - 1 - col) if is_reversed else col
 
-		# -------- LEFT --------
-		if visual_col > 0:
-			var target_visual_col = visual_col - 1
-			var target_col = (columns - 1 - target_visual_col) if is_reversed else target_visual_col
-			var left_index = row * columns + target_col
+		# Horizontal neighbors
+		if is_reversed:
+			# Right grid (R→L visually), so left/right are inverted
+			if col > 0:
+				if "remnant" in children[i-1]:
+					btn.focus_neighbor_left = children[i - 1].button.get_path()
+			if col < columns - 1 and i + 1 < children.size():
+				if "remnant" in children[i+1]:
+					btn.focus_neighbor_right = children[i + 1].button.get_path()
+		else:
+			# Left grid (L→R normal)
+			if col > 0:
+				if "remnant" in children[i-1]:
+					btn.focus_neighbor_left = children[i - 1].button.get_path()
+			if col < columns - 1 and i + 1 < children.size():
+				if "remnant" in children[i+1]:
+					btn.focus_neighbor_right = children[i + 1].button.get_path()
 
-			if left_index >= 0 and left_index < children.size():
-				btn.focus_neighbor_left = children[left_index].button.get_path()
-
-		# -------- RIGHT --------
-		if visual_col < columns - 1:
-			var target_visual_col = visual_col + 1
-			var target_col = (columns - 1 - target_visual_col) if is_reversed else target_visual_col
-			var right_index = row * columns + target_col
-
-			if right_index >= 0 and right_index < children.size():
-				btn.focus_neighbor_right = children[right_index].button.get_path()
-
-		# -------- UP --------
+		# Vertical neighbors (up/down stay normal)
 		if row > 0:
 			var up_index = (row - 1) * columns + col
 			if up_index < children.size():
-				btn.focus_neighbor_top = children[up_index].button.get_path()
+				if "remnant" in children[up_index]:
+					btn.focus_neighbor_top = children[up_index].button.get_path()
 
-		# -------- DOWN --------
 		var down_index = (row + 1) * columns + col
 		if down_index < children.size():
-			btn.focus_neighbor_bottom = children[down_index].button.get_path()
+			if "remnant" in children[down_index]:
+				btn.focus_neighbor_bottom = children[down_index].button.get_path()
 
 func _connect_bottom_row_to_pause(grid: GridContainer, columns: int, pause_button: Control, connect_pause : bool):
 	var children = grid.get_children()
-	if children.is_empty():
+
+	# Filter out invisible placeholders
+	var visible_children := []
+	for child in children:
+		if child is Control and "remnant" in child:
+			visible_children.append(child)
+	if visible_children.is_empty():
 		return
 
-	var last_index = children.size() - 1
+	var last_index = visible_children.size() - 1
 	var last_row = last_index / columns
 
-	for i in range(children.size()):
+	for i in range(visible_children.size()):
 		var row = i / columns
 		if row == last_row:
-			children[i].button.focus_neighbor_bottom = pause_button.get_path()
+			visible_children[i].button.focus_neighbor_bottom = pause_button.get_path()
 	if connect_pause:
-		pause_button.focus_neighbor_top = children[-1].button.get_path()
+		pause_button.focus_neighbor_top = visible_children[-1].button.get_path()
 
 func _connect_grids_horizontally(left_grid: GridContainer, right_grid: GridContainer):
 	var left_children = left_grid.get_children()

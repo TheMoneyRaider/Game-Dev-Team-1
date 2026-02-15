@@ -20,7 +20,8 @@ func _ready():
 
 func setup(nodes : Array[Node]):
 	for node in nodes:
-		node.icon_selected.connect(_on_icon_selected)
+		if "remnant" in node:
+			node.icon_selected.connect(_on_icon_selected)
 	
 
 
