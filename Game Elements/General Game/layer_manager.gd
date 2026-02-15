@@ -338,24 +338,31 @@ func choose_pathways(direction : int, generated_room : Node2D, generated_room_da
 
 func place_liquids(generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:
 	#For each liquid check if you should place it and then check if there's room
-	var liquid_num = 0
 	var cells : Array[Vector2i]
 	var liquid_type : String
-	var rand : float
-	while liquid_num < generated_room_data.num_liquid:
-		liquid_num+=1
-		liquid_type= _get_liquid_string(generated_room_data.liquid_types[liquid_num-1])
-		rand = randf()
-		if rand > generated_room_data.liquid_chances[liquid_num-1]:
-			generated_room.get_node(liquid_type+str(liquid_num)).queue_free()
+	var types = [0,0,0,0,0,0,0,0,0,0]
+	for liquid in generated_room_data.liquid_types:
+		types[liquid] +=1
+		liquid_type= _get_liquid_string(liquid)
+		if randf() > get_liquid_chance(generated_room_data.liquid_chances,generated_room_data.liquid_types, liquid,types[liquid]):
+			generated_room.get_node(liquid_type+str(types[liquid])).queue_free()
 		else:
-			cells = generated_room.get_node(liquid_type+str(liquid_num)).get_used_cells()
+			cells = generated_room.get_node(liquid_type+str(types[liquid])).get_used_cells()
 			if(_arrays_intersect(cells, conflict_cells)):
-				generated_room.get_node(liquid_type+str(liquid_num)).queue_free()
+				generated_room.get_node(liquid_type+str(types[liquid])).queue_free()
 				#DEBUG
 				_debug_message("Layer collision removed")
 			else:
 				conflict_cells.append_array(cells)
+
+func get_liquid_chance(all_chances : Array[float], liquids: Array[Globals.Liquid], type : Globals.Liquid, index : int):
+	var idx = 0
+	for i in range(all_chances.size()):
+		if liquids[i]== type:
+			idx+=1
+		if idx==index:
+			return all_chances[i]
+	return 0.0
 
 
 func place_traps(generated_room : Node2D, generated_room_data : Room, conflict_cells : Array[Vector2i]) -> void:

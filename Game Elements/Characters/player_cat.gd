@@ -5,6 +5,7 @@ var mouse_sensitivity: float = 1.0
 @export var max_health: float = 10
 @export var current_health: float = 10
 @onready var current_dmg_time: float = 0.0
+@onready var current_liquid_time: float = 0.0
 @onready var in_instant_trap: bool = false
 @onready var disabled_countdown : int = 0
 @onready var i_frames : int = 0
@@ -304,6 +305,19 @@ func check_liquids(delta):
 					effect.value1 = 0.023
 					effect.gained(self)
 					effects.append(effect)
+				Globals.Liquid.Lava:
+					var idx = 0
+					for effect in effects:
+						if effect.type == "slow":
+							effect.tick(delta,self)
+							if effect.cooldown == 0:
+								effects.remove_at(idx)
+							current_liquid_time -= .01
+						idx +=1
+					current_liquid_time += delta
+					if current_liquid_time >= .25:
+						current_liquid_time -= .25
+						take_damage(2,null)
 				Globals.Liquid.Conveyer:
 					position+=tile_data.get_custom_data("direction").normalized() *delta * 32
 				Globals.Liquid.Glitch:
