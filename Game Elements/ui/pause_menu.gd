@@ -17,6 +17,15 @@ func _ready():
 	hide()
 	slot_nodes[1].set_enabled(false)
 
+
+func setup(nodes : Array[Node]):
+	pass
+	#for node in nodes:
+		#node.icon_selected.connect(_on_icon_selected)
+	
+
+
+
 func activate():
 	
 	mouse_mode = Input.get_mouse_mode()
@@ -33,6 +42,11 @@ func _process(_delta):
 
 
 
+func _on_icon_selected(remnant : Remnant, is_purple : bool) -> void:
+	var index = (is_purple as int) *2
+	slot_nodes[index].hide_visuals(false)
+	slot_nodes[index].set_remnant(remnant,false)
+	pass
 
 
 func _on_slot_selected(_idx: int) -> void:

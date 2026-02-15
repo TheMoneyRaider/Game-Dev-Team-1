@@ -15,7 +15,6 @@ signal slot_selected(index: int)
 func _ready():
 	art.material = art.material.duplicate(true)
 	randomize()
-	btn_select.pressed.connect(_on_button_pressed)
 	btn_select.focus_mode = Control.FOCUS_NONE  # Prevents keyboard focus
 
 	# Intercept input via signal

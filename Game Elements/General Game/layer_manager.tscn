@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
 [ext_resource type="PackedScene" uid="uid://bmb5ip00tidvr" path="res://Game Elements/ui/death_menu.tscn" id="3_aya3e"]
 [ext_resource type="Shader" uid="uid://b7787fo6f7qd6" path="res://Game Elements/General Game/layer_manager.gdshader" id="3_wgna5"]
+[ext_resource type="Script" uid="uid://c7h0iwnh6mu5v" path="res://Game Elements/General Game/game_container.gd" id="4_alv7a"]
 [ext_resource type="PackedScene" uid="uid://dx87pme08xv7f" path="res://Game Elements/ui/pause_menu.tscn" id="4_qhni4"]
 [ext_resource type="PackedScene" uid="uid://cve6yfoeuc5u0" path="res://Game Elements/Objects/GlowCircle.tscn" id="5_570vf"]
 [ext_resource type="Script" uid="uid://btw80vi8hk0iu" path="res://Game Elements/General Game/enemy_awareness.gd" id="6_754yq"]
@@ -14,14 +15,6 @@ shader_parameter/sobel_enabled = false
 shader_parameter/inverse_output = false
 shader_parameter/sobel_strength = 1.0
 shader_parameter/edge_color = Vector3(1, 1, 1)
-
-[sub_resource type="GDScript" id="GDScript_n323y"]
-script/source = "extends SubViewport
-
-func _unhandled_input(event):
-	if event is InputEventMouseButton and event.pressed:
-		print(\"game-viewport sees click at: \", event.position)
-"
 
 [sub_resource type="Shader" id="Shader_alv7a"]
 code = "shader_type canvas_item;
@@ -51,16 +44,16 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_754yq")
 offset_right = 1920.0
 offset_bottom = 1000.0
+mouse_filter = 2
 
 [node name="game_viewport" type="SubViewport" parent="game_container"]
 process_mode = 3
 disable_3d = true
 transparent_bg = true
-handle_input_locally = false
 canvas_item_default_texture_filter = 0
 size = Vector2i(1920, 1000)
 render_target_update_mode = 4
-script = SubResource("GDScript_n323y")
+script = ExtResource("4_alv7a")
 
 [node name="EnemyAwareness" type="CanvasLayer" parent="game_container/game_viewport"]
 
@@ -71,8 +64,6 @@ camera = NodePath("../../game_root/Camera2D")
 glow_scene = ExtResource("5_570vf")
 
 [node name="Hud" parent="game_container/game_viewport" instance=ExtResource("2_4xk7e")]
-scale = Vector2(1, 1)
-transform = Transform2D(1, 0, 0, 1, 0, 0)
 
 [node name="PauseMenu" parent="game_container/game_viewport/Hud" instance=ExtResource("4_qhni4")]
 visible = false

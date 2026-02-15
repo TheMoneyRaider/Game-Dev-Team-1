@@ -40,28 +40,28 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 		child.queue_free()
 	for remnant in player1_remnants:
 		if ranked_up1.has(remnant.remnant_name):
-			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,true)
+			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,true,true)
 		else:
-			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,false)
+			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,false,true)
 	#add in reverse so GridContainer displays them right->left
 	for i in range(player2_remnants.size() - 1, -1, -1):
 		if ranked_up2.has(player2_remnants[i].remnant_name):
-			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],true)
+			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],true,false)
 		else:
-			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false)
+			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false,false)
+	if get_node_or_null("PauseMenu"):
+		$PauseMenu.setup($RootControl/RemnantIcons/LeftRemnants.get_children())
+		$PauseMenu.setup($RootControl/RemnantIcons/RightRemnants.get_children())
 	
-func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false):
+func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purple_icon : bool = false):
 	var slot := IconSlotScene.instantiate()
-	var tex := slot.get_node("TextureRect")
 	var label := slot.get_node("Label")
-	tex.texture = remnant.icon
-	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tex.custom_minimum_size = remnant.icon.get_size() * 2
 	if has_ranked:
 		label.text = _num_to_roman(remnant.rank-1)
 	else:
 		label.text = _num_to_roman(remnant.rank)
 	grid.add_child(slot)
+	slot.setup(remnant,is_purple_icon)
 	if has_ranked:
 		var mat := ShaderMaterial.new()
 		mat.shader = HIGHLIGHT_SHADER
