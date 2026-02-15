@@ -93,12 +93,12 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/barbarian.tres")
-	var rem2 = load("res://Game Elements/Remnants/cleric.tres")
-	rem.rank = 5
-	rem2.rank = 5
+	var rem = load("res://Game Elements/Remnants/pyromancer.tres")
+	#var rem2 = load("res://Game Elements/Remnants/cleric.tres")
+	rem.rank = 2
+	#rem2.rank = 5
 	player_1_remnants.append(rem.duplicate(true))
-	player_1_remnants.append(rem2.duplicate(true))
+	#player_1_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 100000
 	####
@@ -1366,6 +1366,13 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		for node in get_tree().get_nodes_in_group("attack"):
 			if node.c_owner == enemy:
 				node.queue_free()
+		if(enemy.exploded != 0):
+			var attack_instance = load("res://Game Elements/Attacks/explosion.tscn").instantiate()
+			attack_instance.damage = enemy.exploded
+			attack_instance.scale = attack_instance.scale * ((enemy.exploded) / 4)
+			attack_instance.c_owner = enemy.last_hitter
+			attack_instance.global_position = enemy.global_position
+			room_instance.call_deferred("add_child",attack_instance)
 		_enemy_to_timefabric(enemy,direction,Vector2(enemy.min_timefabric,enemy.max_timefabric))
 		enemy.visible=false
 		enemy.queue_free()

@@ -54,6 +54,8 @@ func _ready():
 		else:
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_orange.png")
 	rotation = direction.angle() + PI/2
+	if attack_type == "explosion":
+		rotation = 0
 
 func _process(delta):
 	if frozen:

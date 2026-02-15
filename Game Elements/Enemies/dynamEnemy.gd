@@ -18,6 +18,8 @@ var damage_direction = Vector2(0,-1)
 var damage_taken = 0
 var debug_mode = false
 @export var weapon_cooldowns : Array[float] = []
+var last_hitter : Node = null
+var exploded : float = 0
 
 var effects : Array[Effect] = []
 
@@ -90,6 +92,9 @@ func _process(delta):
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, _i_frames : int = 0):
 	if current_health >= 0 and display_damage:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
+	_check_pyromancer(dmg_owner)
+	if dmg_owner != null:
+		last_hitter = dmg_owner
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
@@ -120,6 +125,20 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
+
+func _check_pyromancer(dmg_owner: Node):
+	if dmg_owner != null and dmg_owner.is_in_group("player"):
+		var remnants : Array[Remnant] = []
+		if dmg_owner.is_purple:
+			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+		else:
+			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		var pyromancer = load("res://Game Elements/Remnants/pyromancer.tres")
+		for rem in remnants:
+			if rem.remnant_name == pyromancer.remnant_name:
+				exploded = rem.variable_2_values[rem.rank-1]
+				return
+	exploded = 0
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
