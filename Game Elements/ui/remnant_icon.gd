@@ -7,6 +7,7 @@ class_name RemnantIcon
 signal icon_selected(rmenant: Remnant, is_purple : bool)
 
 @onready var btn_select: Button = $Button
+@export var button: Button
 
 @onready var art = $TextureRect
 

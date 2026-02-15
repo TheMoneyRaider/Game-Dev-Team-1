@@ -13,9 +13,15 @@ texture = ExtResource("2_qatju")
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_aqp6j"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7kejr"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ayhuk"]
+bg_color = Color(1, 1, 1, 1)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
 
-[node name="RemnantIcon" type="Control"]
+[node name="RemnantIcon" type="Control" node_paths=PackedStringArray("button")]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 3
 anchors_preset = 15
@@ -25,6 +31,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_nncub")
+button = NodePath("Button")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(64, 64)
@@ -53,6 +60,6 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_nncub")
 theme_override_styles/pressed = SubResource("StyleBoxEmpty_ayhuk")
 theme_override_styles/hover = SubResource("StyleBoxTexture_dp3pg")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_aqp6j")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_7kejr")
+theme_override_styles/focus = SubResource("StyleBoxFlat_ayhuk")
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

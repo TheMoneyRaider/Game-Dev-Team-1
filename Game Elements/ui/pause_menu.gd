@@ -20,7 +20,6 @@ func _ready():
 
 func setup(nodes : Array[Node]):
 	for node in nodes:
-		print(node)
 		node.icon_selected.connect(_on_icon_selected)
 	
 
@@ -43,11 +42,14 @@ func _process(_delta):
 
 
 func _on_icon_selected(remnant : Remnant, is_purple : bool) -> void:
-	print("hey")
 	var index = (!is_purple as int) *2
-	slot_nodes[index].hide_visuals(false)
-	slot_nodes[index].set_enabled(true)
-	slot_nodes[index].set_remnant(remnant,false)
+	if remnant ==slot_nodes[index].remnant and !slot_nodes[index].btn_select.disabled:
+		slot_nodes[index].hide_visuals(true)
+		slot_nodes[index].set_enabled(false)
+	else:
+		slot_nodes[index].hide_visuals(false)
+		slot_nodes[index].set_enabled(true)
+		slot_nodes[index].set_remnant(remnant,false)
 	pass
 
 

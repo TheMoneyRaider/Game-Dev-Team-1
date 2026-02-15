@@ -94,27 +94,61 @@ func _ready() -> void:
 	var rem = load("res://Game Elements/Remnants/hack.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
-	var rem2 = load("res://Game Elements/Remnants/hack.tres")
-	rem2.rank = 4
-	player_2_remnants.append(rem2.duplicate(true))
-	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
-	rem3.rank = 5
-	player_1_remnants.append(rem3.duplicate(true))
-	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
-	rem4.rank = 5
-	player_2_remnants.append(rem4.duplicate(true))
-	var rem5 = load("res://Game Elements/Remnants/emp.tres")
-	rem5.rank = 4
-	player_1_remnants.append(rem5.duplicate(true))
-	var rem6 = load("res://Game Elements/Remnants/emp.tres")
-	rem6.rank = 4
-	player_2_remnants.append(rem6.duplicate(true))
-	var rem7 = load("res://Game Elements/Remnants/intelligence.tres")
-	rem7.rank = 4
-	player_1_remnants.append(rem7.duplicate(true))
-	var rem8 = load("res://Game Elements/Remnants/intelligence.tres")
-	rem8.rank = 4
-	player_2_remnants.append(rem8.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/ninja.tres")
+	rem.rank = 5
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/emp.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/intelligence.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/body_phaser.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/crafter.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/drone.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/forcefield.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/hunter.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/investment.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/kinetic_battery.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/shido.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	
+	
 	player1.display_combo()
 	
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)

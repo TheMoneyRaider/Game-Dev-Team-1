@@ -10,6 +10,7 @@ var is_multiplayer : bool = true
 const HIGHLIGHT_SHADER := preload("res://Game Elements/ui/highlight.gdshader")
 @onready var combo1 = $RootControl/Left_Bottom_Corner/Combo
 @onready var combo2 = $RootControl/Right_Bottom_Corner/Combo
+var pause_menu : Node = null
 var player1
 var player2
 var player1_max_time = 1.0
@@ -38,6 +39,7 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 		child.queue_free()
 	for child in $RootControl/RemnantIcons/RightRemnants.get_children():
 		child.queue_free()
+	await get_tree().process_frame
 	for remnant in player1_remnants:
 		if ranked_up1.has(remnant.remnant_name):
 			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,true,true)
@@ -49,9 +51,14 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],true,false)
 		else:
 			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false,false)
-	if get_node_or_null("../PauseMenu"):
-		get_node("../PauseMenu").setup($RootControl/RemnantIcons/LeftRemnants.get_children())
-		get_node("../PauseMenu").setup($RootControl/RemnantIcons/RightRemnants.get_children())
+	if !pause_menu:
+		pause_menu = get_node_or_null("../PauseMenu")
+	if pause_menu:
+		pause_menu.setup($RootControl/RemnantIcons/LeftRemnants.get_children())
+		pause_menu.setup($RootControl/RemnantIcons/RightRemnants.get_children())
+	await get_tree().process_frame
+	if pause_menu:
+		_setup_focus_connections()
 	
 func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purple_icon : bool = false):
 	var slot := IconSlotScene.instantiate()
@@ -69,7 +76,104 @@ func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purp
 		slot.get_node("TextureRect").material = mat
 		await get_tree().create_timer(.5).timeout
 		label.text = _num_to_roman(remnant.rank)
+
+
+func _setup_focus_connections():
+	var left_grid = $RootControl/RemnantIcons/LeftRemnants
+	var right_grid = $RootControl/RemnantIcons/RightRemnants
+	var pause_button = pause_menu.get_node("Control/VBoxContainer/Return")
+
+	_setup_grid_focus(left_grid, left_grid.columns, false)
+	_setup_grid_focus(right_grid, right_grid.columns, true)
+
+	_connect_bottom_row_to_pause(left_grid, left_grid.columns, pause_button,true)
+	_connect_bottom_row_to_pause(right_grid, right_grid.columns, pause_button,false)
+	_connect_grids_horizontally(left_grid, right_grid)
+
+func _setup_grid_focus(grid: GridContainer, columns: int, is_reversed: bool):
+	var children = grid.get_children()
+
+	for i in range(children.size()):
+		var btn = children[i].button
+		btn.focus_mode = Control.FOCUS_ALL
+
+		var row = i / columns
+		var col = i % columns
 		
+		# Flip visual column for reversed grid
+		var visual_col: int = (columns - 1 - col) if is_reversed else col
+
+		# -------- LEFT --------
+		if visual_col > 0:
+			var target_visual_col = visual_col - 1
+			var target_col = (columns - 1 - target_visual_col) if is_reversed else target_visual_col
+			var left_index = row * columns + target_col
+
+			if left_index >= 0 and left_index < children.size():
+				btn.focus_neighbor_left = children[left_index].button.get_path()
+
+		# -------- RIGHT --------
+		if visual_col < columns - 1:
+			var target_visual_col = visual_col + 1
+			var target_col = (columns - 1 - target_visual_col) if is_reversed else target_visual_col
+			var right_index = row * columns + target_col
+
+			if right_index >= 0 and right_index < children.size():
+				btn.focus_neighbor_right = children[right_index].button.get_path()
+
+		# -------- UP --------
+		if row > 0:
+			var up_index = (row - 1) * columns + col
+			if up_index < children.size():
+				btn.focus_neighbor_top = children[up_index].button.get_path()
+
+		# -------- DOWN --------
+		var down_index = (row + 1) * columns + col
+		if down_index < children.size():
+			btn.focus_neighbor_bottom = children[down_index].button.get_path()
+
+func _connect_bottom_row_to_pause(grid: GridContainer, columns: int, pause_button: Control, connect_pause : bool):
+	var children = grid.get_children()
+	if children.is_empty():
+		return
+
+	var last_index = children.size() - 1
+	var last_row = last_index / columns
+
+	for i in range(children.size()):
+		var row = i / columns
+		if row == last_row:
+			children[i].button.focus_neighbor_bottom = pause_button.get_path()
+	if connect_pause:
+		pause_button.focus_neighbor_top = children[-1].button.get_path()
+
+func _connect_grids_horizontally(left_grid: GridContainer, right_grid: GridContainer):
+	var left_children = left_grid.get_children()
+	var right_children = right_grid.get_children()
+
+	var columns = left_grid.columns
+	var rows = int(ceil(left_children.size() / float(columns)))
+
+	for row in range(rows):
+		for col in range(columns):
+			var index = row * columns + col
+			
+			if index >= left_children.size():
+				continue
+
+			var left_btn = left_children[index].button
+			var visual_col = col  # left grid is NOT reversed
+			
+			# RIGHTMOST column of LEFT grid
+			if visual_col == columns - 1:
+				var right_index = row * columns + (columns - 1 - col)
+				
+				if right_index < right_children.size():
+					var right_btn = right_children[right_index].button
+					
+					left_btn.focus_neighbor_right = right_btn.get_path()
+					right_btn.focus_neighbor_left = left_btn.get_path()
+
 func _num_to_roman(input : int) -> String:
 	match input:
 		1:
@@ -173,6 +277,9 @@ func combo_change(player_value : bool, increase_value : bool):
 		combo2.get_node("TextureProgressBar/Label").text = str(player2_combo)+"x"
 
 func _process(delta: float) -> void:
+	var f = get_viewport().gui_get_focus_owner()
+	#if f:
+		#print("Focus:", f.get_path())
 	if is_multiplayer or player1.is_purple:
 		player1_time = max(player1_time-delta, 0.0)
 	if is_multiplayer or !player1.is_purple:
@@ -217,7 +324,6 @@ func _on_special_reset(is_purple : bool):
 		update_shader(LeftCooldownBar.get_node("CooldownBar").material,0.0, true)
 		return
 	update_shader(RightCooldownBar.get_node("CooldownBar").material,0.0, true)
-
 
 func _on_special_changed(is_purple : bool, new_progress):
 	if is_purple:

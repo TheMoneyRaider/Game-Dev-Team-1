@@ -47,7 +47,7 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 			position= new_pos
 			
 			
-	if attack and attack.attack_type=="laser":
+	if attack and "attack_type" in attack and attack.attack_type=="laser":
 		var sparks = preload("res://Game Elements/particles/sparks_enemy.tscn").instantiate()
 		get_parent().add_child(sparks)
 		sparks.global_position = global_position

@@ -12,6 +12,8 @@ signal slot_selected(index: int)
 
 @onready var art = $btn_select/art
 
+var remnant : Remnant = null
+
 func _ready():
 	art.material = art.material.duplicate(true)
 	randomize()
@@ -26,21 +28,22 @@ func _on_btn_gui_input(event):
 		if event.keycode == Key.KEY_SPACE or event.keycode == Key.KEY_ENTER:
 			event.accept()  # Prevents space/enter from clicking the button
 
-func set_remnant(remnant: Resource, is_upgrade : bool) -> void:
+func set_remnant(remnant_in: Resource, is_upgrade : bool) -> void:
+	remnant = remnant_in
 	if remnant == null:
 		art.texture = null
 		name_label.text = "—"
 		desc_label.text = ""
 		return
-	name_label.text = remnant.remnant_name
-	desc_label.text = remnant.description
-	if remnant.art:
-		art.texture = remnant.art
+	name_label.text = remnant_in.remnant_name
+	desc_label.text = remnant_in.description
+	if remnant_in.art:
+		art.texture = remnant_in.art
 	else:
 		art.texture = null
-	rank_label.text = "Rank " + _num_to_roman(remnant.rank) if !is_upgrade else "Rank " + _num_to_roman(remnant.rank) +"->" + _num_to_roman(remnant.rank+1)
+	rank_label.text = "Rank " + _num_to_roman(remnant_in.rank) if !is_upgrade else "Rank " + _num_to_roman(remnant_in.rank) +"->" + _num_to_roman(remnant_in.rank+1)
 	
-	_update_description(remnant, desc_label, remnant.rank, is_upgrade)
+	_update_description(remnant_in, desc_label, remnant_in.rank, is_upgrade)
 
 func outline_remnant(color: Color = Color.ORANGE, alpha : float = 0.0):
 	art.material.set_shader_parameter("outline_color", color)
@@ -96,6 +99,8 @@ func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: 
 
 
 func hide_visuals(enabled: bool):
+	if enabled:
+		btn_select.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
 	modulate.a = !enabled as float
 
 func set_enabled(enabled: bool):
