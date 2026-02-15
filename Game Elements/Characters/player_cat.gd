@@ -169,6 +169,7 @@ func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-
 				get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 				emit_signal("attack_requested",revive, position, Vector2.ZERO, 0)
 		_cleric_chance()
+		_barb_damage()
 	
 func swap_color():
 	emit_signal("swapped_color", self)
@@ -385,6 +386,24 @@ func _cleric_chance():
 				particle.position = self.position
 				get_parent().add_child(particle)
 				change_health(rem.variable_2_values[rem.rank-1])
+
+func _barb_damage():
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var barbarian = load("res://Game Elements/Remnants/barbarian.tres")
+	for rem in remnants:
+		if rem.remnant_name == barbarian.remnant_name:
+			for weapon in weapons:
+				weapon.damage = weapon.damage * (1 + rem.variable_1_values[rem.rank-1] / 100.0)
+			_reset_barb_damage(rem.variable_1_values[rem.rank-1] / 100.0,rem.variable_2_values[rem.rank-1])
+
+func _reset_barb_damage(percent : float, time : float):
+	await get_tree().create_timer(time).timeout
+	for weapon in weapons:
+		weapon.damage = weapon.damage / (1 + percent)
 
 func hunter_percent_boost() -> float:
 	randomize()
