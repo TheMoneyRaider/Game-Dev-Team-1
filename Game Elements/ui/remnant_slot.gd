@@ -6,12 +6,14 @@ class_name RemnantSlot
 signal slot_selected(index: int)
 
 @onready var btn_select: Button = $btn_select
-@onready var art: TextureRect = $btn_select/SubViewport/art
-@onready var name_label: Label = $btn_select/SubViewport/container/name_label
-@onready var desc_label: RichTextLabel = $btn_select/SubViewport/container/description_label
-@onready var rank_label: Label = $btn_select/SubViewport/container/rank_label
+@onready var name_label: Label = $btn_select/container/name_label
+@onready var desc_label: RichTextLabel = $btn_select/container/description_label
+@onready var rank_label: Label = $btn_select/container/rank_label
+
+@onready var art = $btn_select/art
 
 func _ready():
+	art.material = art.material.duplicate(true)
 	randomize()
 	btn_select.pressed.connect(_on_button_pressed)
 	btn_select.focus_mode = Control.FOCUS_NONE  # Prevents keyboard focus
@@ -41,15 +43,9 @@ func set_remnant(remnant: Resource, is_upgrade : bool) -> void:
 	
 	_update_description(remnant, desc_label, remnant.rank, is_upgrade)
 
-func outline_remnant(child: Node, color: Color = Color.ORANGE, alpha : float = 0.0):
-	var shader = Shader.new()
-	shader.code = load("res://Game Elements/Shaders/outline.gdshader").code
-	var mat = ShaderMaterial.new()
-	mat.shader = shader
-	mat.set_shader_parameter("outline_color", color)
-	mat.set_shader_parameter("outline_thickness", 5.0)
-	mat.set_shader_parameter("outline_opacity", alpha)
-	child.material = mat
+func outline_remnant(color: Color = Color.ORANGE, alpha : float = 0.0):
+	art.material.set_shader_parameter("outline_color", color)
+	art.material.set_shader_parameter("outline_opacity", alpha)
 
 
 func _on_button_pressed():
@@ -96,3 +92,11 @@ func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: 
 			new_text = new_text.replace(rem_name, colored_value)
 
 	desc_label_up.text = new_text
+
+
+func hide_visuals(enabled: bool):
+	modulate.a = !enabled as float
+
+func set_enabled(enabled: bool):
+	btn_select.disabled = !enabled
+	btn_select.mouse_filter = Control.MOUSE_FILTER_STOP if enabled else Control.MOUSE_FILTER_IGNORE
