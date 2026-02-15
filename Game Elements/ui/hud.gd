@@ -310,23 +310,21 @@ func combo_change(player_value : bool, increase_value : bool):
 		combo2.get_node("TextureProgressBar/Label").text = str(player2_combo)+"x"
 
 func _process(delta: float) -> void:
-	var f = get_viewport().gui_get_focus_owner()
-	#if f:
-		#print("Focus:", f.get_path())
-	if is_multiplayer or player1.is_purple:
-		player1_time = max(player1_time-delta, 0.0)
-	if is_multiplayer or !player1.is_purple:
-		player2_time = max(player2_time-delta, 0.0)
-	if player1_time != 0.0:
-		combo1.get_node("TextureProgressBar").value = player1_time
-	if player1_time == 0.0:
-		if player1_combo > 1.0:
-			combo_change(true, false)
-	if player2_time != 0.0:
-		combo2.get_node("TextureProgressBar").value = player2_time
-	if player2_time == 0.0:
-		if player2_combo > 1.0:
-			combo_change(false, false)
+	if !get_tree().paused:
+		if is_multiplayer or player1.is_purple:
+			player1_time = max(player1_time-delta, 0.0)
+		if is_multiplayer or !player1.is_purple:
+			player2_time = max(player2_time-delta, 0.0)
+		if player1_time != 0.0:
+			combo1.get_node("TextureProgressBar").value = player1_time
+		if player1_time == 0.0:
+			if player1_combo > 1.0:
+				combo_change(true, false)
+		if player2_time != 0.0:
+			combo2.get_node("TextureProgressBar").value = player2_time
+		if player2_time == 0.0:
+			if player2_combo > 1.0:
+				combo_change(false, false)
 
 func _on_player_swap(player_node : Node):
 	if player1 == player_node:

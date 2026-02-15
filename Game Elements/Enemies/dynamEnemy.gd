@@ -151,7 +151,7 @@ func _robot_process():
 	$RobotBrain.set_frame(block + offset)
 
 
-func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0):
+func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0,creates_indicators : bool = true):
 	if current_health< 0:
 		return
 	if(i_frames > 0):
@@ -160,7 +160,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	check_agro(dmg_owner)
 	if enemy_type=="binary_bot":
 		$Core.damage_glyphs()
-	if current_health >= 0 and display_damage and attack_body.attack_type != "emp":
+	if current_health >= 0 and display_damage and creates_indicators:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		if attack_body and !attack_body.combod:

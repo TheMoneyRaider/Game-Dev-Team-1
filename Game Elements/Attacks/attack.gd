@@ -24,6 +24,7 @@ var hit_nodes = {}
 @export var i_frames : int = 20
 @export var c_owner: Node = null
 @export var repeat_hits : bool = false
+@export var creates_indicators : bool = true
 var combod : bool = false
 var is_purple : bool = false
 
@@ -223,7 +224,7 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
 		return 0
 	if body.has_method("take_damage"):
-		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames)
+		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames,creates_indicators)
 		return 1
 	get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
 	return -1
@@ -288,12 +289,12 @@ func _on_area_entered(area: Area2D) -> void:
 		if area.attack_type =="laser":
 			if area.life > .5:
 				return
-			area.c_owner.take_damage(self.damage,c_owner,direction,self)
+			area.c_owner.take_damage(self.damage,c_owner,direction,self,creates_indicators)
 		if area.attack_type =="binary_melee":
 			print("DEFLECT")
 			area.c_owner.get_node("Core")._deflect_melee_attack()
-			area.c_owner.take_damage(self.damage,c_owner,direction,self)
-			area.c_owner.take_damage(self.damage,c_owner,direction,self)
+			area.c_owner.take_damage(self.damage,c_owner,direction,self,creates_indicators)
+			area.c_owner.take_damage(self.damage,c_owner,direction,self,creates_indicators)
 			return
 		area.deflect(direction, hit_force,self)
 		area.c_owner = c_owner
