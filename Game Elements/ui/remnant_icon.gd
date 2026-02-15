@@ -11,6 +11,7 @@ signal icon_selected(rmenant: Remnant, is_purple : bool)
 @onready var art = $TextureRect
 
 
+
 func setup(remnant_in : Remnant, is_purple_in : bool):
 	remnant = remnant_in
 	is_purple = is_purple_in
@@ -18,5 +19,4 @@ func setup(remnant_in : Remnant, is_purple_in : bool):
 
 
 func _on_button_pressed():
-	print("ME! "+str(remnant.remnant_name))
 	emit_signal("icon_selected", remnant, is_purple)

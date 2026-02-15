@@ -49,9 +49,9 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],true,false)
 		else:
 			_add_slot($RootControl/RemnantIcons/RightRemnants, player2_remnants[i],false,false)
-	if get_node_or_null("PauseMenu"):
-		$PauseMenu.setup($RootControl/RemnantIcons/LeftRemnants.get_children())
-		$PauseMenu.setup($RootControl/RemnantIcons/RightRemnants.get_children())
+	if get_node_or_null("../PauseMenu"):
+		get_node("../PauseMenu").setup($RootControl/RemnantIcons/LeftRemnants.get_children())
+		get_node("../PauseMenu").setup($RootControl/RemnantIcons/RightRemnants.get_children())
 	
 func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purple_icon : bool = false):
 	var slot := IconSlotScene.instantiate()

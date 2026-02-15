@@ -71,24 +71,26 @@ func _update_description(remnant: Resource, desc_label_up: RichTextLabel, rank: 
 	for i in remnant.variable_names.size():
 		var rem_name : String = remnant.variable_names[i]
 		var value := str(remnant["variable_%d_values" % (i + 1)][rank - 1])
-		var new_value := str(remnant["variable_%d_values" % (i + 1)][rank])
-
 		var colored_value := "[color=white]" + value
-		var colored_new_value := "[color=white]" + new_value
-
-		#Color a trailing % sign if present
-		if new_text.find(rem_name + "%") != -1:
-			if is_upgrade:
+		if is_upgrade:
+			var new_value := str(remnant["variable_%d_values" % (i + 1)][rank])
+			var colored_new_value := "[color=white]" + new_value
+			
+			#Color a trailing % sign if present
+			if new_text.find(rem_name + "%") != -1:
 				colored_value += "%->"+colored_new_value+"%[/color]"
+				new_text = new_text.replace(rem_name + "%", colored_value)
 			else:
-				colored_value += "%[/color]"
-			new_text = new_text.replace(rem_name + "%", colored_value)
-		else:
-			if is_upgrade:
 				colored_value += "->"+colored_new_value+"[/color]"
+				new_text = new_text.replace(rem_name, colored_value)
+		else:
+			#Color a trailing % sign if present
+			if new_text.find(rem_name + "%") != -1:
+				colored_value += "%[/color]"
+				new_text = new_text.replace(rem_name + "%", colored_value)
 			else:
 				colored_value += "[/color]"
-			new_text = new_text.replace(rem_name, colored_value)
+				new_text = new_text.replace(rem_name, colored_value)
 
 	desc_label_up.text = new_text
 

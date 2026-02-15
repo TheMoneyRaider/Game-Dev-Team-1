@@ -59,11 +59,10 @@ ProgressBar/styles/background = SubResource("StyleBoxFlat_bjfho")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_6fbih")
 
 [node name="Hud" type="CanvasLayer"]
-process_mode = 1
+process_mode = 3
 script = ExtResource("1_6fbih")
 
 [node name="RootControl" type="Control" parent="."]
-process_mode = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -73,7 +72,6 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="RemnantIcons" type="Control" parent="RootControl"]
-custom_minimum_size = Vector2(0, 64)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -84,8 +82,9 @@ mouse_filter = 2
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 1.0
-mouse_filter = 2
-columns = 16
+offset_right = 916.0
+offset_bottom = 89.0
+columns = 8
 
 [node name="RightRemnants" type="GridContainer" parent="RootControl/RemnantIcons"]
 layout_mode = 1
@@ -94,8 +93,7 @@ anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 0
-mouse_filter = 2
-columns = 16
+columns = 8
 
 [node name="TimeFabric" type="Control" parent="RootControl"]
 layout_mode = 1

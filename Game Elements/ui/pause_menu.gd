@@ -13,15 +13,15 @@ func _ready():
 	for i in range(slot_nodes.size()):
 		slot_nodes[i].index = i
 		slot_nodes[i].slot_selected.connect(_on_slot_selected)
+		slot_nodes[i].set_enabled(false)
 		slot_nodes[i].hide_visuals(true)
 	hide()
-	slot_nodes[1].set_enabled(false)
 
 
 func setup(nodes : Array[Node]):
-	pass
-	#for node in nodes:
-		#node.icon_selected.connect(_on_icon_selected)
+	for node in nodes:
+		print(node)
+		node.icon_selected.connect(_on_icon_selected)
 	
 
 
@@ -43,45 +43,39 @@ func _process(_delta):
 
 
 func _on_icon_selected(remnant : Remnant, is_purple : bool) -> void:
-	var index = (is_purple as int) *2
+	print("hey")
+	var index = (!is_purple as int) *2
 	slot_nodes[index].hide_visuals(false)
+	slot_nodes[index].set_enabled(true)
 	slot_nodes[index].set_remnant(remnant,false)
 	pass
 
 
-func _on_slot_selected(_idx: int) -> void:
-	pass
-	#if Globals.is_multiplayer:
-		#if Globals.player1_input == "key" and _check_if_remnant_viable(offered_remnants[idx], player1_remnants) and idx != selected_index2:
-			#selected_index1 = idx
-		#elif Globals.player2_input == "key" and _check_if_remnant_viable(offered_remnants[idx], player2_remnants) and idx != selected_index1:
-			#selected_index2 = idx
-	#else:
-		#if is_purple:
-			#if  _check_if_remnant_viable(offered_remnants[idx], player1_remnants):
-				#if idx == selected_index2:
-					#selected_index2=-1
-				#selected_index1 = idx
-		#else:
-			#if _check_if_remnant_viable(offered_remnants[idx], player2_remnants):
-				#if idx == selected_index1:
-					#selected_index1=-1
-				#selected_index2 = idx
-		#if selected_index1 != selected_index2 and selected_index1 != -1 and selected_index2 != -1: #If we now have two different selections -> close the menu
-			#_close_after_two_chosen()
+func _on_slot_selected(idx: int) -> void:
+	slot_nodes[idx].hide_visuals(true)
+	slot_nodes[idx].set_enabled(false)
 
 
 func _on_settings_pressed():
+	for i in range(slot_nodes.size()):
+		slot_nodes[i].set_enabled(false)
+		slot_nodes[i].hide_visuals(true)
 	var setting = load("res://Game Elements/ui/settings.tscn").instantiate()
 	add_child(setting)
 	setting.get_child(0).is_pause_settings=true
 
 func _on_return_pressed():
+	for i in range(slot_nodes.size()):
+		slot_nodes[i].set_enabled(false)
+		slot_nodes[i].hide_visuals(true)
 	Input.set_mouse_mode(mouse_mode)
 	get_tree().get_root().get_node("LayerManager/DeathMenu").capturing = true
 	get_tree().paused = false
 	hide()
 
 func _on_menu_pressed():
+	for i in range(slot_nodes.size()):
+		slot_nodes[i].set_enabled(false)
+		slot_nodes[i].hide_visuals(true)
 	get_tree().paused = false
 	get_tree().call_deferred("change_scene_to_file", "res://Game Elements/ui/main_menu/main_menu.tscn")
