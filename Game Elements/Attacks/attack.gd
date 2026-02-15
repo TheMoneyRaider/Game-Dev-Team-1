@@ -25,6 +25,7 @@ var hit_nodes = {}
 @export var c_owner: Node = null
 @export var repeat_hits : bool = false
 @export var creates_indicators : bool = true
+@export var spawn_particle : PackedScene = null
 var combod : bool = false
 var is_purple : bool = false
 
@@ -73,6 +74,12 @@ func _ready():
 	if start_lag > 0.0:
 		await get_tree().create_timer(start_lag).timeout
 	frozen = false
+	if spawn_particle:
+		var inst = spawn_particle.instantiate()
+		inst.global_position = global_position
+		inst.emitting = true
+		inst.rotation = direction.angle()
+		get_parent().add_child(inst)
 	if attack_type == "robot melee":
 		$AnimationPlayer.play("main")
 	if attack_type == "ls_melee":
