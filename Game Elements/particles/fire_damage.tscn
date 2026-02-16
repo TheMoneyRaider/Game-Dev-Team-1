@@ -37,6 +37,8 @@ hue_variation_min = -0.100000024
 hue_variation_max = 0.09999997
 
 [node name="FireDamage" type="GPUParticles2D"]
+z_index = 20
+y_sort_enabled = true
 emitting = false
 amount = 100
 lifetime = 1.5

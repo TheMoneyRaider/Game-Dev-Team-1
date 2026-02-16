@@ -79,7 +79,6 @@ cooldown = 0.3
 pierce = -2.0
 wall_collision = false
 attack_type = "ls_melee"
-deflects = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_0b5ol")

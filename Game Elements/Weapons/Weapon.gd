@@ -17,6 +17,10 @@ class_name Weapon
 @export var spawn_distance: float = 20
 @export var special_hits : int = 5
 @export var special_on_release : bool =  true
+@export var has_animation : bool = false
+@export var sprite_animation : String = ""
+@export var sprite_hframes : int = 1
+@export var sprite_vframes : int = 1
 var current_special_hits = 0
 
 var speed = 60.0
@@ -105,7 +109,6 @@ func check_for_intelligence(node_attacking: Node) -> Remnant:
 			return rem.duplicate(true)
 	return null
 
-
 func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", variant : bool = false):
 	var intelligence = check_for_intelligence(node_attacking)
 	
@@ -149,7 +152,7 @@ var laser_camera_distancey = 128
 func start_special(special_direction : Vector2, node_attacking : Node):
 	match type:
 		"Laser_Sword":
-			var mesh_inst = load("res://Game Elements/Attacks/laser_special.tscn").instantiate()
+			var mesh_inst = load("res://Game Elements/Attacks/sword_special.tscn").instantiate()
 			node_attacking.LayerManager.room_instance.add_child(mesh_inst)
 
 			special_nodes.append(mesh_inst)
@@ -157,6 +160,9 @@ func start_special(special_direction : Vector2, node_attacking : Node):
 
 			var locations : Array[Vector2] = get_locations(node_attacking, special_direction)
 			mesh_inst.draw_path(PackedVector2Array(locations))
+		"Railgun":
+			#Spawn Line2D
+			pass
 			
 		_ :
 			pass
@@ -214,12 +220,18 @@ func get_locations(start_node : Node,inital_direction : Vector2) -> Array[Vector
 
 	return best_chain
 	
-	
 func special_tick(special_direction : Vector2, node_attacking : Node):
 	match type:
 			"Laser_Sword":
 				var locations : Array[Vector2] = get_locations(node_attacking, special_direction)
 				special_nodes[0].draw_path(PackedVector2Array(locations))
+			"Railgun":
+				node_attacking.take_damage(1, null,Vector2(0,-1))
+				var fire = preload("res://Game Elements/particles/fire_damage.tscn").instantiate()
+				fire.position = node_attacking.position
+				node_attacking.LayerManager.room_instance.add_child(fire)
+				fire.emitting = true
+				pass
 			_:
 				pass
 	
@@ -251,6 +263,34 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 					effect.value1 = 0.0
 					effect.gained(c_owner)
 					Effects.append(effect)
+			"Railgun":
+				if(special_time_elapsed <= 1.0):
+					var effect = load("res://Game Elements/Effects/rail_charge.tres").duplicate(true)
+					effect.cooldown = 20*time_elapsed
+					effect.value1 = 0.04
+					effect.gained(c_owner)
+					Effects.append(effect)
+				else:
+					var check_forward
+					if special_nodes.size() < 1:
+						node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 0.0, 0.0, 1.0),1.0)
+						var inst = load("res://Game Elements/Attacks/railgun_laser.tscn").instantiate()
+						special_nodes.append(inst)
+						inst.global_position = node_attacking.global_position + inst.size/-2.0 + special_direction*spawn_distance
+						check_forward = cast_ray(node_attacking.global_position, special_direction, 1600,node_attacking)
+						node_attacking.LayerManager.room_instance.add_child(inst)
+						inst.fire_laser(node_attacking.global_position+special_direction*spawn_distance,check_forward.position,node_attacking)
+					
+					special_nodes[0].global_position = node_attacking.global_position + special_nodes[0].size/-2.0 + special_direction*spawn_distance
+					check_forward = cast_ray(node_attacking.global_position, special_direction, 1600,node_attacking)
+					special_nodes[0].update_points(node_attacking.global_position+special_direction*spawn_distance,check_forward.position)
+					
+					var effect = load("res://Game Elements/Effects/tether.tres").duplicate(true)
+					effect.cooldown = 20*time_elapsed
+					effect.value1 = 0.02
+					effect.gained(c_owner)
+					Effects.append(effect)
+			
 			_:
 				pass
 	else:
@@ -273,6 +313,19 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 			if floor(special_time_elapsed*8) !=special_time_period_elapsed:
 				special_time_period_elapsed = floor(special_time_elapsed*8)
 				special_tick(special_direction, node_attacking)
+		"Railgun":
+			if(special_time_elapsed >= 6.0 and special_time_elapsed < 12.0):
+				if floor(special_time_elapsed*.5) !=special_time_period_elapsed:
+					special_time_period_elapsed = floor(special_time_elapsed*.5)
+					special_tick(special_direction, node_attacking)
+			elif(special_time_elapsed >= 12.0 and special_time_elapsed < 16.0):
+				if floor(special_time_elapsed) !=special_time_period_elapsed:
+					special_time_period_elapsed = floor(special_time_elapsed)
+					special_tick(special_direction, node_attacking)
+			elif(special_time_elapsed >= 16.0):
+				if floor(special_time_elapsed*2) !=special_time_period_elapsed:
+					special_time_period_elapsed = floor(special_time_elapsed*2)
+					special_tick(special_direction, node_attacking)
 		_:
 			pass
 	special_time_elapsed += time_elapsed
@@ -284,7 +337,7 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 			"Mace":
 				pass
 			"Laser_Sword":
-				laser_special_attack(special_direction,node_attacking)
+				sword_special_attack(special_direction,node_attacking)
 			"Crossbow":
 				if(special_time_elapsed >= 5.0):
 					damage += (special_start_damage / 2)
@@ -294,6 +347,9 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 					spawn_attack(special_direction,special_position, node_attacking,"charged_particles")
 					current_special_hits = 0
 					damage = special_start_damage
+			"Railgun":
+				node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 1.0, 1.0, 1.0),1.0)
+				current_special_hits = 0
 			_:
 				pass
 		special_time_elapsed = 0.0
@@ -306,7 +362,16 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 					node.queue_free()
 		special_nodes = []
 
-func laser_special_attack(special_direction : Vector2,node_attacking : Node):
+func cast_ray(origin: Vector2, direction: Vector2, distance: float, player_node : Node) -> Dictionary:
+	var space = player_node.get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(origin - direction, origin + direction * distance)
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	query.collision_mask = 1 << 0
+	return space.intersect_ray(query)
+
+
+func sword_special_attack(special_direction : Vector2,node_attacking : Node):
 	current_special_hits = 0
 	special_time_elapsed = 0.0
 	special_time_period_elapsed = 0

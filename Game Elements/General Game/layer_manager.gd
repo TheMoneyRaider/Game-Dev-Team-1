@@ -10,7 +10,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 var player1 = null
 var player2 = null
 var weapon1 = "res://Game Elements/Weapons/LaserSword.tres"
-var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
+var weapon2 = "res://Game Elements/Weapons/Railgun.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
@@ -90,10 +90,10 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/drone.tres")
+	var rem = load("res://Game Elements/Remnants/hack.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
-	var rem2 = load("res://Game Elements/Remnants/drone.tres")
+	var rem2 = load("res://Game Elements/Remnants/hack.tres")
 	rem2.rank = 4
 	player_2_remnants.append(rem2.duplicate(true))
 	var rem3 = load("res://Game Elements/Remnants/ninja.tres")

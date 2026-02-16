@@ -53,6 +53,11 @@ func gained(node_to_change : Node):
 			if node_to_change.is_in_group("player"):
 				if !node_to_change.forcefield_active:
 					node_to_change.show_forcefield(.25)
+		"rail_charge":
+			node_to_change.move_speed = ((1-value1) * node_to_change.move_speed)
+			var particle =  load("res://Game Elements/Effects/railgun_charge_particles.tscn").instantiate()
+			particle.position = node_to_change.position
+			node_to_change.get_parent().add_child(particle)
 					
 			
 
@@ -81,6 +86,8 @@ func lost(node_to_change : Node):
 							has_more +=1
 					if has_more <= 1:
 						node_to_change.hide_forcefield(.25)
+		"rail_charge":
+			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
 	
 	for node in saved_nodes:
 		if node and !node.is_queued_for_deletion():

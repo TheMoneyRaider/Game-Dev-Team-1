@@ -23,6 +23,7 @@ var hit_nodes = {}
 @export var deflects : bool = false
 @export var i_frames : int = 20
 @export var c_owner: Node = null
+@export var repeat_hits : bool = false
 var combod : bool = false
 var is_purple : bool = false
 
@@ -33,6 +34,8 @@ var frozen := true
 var intelligence : Remnant = null
 
 var LayerManager : Node = null
+
+var special_nodes : Array[Node] = []
 
 #Special Variables
 var life = 0.0
@@ -82,6 +85,13 @@ func _ready():
 		else:
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_orange.png")
 	rotation = direction.angle() + PI/2
+	if attack_type == "slug":
+		special_nodes.append(load("res://Game Elements/Attacks/slug_seperate.tscn").instantiate())
+		special_nodes[-1].global_position = global_position
+		special_nodes[-1].global_rotation = global_rotation
+		get_parent().add_child(special_nodes[-1])
+		special_nodes[-1].setup(self)
+	
 
 
 
@@ -125,19 +135,21 @@ func change_direction():
 		var angle_ratio = clamp(turn_strength/ float(angle),0.0,1.0)
 		direction = lerp(direction, to_enemy, angle_ratio)
 		rotation = direction.angle() + PI/2
-		
+	
 
 func _process(delta):
 	if attack_type == "ls_melee":
 		global_position = c_owner.global_position
-	if intelligence and speed > 0:
+	if intelligence and speed > 0 and attack_type != "slug":
 		change_direction()
 	if frozen:
 		return
 	if attack_type == "laser":
-		for body in get_overlapping_bodies():
-			intersection(body)
-	position += direction * speed * delta
+		if has_method("get_overlapping_bodies"):
+			for body in get_overlapping_bodies():
+				intersection(body)
+	if attack_type != "slug":
+		position += direction * speed * delta
 	life+=delta
 	if attack_type == "smash":
 		get_node("CollisionShape2D").shape.radius = lerp(8,16,life/lifespan)
@@ -145,6 +157,8 @@ func _process(delta):
 		return
 	if attack_type == "death mark":
 		c_owner.die(true,true)
+	for node in special_nodes:
+		node.queue_free()
 	queue_free()
 	
 func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: Vector2) -> int:
@@ -199,6 +213,11 @@ func intersection(body):
 
 
 func _on_body_entered(body):
+	if body.is_in_group("player") and attack_type == "slug" and body == c_owner:
+		c_owner.cooldowns[is_purple as int]=max(c_owner.cooldowns[is_purple as int]-3,0.0)
+		special_nodes[-1].queue_free()
+		queue_free()
+		return
 	intersection(body)
 
 func deflect(hit_direction, hit_speed, deflection_area):
@@ -242,6 +261,5 @@ func _on_area_entered(area: Area2D) -> void:
 
 
 func _on_body_exited(body: Node2D) -> void:
-	if attack_type != "forcefield":
-		return
-	hit_nodes.erase(body)
+	if repeat_hits:
+		hit_nodes.erase(body)
