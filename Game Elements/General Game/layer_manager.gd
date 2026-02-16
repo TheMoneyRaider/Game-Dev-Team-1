@@ -93,7 +93,7 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/aeromancer.tres")
+	var rem = load("res://Game Elements/Remnants/hydromancer.tres")
 	#var rem2 = load("res://Game Elements/Remnants/cleric.tres")
 	rem.rank = 5
 	#rem2.rank = 5

@@ -92,24 +92,9 @@ func _process(delta):
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, _i_frames : int = 0):
 	if current_health >= 0 and display_damage:
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
-	_check_pyromancer(dmg_owner)
 	if dmg_owner != null:
 		last_hitter = dmg_owner
-	if dmg_owner != null and dmg_owner.is_in_group("player"):
-		var remnants : Array[Remnant] = []
-		if dmg_owner.is_purple:
-			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
-		else:
-			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
-		var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
-		var effect : Effect
-		for rem in remnants:
-			if rem.remnant_name == winter.remnant_name:
-				effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
-				effect.cooldown = rem.variable_2_values[rem.rank-1]
-				effect.value1 =  rem.variable_1_values[rem.rank-1]
-				effect.gained(self)
-				effects.append(effect)
+	_check_on_hit_remnants(dmg_owner)
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
 	if current_health-damage < 0 and enemy_type == "laser_e":
@@ -126,7 +111,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
 
-func _check_pyromancer(dmg_owner: Node):
+func _check_on_hit_remnants(dmg_owner: Node):
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
@@ -134,11 +119,39 @@ func _check_pyromancer(dmg_owner: Node):
 		else:
 			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
 		var pyromancer = load("res://Game Elements/Remnants/pyromancer.tres")
+		var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
+		var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
+		var effect : Effect
+		exploded = 0
 		for rem in remnants:
-			if rem.remnant_name == pyromancer.remnant_name:
-				exploded = rem.variable_2_values[rem.rank-1]
-				return
-	exploded = 0
+			match rem.remnant_name:
+				winter.remnant_name:
+					effect = load("res://Game Elements/Effects/winter_freeze.tres").duplicate(true)
+					effect.cooldown = rem.variable_2_values[rem.rank-1]
+					effect.value1 =  rem.variable_1_values[rem.rank-1]
+					effect.gained(self)
+					effects.append(effect)
+				pyromancer.remnant_name:
+					exploded = rem.variable_2_values[rem.rank-1]
+				hydromancer.remnant_name:
+					apply_hydromancer(rem, dmg_owner)
+				_:
+					pass
+
+func apply_hydromancer(rem : Remnant, dmg_owner : Node):
+	var effect : Effect
+	match dmg_owner.last_liquid:
+		Globals.Liquid.Water:
+			for i in range(rem.rank * 8):
+				effect = load("res://Game Elements/Effects/slow_down.tres")
+				effect.cooldown = rem.rank * 50
+				effect.value1 = 0.023
+				effect.gained(self)
+				effects.append(effect)
+			dmg_owner.last_liquid = Globals.Liquid.Buffer
+		_:
+			pass
+		
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))

@@ -44,7 +44,7 @@ var input_device = "-1"
 var input_direction : Vector2 = Vector2.ZERO
 
 var effects : Array[Effect] = []
-
+var last_liquid : Globals.Liquid = Globals.Liquid.Buffer
 
 
 #The scripts for loading default values into the attack
@@ -293,6 +293,16 @@ func check_traps(delta):
 		current_dmg_time = 0
 		in_instant_trap = false
 
+func _check_hydromancer(liquid : Globals.Liquid):
+	var remnants : Array[Remnant]
+	if is_purple:
+		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+	else:
+		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+	var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
+	for rem in remnants:
+		if rem.remnant_name == hydromancer.remnant_name:
+			last_liquid = liquid
 
 func check_liquids(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
@@ -307,6 +317,7 @@ func check_liquids(delta):
 					effect.value1 = 0.023
 					effect.gained(self)
 					effects.append(effect)
+					_check_hydromancer(Globals.Liquid.Water)
 				Globals.Liquid.Lava:
 					var idx = 0
 					for effect in effects:
@@ -320,10 +331,12 @@ func check_liquids(delta):
 					if current_liquid_time >= .25:
 						current_liquid_time -= .25
 						take_damage(2,null)
+					_check_hydromancer(Globals.Liquid.Lava)
 				Globals.Liquid.Conveyer:
 					position+=tile_data.get_custom_data("direction").normalized() *delta * 32
 				Globals.Liquid.Glitch:
 					_glitch_move()
+					_check_hydromancer(Globals.Liquid.Glitch)
 					
 					
 func _glitch_move() -> void:
