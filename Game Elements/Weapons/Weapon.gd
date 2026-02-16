@@ -170,6 +170,7 @@ func start_special(special_direction : Vector2, node_attacking : Node):
 			print("Start Crowbar")
 			var setup = load("res://Game Elements/Attacks/crowbar_special/setup.tscn").instantiate()
 			setup.tilemaplayer = node_attacking.LayerManager.room_instance.get_node("Ground")
+			setup.available_tiles = node_attacking.LayerManager.placable_cells
 			setup.global_position = node_attacking.global_position+special_direction*48
 			node_attacking.LayerManager.room_instance.add_child(setup)
 
