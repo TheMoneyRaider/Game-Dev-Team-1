@@ -57,6 +57,7 @@ func fire_laser(from_point : Vector2, to_point : Vector2,node : Node):
 
 func kill():
 	powering_down_distance = 0.0
+	laser_attack.queue_free()
 
 func _process(delta):
 	if !active:
@@ -98,15 +99,15 @@ func _process(delta):
 	line.clear_points()
 	line.add_point(start_pos + size/2 - point1)
 	line.add_point(end_pos + size/2 - point1)
+	if laser_attack:
+		# Update laser_attack position
+		laser_attack.global_position = (start_pos + end_pos) / 2.0
 
-	# Update laser_attack position
-	laser_attack.global_position = (start_pos + end_pos) / 2.0
-
-	# Update laser shape
-	laser_attack.get_child(0).shape.size.x = powered_length
-	laser_attack.rotation = (point2 - point1).angle()
+		# Update laser shape
+		laser_attack.get_child(0).shape.size.x = powered_length
+		laser_attack.rotation = (point2 - point1).angle()
 
 	# Update light
 	light.global_position = (start_pos + end_pos) / 2.0
-	light.rotation = laser_attack.rotation
+	light.rotation = (point2 - point1).angle()
 	light.scale.x = (powered_length / 256) * 1.25
