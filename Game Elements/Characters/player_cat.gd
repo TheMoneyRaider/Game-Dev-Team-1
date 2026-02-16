@@ -184,7 +184,7 @@ func update_animation_parameters(move_input : Vector2):
 func request_attack(t_weapon : Weapon) -> float:
 	weapon_node.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
-	t_weapon.request_attacks(attack_direction,global_position,self)
+	t_weapon.request_attacks(attack_direction,global_position,self,weapon_node.flip)
 	return t_weapon.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20,creates_indicators : bool = true):

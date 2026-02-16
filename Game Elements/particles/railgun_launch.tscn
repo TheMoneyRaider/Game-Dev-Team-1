@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://mwbbeu8roktu"]
+[gd_scene load_steps=8 format=3 uid="uid://mwbbeu8roktu"]
 
 [ext_resource type="Texture2D" uid="uid://bydvkxam8fpcp" path="res://art/particles/electric_spark.png" id="1_a4vyv"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Particles/effect_particles.gd" id="2_hdemd"]
 
 [sub_resource type="Gradient" id="Gradient_qgsih"]
 offsets = PackedFloat32Array(0, 0.18648018, 0.5874126)
@@ -49,3 +50,4 @@ one_shot = true
 explosiveness = 1.0
 collision_base_size = 0.0
 process_material = SubResource("ParticleProcessMaterial_mu3rb")
+script = ExtResource("2_hdemd")

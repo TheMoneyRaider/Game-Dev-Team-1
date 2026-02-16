@@ -89,7 +89,6 @@ func _process(delta):
 	sparks.range_choice = 1
 	get_parent().add_child(sparks)
 	sparks.global_position = point2
-	sparks.emitting = true
 	
 	if powering_down_distance > 0.0:
 		powered_length = total_distance - powering_down_distance

@@ -79,12 +79,11 @@ func _ready():
 	if spawn_particle:
 		var inst = spawn_particle.instantiate()
 		inst.global_position = global_position
-		inst.emitting = true
 		inst.rotation = direction.angle()
 		get_parent().add_child(inst)
 	if attack_type == "robot melee":
 		$AnimationPlayer.play("main")
-	if attack_type == "ls_melee":
+	if attack_type == "ls_melee" or attack_type == "crowbar_melee":
 		$AnimationPlayer.play("swing")
 	if attack_type == "emp":
 		$AnimationPlayer.play("explode")

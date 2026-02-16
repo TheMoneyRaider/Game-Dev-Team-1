@@ -62,8 +62,7 @@ static func create_weapon(resource_location : String, current_owner : Node2D):
 	
 	return new_weapon
 
-func request_attacks(direction : Vector2, char_position : Vector2, node_attacking : Node):
-	
+func request_attacks(direction : Vector2, char_position : Vector2, node_attacking : Node, flip : int = 1):
 	
 	var attack_direction
 	if(!split_attacks):
@@ -82,7 +81,7 @@ func request_attacks(direction : Vector2, char_position : Vector2, node_attackin
 				_:
 					pass
 			var attack_position = attack_direction * spawn_distance + char_position
-			spawn_attack(attack_direction,attack_position,node_attacking)
+			spawn_attack(attack_direction,attack_position,node_attacking,"",flip)
 			if(!split_attacks):
 				attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
 			else:
@@ -92,7 +91,7 @@ func request_attacks(direction : Vector2, char_position : Vector2, node_attackin
 			
 	else:
 		var attack_position = attack_direction * spawn_distance + char_position
-		spawn_attack(attack_direction,attack_position,node_attacking)
+		spawn_attack(attack_direction,attack_position,node_attacking,"",flip)
 
 func check_for_intelligence(node_attacking: Node) -> Remnant:
 	if !node_attacking.is_in_group("player"):
@@ -109,15 +108,16 @@ func check_for_intelligence(node_attacking: Node) -> Remnant:
 			return rem.duplicate(true)
 	return null
 
-func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", variant : bool = false):
+func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", flip : int = 1, variant : bool = false):
 	var intelligence = check_for_intelligence(node_attacking)
-	
 	
 	if !c_owner:
 		return
 	var instance
 	if variant:
 		instance = load(special_attack_scene).instantiate()
+		if instance.attack_type=="crowbar_melee":
+			instance.scale.x *= flip *-1
 		instance.intelligence = intelligence
 		instance.direction = attack_direction
 		instance.global_position = attack_position
@@ -126,6 +126,8 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 			instance.damage *= c_owner.damage_boost()
 	else:
 		instance = load(attack_scene).instantiate()
+		if instance.attack_type=="crowbar_melee":
+			instance.scale.x *= flip *-1
 		instance.intelligence = intelligence
 		instance.direction = attack_direction
 		instance.global_position = attack_position
@@ -230,7 +232,6 @@ func special_tick(special_direction : Vector2, node_attacking : Node):
 				var fire = preload("res://Game Elements/Particles/fire_damage.tscn").instantiate()
 				fire.position = node_attacking.position
 				node_attacking.LayerManager.room_instance.add_child(fire)
-				fire.emitting = true
 				pass
 			_:
 				pass
@@ -399,7 +400,7 @@ func sword_special_attack(special_direction : Vector2,node_attacking : Node):
 	node_attacking.move_speed *= 4.0
 	for i in range(1, locations.size()):
 		node_attacking.input_direction = (locations[i - 1] -locations[i]).normalized()
-		spawn_attack(special_direction,locations[i], node_attacking,"",true)
+		spawn_attack(special_direction,locations[i], node_attacking,"",1,true)
 		var start_pos = locations[i - 1]
 		var end_pos = locations[i]
 		var segment_vec = end_pos - start_pos

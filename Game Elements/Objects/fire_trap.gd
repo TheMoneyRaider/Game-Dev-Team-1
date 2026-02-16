@@ -22,7 +22,6 @@ func _on_body_entered(body):
 		var fire = preload("res://Game Elements/Particles/fire_damage.tscn").instantiate()
 		fire.position = body.position
 		get_parent().add_child(fire)
-		fire.emitting = true
 
 		
 func _crafter_chance(node_to_damage : Node) -> bool:
