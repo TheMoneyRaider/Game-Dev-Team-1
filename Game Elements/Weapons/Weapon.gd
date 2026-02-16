@@ -102,6 +102,7 @@ func apply_remnants(attack_instance):
 	var remnants : Array[Remnant]
 	if c_owner != null && c_owner.is_in_group("player"):
 		var terramancer = load("res://Game Elements/Remnants/terramancer.tres")
+		var aeromancer = load("res://Game Elements/Remnants/aeromancer.tres")
 		if c_owner.is_purple:
 			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_1_remnants
 		else:
@@ -112,6 +113,16 @@ func apply_remnants(attack_instance):
 					if c_owner.velocity.length() <= .1:
 						attack_instance.scale = attack_instance.scale * (1 + rem.variable_2_values[rem.rank-1] / 4)
 						attack_instance.hit_force = attack_instance.hit_force * (1 + rem.variable_2_values[rem.rank-1] / 4)
+				aeromancer.remnant_name:
+					var similarity = attack_instance.direction.normalized().dot(c_owner.velocity.normalized())
+					if(attack_instance.speed != 0):
+						#Possibly add a min so it can't go lower than base damage? 
+						#Nah thats lame
+						attack_instance.damage = attack_instance.damage * (((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed) /  attack_instance.speed)
+						attack_instance.speed = ((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed)
+					else:
+						attack_instance.damage = attack_instance.damage * ((c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)
+						attack_instance.speed = ((c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)
 				_:
 					pass
 

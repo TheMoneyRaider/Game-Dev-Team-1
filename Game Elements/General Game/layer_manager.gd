@@ -93,11 +93,11 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/terramancer.tres")
+	var rem = load("res://Game Elements/Remnants/aeromancer.tres")
 	#var rem2 = load("res://Game Elements/Remnants/cleric.tres")
 	rem.rank = 5
 	#rem2.rank = 5
-	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
 	#player_1_remnants.append(rem2.duplicate(true))
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
 	timefabric_collected = 100000
