@@ -1,6 +1,6 @@
 extends Node2D
 
-var lifetime = .5
+var lifetime = .25
 
 func _ready() -> void:
 	$AnimationPlayer.play("explode")

@@ -57,6 +57,8 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 		var crow = preload("res://Game Elements/Particles/crowbar_hit.tscn").instantiate()
 		get_parent().add_child(crow)
 		crow.global_position = global_position
+		crow.rotation = attack.direction.angle()+90
+		print(attack.direction.angle())
 		
 	
 	var color = Color(0.564, 0.0, 0.061, 1.0)

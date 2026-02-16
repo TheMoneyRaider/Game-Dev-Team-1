@@ -191,16 +191,22 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			_:
 				knockback_velocity = attack_body.direction * attack_body.knockback_force
 	current_health -= damage
-	if current_health < 0 and enemy_type == "laser_e":
-		var bt_player = get_node("BTPlayer")
-		var board = bt_player.blackboard
-		if board:
-			board.set_var("kill_laser", true)
-			board.set_var("kill_damage", damage)
-			board.set_var("kill_direction", direction)
-		return
-	if current_health < 0 and dmg_owner.is_in_group("player"):
-		dmg_owner.kill_enemy(self)
+	if current_health < 0:
+		
+			
+		for effect in effects:
+			effect.lost(self)
+		
+		if  enemy_type == "laser_e":
+			var bt_player = get_node("BTPlayer")
+			var board = bt_player.blackboard
+			if board:
+				board.set_var("kill_laser", true)
+				board.set_var("kill_damage", damage)
+				board.set_var("kill_direction", direction)
+			return
+		if dmg_owner.is_in_group("player"):
+			dmg_owner.kill_enemy(self)
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 
 func check_agro(dmg_owner : Node):
