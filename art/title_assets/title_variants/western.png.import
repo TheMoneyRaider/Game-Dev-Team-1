@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://clh13sib3vu5v"
-path="res://.godot/imported/western.png-0d9de5326223192fdd522a37058619eb.ctex"
+path="res://.godot/imported/western.png-9be5bb8d4df0bad85310ca0047dd85e2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/western_pack/western.png"
-dest_files=["res://.godot/imported/western.png-0d9de5326223192fdd522a37058619eb.ctex"]
+source_file="res://art/title_assets/title_variants/western.png"
+dest_files=["res://.godot/imported/western.png-9be5bb8d4df0bad85310ca0047dd85e2.ctex"]
 
 [params]
 

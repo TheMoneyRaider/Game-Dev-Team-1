@@ -243,19 +243,20 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 false,																															#Is a shop room?
 ["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
 [.33,.66],																														#Weights for those enemies to spawn
-.75)]																															#Chance for waves to be segmented
+.75)]
+
 
 var sci_fi_shops : Array[Room]= []
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/testing_room.tscn", 																			#Scene Location                      
+"res://Game Elements/Rooms/western/canyon1.tscn", 																				#Scene Location                      
 0,																																#Num Liquids
-[],										#Liquid Types 
-[],																													#Liquid Chances                       
+[],																																#Liquid Types 
+[],																																#Liquid Chances                       
 0,																																#Num Fillings              
-[],																																#Terrain Set                                      
-[],																																#Terrain ID                       
+[0],																															#Terrain Set                                      
+[0],																															#Terrain ID                       
 [],																																#Threshold            
 randi(),																														#Noise Seed           
 FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
@@ -263,11 +264,11 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 0,																																#Num Traps              
 [],																																#Trap Chances                                
 [],																																#Trap Types                         
-2,																																#Num Pathways                   
-[Globals.Direction.Up,Globals.Direction.Down],									#Pathway Directions                       
+4,																																#Num Pathways                   
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left, Globals.Direction.Down],									#Pathway Directions                       
 3,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
 ["res://Game Elements/Characters/robot.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
-.25)
+.25)																															#Chance for waves to be segmented
