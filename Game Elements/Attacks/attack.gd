@@ -9,6 +9,8 @@ var direction = Vector2.RIGHT
 #How long attack lasts in seconds before despawning
 @export var hit_force = 0.0
 #How much speed it adds to deflected objects
+@export var knockback_force = 100.0
+#How much it knocksback enemies
 @export var start_lag = 0.0
 #How much time after pressing attack does the attack start in seconds
 @export var cooldown = .5

@@ -349,7 +349,8 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 					damage = special_start_damage
 			"Railgun":
 				node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 1.0, 1.0, 1.0),1.0)
-				current_special_hits = 0
+				if(special_time_elapsed > 1.0):
+					current_special_hits = 0
 			_:
 				pass
 		special_time_elapsed = 0.0

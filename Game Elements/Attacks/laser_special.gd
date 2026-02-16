@@ -73,6 +73,8 @@ func _process(delta):
 	if powering_down_distance >= 0.0:
 		powering_down_distance += decay_speed * delta
 		if powering_down_distance > total_distance:
+			if laser_attack:
+				laser_attack.queue_free()
 			queue_free()
 			return
 

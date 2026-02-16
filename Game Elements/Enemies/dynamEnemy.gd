@@ -29,6 +29,9 @@ var look_direction : Vector2 = Vector2(0,1)
 @onready var i_frames : int = 0
 var weapon = null
 var effects : Array[Effect] = []
+var knockback_velocity : Vector2 = Vector2.ZERO
+@export var knockback_decay : float = 200.0
+
 
 var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res://Game Elements/Attacks/robot_melee.tscn")]
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
@@ -106,7 +109,17 @@ func sprint(start : bool):
 				$AnimationPlayer.play("sprint")
 			move_speed *=sprint_multiplier
 			sprint_timer = randf_range(min_sprint_time,max_sprint_time)
+
+func _physics_process(delta: float) -> void:
 	
+	if knockback_velocity != Vector2.ZERO: 
+		var temp_velocity = velocity
+		velocity = knockback_velocity
+		move_and_slide()
+		velocity = temp_velocity
+		# Gradually reduce knockback over time
+		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_decay * delta)
+
 func _process(delta):
 	if sprint_timer!=0.0 and max(0.0,sprint_timer-delta)==0.0:
 		sprint(false)
@@ -167,8 +180,16 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			attack_body.combod = true
 			dmg_owner.combo(attack_body.is_purple)
 		dmg_owner.hit_enemy(attack_body,self)
-	#const KNOCKBACK_FORCE: float = 150.0
-	#velocity = direction * KNOCKBACK_FORCE
+	if attack_body:
+		match attack_body.attack_type:
+			"laser":
+				knockback_velocity = Vector2.UP.rotated(attack_body.rotation+PI/2) * attack_body.knockback_force
+			"forcefield":
+				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
+			"ls_melee":
+				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
+			_:
+				knockback_velocity = attack_body.direction * attack_body.knockback_force
 	current_health -= damage
 	if current_health < 0 and enemy_type == "laser_e":
 		var bt_player = get_node("BTPlayer")
