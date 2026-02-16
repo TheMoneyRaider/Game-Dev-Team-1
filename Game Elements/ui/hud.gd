@@ -346,6 +346,9 @@ func _on_max_health_changed(max_health : int, current_health : int,player_node :
 	if(player_node == player1):
 		health_bar_1.set_max_health(max_health)
 		health_bar_1.set_current_health(current_health)
+		if(!is_multiplayer):
+			health_bar_2.set_current_health(current_health)
+			health_bar_2.set_max_health(max_health)
 	else:
 		health_bar_2.set_max_health(max_health)
 		health_bar_2.set_current_health(current_health)

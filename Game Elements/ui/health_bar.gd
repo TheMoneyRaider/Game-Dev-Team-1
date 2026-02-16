@@ -12,24 +12,58 @@ var max_health = 10
 @onready var back = $Background
 @onready var fore = $Foreground
 @onready var label = $Label
+@onready var pieces = $Pieces
+@export var health_chunk_scene : PackedScene
 
 
-enum State {None, CurrentHealthChange, MaxHealthChange}
+func _get_chunk_points(start_health: int, end_health: int) -> PackedVector2Array:
+	var total_width = width_scale * pow(max_health, exponent)
+	var height_half = progress_bar.size.y / 2
+	var start_pos = progress_bar.position
+	
+	var start_ratio = float(start_health) / max_health
+	var end_ratio = float(end_health) / max_health
+	
+	var start_x = total_width * start_ratio
+	var end_x = total_width * end_ratio
+	
+	var p1: Vector2
+	var p2: Vector2
+	
+	if not flipped:
+		p1 = start_pos + Vector2(start_x, height_half)
+		p2 = start_pos + Vector2(end_x, height_half)
+	else:
+		p1 = start_pos + Vector2(total_width - start_x, height_half)
+		p2 = start_pos + Vector2(total_width - end_x, height_half)
+	
+	var points := PackedVector2Array()
+	points.append(p1)
+	points.append(p2)
+	return points
 
-var states = []
-
-func remove_state():
-	if states.size() > 0:
-		return states.pop_front()
-	return null
-
-func check_front_state():
-	if states.size() > 0:
-		return states[0]
-	return null
-
-
-var cooldown = 0.0
+func _spawn_health_chunk(old_health: int, new_health: int):
+	if not health_chunk_scene:
+		return
+	
+	var chunk = health_chunk_scene.instantiate()
+	
+	var points = _get_chunk_points(
+		min(old_health, new_health),
+		max(old_health, new_health)
+	)
+	
+	chunk.position = Vector2.ZERO  # important
+	pieces.add_child(chunk)
+	
+	chunk.setup(
+		points,
+		fore.width,
+		fore.default_color,
+		new_health > old_health,
+		flipped
+	)
+	return chunk
 
 func _ready() -> void:
 	update_text()
@@ -38,28 +72,29 @@ func _ready() -> void:
 		flip()
 
 
-func _process(delta: float) -> void:
-	cooldown = max(cooldown-delta, 0.0)
-	if cooldown == 0.0 and states.size() > 0:
-		activate_state()
-
-
-func activate_state():
-	pass
-
 func set_max_health(health_value : int):
-	var last_max_health =max_health
 	max_health = health_value
 	progress_bar.max_value = max_health
 	var width =  width_scale * pow(health_value, exponent)
-	#progress_bar.custom_minimum_size.x = width
-	states.append({ 	"type": State.MaxHealthChange, 
-						"duration": .25,
-						"amount": max_health-last_max_health,
-						"extra": width
-						})
+	progress_bar.custom_minimum_size.x = width
 	update_text()
 	update_lines()
+
+
+func set_current_health(health_value : int):
+	if health_value == current_health:
+		return
+	
+	var old_health = current_health
+	current_health = health_value
+	
+	update_text()
+	var chunk = _spawn_health_chunk(old_health, current_health)
+	if old_health < current_health:
+		while chunk!=null and is_instance_valid(chunk):
+			await get_tree().process_frame
+	update_lines()
+
 
 func update_lines():
 	var total_width = width_scale * pow(max_health, exponent)
@@ -89,24 +124,6 @@ func update_lines():
 	fore.add_point(point3)
 	
 
-
-func set_current_health(health_value : int):
-	if health_value-current_health > 0:
-		states.append({ "type": State.CurrentHealthChange,
-					"duration": .75,
-					"amount": health_value-current_health,
-					"extra": null
-					})
-	else:
-		states.append({ "type": State.CurrentHealthChange,
-					"duration": 1.0,
-					"amount": health_value-current_health,
-					"extra": null
-					})
-	current_health =health_value
-	#progress_bar.value = current_health
-	update_text()
-	update_lines()
 
 func update_text():
 	label.text = str(current_health) + "/" + str(max_health) + " HP"

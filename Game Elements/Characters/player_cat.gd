@@ -148,6 +148,7 @@ func _physics_process(delta):
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
 			swap_color()
+			change_health(2)
 	else:
 		tether(delta)
 	input_direction += (tether_momentum / move_speed)
