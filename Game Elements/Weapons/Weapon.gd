@@ -166,6 +166,14 @@ func start_special(special_direction : Vector2, node_attacking : Node):
 			#Spawn Line2D
 			pass
 			
+		"Crowbar":
+			print("Start Crowbar")
+			var setup = load("res://Game Elements/Attacks/crowbar_special/setup.tscn").instantiate()
+			setup.tilemaplayer = node_attacking.LayerManager.room_instance.get_node("Ground")
+			setup.global_position = node_attacking.global_position+special_direction*48
+			node_attacking.LayerManager.room_instance.add_child(setup)
+
+			special_nodes.append(setup)
 		_ :
 			pass
 
@@ -233,6 +241,8 @@ func special_tick(special_direction : Vector2, node_attacking : Node):
 				fire.position = node_attacking.position
 				node_attacking.LayerManager.room_instance.add_child(fire)
 				pass
+			"Crowbar":
+				special_nodes[0].global_position = node_attacking.global_position+special_direction*48
 			_:
 				pass
 	
@@ -327,6 +337,10 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				if floor(special_time_elapsed*2) !=special_time_period_elapsed:
 					special_time_period_elapsed = floor(special_time_elapsed*2)
 					special_tick(special_direction, node_attacking)
+		"Crowbar":
+			if floor(special_time_elapsed*20) !=special_time_period_elapsed:
+				special_time_period_elapsed = floor(special_time_elapsed*8)
+				special_tick(special_direction, node_attacking)
 		_:
 			pass
 	special_time_elapsed += time_elapsed
