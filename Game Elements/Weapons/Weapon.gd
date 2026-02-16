@@ -92,10 +92,28 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, particl
 	instance.start_lag = start_lag
 	instance.cooldown = cooldown
 	instance.pierce = pierce
+	apply_remnants(instance)
 	if(particle_effect != ""):
 		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
 		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+
+func apply_remnants(attack_instance):
+	var remnants : Array[Remnant]
+	if c_owner != null && c_owner.is_in_group("player"):
+		var terramancer = load("res://Game Elements/Remnants/terramancer.tres")
+		if c_owner.is_purple:
+			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_1_remnants
+		else:
+			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_2_remnants
+		for rem in remnants:
+			match rem.remnant_name:
+				terramancer.remnant_name:
+					if c_owner.velocity.length() <= .1:
+						attack_instance.scale = attack_instance.scale * (1 + rem.variable_2_values[rem.rank-1] / 4)
+						attack_instance.hit_force = attack_instance.hit_force * (1 + rem.variable_2_values[rem.rank-1] / 4)
+				_:
+					pass
 
 func use_special(time_elapsed : float, is_released : bool, special_direction : Vector2, special_position : Vector2) -> Array:
 	var Effects : Array[Effect] = []

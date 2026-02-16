@@ -93,9 +93,9 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/pyromancer.tres")
+	var rem = load("res://Game Elements/Remnants/terramancer.tres")
 	#var rem2 = load("res://Game Elements/Remnants/cleric.tres")
-	rem.rank = 2
+	rem.rank = 5
 	#rem2.rank = 5
 	player_1_remnants.append(rem.duplicate(true))
 	#player_1_remnants.append(rem2.duplicate(true))
