@@ -43,10 +43,13 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 	#Position based on attack and damage owner collision shapes
 	if attack:
 		position = attack.position
+	else:
+		position = c_owner.position
 	if c_owner and attack:
 		var new_pos = intersection_center(c_owner,attack)
 		if new_pos != Vector2.ZERO:
 			position= new_pos
+	
 			
 			
 	if attack and "attack_type" in attack and attack.attack_type=="laser":

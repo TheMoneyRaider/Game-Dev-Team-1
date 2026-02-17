@@ -32,17 +32,33 @@ func _ready():
 @export var pulse_speed := 3.0  # how fast it pulses
 @export var pulse_min := 0.3    # minimum alpha
 @export var pulse_max := 1.0    # maximum alpha
-
+var passified = false
+var time_period = 0
+var total_time = 0
+var player_owner : Node
+var hit_range = 32
 func _process(delta: float) -> void:
-	time+=delta
-	sprite.modulate.a = sin(time)
-	# Smooth sinusoidal pulse from min to max
-	var t = (sin(time * pulse_speed) + 1.0) / 2.0  # normalize 0..1
-	sprite.modulate.a = lerp(pulse_min, pulse_max, t)
-	if last_position!= global_position:
-		global_position = floor(global_position)
-		last_position=global_position
-		generate_outline()
+	if passified:
+		total_time+=delta
+		if floor(total_time*.5)>time_period:
+			time_period=floor(total_time*.5)
+			for enemy in get_tree().get_nodes_in_group("enemy"):
+				if enemy.global_position.distance_squared_to(global_position) < hit_range:
+					enemy.take_damage(3,player_owner,Vector2(0,-1), null)
+					
+			for player in get_tree().get_nodes_in_group("player"):
+				if player.global_position.distance_squared_to(global_position) < hit_range:
+					player.take_damage(3,player_owner,Vector2(0,-1), null)
+	else:
+		time+=delta
+		sprite.modulate.a = sin(time)
+		# Smooth sinusoidal pulse from min to max
+		var t = (sin(time * pulse_speed) + 1.0) / 2.0  # normalize 0..1
+		sprite.modulate.a = lerp(pulse_min, pulse_max, t)
+		if last_position!= global_position:
+			global_position = floor(global_position)
+			last_position=global_position
+			generate_outline()
 
 func generate_outline(edge_only : bool = true):
 	var center = Vector2(width / 2.0, height / 2.0)
@@ -105,7 +121,14 @@ func generate_outline(edge_only : bool = true):
 		mask_texture= ImageTexture.create_from_image(image)
 	sprite.texture = ImageTexture.create_from_image(image)
 	
-	
+func passify(player : Node):
+	player_owner = player
+	passified = true
+	#TODO Deal damage intermitantly
+	print("Passified!")
+	sprite.material = sprite.material.duplicate(true)
+	sprite.material.set_shader_parameter("enabled",true)
+
 func get_whole_image() -> Texture2D:
 	generate_outline(false)
 	return mask_texture

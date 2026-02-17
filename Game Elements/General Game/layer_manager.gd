@@ -196,9 +196,9 @@ func _process(delta: float) -> void:
 	
 	time_passed += delta
 	if is_multiplayer:
-		camera.global_position = (player1.global_position + player2.global_position) / 2
+		camera.global_position = (player1.global_position + player2.global_position) / 2 +camera.get_cam_offset(delta)
 	else:
-		camera.position = player1.global_position
+		camera.position = player1.global_position+camera.get_cam_offset(delta)
 	
 	# Thread check
 	if thread_running and not room_gen_thread.is_alive():

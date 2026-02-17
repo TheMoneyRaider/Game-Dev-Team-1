@@ -534,6 +534,8 @@ func player_special_reset():
 	emit_signal("special_reset", is_purple)
 
 func hit_enemy(attack_body : Node, enemy : Node):
+	if !attack_body:
+		return
 	var remnants : Array[Remnant] = []
 	var effect : Effect
 	if attack_body.attack_type == "emp":

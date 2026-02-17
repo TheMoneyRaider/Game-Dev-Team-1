@@ -243,8 +243,16 @@ func special_tick(special_direction : Vector2, node_attacking : Node):
 				node_attacking.LayerManager.room_instance.add_child(fire)
 				pass
 			"Crowbar":
-				if special_nodes.size()> 1 and !is_instance_valid(special_nodes[1]):
-					special_nodes.remove_at(1)
+				if special_nodes.size()> 1:
+					var throw = preload("res://Game Elements/Particles/throw_particles.tscn").instantiate()
+					var ray = cast_ray(node_attacking.global_position, special_direction, 1600,node_attacking)
+					throw.global_position = node_attacking.global_position
+					if ray:
+						var position = (clamp((ray.position-node_attacking.global_position).length(),0,160)*special_direction)+node_attacking.global_position
+						throw.global_position = position -special_direction *32
+					node_attacking.LayerManager.room_instance.add_child(throw)
+					if !is_instance_valid(special_nodes[1]):
+						special_nodes.remove_at(1)
 				if special_nodes.size()<=1:
 					special_nodes[0].global_position = node_attacking.global_position+special_direction*48
 			_:
@@ -340,6 +348,7 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 			pass
 	special_time_elapsed += time_elapsed
 	return Effects
+
 func special_cleanup():
 	special_started = false
 	for node in special_nodes:
@@ -358,7 +367,21 @@ func use_normal_attack(special_direction : Vector2, special_position : Vector2, 
 				end_special(special_direction,special_position,node_attacking)
 			"Crowbar":
 				if special_nodes.size()>1:
-					print("2nd hit")
+					special_nodes[0].passify(node_attacking)
+					#Launch
+					#Place Target
+					var target = preload("res://Game Elements/Attacks/crowbar_special/target.tscn").instantiate()
+					var ray = cast_ray(node_attacking.global_position, special_direction, 1600,node_attacking)
+					target.global_position = node_attacking.global_position
+					if ray:
+						var position = (clamp((ray.position-node_attacking.global_position).length(),0,160)*special_direction)+node_attacking.global_position
+						target.global_position = position -special_direction *32
+					node_attacking.LayerManager.room_instance.add_child(target)
+					special_nodes[1].activate(target,node_attacking)
+					node_attacking.create_tween().tween_property(target,"modulate",Color(1.0,1.0,1.0,1.0),.5)
+					special_nodes = []
+					end_special(special_direction,special_position,node_attacking)
+					
 				else:
 					print("Punt")
 					var attack = load("res://Game Elements/Attacks/crowbar_special/crowbar_projectile.tscn").instantiate()
@@ -391,6 +414,8 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 				node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 1.0, 1.0, 1.0),1.0)
 				if(special_time_elapsed > 1.0):
 					current_special_hits = 0
+			"Crowbar":
+				current_special_hits = 0
 			_:
 				pass
 		special_cleanup()

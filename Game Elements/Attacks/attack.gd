@@ -30,6 +30,7 @@ var hit_nodes = {}
 @export var repeat_hits : bool = false
 @export var creates_indicators : bool = true
 @export var spawn_particle : PackedScene = null
+@export var animation : String = ""
 var combod : bool = false
 var is_purple : bool = false
 
@@ -81,15 +82,11 @@ func _ready():
 	if spawn_particle:
 		var inst = spawn_particle.instantiate()
 		inst.global_position = global_position
-		inst.rotation = direction.angle()
+		if attack_type!="crowbar_explosion":
+			inst.rotation = direction.angle()
 		get_parent().add_child(inst)
-	if attack_type == "robot melee":
-		$AnimationPlayer.play("main")
-	if attack_type == "ls_melee" or attack_type == "crowbar_melee":
-		$AnimationPlayer.play("swing")
-	if attack_type == "emp":
-		$AnimationPlayer.play("explode")
-	
+	if animation!= "" and $AnimationPlayer:
+		$AnimationPlayer.play(animation)
 	if attack_type == "death mark":
 		if c_owner.is_purple:
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_purple.png")

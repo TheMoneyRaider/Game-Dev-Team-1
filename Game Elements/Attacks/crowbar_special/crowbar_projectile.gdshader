@@ -5,6 +5,7 @@ uniform int sprite_width_px = 64;  // the width of the sprite in pixels
 uniform bool edges = true;
 uniform vec2 mask_offset = vec2(0.0, 0.0);   // offset of sprite relative to mask in world units
 uniform float mask_midpoint_y = 0.5;       // normalized 0-1 midpoint of mask in Y
+uniform bool masking_enabled = true;
 
 varying vec4 modulate_color;
 
@@ -26,7 +27,7 @@ void fragment() {
     vec2 mask_uv = world_pos / float(sprite_width_px);
     mask_uv = clamp(mask_uv+vec2(.5,.5), 0.0, 1.0);
 	vec4 tex = texture(mask, mask_uv);
-    if (tex.a <= 0.0 && mask_uv.y > mask_midpoint_y) {
+    if (tex.a <= 0.0 && mask_uv.y > mask_midpoint_y && masking_enabled) {
         discard;
     }
 

@@ -170,7 +170,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	if(i_frames > 0):
 		return
 	i_frames = attack_i_frames
-	check_agro(dmg_owner)
+	if dmg_owner:
+		check_agro(dmg_owner)
 	if enemy_type=="binary_bot":
 		$Core.damage_glyphs()
 	if current_health >= 0 and display_damage and creates_indicators:
@@ -185,6 +186,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			"laser":
 				knockback_velocity = Vector2.UP.rotated(attack_body.rotation+PI/2) * attack_body.knockback_force
 			"forcefield":
+				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
+			"crowbar_explosion":
 				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
 			"ls_melee":
 				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
