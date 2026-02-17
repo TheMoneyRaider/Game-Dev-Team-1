@@ -268,6 +268,6 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
 false,																															#Is a shop room?
-["res://Game Elements/Characters/robot.tscn"],																				#Enemies That can spawn in this room
+["res://Game Elements/Characters/duck.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 .25)

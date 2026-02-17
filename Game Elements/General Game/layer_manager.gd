@@ -9,7 +9,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 ### Temp Multiplayer Fix
 var player1 = null
 var player2 = null
-var weapon1 = "res://Game Elements/Weapons/LaserSword.tres"
+var weapon1 = "res://Game Elements/Weapons/Crowbar.tres"
 var weapon2 = "res://Game Elements/Weapons/Railgun.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
@@ -30,8 +30,8 @@ var generated_room_conflict : = {}
 var generated_room_entrance : = {}
 var global_conflict_cells= []
 var placable_cells= []
-var this_room_reward1 = Globals.Reward.Remnant
-var this_room_reward2 = Globals.Reward.Remnant
+var this_room_reward1 = Globals.Reward.HealthUpgrade
+var this_room_reward2 = Globals.Reward.HealthUpgrade
 var is_wave_room = false
 var total_waves = 0
 var current_wave = 0
@@ -49,6 +49,7 @@ var thread_running := false
 @onready var camera = $game_container/game_viewport/game_root/Camera2D
 @onready var game_root = $game_container/game_viewport/game_root
 @onready var hud = $game_container/game_viewport/Hud
+@onready var awareness_display = $game_container/game_viewport/EnemyAwareness/AwarenessManager
 
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
@@ -93,27 +94,61 @@ func _ready() -> void:
 	var rem = load("res://Game Elements/Remnants/hack.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
-	var rem2 = load("res://Game Elements/Remnants/hack.tres")
-	rem2.rank = 4
-	player_2_remnants.append(rem2.duplicate(true))
-	var rem3 = load("res://Game Elements/Remnants/ninja.tres")
-	rem3.rank = 5
-	player_1_remnants.append(rem3.duplicate(true))
-	var rem4 = load("res://Game Elements/Remnants/ninja.tres")
-	rem4.rank = 5
-	player_2_remnants.append(rem4.duplicate(true))
-	var rem5 = load("res://Game Elements/Remnants/emp.tres")
-	rem5.rank = 4
-	player_1_remnants.append(rem5.duplicate(true))
-	var rem6 = load("res://Game Elements/Remnants/emp.tres")
-	rem6.rank = 4
-	player_2_remnants.append(rem6.duplicate(true))
-	var rem7 = load("res://Game Elements/Remnants/forcefield.tres")
-	rem7.rank = 4
-	player_1_remnants.append(rem7.duplicate(true))
-	var rem8 = load("res://Game Elements/Remnants/forcefield.tres")
-	rem8.rank = 4
-	player_2_remnants.append(rem8.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/ninja.tres")
+	rem.rank = 5
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/emp.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/intelligence.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/adrenal_injector.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/body_phaser.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	#rem = load("res://Game Elements/Remnants/crafter.tres")
+	#rem.rank = 4
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/drone.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/forcefield.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	#rem = load("res://Game Elements/Remnants/hunter.tres")
+	#rem.rank = 4
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/investment.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/kinetic_battery.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/shido.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	#rem = load("res://Game Elements/Remnants/winters_embrace.tres")
+	#rem.rank = 4
+	#player_1_remnants.append(rem.duplicate(true))
+	#player_2_remnants.append(rem.duplicate(true))
+	
+	
 	player1.display_combo()
 	
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants)
@@ -143,6 +178,11 @@ func _ready() -> void:
 	else:
 		Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,false)
 	
+	var enemies : Array[Node]= []
+	for child in room_instance.get_children():
+		if child.is_in_group("enemy"):
+			enemies.append(child)
+	awareness_display.enemies = enemies.duplicate()
 	floor_noise_sync(room_instance, room_instance_data)
 	calculate_cell_arrays(room_instance, room_instance_data)
 	trap_cells = room_instance.trap_cells
@@ -156,9 +196,9 @@ func _process(delta: float) -> void:
 	
 	time_passed += delta
 	if is_multiplayer:
-		camera.global_position = (player1.global_position + player2.global_position) / 2
+		camera.global_position = (player1.global_position + player2.global_position) / 2 +camera.get_cam_offset(delta)
 	else:
-		camera.position = player1.global_position
+		camera.position = player1.global_position+camera.get_cam_offset(delta)
 	
 	# Thread check
 	if thread_running and not room_gen_thread.is_alive():
@@ -179,7 +219,7 @@ func _process(delta: float) -> void:
 	hud.set_cooldowns()
 	
 	if Input.is_action_just_pressed("pause"):
-		hud.get_node("PauseMenu").activate()
+		hud.get_node("../PauseMenu").activate()
 	
 	if timefabric_rewarded!= 0:
 		for i in range (20):
@@ -204,6 +244,12 @@ func _process(delta: float) -> void:
 				Spawner.spawn_enemies([player1,player2], room_instance, placable_cells.duplicate(),room_instance_data,self,true)
 			else:
 				Spawner.spawn_enemies([player1], room_instance, placable_cells.duplicate(),room_instance_data,self,true)
+			
+			var enemies : Array[Node]= []
+			for child in room_instance.get_children():
+				if child.is_in_group("enemy"):
+					enemies.append(child)
+			awareness_display.enemies = enemies.duplicate()
 			return
 		if !room_instance_data.has_shop:
 			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
@@ -505,7 +551,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			if is_multiplayer:
 				player2.change_health(5,5)
 			player1.change_health(5,5)
-			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			var particle =  load("res://Game Elements/Particles/heal_particles.tscn").instantiate()
 			particle.position = orb.position
 			generated_room.add_child(particle)
 			orb.queue_free()
@@ -516,7 +562,7 @@ func check_reward(generated_room : Node2D, _generated_room_data : Room, player_r
 			if is_multiplayer:
 				player2.change_health(5)
 			player1.change_health(5)
-			var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+			var particle =  load("res://Game Elements/Particles/heal_particles.tscn").instantiate()
 			particle.position = orb.position
 			generated_room.add_child(particle)
 			orb.queue_free()
@@ -875,10 +921,10 @@ func _enemy_to_timefabric(enemy : Node,direction : Vector2, amount_range : Vecto
 	var i = 0
 	for node in sprites:
 		var sprite = enemy.get_node(node)
-		_sprite_to_timefabric(sprite,direction, amount_range * (areas[i]/total_area))
+		_sprite_to_timefabric(sprite,direction, amount_range * (areas[i]/total_area),enemy)
 		i+=1
 		
-func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vector2) -> void:
+func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vector2, enemy : Node) -> void:
 	var amount_variance = (amount_range.y-amount_range.x) * randf() * .5
 	var current_position = sprite.get_global_position() - sprite.get_rect().size /2
 	var return_values : Array = _load_enemy_image(sprite)
@@ -920,7 +966,10 @@ func _sprite_to_timefabric(sprite : Node,direction : Vector2, amount_range : Vec
 	while timefabrics_to_place.size() < amount_range.x+amount_variance:
 		timefabrics_to_place.append(timefabrics_to_place[randi() % timefabrics_to_place.size()])
 	for fabric in timefabrics_to_place:
-		_place_timefabric(fabric[0],fabric[1],current_position,direction)
+		if enemy.enemy_type=="laser_e":
+			_place_timefabric(fabric[0],fabric[1],current_position,(enemy.global_position-sprite.global_position).normalized())
+		else:
+			_place_timefabric(fabric[0],fabric[1],current_position,direction)
 
 func _place_timefabric(time_idx : int, offset : Vector2i, current_position : Vector2, direction : Vector2) -> void:
 	var timefabric_instance = timefabric.instantiate()
@@ -1256,6 +1305,12 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	
 	room_cleared= false
 	reward_claimed = false
+	
+	var enemies : Array[Node]= []
+	for child in room_instance.get_children():
+		if child.is_in_group("enemy"):
+			enemies.append(child)
+	awareness_display.enemies = enemies.duplicate()
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():

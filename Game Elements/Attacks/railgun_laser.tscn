@@ -11,11 +11,11 @@ shader_parameter/alpha_threshold = 0.0
 shader_parameter/outline_samples = 4
 shader_parameter/shade_color = Color(1, 1, 1, 0.5)
 
-[sub_resource type="Gradient" id="Gradient_dqm1i"]
-colors = PackedColorArray(1, 0, 0, 1, 0, 0, 0, 1)
+[sub_resource type="Gradient" id="Gradient_6w2gy"]
+colors = PackedColorArray(6.738305e-07, 0.5753792, 0.8188193, 1, 0, 0, 0, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_mv61f"]
-gradient = SubResource("Gradient_dqm1i")
+gradient = SubResource("Gradient_6w2gy")
 width = 256
 height = 256
 fill = 1
@@ -43,7 +43,7 @@ render_target_update_mode = 4
 y_sort_enabled = true
 points = PackedVector2Array(1147, 1091, 1036, 1040)
 width = 4.0
-default_color = Color(1, 0, 0, 1)
+default_color = Color(1.0588765e-05, 0.5855605, 0.9533066, 1)
 
 [node name="Light" type="PointLight2D" parent="."]
 shadow_enabled = true
