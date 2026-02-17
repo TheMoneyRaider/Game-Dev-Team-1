@@ -35,6 +35,11 @@ func gained(node_to_change : Node):
 			var particle =  load("res://Game Elements/Effects/charged_particles.tscn").instantiate()
 			particle.position = node_to_change.position
 			node_to_change.get_parent().add_child(particle)
+		"burn":
+			if(node_to_change.has_method("take_damage")):
+				node_to_change.take_damage(value1, null)
+			var particle =  load("res://Game Elements/Effects/burn_particles.tscn").instantiate()
+			node_to_change.add_child(particle)
 			
 
 func lost(node_to_change : Node):
@@ -47,3 +52,6 @@ func lost(node_to_change : Node):
 			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
 		"charged":
 			node_to_change.move_speed = node_to_change.move_speed * 1 / (1-value1)
+		"burn":
+			if(node_to_change.has_method("take_damage")):
+				node_to_change.take_damage(value1, null)

@@ -103,6 +103,7 @@ func apply_remnants(attack_instance):
 	if c_owner != null && c_owner.is_in_group("player"):
 		var terramancer = load("res://Game Elements/Remnants/terramancer.tres")
 		var aeromancer = load("res://Game Elements/Remnants/aeromancer.tres")
+		var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
 		if c_owner.is_purple:
 			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_1_remnants
 		else:
@@ -123,6 +124,9 @@ func apply_remnants(attack_instance):
 					else:
 						attack_instance.damage = attack_instance.damage * ((c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)
 						attack_instance.speed = ((c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)
+				hydromancer.remnant_name:
+					attack_instance.last_liquid = c_owner.last_liquid
+					c_owner.last_liquid = Globals.Liquid.Buffer
 				_:
 					pass
 

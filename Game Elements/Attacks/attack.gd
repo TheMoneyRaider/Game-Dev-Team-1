@@ -29,6 +29,7 @@ var frozen := true
 
 #Special Variables
 var life = 0.0
+var last_liquid : Globals.Liquid = Globals.Liquid.Buffer
 
 #Multiplies the Speed, Damage, Lifespan adn Hit_Force of attack by given values
 func mult(speed_mult, damage_mult = 1, lifespan_mult = 1, hit_force_mult = 1):

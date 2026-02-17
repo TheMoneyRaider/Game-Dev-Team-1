@@ -94,7 +94,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null:
 		last_hitter = dmg_owner
-	_check_on_hit_remnants(dmg_owner)
+	_check_on_hit_remnants(dmg_owner, attack_body)
 	#const KNOCKBACK_FORCE: float = 150.0
 	#velocity = direction * KNOCKBACK_FORCE
 	if current_health-damage < 0 and enemy_type == "laser_e":
@@ -111,7 +111,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 func die():
 	emit_signal("enemy_took_damage",damage_taken,current_health,self,damage_direction)
 
-func _check_on_hit_remnants(dmg_owner: Node):
+func _check_on_hit_remnants(dmg_owner: Node, attack_body: Node):
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
@@ -134,13 +134,13 @@ func _check_on_hit_remnants(dmg_owner: Node):
 				pyromancer.remnant_name:
 					exploded = rem.variable_2_values[rem.rank-1]
 				hydromancer.remnant_name:
-					apply_hydromancer(rem, dmg_owner)
+					apply_hydromancer(rem, attack_body)
 				_:
 					pass
 
-func apply_hydromancer(rem : Remnant, dmg_owner : Node):
+func apply_hydromancer(rem : Remnant, attack_body : Node):
 	var effect : Effect
-	match dmg_owner.last_liquid:
+	match attack_body.last_liquid:
 		Globals.Liquid.Water:
 			for i in range(rem.rank * 8):
 				effect = load("res://Game Elements/Effects/slow_down.tres")
@@ -148,7 +148,12 @@ func apply_hydromancer(rem : Remnant, dmg_owner : Node):
 				effect.value1 = 0.023
 				effect.gained(self)
 				effects.append(effect)
-			dmg_owner.last_liquid = Globals.Liquid.Buffer
+		Globals.Liquid.Lava:
+			effect = load("res://Game Elements/Effects/burn.tres")
+			effect.cooldown = 1
+			effect.value1 = rem.rank
+			effect.gained(self)
+			effects.append(effect)
 		_:
 			pass
 		
