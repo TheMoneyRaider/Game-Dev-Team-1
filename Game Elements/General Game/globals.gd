@@ -21,9 +21,11 @@ enum Direction {Up, Right, Left, Down, Error}
 enum Trap {Tile, Spike, Fire}
 enum Reward {TimeFabric, Remnant, RemnantUpgrade, HealthUpgrade, Health, Shop, Boss}
 
+
 var menu : MenuState
 
 func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	var err = load_config()
 	if err == OK:
 		config_safe=true

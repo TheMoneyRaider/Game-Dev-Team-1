@@ -122,7 +122,7 @@ func enable_pathway():
 		$Icons/PathwayIcon1.material.set_shader_parameter("upper_left", true)
 		$Icons/PathwayIcon2.material.set_shader_parameter("upper_left", false)
 
-func set_reward(reward1 : Globals.Reward, in_is_wave : bool = false, reward2 : Globals.Reward = Globals.Reward.Remnant, weapon_type : String = ""):
+func set_reward(reward1 : Globals.Reward, in_is_wave : bool = false, reward2 : Globals.Reward = Globals.Reward.Remnant, _weapon_type : String = ""):
 	var new_icon1 = null
 	var new_icon2 = null
 	is_wave = in_is_wave
@@ -146,7 +146,7 @@ func set_reward(reward1 : Globals.Reward, in_is_wave : bool = false, reward2 : G
 			var inst = load("res://Game Elements/Objects/vision.tscn").instantiate()
 			new_icon1 = inst.get_node("Image")
 		Globals.Reward.Boss:
-			new_icon1 = load("res://Game Elements/Bosses/boss.png")
+			new_icon1 = load("res://Game Elements/Bosses/boss_symbol.png")
 	if !is_wave:
 		new_icon2 = new_icon1
 	else:

@@ -3,6 +3,8 @@ extends CanvasLayer
 
 var frame_amount = 0
 var mouse_mode = null
+var pause_cooldown = 0
+var active = false
 
 @onready var slot_nodes: Array = [
 	$Control/MarginContainer/slots_hbox/slot0,
@@ -27,7 +29,7 @@ func setup(nodes : Array[Node]):
 
 
 func activate():
-	
+	active = true
 	mouse_mode = Input.get_mouse_mode()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	show()
@@ -35,9 +37,11 @@ func activate():
 	get_tree().get_root().get_node("LayerManager/DeathMenu").capturing = false
 	if Globals.is_multiplayer or Globals.player1_input != "key":
 		$Control/VBoxContainer/Return.grab_focus()
+	pause_cooldown = 5
 
 func _process(_delta):
-	pass
+	pause_cooldown= max(0,pause_cooldown-1)
+		
 
 
 
@@ -68,6 +72,8 @@ func _on_settings_pressed():
 	setting.get_child(0).is_pause_settings=true
 
 func _on_return_pressed():
+	active = false
+	pause_cooldown = 5
 	for i in range(slot_nodes.size()):
 		slot_nodes[i].set_enabled(false)
 		slot_nodes[i].hide_visuals(true)

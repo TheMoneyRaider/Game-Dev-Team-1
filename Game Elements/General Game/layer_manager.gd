@@ -219,9 +219,12 @@ func _process(delta: float) -> void:
 				
 	hud.set_timefabric_amount(timefabric_collected)
 	hud.set_cooldowns()
-	
-	if Input.is_action_just_pressed("pause"):
-		hud.get_node("../PauseMenu").activate()
+	var pause = hud.get_node("../PauseMenu")
+	if Input.is_action_just_pressed("pause") and !camera_override and hud.get_node("../PauseMenu").pause_cooldown == 0:
+		if pause.active:
+			pause._on_return_pressed()
+		else:
+			pause.activate()
 	
 	if timefabric_rewarded!= 0:
 		for i in range (20):

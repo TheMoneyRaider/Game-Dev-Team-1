@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cechg7jchdcju"
-path="res://.godot/imported/boss.png-7ed04400fec777cdf2907b7a1387b057.ctex"
+uid="uid://cggx60a5l71t7"
+path="res://.godot/imported/white_square2.png-bc7ae9169c8e5ed417c259a63ba32f9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Game Elements/Bosses/boss.png"
-dest_files=["res://.godot/imported/boss.png-7ed04400fec777cdf2907b7a1387b057.ctex"]
+source_file="res://art/white_square2.png"
+dest_files=["res://.godot/imported/white_square2.png-bc7ae9169c8e5ed417c259a63ba32f9e.ctex"]
 
 [params]
 
