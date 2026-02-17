@@ -19,6 +19,7 @@ var outline_points: PackedVector2Array = []
 var image = Image.create_empty(width, height, false, Image.FORMAT_RGBA8)
 var last_position :Vector2
 var time = 0.0
+var mask_texture : Texture2D
 func _ready():
 	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	noise.seed = randi()
@@ -43,7 +44,7 @@ func _process(delta: float) -> void:
 		last_position=global_position
 		generate_outline()
 
-func generate_outline():
+func generate_outline(edge_only : bool = true):
 	var center = Vector2(width / 2.0, height / 2.0)
 	var max_dist = radius  # how large the guaranteed blob area is
 	# First, compute all noise+radial values into a temporary array
@@ -69,14 +70,17 @@ func generate_outline():
 			n = clamp(n+radial,0.0,1.0)
 			
 			values[x].append(n)
-			
+	
 	for x in width:
 		for y in height:
 			var val = values[x][y]
 			if val < threshold:
 				image.set_pixel(x, y, Color(0,0,0,0))
 				continue
-
+			if !edge_only:
+				image.set_pixel(x, y, Color(1,1,1,1))
+				continue
+				
 			var is_edge = false
 			# Check all 8 neighbors
 			for dx in [-1,0,1]:
@@ -97,5 +101,12 @@ func generate_outline():
 				image.set_pixel(x, y, Color(1,1,1,1))
 			else:
 				image.set_pixel(x, y, Color(0,0,0,0))
-
-	sprite.texture = ImageTexture.create_from_image(image)
+	if !edge_only:
+		mask_texture=ImageTexture.create_from_image(image)
+	else:
+		sprite.texture = ImageTexture.create_from_image(image)
+	
+	
+func get_whole_image() -> Texture2D:
+	generate_outline(false)
+	return mask_texture

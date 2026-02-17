@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://kvtmd0tqbxne"]
+
+[ext_resource type="Script" uid="uid://c2p8h2v8dbewx" path="res://Game Elements/Attacks/crowbar_special/crowbar_projectile.gd" id="1_4ti0q"]
+[ext_resource type="Shader" uid="uid://3gge73khn6k3" path="res://Game Elements/Attacks/crowbar_special/crowbar_projectile.gdshader" id="2_g03fd"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ty6tl"]
+shader = ExtResource("2_g03fd")
+shader_parameter/sprite_width_px = 64
+
+[node name="CrowbarProjectile" type="Node2D"]
+z_index = 30
+y_sort_enabled = true
+script = ExtResource("1_4ti0q")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_ty6tl")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+disable_3d = true
+transparent_bg = true
+render_target_update_mode = 1

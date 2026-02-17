@@ -18,4 +18,5 @@ y_sort_enabled = true
 script = ExtResource("1_3b1ln")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
 material = SubResource("ShaderMaterial_c8la7")

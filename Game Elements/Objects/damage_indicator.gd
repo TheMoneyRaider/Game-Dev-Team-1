@@ -37,6 +37,8 @@ func _process(delta: float) -> void:
 	
 func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node = null, value : int = 7, direction : Vector2 = Vector2.UP,size : int = 64, override_color : Color = Color(0.267, 0.394, 0.394, 1.0)) -> void:
 	
+	print("Damage: "+str(value)+" C Owner: "+str(c_owner)+" attack: "+str(attack)+" attack_owner: "+str(attack_owner))
+	
 	var orig_len = 100
 	#Position based on attack and damage owner collision shapes
 	if attack:
@@ -57,7 +59,7 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 		var crow = preload("res://Game Elements/Particles/crowbar_hit.tscn").instantiate()
 		get_parent().add_child(crow)
 		crow.global_position = global_position
-		crow.rotation = attack.direction.angle()+90
+		crow.rotation = attack.direction.angle()+PI/2 +deg_to_rad(randf_range(-40,40))
 		
 	
 	var color = Color(0.564, 0.0, 0.061, 1.0)

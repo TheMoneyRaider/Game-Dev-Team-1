@@ -158,12 +158,11 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if Input.is_action_pressed("special_" + input_device) and weapons[is_purple as int].current_special_hits >= weapons[is_purple as int].special_hits:
-			weapons[is_purple as int].end_special((crosshair.position).normalized(), global_position,self)
+			weapons[is_purple as int].use_normal_attack((crosshair.position).normalized(), global_position,self)
 		else:
 			handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
-		
 	if Input.is_action_pressed("special_" + input_device):
 		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position,self)
 		emit_signal("special",self)

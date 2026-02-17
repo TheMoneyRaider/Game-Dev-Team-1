@@ -18,6 +18,8 @@ var direction = Vector2.RIGHT
 @export var pierce = 0.0
 #If the attack can hit walls
 @export var wall_collision = true
+#If the attack damages walls
+@export var wall_damage = false
 var hit_nodes = {}
 #The attack type
 @export var attack_type : String = ""
@@ -234,7 +236,8 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if body.has_method("take_damage"):
 		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames,creates_indicators)
 		return 1
-	get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
+	if wall_damage:
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
 	return -1
 	
 
