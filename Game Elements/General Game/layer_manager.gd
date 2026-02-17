@@ -1234,12 +1234,12 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 			break
 	if shido1!=0.0:
 		for rem in player_1_remnants:
-			if randf() < shido1:
+			if randf() < shido1 and rem.rank <= 4:
 				rem.rank +=1
 				player1_ranked_up.append(rem.remnant_name)
 	if shido2!=0.0:
 		for rem in player_2_remnants:
-			if randf() < shido2:
+			if randf() < shido2 and rem.rank <= 4:
 				rem.rank +=1
 				player2_ranked_up.append(rem.remnant_name)
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants,player1_ranked_up,player2_ranked_up)

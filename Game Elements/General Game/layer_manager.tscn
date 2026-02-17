@@ -41,6 +41,7 @@ script = ExtResource("1_gynnh")
 [node name="Transition" type="TextureRect" parent="."]
 visible = false
 modulate = Color(0, 0, 0, 0)
+z_index = 4000
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

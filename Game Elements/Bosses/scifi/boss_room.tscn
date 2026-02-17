@@ -51,16 +51,20 @@ z_index = 31
 y_sort_enabled = true
 tile_set = ExtResource("2_n58sc")
 
-[node name="Transition" type="TextureRect" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 2
+visible = false
+
+[node name="Transition" type="TextureRect" parent="CanvasLayer"]
 modulate = Color(0, 0, 0, 1)
 z_index = 4000
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -797.0
-offset_top = -469.0
-offset_right = 702.0
-offset_bottom = 701.0
+offset_left = -1123.0
+offset_top = -632.0
+offset_right = 376.0
+offset_bottom = 538.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_ar3fp")
