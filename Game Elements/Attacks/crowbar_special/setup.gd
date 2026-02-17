@@ -77,9 +77,6 @@ func generate_outline(edge_only : bool = true):
 			if val < threshold:
 				image.set_pixel(x, y, Color(0,0,0,0))
 				continue
-			if !edge_only:
-				image.set_pixel(x, y, Color(1,1,1,1))
-				continue
 				
 			var is_edge = false
 			# Check all 8 neighbors
@@ -100,11 +97,13 @@ func generate_outline(edge_only : bool = true):
 			if is_edge:
 				image.set_pixel(x, y, Color(1,1,1,1))
 			else:
-				image.set_pixel(x, y, Color(0,0,0,0))
+				if edge_only:
+					image.set_pixel(x, y, Color(0,0,0,0))
+				else:
+					image.set_pixel(x, y, Color(0,0,0,1))
 	if !edge_only:
-		mask_texture=ImageTexture.create_from_image(image)
-	else:
-		sprite.texture = ImageTexture.create_from_image(image)
+		mask_texture= ImageTexture.create_from_image(image)
+	sprite.texture = ImageTexture.create_from_image(image)
 	
 	
 func get_whole_image() -> Texture2D:

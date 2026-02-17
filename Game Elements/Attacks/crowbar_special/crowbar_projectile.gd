@@ -4,17 +4,21 @@ var viewport_size = Vector2(64,64)
 @export var mask : Node
 @onready var vp = $SubViewport
 var created : bool =false
+@onready var sprites = [$Sprite1,$Sprite2,$Sprite3,$Sprite4,$Sprite5]
 
 var velocity = Vector2.ZERO
 var gravity = Vector2(0,30)
 var original_position : Vector2
 func _ready() -> void:
 	original_position= position
-	$Sprite2D.texture = await flatten_nodes_to_sprite(room_root,19)
+	var tex =await flatten_nodes_to_sprite(room_root,19)
+	for sp in sprites:
+		sp.texture = tex
 
 func _process(delta: float) -> void:
-	if $Sprite2D.texture and !created:
-		$Sprite2D.material.set_shader_parameter("mask",mask.get_whole_image())
+	if sprites[0].texture and !created:
+		sprites[0].material.set_shader_parameter("mask",mask.get_whole_image())
+		sprites[1].material.set_shader_parameter("mask",mask.get_whole_image())
 		created=true
 		velocity = Vector2(0,-40)
 	if !created:
