@@ -119,11 +119,12 @@ func apply_remnants(attack_instance):
 					if(attack_instance.speed != 0):
 						#Possibly add a min so it can't go lower than base damage? 
 						#Nah thats lame
-						attack_instance.damage = attack_instance.damage * (((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed) /  attack_instance.speed)
+						attack_instance.damage = abs(attack_instance.damage * (((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed) /  attack_instance.speed))
 						attack_instance.speed = ((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed)
 					else:
-						attack_instance.damage = attack_instance.damage * ((c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)
-						attack_instance.speed = ((c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)
+						print(abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)))
+						attack_instance.damage = abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1))
+						attack_instance.speed = (.5 * similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100)
 				hydromancer.remnant_name:
 					attack_instance.last_liquid = c_owner.last_liquid
 					c_owner.last_liquid = Globals.Liquid.Buffer

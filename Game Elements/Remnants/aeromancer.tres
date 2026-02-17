@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("3_omujo")
 remnant_name = "Remnant of the Aeromancer"
-description = "Attacks inherit $X% of your velocity"
+description = "Ranged attacks inherit $X% of your velocity. Melee attacks inherit half of that."
 icon = ExtResource("2_vt3b7")
 art = ExtResource("1_7axxn")
 variable_names = Array[String](["$X", "$Y"])

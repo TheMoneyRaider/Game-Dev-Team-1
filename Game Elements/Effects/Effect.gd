@@ -36,9 +36,8 @@ func gained(node_to_change : Node):
 			particle.position = node_to_change.position
 			node_to_change.get_parent().add_child(particle)
 		"burn":
-			if(node_to_change.has_method("take_damage")):
-				node_to_change.take_damage(value1, null)
 			var particle =  load("res://Game Elements/Effects/burn_particles.tscn").instantiate()
+			particle.lifetime = cooldown
 			node_to_change.add_child(particle)
 			
 

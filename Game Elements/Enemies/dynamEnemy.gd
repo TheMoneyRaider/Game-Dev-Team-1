@@ -143,17 +143,18 @@ func apply_hydromancer(rem : Remnant, attack_body : Node):
 	match attack_body.last_liquid:
 		Globals.Liquid.Water:
 			for i in range(rem.rank * 8):
-				effect = load("res://Game Elements/Effects/slow_down.tres")
-				effect.cooldown = rem.rank * 50
+				effect = load("res://Game Elements/Effects/slow_down.tres").duplicate()
+				effect.cooldown = rem.rank
 				effect.value1 = 0.023
 				effect.gained(self)
 				effects.append(effect)
 		Globals.Liquid.Lava:
-			effect = load("res://Game Elements/Effects/burn.tres")
-			effect.cooldown = 1
-			effect.value1 = rem.rank
-			effect.gained(self)
-			effects.append(effect)
+			for i in range(1, rem.rank + 1):
+				effect = load("res://Game Elements/Effects/burn.tres").duplicate()
+				effect.cooldown = i
+				effect.value1 = 2
+				effect.gained(self)
+				effects.append(effect)
 		_:
 			pass
 		
