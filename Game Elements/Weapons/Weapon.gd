@@ -410,12 +410,20 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 					spawn_attack(special_direction,special_position, node_attacking,"charged_particles")
 					current_special_hits = 0
 					damage = special_start_damage
+					if node_attacking.weapons[0] == self:
+						node_attacking.emit_signal("special_changed",false,0.0)
+					else:
+						node_attacking.emit_signal("special_changed",true,0.0)
 			"Railgun":
 				node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 1.0, 1.0, 1.0),1.0)
 				if(special_time_elapsed > 1.0):
 					current_special_hits = 0
 			"Crowbar":
 				current_special_hits = 0
+				if node_attacking.weapons[0] == self:
+					node_attacking.emit_signal("special_changed",false,0.0)
+				else:
+					node_attacking.emit_signal("special_changed",true,0.0)
 			_:
 				pass
 		special_cleanup()
@@ -487,3 +495,8 @@ func sword_special_attack(special_direction : Vector2,node_attacking : Node):
 		if i == locations.size()-1:
 			node_attacking.global_position = spawn_pos
 	node_attacking.move_speed /= 4.0
+	current_special_hits = 0
+	if node_attacking.weapons[0] == self:
+		node_attacking.emit_signal("special_changed",false,0.0)
+	else:
+		node_attacking.emit_signal("special_changed",true,0.0)
