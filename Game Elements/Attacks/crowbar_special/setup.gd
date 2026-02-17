@@ -124,7 +124,6 @@ func generate_outline(edge_only : bool = true):
 func passify(player : Node):
 	player_owner = player
 	passified = true
-	#TODO Deal damage intermitantly
 	print("Passified!")
 	sprite.material = sprite.material.duplicate(true)
 	sprite.material.set_shader_parameter("enabled",true)
