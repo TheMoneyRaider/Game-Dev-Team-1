@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://c0xmnjrmdn8w"]
 
 [ext_resource type="Texture2D" uid="uid://buei1vuo3fwve" path="res://art/heal.png" id="1_n8asd"]
-[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/effect_particles.gd" id="2_bgutd"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Particles/effect_particles.gd" id="2_bgutd"]
 
 [sub_resource type="Curve" id="Curve_u0mf0"]
 _data = [Vector2(0, 0), 0.0, 6.7659764, 0, 0, Vector2(0.2385321, 1), 0.0, 0.0, 0, 0, Vector2(0.5168196, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]

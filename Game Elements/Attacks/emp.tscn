@@ -81,6 +81,7 @@ pierce = -2.0
 wall_collision = false
 attack_type = "emp"
 creates_indicators = false
+animation = "explode"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_0b5ol")

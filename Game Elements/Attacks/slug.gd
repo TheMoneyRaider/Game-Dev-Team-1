@@ -15,6 +15,6 @@ func _physics_process(_delta: float) -> void:
 	if attack:
 		attack.global_position = global_position
 		attack.global_rotation = global_rotation
-		
+		attack.direction = linear_velocity.normalized()
 		var dir = (player.global_position - global_position).normalized()
 		apply_force(dir * force_strength)

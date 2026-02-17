@@ -1,7 +1,7 @@
 [gd_scene load_steps=13 format=3 uid="uid://cgndh64r4q76o"]
 
 [ext_resource type="Texture2D" uid="uid://cugblfkxmtvhu" path="res://art/particles/spark.png" id="1_yss0v"]
-[ext_resource type="Script" uid="uid://bqutsdw47y0sy" path="res://Game Elements/Particles/color_choices.gd" id="2_t20vv"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Particles/effect_particles.gd" id="2_koqeg"]
 
 [sub_resource type="Gradient" id="Gradient_t20vv"]
 offsets = PackedFloat32Array(0, 0.13387978, 0.5136612, 0.6393443, 1)
@@ -60,7 +60,8 @@ one_shot = true
 explosiveness = 1.0
 collision_base_size = 0.0
 process_material = SubResource("ParticleProcessMaterial_v6oxj")
-script = ExtResource("2_t20vv")
+script = ExtResource("2_koqeg")
 color_range1 = SubResource("GradientTexture1D_nju7d")
 color_range2 = SubResource("GradientTexture1D_j5151")
 color_range3 = SubResource("GradientTexture1D_0xwad")
+range_choice = 0

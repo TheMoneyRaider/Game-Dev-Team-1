@@ -1,7 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://dgajrp7x8oa7b"]
+[gd_scene load_steps=8 format=3 uid="uid://dgajrp7x8oa7b"]
 
 [ext_resource type="Texture2D" uid="uid://cugblfkxmtvhu" path="res://art/particles/spark.png" id="1_x17s6"]
-[ext_resource type="Script" uid="uid://bqutsdw47y0sy" path="res://Game Elements/Particles/color_choices.gd" id="2_jge3f"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Particles/effect_particles.gd" id="2_v8vxs"]
 
 [sub_resource type="Gradient" id="Gradient_x17s6"]
 offsets = PackedFloat32Array(0, 0.13387978, 0.5136612, 0.6393443, 1)
@@ -32,20 +32,6 @@ collision_friction = 0.0
 collision_bounce = 1.0
 collision_use_scale = true
 
-[sub_resource type="Gradient" id="Gradient_jge3f"]
-offsets = PackedFloat32Array(0, 0.13387978, 0.5136612, 0.6393443, 1)
-colors = PackedColorArray(1, 1, 1, 1, 0.9014503, 0.73730105, 3.85046e-07, 1, 0.957526, 0.8220268, 0, 1, 0.5978338, 0.26128513, 9.62615e-08, 1, 0.38929528, 0.005679555, 1.6845763e-07, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_pf4yy"]
-gradient = SubResource("Gradient_jge3f")
-
-[sub_resource type="Gradient" id="Gradient_pf4yy"]
-offsets = PackedFloat32Array(0, 0.28752643, 0.6393443, 1)
-colors = PackedColorArray(1, 1, 1, 1, 0.7888689, 0.4260745, 0.96597046, 1, 0.14356753, 0.38605317, 1, 1, 0, 0.2176145, 0.42900613, 1)
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_3f7mv"]
-gradient = SubResource("Gradient_pf4yy")
-
 [node name="Sparks" type="GPUParticles2D"]
 z_index = 19
 y_sort_enabled = true
@@ -57,6 +43,4 @@ one_shot = true
 explosiveness = 1.0
 collision_base_size = 0.0
 process_material = SubResource("ParticleProcessMaterial_h8k0i")
-script = ExtResource("2_jge3f")
-color_range1 = SubResource("GradientTexture1D_pf4yy")
-color_range2 = SubResource("GradientTexture1D_3f7mv")
+script = ExtResource("2_v8vxs")

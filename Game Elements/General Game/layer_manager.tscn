@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=13 format=3 uid="uid://bjlqt0ad4do23"]
 
 [ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Game Elements/General Game/layer_manager.gd" id="1_gynnh"]
 [ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cve6yfoeuc5u0" path="res://Game Elements/Objects/GlowCircle.tscn" id="5_570vf"]
 [ext_resource type="Script" uid="uid://c7h0iwnh6mu5v" path="res://Game Elements/General Game/viewport.gd" id="5_n317s"]
 [ext_resource type="Script" uid="uid://btw80vi8hk0iu" path="res://Game Elements/General Game/enemy_awareness.gd" id="6_754yq"]
+[ext_resource type="Script" uid="uid://bu61ndyofnbda" path="res://Game Elements/General Game/camera.gd" id="9_n317s"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_754yq"]
 shader = ExtResource("3_wgna5")
@@ -74,3 +75,4 @@ y_sort_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="game_container/game_viewport/game_root"]
 zoom = Vector2(4, 4)
+script = ExtResource("9_n317s")

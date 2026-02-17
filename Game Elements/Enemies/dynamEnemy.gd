@@ -29,6 +29,9 @@ var look_direction : Vector2 = Vector2(0,1)
 @onready var i_frames : int = 0
 var weapon = null
 var effects : Array[Effect] = []
+var knockback_velocity : Vector2 = Vector2.ZERO
+@export var knockback_decay : float = .90
+
 
 var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res://Game Elements/Attacks/robot_melee.tscn")]
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
@@ -106,7 +109,17 @@ func sprint(start : bool):
 				$AnimationPlayer.play("sprint")
 			move_speed *=sprint_multiplier
 			sprint_timer = randf_range(min_sprint_time,max_sprint_time)
+
+func _physics_process(delta: float) -> void:
 	
+	if knockback_velocity != Vector2.ZERO: 
+		var temp_velocity = velocity
+		velocity = knockback_velocity
+		move_and_slide()
+		velocity = temp_velocity
+		# Gradually reduce knockback over time
+		knockback_velocity = knockback_velocity * knockback_decay
+
 func _process(delta):
 	if sprint_timer!=0.0 and max(0.0,sprint_timer-delta)==0.0:
 		sprint(false)
@@ -157,7 +170,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	if(i_frames > 0):
 		return
 	i_frames = attack_i_frames
-	check_agro(dmg_owner)
+	if dmg_owner:
+		check_agro(dmg_owner)
 	if enemy_type=="binary_bot":
 		$Core.damage_glyphs()
 	if current_health >= 0 and display_damage and creates_indicators:
@@ -167,19 +181,35 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			attack_body.combod = true
 			dmg_owner.combo(attack_body.is_purple)
 		dmg_owner.hit_enemy(attack_body,self)
-	#const KNOCKBACK_FORCE: float = 150.0
-	#velocity = direction * KNOCKBACK_FORCE
+	if attack_body:
+		match attack_body.attack_type:
+			"laser":
+				knockback_velocity = Vector2.UP.rotated(attack_body.rotation+PI/2) * attack_body.knockback_force
+			"forcefield":
+				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
+			"crowbar_explosion":
+				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
+			"ls_melee":
+				knockback_velocity = (global_position-attack_body.global_position).normalized() * attack_body.knockback_force
+			_:
+				knockback_velocity = attack_body.direction * attack_body.knockback_force
 	current_health -= damage
-	if current_health < 0 and enemy_type == "laser_e":
-		var bt_player = get_node("BTPlayer")
-		var board = bt_player.blackboard
-		if board:
-			board.set_var("kill_laser", true)
-			board.set_var("kill_damage", damage)
-			board.set_var("kill_direction", direction)
-		return
-	if current_health < 0 and dmg_owner.is_in_group("player"):
-		dmg_owner.kill_enemy(self)
+	if current_health < 0:
+		
+			
+		for effect in effects:
+			effect.lost(self)
+		
+		if  enemy_type == "laser_e":
+			var bt_player = get_node("BTPlayer")
+			var board = bt_player.blackboard
+			if board:
+				board.set_var("kill_laser", true)
+				board.set_var("kill_damage", damage)
+				board.set_var("kill_direction", direction)
+			return
+		if dmg_owner.is_in_group("player"):
+			dmg_owner.kill_enemy(self)
 	emit_signal("enemy_took_damage",damage,current_health,self,direction)
 
 func check_agro(dmg_owner : Node):

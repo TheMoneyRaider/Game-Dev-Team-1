@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dr41rlrp6lll2"
-path="res://.godot/imported/swing02.png-bcd61f0eeebc5e5573fbe9afcd191303.ctex"
+uid="uid://de4x2t3g0dybl"
+path="res://.godot/imported/crowbar.png-492ee8624f9284fcabe8f7d96d804bef.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/weapons/laser_sword/hit_animations/swing02.png"
-dest_files=["res://.godot/imported/swing02.png-bcd61f0eeebc5e5573fbe9afcd191303.ctex"]
+source_file="res://art/weapons/crowbar/crowbar.png"
+dest_files=["res://.godot/imported/crowbar.png-492ee8624f9284fcabe8f7d96d804bef.ctex"]
 
 [params]
 
