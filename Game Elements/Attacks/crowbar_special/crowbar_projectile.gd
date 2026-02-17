@@ -17,8 +17,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if sprites[0].texture and !created:
-		sprites[0].material.set_shader_parameter("mask",mask.get_whole_image())
-		sprites[1].material.set_shader_parameter("mask",mask.get_whole_image())
+		for sp in sprites:
+			sp.material.set_shader_parameter("mask",mask.get_whole_image())
+			sp.material.set_shader_parameter("mask_offset",global_position+sp.material.get_shader_parameter("mask_offset"))
 		created=true
 		velocity = Vector2(0,-40)
 	if !created:

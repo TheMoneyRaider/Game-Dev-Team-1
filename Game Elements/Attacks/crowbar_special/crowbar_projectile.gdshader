@@ -3,10 +3,15 @@ shader_type canvas_item;
 uniform sampler2D mask : source_color;
 uniform int sprite_width_px = 64;  // the width of the sprite in pixels
 uniform bool edges = true;
+uniform vec2 mask_offset = vec2(0.0, 0.0);   // offset of sprite relative to mask in world units
+uniform float mask_midpoint_y = 0.5;       // normalized 0-1 midpoint of mask in Y
 
 varying vec4 modulate_color;
 
+varying vec2 world_pos;
+
 void vertex() {
+    world_pos = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy- mask_offset; // apply mask offset
     // In vertex, COLOR is already: modulate * self_modulate * vertex_color
     modulate_color = COLOR;
 }
@@ -17,8 +22,17 @@ void fragment() {
     // Quantize UVs to sprite resolution
     uv = floor(uv * float(sprite_width_px)) / float(sprite_width_px)+.5/float(sprite_width_px);
 
+    // Map world-space to normalized mask UV (0-1)
+    vec2 mask_uv = world_pos / float(sprite_width_px);
+    mask_uv = clamp(mask_uv+vec2(.5,.5), 0.0, 1.0);
+	vec4 tex = texture(mask, mask_uv);
+    if (tex.a <= 0.0 && mask_uv.y > mask_midpoint_y) {
+        discard;
+    }
+
+
     // Sample the texture at the quantized UV
-    vec4 tex = texture(mask, uv);
+    tex = texture(mask, uv);
     // Discard if no alpha
     if (tex.a <= 0.0) {
         discard;
