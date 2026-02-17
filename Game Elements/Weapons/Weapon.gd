@@ -341,8 +341,8 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 					special_time_period_elapsed = floor(special_time_elapsed*2)
 					special_tick(special_direction, node_attacking)
 		"Crowbar":
-			if floor(special_time_elapsed*20) !=special_time_period_elapsed:
-				special_time_period_elapsed = floor(special_time_elapsed*20)
+			if floor(special_time_elapsed*60) !=special_time_period_elapsed:
+				special_time_period_elapsed = floor(special_time_elapsed*60)
 				special_tick(special_direction, node_attacking)
 		_:
 			pass

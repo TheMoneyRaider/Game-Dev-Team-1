@@ -30,7 +30,7 @@ var look_direction : Vector2 = Vector2(0,1)
 var weapon = null
 var effects : Array[Effect] = []
 var knockback_velocity : Vector2 = Vector2.ZERO
-@export var knockback_decay : float = 200.0
+@export var knockback_decay : float = .90
 
 
 var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res://Game Elements/Attacks/robot_melee.tscn")]
@@ -118,7 +118,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		velocity = temp_velocity
 		# Gradually reduce knockback over time
-		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_decay * delta)
+		knockback_velocity = knockback_velocity * knockback_decay
 
 func _process(delta):
 	if sprint_timer!=0.0 and max(0.0,sprint_timer-delta)==0.0:
