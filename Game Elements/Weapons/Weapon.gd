@@ -62,8 +62,7 @@ static func create_weapon(resource_location : String, current_owner : Node2D):
 	
 	return new_weapon
 
-func request_attacks(direction : Vector2, char_position : Vector2, node_attacking : Node):
-	
+func request_attacks(direction : Vector2, char_position : Vector2, node_attacking : Node, flip : int = 1):
 	
 	var attack_direction
 	if(!split_attacks):
@@ -82,7 +81,7 @@ func request_attacks(direction : Vector2, char_position : Vector2, node_attackin
 				_:
 					pass
 			var attack_position = attack_direction * spawn_distance + char_position
-			spawn_attack(attack_direction,attack_position,node_attacking)
+			spawn_attack(attack_direction,attack_position,node_attacking,"",flip)
 			if(!split_attacks):
 				attack_direction = direction.rotated(deg_to_rad((-attack_spread / 2) + randf_range(0,attack_spread)))
 			else:
@@ -92,7 +91,7 @@ func request_attacks(direction : Vector2, char_position : Vector2, node_attackin
 			
 	else:
 		var attack_position = attack_direction * spawn_distance + char_position
-		spawn_attack(attack_direction,attack_position,node_attacking)
+		spawn_attack(attack_direction,attack_position,node_attacking,"",flip)
 
 func check_for_intelligence(node_attacking: Node) -> Remnant:
 	if !node_attacking.is_in_group("player"):
@@ -109,15 +108,16 @@ func check_for_intelligence(node_attacking: Node) -> Remnant:
 			return rem.duplicate(true)
 	return null
 
-func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", variant : bool = false):
+func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", flip : int = 1, variant : bool = false):
 	var intelligence = check_for_intelligence(node_attacking)
-	
 	
 	if !c_owner:
 		return
 	var instance
 	if variant:
 		instance = load(special_attack_scene).instantiate()
+		if instance.attack_type=="crowbar_melee":
+			instance.scale.x *= flip *-1
 		instance.intelligence = intelligence
 		instance.direction = attack_direction
 		instance.global_position = attack_position
@@ -126,6 +126,8 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 			instance.damage *= c_owner.damage_boost()
 	else:
 		instance = load(attack_scene).instantiate()
+		if instance.attack_type=="crowbar_melee":
+			instance.scale.x *= flip *-1
 		instance.intelligence = intelligence
 		instance.direction = attack_direction
 		instance.global_position = attack_position
@@ -164,6 +166,15 @@ func start_special(special_direction : Vector2, node_attacking : Node):
 			#Spawn Line2D
 			pass
 			
+		"Crowbar":
+			print("Start Crowbar")
+			var setup = load("res://Game Elements/Attacks/crowbar_special/setup.tscn").instantiate()
+			setup.tilemaplayer = node_attacking.LayerManager.room_instance.get_node("Ground")
+			setup.available_tiles = node_attacking.LayerManager.placable_cells
+			setup.global_position = node_attacking.global_position+special_direction*48
+			node_attacking.LayerManager.room_instance.add_child(setup)
+
+			special_nodes.append(setup)
 		_ :
 			pass
 
@@ -230,8 +241,20 @@ func special_tick(special_direction : Vector2, node_attacking : Node):
 				var fire = preload("res://Game Elements/Particles/fire_damage.tscn").instantiate()
 				fire.position = node_attacking.position
 				node_attacking.LayerManager.room_instance.add_child(fire)
-				fire.emitting = true
 				pass
+			"Crowbar":
+				if special_nodes.size()> 1:
+					var throw = preload("res://Game Elements/Particles/throw_particles.tscn").instantiate()
+					var ray = cast_ray(node_attacking.global_position, special_direction, 1600,node_attacking)
+					throw.global_position = node_attacking.global_position
+					if ray:
+						var position = (clamp((ray.position-node_attacking.global_position).length(),0,160)*special_direction)+node_attacking.global_position
+						throw.global_position = position -special_direction *32
+					node_attacking.LayerManager.room_instance.add_child(throw)
+					if !is_instance_valid(special_nodes[1]):
+						special_nodes.remove_at(1)
+				if special_nodes.size()<=1:
+					special_nodes[0].global_position = node_attacking.global_position+special_direction*48
 			_:
 				pass
 	
@@ -290,22 +313,13 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 					effect.value1 = 0.02
 					effect.gained(c_owner)
 					Effects.append(effect)
-			
 			_:
 				pass
 	else:
 		if special_on_release:
 			end_special(special_direction , special_position , node_attacking)
 		else:
-			special_started = false
-			for node in special_nodes:
-				if node.has_method("kill"):
-					node.kill()
-				else:
-					node.queue_free()
-			special_nodes = []
-			special_time_elapsed = 0.0
-			special_time_period_elapsed = 0
+			special_cleanup()
 		return Effects
 		
 	match type:
@@ -326,10 +340,59 @@ func use_special(time_elapsed : float, is_released : bool, special_direction : V
 				if floor(special_time_elapsed*2) !=special_time_period_elapsed:
 					special_time_period_elapsed = floor(special_time_elapsed*2)
 					special_tick(special_direction, node_attacking)
+		"Crowbar":
+			if floor(special_time_elapsed*60) !=special_time_period_elapsed:
+				special_time_period_elapsed = floor(special_time_elapsed*60)
+				special_tick(special_direction, node_attacking)
 		_:
 			pass
 	special_time_elapsed += time_elapsed
 	return Effects
+
+func special_cleanup():
+	special_started = false
+	for node in special_nodes:
+		if node and is_instance_valid(node) and node.has_method("kill"):
+			node.kill()
+		elif node and is_instance_valid(node):
+			node.queue_free()
+	special_nodes = []
+	special_time_elapsed = 0.0
+	special_time_period_elapsed = 0
+	
+
+func use_normal_attack(special_direction : Vector2, special_position : Vector2, node_attacking : Node):
+	match type:
+			"Laser_Sword":
+				end_special(special_direction,special_position,node_attacking)
+			"Crowbar":
+				if special_nodes.size()>1:
+					special_nodes[0].passify(node_attacking)
+					#Launch
+					#Place Target
+					var target = preload("res://Game Elements/Attacks/crowbar_special/target.tscn").instantiate()
+					var ray = cast_ray(node_attacking.global_position, special_direction, 1600,node_attacking)
+					target.global_position = node_attacking.global_position
+					if ray:
+						var position = (clamp((ray.position-node_attacking.global_position).length(),0,160)*special_direction)+node_attacking.global_position
+						target.global_position = position -special_direction *32
+					node_attacking.LayerManager.room_instance.add_child(target)
+					special_nodes[1].activate(target,node_attacking)
+					node_attacking.create_tween().tween_property(target,"modulate",Color(1.0,1.0,1.0,1.0),.5)
+					special_nodes = []
+					end_special(special_direction,special_position,node_attacking)
+					
+				else:
+					print("Punt")
+					var attack = load("res://Game Elements/Attacks/crowbar_special/crowbar_projectile.tscn").instantiate()
+					attack.room_root = node_attacking.LayerManager.room_instance
+					attack.mask = special_nodes[0]
+					attack.global_position = special_nodes[0].global_position
+					node_attacking.LayerManager.room_instance.add_child(attack)
+					special_nodes.append(attack)
+					
+			_:
+				pass
 
 func end_special(special_direction : Vector2, special_position : Vector2, node_attacking : Node):
 		special_started = false
@@ -353,6 +416,9 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 						node_attacking.emit_signal("special_changed",true,0.0)
 			"Railgun":
 				node_attacking.create_tween().tween_property(node_attacking.weapon_node.get_node("Sprite2D"),"modulate",Color(1.0, 1.0, 1.0, 1.0),1.0)
+				if(special_time_elapsed > 1.0):
+					current_special_hits = 0
+			"Crowbar":
 				current_special_hits = 0
 				if node_attacking.weapons[0] == self:
 					node_attacking.emit_signal("special_changed",false,0.0)
@@ -360,15 +426,7 @@ func end_special(special_direction : Vector2, special_position : Vector2, node_a
 					node_attacking.emit_signal("special_changed",true,0.0)
 			_:
 				pass
-		special_time_elapsed = 0.0
-		special_time_period_elapsed = 0
-		for node in special_nodes:
-			if node and !node.is_queued_for_deletion():
-				if node.has_method("kill"):
-					node.kill()
-				else:
-					node.queue_free()
-		special_nodes = []
+		special_cleanup()
 
 func cast_ray(origin: Vector2, direction: Vector2, distance: float, player_node : Node) -> Dictionary:
 	var space = player_node.get_world_2d().direct_space_state
@@ -378,14 +436,9 @@ func cast_ray(origin: Vector2, direction: Vector2, distance: float, player_node 
 	query.collision_mask = 1 << 0
 	return space.intersect_ray(query)
 
-
 func sword_special_attack(special_direction : Vector2,node_attacking : Node):
 	current_special_hits = 0
-	special_time_elapsed = 0.0
-	special_time_period_elapsed = 0
-	for node in special_nodes:
-		node.queue_free()
-	special_nodes = []
+	special_cleanup()
 	var locations : Array[Vector2] = get_locations(node_attacking, special_direction)
 	if locations.size() < 2:
 		return # nothing to spawn
@@ -406,7 +459,7 @@ func sword_special_attack(special_direction : Vector2,node_attacking : Node):
 	node_attacking.move_speed *= 4.0
 	for i in range(1, locations.size()):
 		node_attacking.input_direction = (locations[i - 1] -locations[i]).normalized()
-		spawn_attack(special_direction,locations[i], node_attacking,"",true)
+		spawn_attack(special_direction,locations[i], node_attacking,"",1,true)
 		var start_pos = locations[i - 1]
 		var end_pos = locations[i]
 		var segment_vec = end_pos - start_pos

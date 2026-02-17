@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bier1bo4sg6dh"
-path="res://.godot/imported/shards02.png-89366771c649da91ce888ffafed3b66a.ctex"
+uid="uid://h8wy5vdvyrfg"
+path="res://.godot/imported/gradiant_dot6.png-97c6d1a4535e241b6bc92dd9c2f84aa5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/weapons/laser_sword/hit_animations_3/shards02.png"
-dest_files=["res://.godot/imported/shards02.png-89366771c649da91ce888ffafed3b66a.ctex"]
+source_file="res://art/particles/gradiant_dot6.png"
+dest_files=["res://.godot/imported/gradiant_dot6.png-97c6d1a4535e241b6bc92dd9c2f84aa5.ctex"]
 
 [params]
 

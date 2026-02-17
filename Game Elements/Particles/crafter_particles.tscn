@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://bhthcr5imuea1"]
 
-[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/effect_particles.gd" id="1_1jsqs"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Particles/effect_particles.gd" id="1_1jsqs"]
 [ext_resource type="Texture2D" uid="uid://b07l7o62l7ykk" path="res://art/hammer.png" id="1_qit80"]
 
 [sub_resource type="Curve" id="Curve_u0mf0"]

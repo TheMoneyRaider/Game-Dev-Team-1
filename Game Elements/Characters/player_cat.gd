@@ -158,12 +158,11 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_pressed("attack_" + input_device):
 		if Input.is_action_pressed("special_" + input_device) and weapons[is_purple as int].current_special_hits >= weapons[is_purple as int].special_hits:
-			weapons[is_purple as int].end_special((crosshair.position).normalized(), global_position,self)
+			weapons[is_purple as int].use_normal_attack((crosshair.position).normalized(), global_position,self)
 		else:
 			handle_attack()
 	if Input.is_action_just_pressed("activate_" + input_device):
 		emit_signal("activate",self)
-		
 	if Input.is_action_pressed("special_" + input_device):
 		effects += weapons[is_purple as int].use_special(delta,false, (crosshair.position).normalized(), global_position,self)
 		emit_signal("special",self)
@@ -184,7 +183,7 @@ func update_animation_parameters(move_input : Vector2):
 func request_attack(t_weapon : Weapon) -> float:
 	weapon_node.flip_direction()
 	var attack_direction = (crosshair.position).normalized()
-	t_weapon.request_attacks(attack_direction,global_position,self)
+	t_weapon.request_attacks(attack_direction,global_position,self,weapon_node.flip)
 	return t_weapon.cooldown
 
 func take_damage(damage_amount : int, _dmg_owner : Node,_direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 20,creates_indicators : bool = true):
@@ -535,6 +534,8 @@ func player_special_reset():
 	emit_signal("special_reset", is_purple)
 
 func hit_enemy(attack_body : Node, enemy : Node):
+	if !attack_body:
+		return
 	var remnants : Array[Remnant] = []
 	var effect : Effect
 	if attack_body.attack_type == "emp":

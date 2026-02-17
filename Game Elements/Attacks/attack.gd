@@ -9,6 +9,8 @@ var direction = Vector2.RIGHT
 #How long attack lasts in seconds before despawning
 @export var hit_force = 0.0
 #How much speed it adds to deflected objects
+@export var knockback_force = 100.0
+#How much it knocksback enemies
 @export var start_lag = 0.0
 #How much time after pressing attack does the attack start in seconds
 @export var cooldown = .5
@@ -16,6 +18,8 @@ var direction = Vector2.RIGHT
 @export var pierce = 0.0
 #If the attack can hit walls
 @export var wall_collision = true
+#If the attack damages walls
+@export var wall_damage = false
 var hit_nodes = {}
 #The attack type
 @export var attack_type : String = ""
@@ -26,6 +30,7 @@ var hit_nodes = {}
 @export var repeat_hits : bool = false
 @export var creates_indicators : bool = true
 @export var spawn_particle : PackedScene = null
+@export var animation : String = ""
 var combod : bool = false
 var is_purple : bool = false
 
@@ -77,16 +82,11 @@ func _ready():
 	if spawn_particle:
 		var inst = spawn_particle.instantiate()
 		inst.global_position = global_position
-		inst.emitting = true
-		inst.rotation = direction.angle()
+		if attack_type!="crowbar_explosion":
+			inst.rotation = direction.angle()
 		get_parent().add_child(inst)
-	if attack_type == "robot melee":
-		$AnimationPlayer.play("main")
-	if attack_type == "ls_melee":
-		$AnimationPlayer.play("swing")
-	if attack_type == "emp":
-		$AnimationPlayer.play("explode")
-	
+	if animation!= "" and $AnimationPlayer:
+		$AnimationPlayer.play(animation)
 	if attack_type == "death mark":
 		if c_owner.is_purple:
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_purple.png")
@@ -233,7 +233,8 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if body.has_method("take_damage"):
 		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames,creates_indicators)
 		return 1
-	get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
+	if wall_damage:
+		get_tree().get_root().get_node("LayerManager")._damage_indicator(0, n_owner,a_direction, self,null)
 	return -1
 	
 

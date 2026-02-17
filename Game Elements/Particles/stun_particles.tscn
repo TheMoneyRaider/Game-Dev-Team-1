@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cbx6lsmqg1mng"]
 
-[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/effect_particles.gd" id="2_gk0gw"]
+[ext_resource type="Script" uid="uid://b234kafgtm21j" path="res://Game Elements/Particles/effect_particles.gd" id="2_gk0gw"]
 
 [sub_resource type="Curve" id="Curve_j3yxd"]
 _data = [Vector2(0, 0), 0.0, 6.7659764, 0, 0, Vector2(0.15, 1), 0.0, 0.0, 0, 0, Vector2(0.7805555, 0.46953213), -2.948286, -2.948286, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]

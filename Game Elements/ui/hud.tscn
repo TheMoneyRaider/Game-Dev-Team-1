@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://0hahdiffjt61"]
+[gd_scene load_steps=18 format=3 uid="uid://0hahdiffjt61"]
 
 [ext_resource type="Script" uid="uid://ttvprfi61vn4" path="res://Game Elements/ui/hud.gd" id="1_6fbih"]
 [ext_resource type="Script" uid="uid://bs428146shl5s" path="res://Game Elements/ui/time_fabric_animation.gd" id="2_bjfho"]
@@ -50,6 +50,13 @@ shader_parameter/progress = 0.0
 shader_parameter/interp_time = 0.25
 shader_parameter/time_offset = 0.0
 shader_parameter/prev_progress = 0.0
+
+[sub_resource type="Theme" id="Theme_gp50j"]
+resource_local_to_scene = true
+Label/colors/font_color = Color(0.69411767, 0.32156864, 0.9843137, 1)
+Label/font_sizes/font_size = 40
+ProgressBar/styles/background = SubResource("StyleBoxFlat_bjfho")
+ProgressBar/styles/fill = SubResource("StyleBoxFlat_6fbih")
 
 [node name="Hud" type="CanvasLayer"]
 process_mode = 3
@@ -322,6 +329,6 @@ tint_progress = Color(1, 0.64705884, 0, 1)
 
 [node name="HealthBar" parent="RootControl/Right_Bottom_Corner" instance=ExtResource("10_sjf6p")]
 layout_mode = 2
-theme = SubResource("Theme_gferk")
+theme = SubResource("Theme_gp50j")
 is_purple = false
 flipped = true

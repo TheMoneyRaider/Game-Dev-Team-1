@@ -74,6 +74,8 @@ func _process(delta):
 	if powering_down_distance >= 0.0:
 		powering_down_distance += decay_speed * delta
 		if powering_down_distance > total_distance:
+			if laser_attack:
+				laser_attack.queue_free()
 			queue_free()
 			return
 
@@ -88,7 +90,6 @@ func _process(delta):
 	sparks.range_choice = 1
 	get_parent().add_child(sparks)
 	sparks.global_position = point2
-	sparks.emitting = true
 	
 	if powering_down_distance > 0.0:
 		powered_length = total_distance - powering_down_distance
