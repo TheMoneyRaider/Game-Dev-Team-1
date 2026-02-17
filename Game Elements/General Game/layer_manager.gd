@@ -2,9 +2,11 @@ extends Node2D
 const room = preload("res://Game Elements/Rooms/room.gd")
 const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var timefabric = preload("res://Game Elements/Objects/time_fabric.tscn")
-@onready var sci_fi_layer : Array[Room] = room_data.new().sci_fi_rooms
-@onready var sci_fi_layer_shops : Array[Room] = room_data.new().sci_fi_shops
-@onready var testing_room : Room = room_data.new().testing_room
+@onready var room_d = room_data.new()
+@onready var sci_fi_layer : Array[Room] = room_d.sci_fi_rooms
+@onready var sci_fi_layer_shops : Array[Room] = room_d.sci_fi_shops
+@onready var bosses : Array[Room] = room_d.boss_rooms
+@onready var testing_room : Room = room_d.testing_room
 @onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
 ### Temp Multiplayer Fix
 var player1 = null
@@ -77,9 +79,7 @@ var layer_ai := [
 	0,#Liquid rooms visited
 	0,#Trap rooms visited
 	0,#Damage taken
-	0,#Elite enemies defeated   	#TODO
 	0,#Currency collected
-	0,#Items picked up   			#TODO
 	]
 
 func _ready() -> void:
@@ -251,7 +251,7 @@ func _process(delta: float) -> void:
 					enemies.append(child)
 			awareness_display.enemies = enemies.duplicate()
 			return
-		if !room_instance_data.has_shop:
+		if room_instance_data.roomtype == Globals.RoomType.Combat:
 			layer_ai[4] += time_passed - layer_ai[3] #Add to combat time
 			room_reward(this_room_reward1)
 			if is_wave_room:
@@ -283,19 +283,19 @@ func create_new_rooms() -> void:
 	# Start async generation thread
 	thread_running = true
 	room_gen_thread = Thread.new()
-	room_gen_thread.start(_thread_generate_rooms.bind(sci_fi_layer, room_instance_data))
+	room_gen_thread.start(_thread_generate_rooms.bind(bosses, room_instance_data)) #TODO change this to be based on layer ish
 
 func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> void:
 	#Rooms cleared
 	layer_ai[0] += 1
 	#Combat rooms cleared
-	if !generated_room_data.has_shop:
+	if generated_room_data.roomtype == Globals.RoomType.Combat:
 		layer_ai[1] += 1
 	#Last room time
 	layer_ai[2] = time_passed - layer_ai[3]
 	#Total time
 	layer_ai[3] = time_passed
-	if generated_room_data.has_shop:
+	if generated_room_data.roomtype == Globals.RoomType.Shop:
 		layer_ai[8] += 1
 	if generated_room_data.num_liquid > 0:
 		var liquid_num = 0
@@ -521,6 +521,14 @@ func preload_rooms() -> void:
 		if not cached_scenes.has(room_data_item.scene_location):
 			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
 			cached_scenes[room_data_item.scene_location] = packed
+	for room_data_item in bosses:
+		if not cached_scenes.has(room_data_item.scene_location):
+			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
+			cached_scenes[room_data_item.scene_location] = packed
+	for room_data_item in sci_fi_layer_shops:
+		if not cached_scenes.has(room_data_item.scene_location):
+			var packed = ResourceLoader.load(room_data_item.scene_location, "PackedScene")
+			cached_scenes[room_data_item.scene_location] = packed
 
 func check_reward(generated_room : Node2D, _generated_room_data : Room, player_reference : Node) -> bool:
 	if(if_node_exists("Shop",generated_room)):
@@ -742,7 +750,7 @@ func _randomize_room_reward(pathway_to_randomize : Node) -> void:
 	var reward_type2 = null
 	var wave = false
 	var prev_reward_type = pathway_to_randomize.reward1_type
-	if prev_reward_type == Globals.Reward.Shop:
+	if prev_reward_type == Globals.Reward.Shop or prev_reward_type == Globals.Reward.Boss:
 		return
 	while reward_type1 == null:
 		var reward_val = randi() % 6
@@ -791,8 +799,12 @@ func _choose_reward(pathway_name : String) -> void:
 	var reward_type1 = null
 	var reward_type2 = null
 	var wave = false
-	if generated_room_metadata[pathway_name].has_shop:
+	if generated_room_metadata[pathway_name].roomtype == Globals.RoomType.Shop:
 		reward_type1 = Globals.Reward.Shop
+		room_instance.get_node(pathway_name).set_reward(reward_type1,false,reward_type1)
+		return
+	if generated_room_metadata[pathway_name].roomtype == Globals.RoomType.Boss:
+		reward_type1 = Globals.Reward.Boss
 		room_instance.get_node(pathway_name).set_reward(reward_type1,false,reward_type1)
 		return
 	while reward_type1 == null:
@@ -1281,7 +1293,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	# Assign a new generated_room_data definition for metadata
 	room_instance_data = next_room_data
 	
-	if !room_instance_data.has_shop:
+	if room_instance_data.roomtype == Globals.RoomType.Combat:
 		var investment = load("res://Game Elements/Remnants/investment.tres")
 		for rem in player_1_remnants:
 			if rem.remnant_name == investment.remnant_name:
@@ -1311,6 +1323,10 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 		if child.is_in_group("enemy"):
 			enemies.append(child)
 	awareness_display.enemies = enemies.duplicate()
+	
+	if room_instance_data.roomtype == Globals.RoomType.Boss:
+		room_instance.activate()
+	
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
 	for child in generated_room.get_children():
@@ -1448,7 +1464,7 @@ func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
 
 func _on_timefabric_absorbed(timefabric_node : Node):
 	timefabric_collected+=1
-	layer_ai[13]+=1
+	layer_ai[12]+=1
 	timefabric_node.queue_free()
 	
 func _on_activate(player_node : Node):
