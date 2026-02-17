@@ -93,10 +93,13 @@ func _blend_textures(a: Texture2D, b: Texture2D, t: float) -> Texture2D:
 
 	return ImageTexture.create_from_image(out)
 
-func disable_pathway():
+func disable_pathway(fully : bool):
+	if fully:
+		visible = false
 	$ShaderSprite.visible = false
 	active = false
 func enable_pathway():
+	visible = true
 	$Icons/PathwayIcon1.z_index=0
 	$Icons/PathwayIcon2.z_index=0
 	$ShaderSprite.visible = true

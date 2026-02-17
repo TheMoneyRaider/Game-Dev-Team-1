@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=4 uid="uid://ciut2jg3urwer"]
+[gd_scene load_steps=5 format=4 uid="uid://ciut2jg3urwer"]
 
 [ext_resource type="Script" uid="uid://bqbfmcnnhox8b" path="res://Game Elements/Bosses/scifi/sci_fi_boss_room.gd" id="1_r7kch"]
 [ext_resource type="TileSet" uid="uid://b7rsdis0l1f8d" path="res://Game Elements/tilesets/medival_tileset.tres" id="2_n58sc"]
 [ext_resource type="PackedScene" uid="uid://ccwiql3bybf2p" path="res://Game Elements/Objects/pathway.tscn" id="3_6uq0m"]
+[ext_resource type="Texture2D" uid="uid://cxqlrcr4x3v2p" path="res://art/white_square.png" id="5_ar3fp"]
 
 [node name="BossRoom" type="Node2D"]
 script = ExtResource("1_r7kch")
@@ -49,3 +50,17 @@ tile_set = ExtResource("2_n58sc")
 z_index = 31
 y_sort_enabled = true
 tile_set = ExtResource("2_n58sc")
+
+[node name="Transition" type="TextureRect" parent="."]
+modulate = Color(0, 0, 0, 1)
+z_index = 4000
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -797.0
+offset_top = -469.0
+offset_right = 702.0
+offset_bottom = 701.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_ar3fp")

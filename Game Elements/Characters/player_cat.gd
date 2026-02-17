@@ -32,6 +32,7 @@ var move_speed: float
 @onready var purple_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Purple Spritesheet-export.png")
 @onready var orange_texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/Basic Orange Spritesheet-export.png")
 var other_player
+var disabled = false
 
 var tether_momentum = Vector2.ZERO
 var is_tethered = false
@@ -119,6 +120,8 @@ func apply_movement(_delta):
 	velocity = input_direction * move_speed
 
 func _physics_process(delta):
+	if disabled:
+		return
 	#print(move_speed)
 	if(i_frames > 0):
 		i_frames -= 1

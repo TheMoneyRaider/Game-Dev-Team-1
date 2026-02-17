@@ -122,7 +122,7 @@ viewport_path = NodePath("MaskViewport")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_okald"]
 
-[node name="Root" type="Node2D"]
+[node name="Root" type="Node2D" groups=["pathway"]]
 z_index = 39
 y_sort_enabled = true
 script = ExtResource("1_0mqoo")

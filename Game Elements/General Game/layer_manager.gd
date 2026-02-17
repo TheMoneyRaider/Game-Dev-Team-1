@@ -22,6 +22,7 @@ var possible_weapon = ""#undiscovered_weapons.pick_random()
 @onready var timefabric_sizes: Array[Vector3i]
 @onready var timefabric_collected: int = 0
 @onready var timefabric_rewarded = 0
+var camera_override : bool = false
 
 @onready var player_1_remnants: Array[Remnant] = []
 @onready var player_2_remnants: Array[Remnant] = []
@@ -195,10 +196,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	
 	time_passed += delta
-	if is_multiplayer:
-		camera.global_position = (player1.global_position + player2.global_position) / 2 +camera.get_cam_offset(delta)
-	else:
-		camera.position = player1.global_position+camera.get_cam_offset(delta)
+	if !camera_override:
+		if is_multiplayer:
+			camera.global_position = (player1.global_position + player2.global_position) / 2 +camera.get_cam_offset(delta)
+		else:
+			camera.position = player1.global_position+camera.get_cam_offset(delta)
 	
 	# Thread check
 	if thread_running and not room_gen_thread.is_alive():
@@ -262,6 +264,8 @@ func _process(delta: float) -> void:
 			for node in room_instance.get_children():
 				if node.is_in_group("reward"):
 					return
+			if this_room_reward1 == Globals.Reward.Boss:
+				return
 			if this_room_reward1 == Globals.Reward.Shop:
 				for i in 4:
 					await get_tree().process_frame
@@ -1325,7 +1329,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	awareness_display.enemies = enemies.duplicate()
 	
 	if room_instance_data.roomtype == Globals.RoomType.Boss:
-		room_instance.activate()
+		room_instance.activate(self,camera,player1,player2)
 	
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:
@@ -1389,7 +1393,7 @@ func _open_pathway(input : String,generated_room : Node2D) -> void:
 	_debug_message("Opened "+input+" In this room: "+generated_room.name)
 	generated_room.get_node(input).queue_free()
 	if !input.ends_with("_Detect"):
-		generated_room.get_node(input+"_Detect").disable_pathway()
+		generated_room.get_node(input+"_Detect").disable_pathway(false)
 	
 func if_node_exists(input : String,generated_room : Node2D) -> bool:
 	if generated_room.get_node_or_null(input):

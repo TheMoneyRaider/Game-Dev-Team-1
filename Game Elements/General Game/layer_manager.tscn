@@ -1,14 +1,15 @@
-[gd_scene load_steps=13 format=3 uid="uid://bjlqt0ad4do23"]
+[gd_scene load_steps=14 format=3 uid="uid://bjlqt0ad4do23"]
 
 [ext_resource type="Script" uid="uid://by1wxpi7fijx5" path="res://Game Elements/General Game/layer_manager.gd" id="1_gynnh"]
 [ext_resource type="PackedScene" uid="uid://0hahdiffjt61" path="res://Game Elements/ui/hud.tscn" id="2_4xk7e"]
+[ext_resource type="Texture2D" uid="uid://cxqlrcr4x3v2p" path="res://art/white_square.png" id="2_248xd"]
 [ext_resource type="PackedScene" uid="uid://bmb5ip00tidvr" path="res://Game Elements/ui/death_menu.tscn" id="3_aya3e"]
 [ext_resource type="Shader" uid="uid://b7787fo6f7qd6" path="res://Game Elements/General Game/layer_manager.gdshader" id="3_wgna5"]
 [ext_resource type="PackedScene" uid="uid://dx87pme08xv7f" path="res://Game Elements/ui/pause_menu.tscn" id="4_qhni4"]
 [ext_resource type="PackedScene" uid="uid://cve6yfoeuc5u0" path="res://Game Elements/Objects/GlowCircle.tscn" id="5_570vf"]
 [ext_resource type="Script" uid="uid://c7h0iwnh6mu5v" path="res://Game Elements/General Game/viewport.gd" id="5_n317s"]
 [ext_resource type="Script" uid="uid://btw80vi8hk0iu" path="res://Game Elements/General Game/enemy_awareness.gd" id="6_754yq"]
-[ext_resource type="Script" uid="uid://bu61ndyofnbda" path="res://Game Elements/General Game/camera.gd" id="9_n317s"]
+[ext_resource type="Script" path="res://Game Elements/General Game/camera.gd" id="9_n317s"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_754yq"]
 shader = ExtResource("3_wgna5")
@@ -36,6 +37,20 @@ shader_parameter/color = Color(0, 0, 0, 1)
 [node name="LayerManager" type="Node2D"]
 process_mode = 3
 script = ExtResource("1_gynnh")
+
+[node name="Transition" type="TextureRect" parent="."]
+visible = false
+modulate = Color(0, 0, 0, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -256.0
+offset_top = -256.0
+offset_right = 2386.0
+offset_bottom = 1238.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_248xd")
 
 [node name="DeathMenu" parent="." instance=ExtResource("3_aya3e")]
 layer = 2
