@@ -99,6 +99,8 @@ func _ready():
 		special_nodes[-1].global_rotation = global_rotation
 		get_parent().add_child(special_nodes[-1])
 		special_nodes[-1].setup(self)
+	if attack_type == "scifi_wave":
+		_wave_attack_setup()
 	
 
 
@@ -317,3 +319,29 @@ func _on_area_entered(area: Area2D) -> void:
 func _on_body_exited(body: Node2D) -> void:
 	if repeat_hits:
 		hit_nodes.erase(body)
+
+func _wave_attack_setup():
+	var s_material = LayerManager.get_node("game_container").material
+	var attack_dist = 480.0
+	var attack_duration = 10.0
+	
+	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
+	var relative = global_position - LayerManager.camera.global_position
+	var impact_uv = (relative / visible_size) + Vector2(0.5, 0.5)
+	print(impact_uv)
+	s_material.set_shader_parameter("impact_uv", impact_uv)
+	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0 - .8)
+	s_material.set_shader_parameter("impact_duration",attack_duration)
+	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
+	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
+	s_material.set_shader_parameter("visible_world_size", visible_size)
+	var distances = []
+	var ray_direction : Vector2
+	for i in range(0,720):
+		ray_direction = Vector2.RIGHT.rotated(i/720.0 * TAU)
+		var ray = cast_ray(global_position, ray_direction, attack_dist, self)
+		if ray:
+			distances.append((ray.position - global_position).length())
+	s_material.set_shader_parameter("collision_distances",distances)
+	
+	

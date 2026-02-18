@@ -76,6 +76,7 @@ func activate(layermanager : Node, camera_in : Node, player1_in : Node, player2_
 		player2.disabled = true
 	LayerManager =layermanager
 	LayerManager.BossIntro.get_node("BossName").text = boss_name
+	LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
 	LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)
 	screen = LayerManager.get_node("game_container/game_viewport")
 	for node in get_children():

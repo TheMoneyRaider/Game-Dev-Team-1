@@ -150,6 +150,10 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
+			var inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+			inst.global_position = global_position +Vector2(-128,-64)
+			inst.c_owner= self
+			LayerManager.room_instance.add_child(inst)
 			swap_color()
 	else:
 		tether(delta)
