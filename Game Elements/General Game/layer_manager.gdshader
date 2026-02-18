@@ -8,8 +8,10 @@ uniform vec2 impact_world_pos;
 uniform vec2 camera_center;
 uniform vec2 visible_world_size;
 uniform float impact_time = -10000;
+uniform float pause_time = -1;
+uniform float differential = -1;
 uniform float wave_speed = 48.0;
-uniform float wave_width = 32.0;
+uniform float wave_width = 48.0;
 uniform float collision_distances[720];
 
 float lum(vec3 color){
@@ -23,11 +25,25 @@ float g(float r, float sigma) {
 
 float fraction_sobeled(sampler2D text, vec2 uv){
 	if (impact_time < 0.0) return 0.0;
+	float impact_time_adj = impact_time-1.05;
+	float pause_time_adj = pause_time-1.05;
 	
-	float elapsed = TIME - impact_time;
+	float elapsed = TIME - impact_time_adj;
 	if (elapsed <= 0.0) {
 		return 0.0;
 	}
+	
+	if (differential != -1.0 || pause_time != -1.0){
+		if (differential == -1.0){
+			elapsed = pause_time_adj- impact_time_adj;
+		}else{
+			elapsed = elapsed - differential;
+		}
+		
+	}
+		
+	
+	
 	// Convert UV → world position
 	vec2 world_pos = camera_center + (uv - vec2(0.5)) * visible_world_size;
 
@@ -64,7 +80,7 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 	// Smooth radial band
 	// 1.0 at exact wave edge
 	// 0.0 outside wave_width
-	return smoothstep(0.0, 1.0, -edge_dist/wave_width);
+	return smoothstep(1.0, 0.0, -edge_dist/wave_width);
 }
 
 vec4 sobel(vec4 original_color, bool inverse_out, float mix_strength, sampler2D text, vec2 uv){
@@ -103,8 +119,8 @@ void fragment() {
 	float fraction = fraction_sobeled(TEXTURE, UV);
 	
 	if (fraction > 0.0)
-		COLOR = vec4(1.0,1.0,1.0,1.0);
-		//COLOR = mix(original_color,sobel(original_color,inverse_output, 1.0,TEXTURE, UV),fraction);
+		//COLOR = vec4(1.0,1.0,1.0,1.0);
+		COLOR = mix(original_color,sobel(original_color,inverse_output, 1.0,TEXTURE, UV),fraction);
 	//
 	//if(sobel_enabled)
 		//COLOR = sobel(original_color,inverse_output, 1.0,TEXTURE, UV);

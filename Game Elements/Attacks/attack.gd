@@ -208,6 +208,8 @@ func _process(delta):
 	life+=delta
 	if attack_type == "smash":
 		get_node("CollisionShape2D").shape.radius = lerp(8,16,life/lifespan)
+	if attack_type == "scifi_wave":
+		_wave_process()
 	if life < lifespan:
 		return
 	if attack_type == "death mark":
@@ -320,17 +322,45 @@ func _on_body_exited(body: Node2D) -> void:
 	if repeat_hits:
 		hit_nodes.erase(body)
 
+
+
+func _wave_process():
+	$CollisionShape2D.shape.radius = life/lifespan * 480
+	var s_material = LayerManager.get_node("game_container").material
+	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
+	
+
+func pause_wave():
+	if attack_type=="scifi_wave":
+		var s_material = LayerManager.get_node("game_container").material
+		pause_moment =Time.get_ticks_msec() / 1000.0
+		s_material.set_shader_parameter("pause_time", pause_moment-wave_differential)
+		s_material.set_shader_parameter("differential", -1)
+var wave_differential : float =0.0
+var pause_moment : float
+
+func resume_wave():
+	if attack_type=="scifi_wave":
+		var s_material = LayerManager.get_node("game_container").material
+		wave_differential+= Time.get_ticks_msec() / 1000.0 - pause_moment
+		print("######################")
+		print(wave_differential)
+		print(s_material.get_shader_parameter("pause_time"))
+		s_material.set_shader_parameter("differential", wave_differential)
+		
 func _wave_attack_setup():
 	var s_material = LayerManager.get_node("game_container").material
 	var attack_dist = 480.0
-	var attack_duration = 10.0
+	var attack_duration = 5.0
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
 	s_material.set_shader_parameter("impact_world_pos", global_position)
-	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0 - .8)
+	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0)
 	s_material.set_shader_parameter("impact_duration",attack_duration)
 	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	s_material.set_shader_parameter("visible_world_size", visible_size)
+	s_material.set_shader_parameter("pause_time", -1)
+	s_material.set_shader_parameter("differential", -1)
 	var distances = []
 	var ray_direction : Vector2
 	for i in range(0,720):
@@ -338,6 +368,8 @@ func _wave_attack_setup():
 		var ray = cast_ray(global_position, ray_direction, attack_dist, self)
 		if ray:
 			distances.append((ray.position - global_position).length())
+		else:
+			distances.append(attack_dist)
 	s_material.set_shader_parameter("collision_distances",distances)
 	
 	
