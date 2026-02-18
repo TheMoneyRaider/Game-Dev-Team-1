@@ -13,11 +13,13 @@ collision_mask = 39
 script = ExtResource("1_t3jk8")
 speed = 0.0
 damage = 5.0
-lifespan = 10.0
+lifespan = 5.0
 cooldown = 0.0
 pierce = -2.0
 wall_collision = false
 attack_type = "scifi_wave"
+hits_owner = true
+hits_all = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_i1w8m")

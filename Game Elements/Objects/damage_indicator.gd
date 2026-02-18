@@ -77,6 +77,8 @@ func set_values(c_owner : Node = null, attack : Node = null, attack_owner : Node
 		orig_len = 20
 	if override_color != Color(0.267, 0.394, 0.394, 1.0):
 		color=override_color
+	if attack and attack.attack_type=="scifi_wave":
+		color = Color(1.0,1.0,1.0,1.0)
 			
 	# Initial big toss
 	direction = Vector2.UP #OVERRIDE DIRECTION

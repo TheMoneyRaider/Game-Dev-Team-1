@@ -25,8 +25,8 @@ float g(float r, float sigma) {
 
 float fraction_sobeled(sampler2D text, vec2 uv){
 	if (impact_time < 0.0) return 0.0;
-	float impact_time_adj = impact_time-1.05;
-	float pause_time_adj = pause_time-1.05;
+	float impact_time_adj = impact_time-.8;
+	float pause_time_adj = pause_time-.8;
 	
 	float elapsed = TIME - impact_time_adj;
 	if (elapsed <= 0.0) {
@@ -59,15 +59,43 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 	}
 
 	// Convert to index (assuming 0.5° resolution -> 720 samples)
-	int index = int(angle * 2.0);
-	index = clamp(index, 0, 719);
+	float index_float = angle * 2.0;
+	int index = clamp(int(index_float), 0, 719);
 
 	float max_dist = collision_distances[index];
+	
+	float visibility_weight = 1.0;
 
-	// Do not darken past collision
+	// If we're past collision distance, search nearby angles
 	if (dist > max_dist) {
-	    return 0.0;
+
+	    float best_diff = 99999.0;
+	    int search_radius = 6; // how many angle steps to check on each side (6 = 3 degrees)
+
+	    for (int i = -6; i <= 6; i++) {
+
+	        int check_index = int(index_float + float(i)/2.0);
+
+	        // wrap around 0–719
+	        if (check_index < 0) check_index += 720;
+	        if (check_index >= 720) check_index -= 720;
+
+	        float neighbor_max = collision_distances[check_index];
+
+	        if (dist <= neighbor_max) {
+	            best_diff = min(best_diff, abs(float(i)));
+	        }
+	    }
+
+	    if (best_diff == 99999.0) {
+	        return 0.0; // no nearby visible angles
+	    }
+
+	    // Convert angle difference into soft falloff
+	    float max_angle_span = float(search_radius);
+	    visibility_weight = 1.0 - (best_diff / max_angle_span);
 	}
+
 
 	// Wave radius
 	float wave_radius = elapsed * wave_speed;
@@ -80,7 +108,7 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 	// Smooth radial band
 	// 1.0 at exact wave edge
 	// 0.0 outside wave_width
-	return smoothstep(1.0, 0.0, -edge_dist/wave_width);
+	return smoothstep(1.0, 0.0, -edge_dist/wave_width) * visibility_weight;
 }
 
 vec4 sobel(vec4 original_color, bool inverse_out, float mix_strength, sampler2D text, vec2 uv){

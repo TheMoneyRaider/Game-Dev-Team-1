@@ -31,6 +31,9 @@ var hit_nodes = {}
 @export var creates_indicators : bool = true
 @export var spawn_particle : PackedScene = null
 @export var animation : String = ""
+@export var hits_owner : bool = false
+@export var hits_all : bool = false
+
 var combod : bool = false
 var is_purple : bool = false
 
@@ -228,13 +231,21 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 		n_owner = LayerManager.player1
 		if Globals.is_multiplayer:
 			n_owner = LayerManager.player2
-	if body == n_owner:
+	if body == n_owner and !hits_owner:
 		return 0
-	if n_owner.is_in_group("player") and body.is_in_group("player"):
+	if n_owner.is_in_group("player") and body.is_in_group("player") and !hits_all:
 		return 0
-	if !n_owner.is_in_group("player") and !body.is_in_group("player"):
+	if !n_owner.is_in_group("player") and !body.is_in_group("player") and !hits_all:
 		return 0
 	if body.has_method("take_damage"):
+		if attack_type=="scifi_wave":
+			var direct = (body.global_position-global_position)
+			var ray = cast_ray(global_position,direct.normalized(),attack_dist,self)
+			if ray:
+				if (ray.position - global_position).length() < direct.length():
+					return 0
+			else:
+				return 0
 		body.take_damage(damage_dealt,n_owner,a_direction,self, i_frames,creates_indicators)
 		return 1
 	if wall_damage:
@@ -325,6 +336,7 @@ func _on_body_exited(body: Node2D) -> void:
 
 
 func _wave_process():
+	print(life)
 	$CollisionShape2D.shape.radius = life/lifespan * 480
 	var s_material = LayerManager.get_node("game_container").material
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
@@ -343,14 +355,11 @@ func resume_wave():
 	if attack_type=="scifi_wave":
 		var s_material = LayerManager.get_node("game_container").material
 		wave_differential+= Time.get_ticks_msec() / 1000.0 - pause_moment
-		print("######################")
-		print(wave_differential)
-		print(s_material.get_shader_parameter("pause_time"))
 		s_material.set_shader_parameter("differential", wave_differential)
 		
+var attack_dist = 480.0
 func _wave_attack_setup():
 	var s_material = LayerManager.get_node("game_container").material
-	var attack_dist = 480.0
 	var attack_duration = 5.0
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
 	s_material.set_shader_parameter("impact_world_pos", global_position)
