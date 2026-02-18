@@ -37,6 +37,7 @@ attack=""
 enemy=""
 timefabric=""
 drones=""
+pathway=""
 
 [input]
 
