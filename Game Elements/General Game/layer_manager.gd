@@ -51,8 +51,10 @@ var thread_running := false
 
 @onready var camera = $game_container/game_viewport/game_root/Camera2D
 @onready var game_root = $game_container/game_viewport/game_root
-@onready var hud = $game_container/game_viewport/Hud
-@onready var awareness_display = $game_container/game_viewport/EnemyAwareness/AwarenessManager
+@onready var hud = $Hud
+@onready var pause = $PauseMenu
+@onready var BossIntro = $BossIntro
+@onready var awareness_display = $EnemyAwareness/AwarenessManager
 
 #Cached scenes to speed up room loading at runtime
 @onready var cached_scenes := {}
@@ -219,7 +221,6 @@ func _process(delta: float) -> void:
 				
 	hud.set_timefabric_amount(timefabric_collected)
 	hud.set_cooldowns()
-	var pause = hud.get_node("../PauseMenu")
 	if Input.is_action_just_pressed("pause") and !camera_override and hud.get_node("../PauseMenu").pause_cooldown == 0:
 		if pause.active:
 			pause._on_return_pressed()

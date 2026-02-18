@@ -76,6 +76,7 @@ script = ExtResource("1_hxfca")
 speed = 0.0
 damage = 0.0
 lifespan = 0.7
+knockback_force = 0.0
 cooldown = 0.0
 pierce = -2.0
 wall_collision = false
