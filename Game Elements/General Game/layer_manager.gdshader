@@ -4,7 +4,9 @@ uniform bool inverse_output = false;
 uniform float sobel_strength : hint_range(0.0,1.0) = 1.0;
 uniform vec3 edge_color = vec3(1.0,1.0,1.0);
 
-uniform vec2 impact_uv;
+uniform vec2 impact_world_pos;
+uniform vec2 camera_center;
+uniform vec2 visible_world_size;
 uniform float impact_time = -10000;
 uniform float wave_speed = 48.0;
 uniform float wave_width = 32.0;
@@ -21,15 +23,18 @@ float g(float r, float sigma) {
 
 float fraction_sobeled(sampler2D text, vec2 uv){
 	if (impact_time < 0.0) return 0.0;
-	vec4 tex = texture(text, uv);
+	
 	float elapsed = TIME - impact_time;
 	if (elapsed <= 0.0) {
 		return 0.0;
 	}
+	// Convert UV → world position
+	vec2 world_pos = camera_center + (uv - vec2(0.5)) * visible_world_size;
 
-	// Distance from impact
-	vec2 delta = uv - impact_uv;
-	float dist = length(delta * vec2(textureSize(text, 0)));
+	// Distance from impact in WORLD space
+	vec2 delta = world_pos - impact_world_pos; // impact_uv is now world position
+	float dist = length(delta);
+
 
 	// Angle in degrees [0,360)
 	float angle = degrees(atan(delta.y, delta.x));
@@ -50,9 +55,8 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 
 	// Wave radius
 	float wave_radius = elapsed * wave_speed;
-
-	// Only affect pixels near wave front
 	float edge_dist = dist - wave_radius;
+	
 	if (edge_dist > 0.0  || edge_dist < -wave_width) {
 	    return 0.0;
 	}

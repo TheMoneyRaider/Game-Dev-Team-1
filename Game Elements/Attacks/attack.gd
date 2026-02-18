@@ -324,12 +324,8 @@ func _wave_attack_setup():
 	var s_material = LayerManager.get_node("game_container").material
 	var attack_dist = 480.0
 	var attack_duration = 10.0
-	
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
-	var relative = global_position - LayerManager.camera.global_position
-	var impact_uv = (relative / visible_size) + Vector2(0.5, 0.5)
-	print(impact_uv)
-	s_material.set_shader_parameter("impact_uv", impact_uv)
+	s_material.set_shader_parameter("impact_world_pos", global_position)
 	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0 - .8)
 	s_material.set_shader_parameter("impact_duration",attack_duration)
 	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
