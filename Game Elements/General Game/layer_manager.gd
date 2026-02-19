@@ -1333,7 +1333,7 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	awareness_display.enemies = enemies.duplicate()
 	
 	if room_instance_data.roomtype == Globals.RoomType.Boss:
-		room_instance.activate(self,camera,player1,player2)
+		room_instance.activate(camera,player1,player2)
 	
 
 func _set_tilemaplayer_collisions(generated_room: Node2D, enable: bool) -> void:

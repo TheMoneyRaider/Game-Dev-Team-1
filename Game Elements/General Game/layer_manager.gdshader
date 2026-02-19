@@ -13,6 +13,7 @@ uniform float differential = -1;
 uniform float wave_speed = 48.0;
 uniform float wave_width = 48.0;
 uniform float collision_distances[720];
+uniform bool ultimate = false;
 
 float lum(vec3 color){
     return dot(color, vec3(0.299, 0.587, 0.114)); // brightness
@@ -67,7 +68,7 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 	float visibility_weight = 1.0;
 
 	// If we're past collision distance, search nearby angles
-	if (dist > max_dist) {
+	if (dist > max_dist && !ultimate) {
 
 	    float best_diff = 99999.0;
 	    int search_radius = 6; // how many angle steps to check on each side (6 = 3 degrees)
@@ -95,20 +96,30 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 	    float max_angle_span = float(search_radius);
 	    visibility_weight = 1.0 - (best_diff / max_angle_span);
 	}
-
+	float wave_width2=wave_width;
+	if (ultimate)
+		wave_width2*=2.0;
 
 	// Wave radius
 	float wave_radius = elapsed * wave_speed;
 	float edge_dist = dist - wave_radius;
 	
-	if (edge_dist > 0.0  || edge_dist < -wave_width) {
+	if (ultimate && edge_dist < 0.0 && edge_dist > -wave_speed*6.1) {
+
+		float t = clamp(-edge_dist / wave_width2, 0.0, 2.0);
+
+		// 0 → 2 over double width
+		return t * visibility_weight;
+	}
+
+	if ((edge_dist > 0.0  || edge_dist < -wave_width2)) {
 	    return 0.0;
 	}
 
 	// Smooth radial band
 	// 1.0 at exact wave edge
 	// 0.0 outside wave_width
-	return smoothstep(1.0, 0.0, -edge_dist/wave_width) * visibility_weight;
+	return smoothstep(1.0, 0.0, clamp(-edge_dist/wave_width,0,1)) * visibility_weight;
 }
 
 vec4 sobel(vec4 original_color, bool inverse_out, float mix_strength, sampler2D text, vec2 uv){
@@ -144,15 +155,23 @@ vec4 sobel(vec4 original_color, bool inverse_out, float mix_strength, sampler2D 
 void fragment() {
 	vec4 original_color = texture(TEXTURE, UV);
 	COLOR = original_color;
-	float fraction = fraction_sobeled(TEXTURE, UV);
+	float phase = fraction_sobeled(TEXTURE, UV);
 	
-	if (fraction > 0.0)
-		//COLOR = vec4(1.0,1.0,1.0,1.0);
-		COLOR = mix(original_color,sobel(original_color,inverse_output, 1.0,TEXTURE, UV),fraction);
-	//
-	//if(sobel_enabled)
-		//COLOR = sobel(original_color,inverse_output, 1.0,TEXTURE, UV);
-
-
-
-}
+	vec4 sob = sobel(original_color, inverse_output, 1.0, TEXTURE, UV);
+	vec4 black = vec4(0.0, 0.0, 0.0, 1.0);
+	
+	
+	if (!ultimate) {
+		COLOR = mix(original_color, sob, phase);
+	}
+	else {
+		if (phase <= 1.0) {
+			// original → sobel
+			COLOR = mix(original_color, sob, phase);
+		} else {
+			// sobel → black
+			float t = phase - 1.0;
+			COLOR = mix(sob, black, t);
+		}
+	}
+	}

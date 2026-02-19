@@ -176,6 +176,8 @@ func _robot_process():
 
 
 func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), attack_body : Node = null, attack_i_frames : int = 0,creates_indicators : bool = true):
+	if !hitable:
+		return
 	if current_health< 0:
 		return
 	if(i_frames > 0):
@@ -210,9 +212,10 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	if current_health < 0 and is_boss:
 			phase+=1
 			if phase < boss_phases:
-				current_health = boss_healthpools[phase]
-				max_health = boss_healthpools[phase]
 				emit_signal("boss_phase_change",self)
+				return
+			#else:
+				
 	if current_health < 0:
 		
 			

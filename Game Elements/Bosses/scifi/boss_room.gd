@@ -22,24 +22,65 @@ var phase = 0
 @export var boss_font : Font
 #This is what values the bossbar shader is looking for
 @export var phase_overlay_index : Array[int]
+@export var boss_type : String =""
+var phase_changing : bool = false
 
 
 func _ready() -> void:
+	LayerManager = get_tree().get_root().get_node("LayerManager")
 	is_multiplayer = Globals.is_multiplayer
 	boss.boss_phase_change.connect(_on_boss_phase_change)
+	boss.enemy_took_damage.connect(LayerManager._on_enemy_take_damage)
 	
-func _on_boss_phase_change(boss : Node):
-	phase=boss.phase
+func _on_boss_phase_change(boss_in : Node):
+	var hits = boss_in.hitable
+	boss_in.hitable = false
+	Hud.update_bossbar(0.0)
+	if phase_changing:
+		return
+	phase_changing = true
+	phase=boss_in.phase
+	#Wave Attack
+	var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+	attack_inst.global_position = boss.global_position
+	attack_inst.c_owner = boss
+	attack_inst.direction = Vector2.UP
+	call_deferred("add_child",attack_inst)
+	var s_material = LayerManager.get_node("game_container").material
+	s_material.set_shader_parameter("ultimate", true)
+	var tween = create_tween()
+	tween.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,0.0),3.0)
+	tween.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,0.0),3.0)
+	await get_tree().create_timer(6).timeout
 	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])
 	Hud.update_bossbar(1.0)
+	if boss_type == "scifi":
+		$Ground.visible = false
+		$Filling.visible = false
+		$Ground_Cyber.visible = true
+		$ColorRect.visible = true
+		$Filling_Cyber.visible = true
 	
-	pass
+	
+	
+	phase_changing = false
+	boss_in.current_health = boss_in.boss_healthpools[phase]
+	boss_in.max_health = boss_in.boss_healthpools[phase]
+	await get_tree().create_timer(3).timeout
+	var tween2 = create_tween()
+	tween2.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,1.0),3.0)
+	tween2.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,1.0),3.0)
+
+	boss_in.hitable = true
+	await get_tree().create_timer(3).timeout
+	s_material.set_shader_parameter("ultimate", false)
 	
 
 var lifetime = 0.0
 var animation_time = 7.0
 var fade_time = .75
 var camera_move_time = 3.0
+
 func _process(delta: float) -> void:
 	if !active:
 		return
@@ -81,7 +122,7 @@ func boss_death():
 	
 
 
-func activate(layermanager : Node, camera_in : Node, player1_in : Node, player2_in : Node):
+func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	print("boss room activate")
 	active = true
 	camera = camera_in
@@ -93,8 +134,7 @@ func activate(layermanager : Node, camera_in : Node, player1_in : Node, player2_
 	if is_multiplayer:
 		player2 = player2_in
 		player2.disabled = true
-	LayerManager =layermanager
-	Hud =layermanager.hud
+	Hud =LayerManager.hud
 	LayerManager.BossIntro.get_node("BossName").text = boss_name
 	LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
 	LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)

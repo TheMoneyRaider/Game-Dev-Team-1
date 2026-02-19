@@ -242,7 +242,7 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 			var direct = (body.global_position-global_position)
 			var ray = cast_ray(global_position,direct.normalized(),attack_dist,self)
 			if ray:
-				if (ray.position - global_position).length() < direct.length():
+				if (ray.position - global_position).length() < direct.length() or direct.length() < life/lifespan * 480 - 48:
 					return 0
 			else:
 				return 0
@@ -336,7 +336,6 @@ func _on_body_exited(body: Node2D) -> void:
 
 
 func _wave_process():
-	print(life)
 	$CollisionShape2D.shape.radius = life/lifespan * 480
 	var s_material = LayerManager.get_node("game_container").material
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
@@ -359,6 +358,7 @@ func resume_wave():
 		
 var attack_dist = 480.0
 func _wave_attack_setup():
+	$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate(true)
 	var s_material = LayerManager.get_node("game_container").material
 	var attack_duration = 5.0
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom

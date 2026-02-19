@@ -76,11 +76,6 @@ float rand3(vec2 p) {
 
 
 
-void vertex() {
-	// Called for every vertex the material is visible on.
-}
-
-
 bool health_edge(sampler2D text, vec2 uv){
 	if (effect_index == -1) {
 		if(uv.x > progress)
@@ -113,15 +108,21 @@ vec4 health_color(sampler2D text, vec2 uv, vec2 pixel_size, vec4 fragment_coord,
 	}
 	return vec4(0.0,0.0,0.0,0.0);
 }
+varying vec4 modulate_color;
 
+void vertex() {
+    // In vertex, COLOR is already: modulate * self_modulate * vertex_color
+    modulate_color = COLOR;
+}
 
 void fragment() {
 	if(health_edge(TEXTURE, UV)){
 		discard;
 	}
 	if (texture(TEXTURE,UV).rgb==vec3(1.0,0.0,0.0)){
-		COLOR = health_color(TEXTURE, UV,SCREEN_PIXEL_SIZE,FRAGCOORD,TIME);
+		COLOR = vec4(health_color(TEXTURE, UV,SCREEN_PIXEL_SIZE,FRAGCOORD,TIME).rgb,modulate_color.a);
 	}else{
 		COLOR = texture(TEXTURE,UV);
+		COLOR.a *= modulate_color.a;
 	}
 }
