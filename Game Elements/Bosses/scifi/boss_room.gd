@@ -31,6 +31,8 @@ func _ready() -> void:
 	is_multiplayer = Globals.is_multiplayer
 	boss.boss_phase_change.connect(_on_boss_phase_change)
 	boss.enemy_took_damage.connect(LayerManager._on_enemy_take_damage)
+	if boss_type=="scifi":
+		boss.hitable = false
 	
 func _on_boss_phase_change(boss_in : Node):
 	var hits = boss_in.hitable

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=4 uid="uid://ciut2jg3urwer"]
+[gd_scene load_steps=27 format=4 uid="uid://ciut2jg3urwer"]
 
 [ext_resource type="Script" uid="uid://bqbfmcnnhox8b" path="res://Game Elements/Bosses/scifi/boss_room.gd" id="1_r7kch"]
 [ext_resource type="Texture2D" uid="uid://1po7p0hcmfk" path="res://Game Elements/Bosses/scifi/scifi_splash.png" id="2_ar3fp"]
@@ -15,6 +15,52 @@
 [ext_resource type="Material" uid="uid://m8b3vc11xgri" path="res://Game Elements/Rooms/sci_fi/cyberspace_ground_noise.tres" id="11_k0ndm"]
 [ext_resource type="Script" uid="uid://b56ruwgbi1lqa" path="res://Game Elements/Rooms/sci_fi/cyber_background.gd" id="13_at31b"]
 [ext_resource type="TileSet" uid="uid://du2dmgjlmgair" path="res://Game Elements/tilesets/sci_fi2.tres" id="13_m16xs"]
+[ext_resource type="Shader" uid="uid://dybc3kq47jw4u" path="res://Game Elements/Bosses/scifi/forcefield_singul.gdshader" id="16_kww2i"]
+[ext_resource type="Texture2D" uid="uid://cggx60a5l71t7" path="res://art/white_square2.png" id="17_l4nvn"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_agmvj"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kww2i"]
+radius = 56.0
+height = 253.99998
+
+[sub_resource type="Gradient" id="Gradient_7f0sb"]
+offsets = PackedFloat32Array(0.52348995, 1)
+colors = PackedColorArray(0, 0.88235295, 0.7921569, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_jsyf7"]
+gradient = SubResource("Gradient_7f0sb")
+
+[sub_resource type="Curve" id="Curve_8i6j4"]
+_data = [Vector2(0, 0), 0.0, 3.5456226, 0, 0, Vector2(0.18209875, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_bsd4e"]
+curve = SubResource("Curve_8i6j4")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_jyqgr"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(95, 1, 1)
+gravity = Vector3(0, -98, 0)
+scale_min = 0.9
+scale_max = 1.3
+scale_curve = SubResource("CurveTexture_bsd4e")
+color_ramp = SubResource("GradientTexture1D_jsyf7")
+hue_variation_min = 0.049999975
+hue_variation_max = 0.049999975
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y3463"]
+shader = ExtResource("16_kww2i")
+shader_parameter/color = Color(0, 0.6784314, 0.7529412, 1)
+shader_parameter/cutoff_min = 0.88
+shader_parameter/cutoff_max = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kww2i"]
+shader = ExtResource("16_kww2i")
+shader_parameter/color = Color(0, 0.6784314, 0.7529412, 1)
+shader_parameter/cutoff_min = 0.0
+shader_parameter/cutoff_max = 0.88
 
 [node name="BossRoom" type="Node2D" node_paths=PackedStringArray("boss")]
 script = ExtResource("1_r7kch")
@@ -28,7 +74,7 @@ phase_overlay_index = Array[int]([0, 1, 2])
 boss_type = "scifi"
 
 [node name="Singul" parent="." instance=ExtResource("4_bsvrm")]
-position = Vector2(-16, -128)
+position = Vector2(-13, -121)
 
 [node name="PathwayU1_Detect" parent="." instance=ExtResource("3_6uq0m")]
 position = Vector2(-16, 16)
@@ -103,3 +149,34 @@ z_index = -1
 position = Vector2(-376, 469)
 scale = Vector2(1.4749999, 1)
 copy_mode = 2
+
+[node name="Forcefield" type="StaticBody2D" parent="."]
+z_index = 30
+position = Vector2(-16, -113)
+physics_material_override = SubResource("PhysicsMaterial_agmvj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forcefield"]
+position = Vector2(0, -38)
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_kww2i")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="Forcefield"]
+position = Vector2(0, 32)
+amount = 40
+lifetime = 2.0
+process_material = SubResource("ParticleProcessMaterial_jyqgr")
+
+[node name="Sprite2D" type="Sprite2D" parent="Forcefield"]
+material = SubResource("ShaderMaterial_y3463")
+position = Vector2(-96, -96)
+scale = Vector2(192, 128)
+texture = ExtResource("17_l4nvn")
+centered = false
+
+[node name="Sprite2D2" type="Sprite2D" parent="Forcefield"]
+z_index = -12
+material = SubResource("ShaderMaterial_kww2i")
+position = Vector2(-96, -96)
+scale = Vector2(192, 128)
+texture = ExtResource("17_l4nvn")
+centered = false

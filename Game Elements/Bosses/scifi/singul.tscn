@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_lfybw"]
 [ext_resource type="Texture2D" uid="uid://bulthemulnjtu" path="res://art/characters/goblin_spritesheet.png" id="2_bcu2b"]
-[ext_resource type="BehaviorTree" uid="uid://dcnh0ja2aticr" path="res://ai/trees/meleEnemy.tres" id="3_flbg8"]
+[ext_resource type="BehaviorTree" uid="uid://b7lkxmyacbk8i" path="res://ai/trees/singul.tres" id="3_lhrfr"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
 
@@ -136,7 +136,12 @@ _data = {
 &"youtch": SubResource("Animation_ivcad")
 }
 
-[sub_resource type="BlackboardPlan" id="BlackboardPlan_4lifg"]
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_lhrfr"]
+var/state/name = &"state"
+var/state/type = 4
+var/state/value = "agro"
+var/state/hint = 0
+var/state/hint_string = ""
 
 [node name="Singul" type="CharacterBody2D" groups=["enemy"]]
 z_index = 20
@@ -169,5 +174,5 @@ libraries = {
 }
 
 [node name="BTPlayer" type="BTPlayer" parent="."]
-behavior_tree = ExtResource("3_flbg8")
-blackboard_plan = SubResource("BlackboardPlan_4lifg")
+behavior_tree = ExtResource("3_lhrfr")
+blackboard_plan = SubResource("BlackboardPlan_lhrfr")
