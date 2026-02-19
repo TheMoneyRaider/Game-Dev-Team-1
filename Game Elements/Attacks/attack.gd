@@ -95,7 +95,8 @@ func _ready():
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_purple.png")
 		else:
 			$Sprite2D.texture = preload("res://art/Sprout Lands - Sprites - Basic pack/Characters/dead_orange.png")
-	rotation = direction.angle() + PI/2
+	if attack_type!="scifi_laser":
+		rotation = direction.angle() + PI/2
 	if attack_type == "slug":
 		special_nodes.append(load("res://Game Elements/Attacks/slug_seperate.tscn").instantiate())
 		special_nodes[-1].global_position = global_position
@@ -337,12 +338,45 @@ func _on_body_exited(body: Node2D) -> void:
 	if repeat_hits:
 		hit_nodes.erase(body)
 
+
+#######################################################################
+#Lasers and Waves
+#######################################################################
 func _laser_process(delta):
-	l_rotation+=rotation_speed*delta
 	var s_material = LayerManager.get_node("game_container").material
 	if laser_rotation:
+		l_rotation+=rotation_speed*delta
 		s_material.set_shader_parameter("laser_rotation",l_rotation)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
+	_update_laser_collision_shapes()
+
+func _update_laser_collision_shapes():
+
+	if laser_shapes.is_empty():
+		return
+
+	var elapsed = Time.get_ticks_msec() / 1000.0 - laser_impact_time
+
+	if elapsed <= 0.0:
+		return
+
+	var beam_spacing = 360.0 / float(num_lasers)
+
+	for i in range(num_lasers):
+
+		var shape = laser_shapes[i]
+		var rect = shape.shape
+
+		var beam_angle = l_rotation + i * beam_spacing
+		var wrapped = wrapf(beam_angle, 0.0, 360.0)
+		var index = int(wrapped * 2.0)
+		index = clamp(index, 0, 719)
+		var max_dist = ray_distances[index]
+		rect.size.x = max_dist
+		rect.size.y = 16
+		# Position rectangle so it grows outward
+		shape.position = Vector2.RIGHT.rotated(deg_to_rad(beam_angle)) * max_dist * 0.5
+		shape.rotation = deg_to_rad(beam_angle)
 
 func _wave_process():
 	$CollisionShape2D.shape.radius = life/lifespan * wave_attack_dist
@@ -400,27 +434,38 @@ func _wave_attack_setup():
 	s_material.set_shader_parameter("collision_distances",distances)
 
 
+var laser_shapes : Array = []
 var l_rotation = 0
-var num_lasers = 8
-var rotation_speed : float = 60.0
+var num_lasers = 64
+var rotation_speed : float = 60
 var laser_rotation : bool = false
 var ray_distances = []
 var laser_attack_dist = 600.0
+var laser_impact_time = 0.0
 func _laser_attack_setup():
-	#$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate(true)
 	var s_material = LayerManager.get_node("game_container").material
+	laser_shapes.clear()
+	ray_distances.clear()
+	
 	var attack_duration = 5.0
+	
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
 	s_material.set_shader_parameter("laser_impact_world_pos", global_position)
 	s_material.set_shader_parameter("laser_impact_time", Time.get_ticks_msec() / 1000.0)
+	laser_impact_time = Time.get_ticks_msec() / 1000.0
 	s_material.set_shader_parameter("laser_speed",2*laser_attack_dist/attack_duration)
 	s_material.set_shader_parameter("laser_count",num_lasers)
+	
 	l_rotation = rad_to_deg(direction.angle())
 	s_material.set_shader_parameter("laser_rotation",l_rotation)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	s_material.set_shader_parameter("visible_world_size", visible_size)
 	s_material.set_shader_parameter("laser_pause_time", -1)
 	s_material.set_shader_parameter("laser_differential", -1)
+	
+	# ----------------------------------
+	# Build ray distance array (720)
+	# ----------------------------------
 	var ray_direction : Vector2
 	for i in range(0,720):
 		ray_direction = Vector2.RIGHT.rotated(i/720.0 * TAU)
@@ -430,3 +475,15 @@ func _laser_attack_setup():
 		else:
 			ray_distances.append(laser_attack_dist)
 	s_material.set_shader_parameter("collision_distances",ray_distances)
+	# ----------------------------------
+	# Create collision shapes per laser
+	# ----------------------------------
+	for i in range(num_lasers):
+
+		var shape = CollisionShape2D.new()
+		var rect = RectangleShape2D.new()
+
+		rect.size = Vector2(1, 16) # start tiny
+		shape.shape = rect
+		add_child(shape)
+		laser_shapes.append(shape)

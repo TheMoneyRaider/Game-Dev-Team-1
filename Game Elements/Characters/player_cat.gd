@@ -158,12 +158,13 @@ func _physics_process(delta):
 				inst.direction = (crosshair.position).normalized()
 				LayerManager.room_instance.add_child(inst)
 			else:
-				var inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
-				inst.global_position = global_position
-				inst.c_owner= self
-				inst.laser_rotation = true
-				inst.direction = (crosshair.position).normalized()
-				LayerManager.room_instance.add_child(inst)
+				pass
+				#var inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+				#inst.global_position = global_position
+				#inst.c_owner= self
+				#inst.laser_rotation = true
+				#inst.direction = (crosshair.position).normalized()
+				#LayerManager.room_instance.add_child(inst)
 			swap_color()
 	else:
 		tether(delta)

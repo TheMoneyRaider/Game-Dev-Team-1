@@ -111,9 +111,29 @@ float laser_fraction(sampler2D text, vec2 uv) {
 		float beam_radius = elapsed * laser_speed;
 		float edge_dist = forward - beam_radius;
 
-		if (edge_dist > 0.0 || edge_dist < -laser_wave_width) continue;
+		// skip pixels ahead of wave front
+		if (edge_dist > 0.0) continue;
 
-		float wave_band = smoothstep(1.0, 0.0, clamp(-edge_dist / laser_wave_width, 0.0, 1.0));
+		// total beam length including fade
+		float total_length = laser_wave_width + laser_fade_dist;
+
+		// skip pixels too far behind
+		if (edge_dist < -total_length) continue;
+
+		// distance behind solid beam
+		float fade_start = -laser_wave_width;
+
+		// if inside solid part → full intensity
+		float wave_band;
+
+		if (edge_dist >= fade_start) {
+		    wave_band = 1.0;
+		}
+		else {
+		    // inside fade region
+		    float fade_t = (edge_dist - (-total_length)) / (laser_fade_dist);
+		    wave_band = clamp(fade_t, 0.0, 1.0);
+		}
 
 		// perpendicular thickness
 		float perpendicular = abs(delta.x * beam_dir.y - delta.y * beam_dir.x);
