@@ -3,22 +3,34 @@ uniform bool inverse_output = false;
 uniform float sobel_strength : hint_range(0.0,1.0) = 1.0;
 uniform vec3 edge_color = vec3(1.0,1.0,1.0);
 
-uniform vec2 impact_world_pos;
 uniform vec2 camera_center;
 uniform vec2 visible_world_size;
-uniform float impact_time = -10000;
-uniform float pause_time = -1;
-uniform float differential = -1;
-uniform float wave_speed = 48.0;
-uniform float wave_width = 48.0;
 uniform float collision_distances[720];
 uniform bool ultimate = false;
+// =========================
+// WAVE STATE
+// =========================
+uniform vec2 wave_impact_world_pos;
+uniform float wave_impact_time = -10000.0;
+uniform float wave_pause_time = -1.0;
+uniform float wave_differential = -1.0;
+uniform float wave_speed = 48.0;
+uniform float wave_width = 48.0;
 
+
+// =========================
+// LASER STATE
+// =========================
+uniform vec2 laser_impact_world_pos;
+uniform float laser_impact_time = -10000.0;
+uniform float laser_pause_time = -1.0;
+uniform float laser_differential = -1.0;
+uniform float laser_speed = 200.0;     // beam wave speed
+uniform float laser_wave_width = 1024.0; // MUCH wider band
 uniform int laser_count = 0;
 uniform float laser_width = 16.0;
 uniform float laser_fade_dist = 128.0;
 uniform float laser_rotation = 0.0;           // rotate beam pattern
-uniform float laser_length = 10000.0;         // max length of beam
 
 float lum(vec3 color){
     return dot(color, vec3(0.299, 0.587, 0.114)); // brightness
@@ -28,101 +40,109 @@ float g(float r, float sigma) {
     return exp(-(r * r) / (2.0 * sigma * sigma));
 }
 
+float compute_elapsed(float start_time, float pause_time, float differential) {
 
-float laser_fraction(vec2 world_pos) {
+	if (start_time < 0.0)
+		return -1.0;
+
+	float start_adj = start_time - 0.8;
+	float pause_adj = pause_time - 0.8;
+
+	float elapsed = TIME - start_adj;
+	if (elapsed <= 0.0)
+		return -1.0;
+
+	if (differential != -1.0 || pause_time != -1.0) {
+
+		if (differential == -1.0)
+			elapsed = pause_adj - start_adj;
+		else
+			elapsed -= differential;
+	}
+
+	return elapsed;
+}
+
+
+float laser_fraction(sampler2D text, vec2 uv) {
+	// Convert UV → world position
+	vec2 world_pos = camera_center + (uv - vec2(0.5)) * visible_world_size;
 
 	if (laser_count <= 0) return 0.0;
-	if (impact_time < 0.0) return 0.0;
 
-	vec2 delta = world_pos - impact_world_pos;
+	float elapsed = compute_elapsed(
+		laser_impact_time,
+		laser_pause_time,
+		laser_differential
+	);
+
+	if (elapsed <= 0.0) return 0.0;
+
+	vec2 delta = world_pos - laser_impact_world_pos;
 	float dist = length(delta);
 
 	if (dist <= 0.001) return 1.0;
-
-	// --- collision distance lookup (still angle based for visibility) ---
-	float angle = degrees(atan(delta.y, delta.x));
-	if (angle < 0.0) angle += 360.0;
-
-	float index_float = angle * 2.0;
-	int index = clamp(int(index_float), 0, 719);
-	float max_dist = collision_distances[index];
-
-	if (dist > max_dist || dist > laser_length)
-	    return 0.0;
 
 	float best_beam_weight = 0.0;
 
 	float beam_spacing = 360.0 / float(laser_count);
 
 	for (int i = 0; i < 64; i++) {
-
 		if (i >= laser_count) break;
 
 		float beam_angle = laser_rotation + float(i) * beam_spacing;
-
 		float rad = radians(beam_angle);
 		vec2 beam_dir = vec2(cos(rad), sin(rad));
 
-		// ================================
-		// TRUE PERPENDICULAR DISTANCE
-		// ================================
-		float perpendicular = abs(
-		    delta.x * beam_dir.y - delta.y * beam_dir.x
-		);
-
-		// forward projection (prevents backward beam)
 		float forward = dot(delta, beam_dir);
 		if (forward < 0.0) continue;
 
-		// Hard strip check
-		if (perpendicular <= laser_width) {
+		// --- COLLISION CHECK ---
+		float angle_deg = degrees(atan(delta.y, delta.x));
+		if (angle_deg < 0.0) angle_deg += 360.0;
+		float index_float = angle_deg * 2.0;
+		int index = clamp(int(index_float), 0, 719);
+		float max_dist = collision_distances[index];
+		if (dist > max_dist || forward > max_dist) continue;
 
-			float edge_factor = perpendicular / laser_width; 
-			// 0 at center, 1 at edge
+		// =============================
+		// LASER WAVE PROPAGATION
+		// =============================
+		float beam_radius = elapsed * laser_speed;
+		float edge_dist = forward - beam_radius;
 
-			float strip_weight = 1.0 - edge_factor;
+		if (edge_dist > 0.0 || edge_dist < -laser_wave_width) continue;
 
-			// Forward fade (0 near impact → 1 after fade distance)
-			float forward_fade = clamp(forward / laser_fade_dist, 0.0, 1.0);
+		float wave_band = smoothstep(1.0, 0.0, clamp(-edge_dist / laser_wave_width, 0.0, 1.0));
 
-			// Make edges fade more than center
-			float edge_fade = mix(forward_fade, 1.0, strip_weight);
+		// perpendicular thickness
+		float perpendicular = abs(delta.x * beam_dir.y - delta.y * beam_dir.x);
+		if (perpendicular > laser_width) continue;
 
-			best_beam_weight = max(best_beam_weight,
-			                    strip_weight * edge_fade* edge_fade);
-			}
+		float strip_weight = 1.0 - (perpendicular / laser_width);
+		best_beam_weight = max(best_beam_weight, strip_weight * wave_band);
 	}
-	if (dist < laser_fade_dist) best_beam_weight *= dist/laser_fade_dist;
+
+
 	return best_beam_weight;
 }
 
-float fraction_sobeled(sampler2D text, vec2 uv){
-	if (impact_time < 0.0) return 0.0;
-	float impact_time_adj = impact_time-.8;
-	float pause_time_adj = pause_time-.8;
-	
-	float elapsed = TIME - impact_time_adj;
-	if (elapsed <= 0.0) {
-		return 0.0;
-	}
-	
-	if (differential != -1.0 || pause_time != -1.0){
-		if (differential == -1.0){
-			elapsed = pause_time_adj- impact_time_adj;
-		}else{
-			elapsed = elapsed - differential;
-		}
-		
-	}
+float wave_fraction(sampler2D text, vec2 uv){
+	float elapsed = compute_elapsed(
+		wave_impact_time,
+		wave_pause_time,
+		wave_differential
+	);
+
+	if (elapsed <= 0.0) return 0.0;
 		
 	
 	
 	// Convert UV → world position
 	vec2 world_pos = camera_center + (uv - vec2(0.5)) * visible_world_size;
-	float laser_phase = laser_fraction(world_pos);
 
 	// Distance from impact in WORLD space
-	vec2 delta = world_pos - impact_world_pos; // impact_uv is now world position
+	vec2 delta = world_pos - wave_impact_world_pos; // impact_uv is now world position
 	float dist = length(delta);
 
 
@@ -162,7 +182,7 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 	    }
 
 	    if (best_diff == 99999.0) {
-	        return max(laser_phase,0.0); // no nearby visible angles
+	        return 0.0; // no nearby visible angles
 	    }
 
 	    // Convert angle difference into soft falloff
@@ -182,17 +202,17 @@ float fraction_sobeled(sampler2D text, vec2 uv){
 		float t = clamp(-edge_dist / wave_width2, 0.0, 2.0);
 
 		// 0 → 2 over double width
-		return max(t * visibility_weight,laser_phase);
+		return t * visibility_weight;
 	}
 
 	if ((edge_dist > 0.0  || edge_dist < -wave_width2)) {
-	    return max(0.0,laser_phase);
+	    return 0.0;
 	}
 
 	// Smooth radial band
 	// 1.0 at exact wave edge
 	// 0.0 outside wave_width
-	return max(smoothstep(1.0, 0.0, clamp(-edge_dist/wave_width,0,1)) * visibility_weight,laser_phase);
+	return smoothstep(1.0, 0.0, clamp(-edge_dist/wave_width,0,1)) * visibility_weight;
 }
 
 vec4 sobel(vec4 original_color, bool inverse_out, float mix_strength, sampler2D text, vec2 uv){
@@ -228,7 +248,9 @@ vec4 sobel(vec4 original_color, bool inverse_out, float mix_strength, sampler2D 
 void fragment() {
 	vec4 original_color = texture(TEXTURE, UV);
 	COLOR = original_color;
-	float phase = fraction_sobeled(TEXTURE, UV);
+	float wave_phase = wave_fraction(TEXTURE, UV);
+	float laser_phase = laser_fraction(TEXTURE, UV);
+	float phase = max(wave_phase,laser_phase);
 	
 	vec4 sob = sobel(original_color, inverse_output, 1.0, TEXTURE, UV);
 	vec4 black = vec4(0.0, 0.0, 0.0, 1.0);

@@ -244,7 +244,7 @@ func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: 
 	if body.has_method("take_damage"):
 		if attack_type=="scifi_wave":
 			var direct = (body.global_position-global_position)
-			var ray = cast_ray(global_position,direct.normalized(),attack_dist,self)
+			var ray = cast_ray(global_position,direct.normalized(),wave_attack_dist,self)
 			if ray:
 				if (ray.position - global_position).length() < direct.length() or direct.length() < life/lifespan * 480 - 48:
 					return 0
@@ -345,50 +345,58 @@ func _laser_process(delta):
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 
 func _wave_process():
-	$CollisionShape2D.shape.radius = life/lifespan * 480
+	$CollisionShape2D.shape.radius = life/lifespan * wave_attack_dist
 	var s_material = LayerManager.get_node("game_container").material
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	
 
-func pause_wave():
+func pause_shaders():
 	if attack_type=="scifi_wave":
 		var s_material = LayerManager.get_node("game_container").material
 		pause_moment =Time.get_ticks_msec() / 1000.0
-		s_material.set_shader_parameter("pause_time", pause_moment-wave_differential)
-		s_material.set_shader_parameter("differential", -1)
+		s_material.set_shader_parameter("wave_pause_time", pause_moment-wave_differential)
+		s_material.set_shader_parameter("wave_differential", -1)
+	if attack_type=="scifi_laser":
+		var s_material = LayerManager.get_node("game_container").material
+		pause_moment =Time.get_ticks_msec() / 1000.0
+		s_material.set_shader_parameter("laser_pause_time", pause_moment-laser_differential)
+		s_material.set_shader_parameter("laser_differential", -1)
 var wave_differential : float =0.0
+var laser_differential : float =0.0
 var pause_moment : float
 
-func resume_wave():
+func resume_shaders():
 	if attack_type=="scifi_wave":
 		var s_material = LayerManager.get_node("game_container").material
 		wave_differential+= Time.get_ticks_msec() / 1000.0 - pause_moment
-		s_material.set_shader_parameter("differential", wave_differential)
+		s_material.set_shader_parameter("wave_differential", wave_differential)
+	if attack_type=="scifi_laser":
+		var s_material = LayerManager.get_node("game_container").material
+		laser_differential+= Time.get_ticks_msec() / 1000.0 - pause_moment
+		s_material.set_shader_parameter("laser_differential", laser_differential)
 		
-var attack_dist = 480.0
+var wave_attack_dist = 1000.0
 func _wave_attack_setup():
 	$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate(true)
 	var s_material = LayerManager.get_node("game_container").material
-	var attack_duration = 5.0
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
-	s_material.set_shader_parameter("impact_world_pos", global_position)
-	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0)
-	s_material.set_shader_parameter("impact_duration",attack_duration)
-	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
+	s_material.set_shader_parameter("wave_impact_world_pos", global_position)
+	s_material.set_shader_parameter("wave_impact_time", Time.get_ticks_msec() / 1000.0)
+	s_material.set_shader_parameter("wave_speed",wave_attack_dist/lifespan)
 	s_material.set_shader_parameter("wave_width",48)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	s_material.set_shader_parameter("visible_world_size", visible_size)
-	s_material.set_shader_parameter("pause_time", -1)
-	s_material.set_shader_parameter("differential", -1)
+	s_material.set_shader_parameter("wave_pause_time", -1)
+	s_material.set_shader_parameter("wave_differential", -1)
 	var distances = []
 	var ray_direction : Vector2
 	for i in range(0,720):
 		ray_direction = Vector2.RIGHT.rotated(i/720.0 * TAU)
-		var ray = cast_ray(global_position, ray_direction, attack_dist, self)
+		var ray = cast_ray(global_position, ray_direction, wave_attack_dist, self)
 		if ray:
 			distances.append((ray.position - global_position).length())
 		else:
-			distances.append(attack_dist)
+			distances.append(wave_attack_dist)
 	s_material.set_shader_parameter("collision_distances",distances)
 
 
@@ -397,25 +405,28 @@ var num_lasers = 8
 var rotation_speed : float = 60.0
 var laser_rotation : bool = false
 var ray_distances = []
+var laser_attack_dist = 600.0
 func _laser_attack_setup():
 	#$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate(true)
 	var s_material = LayerManager.get_node("game_container").material
 	var attack_duration = 5.0
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
-	s_material.set_shader_parameter("impact_world_pos", global_position)
-	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0)
-	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
+	s_material.set_shader_parameter("laser_impact_world_pos", global_position)
+	s_material.set_shader_parameter("laser_impact_time", Time.get_ticks_msec() / 1000.0)
+	s_material.set_shader_parameter("laser_speed",2*laser_attack_dist/attack_duration)
 	s_material.set_shader_parameter("laser_count",num_lasers)
 	l_rotation = rad_to_deg(direction.angle())
 	s_material.set_shader_parameter("laser_rotation",l_rotation)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	s_material.set_shader_parameter("visible_world_size", visible_size)
+	s_material.set_shader_parameter("laser_pause_time", -1)
+	s_material.set_shader_parameter("laser_differential", -1)
 	var ray_direction : Vector2
 	for i in range(0,720):
 		ray_direction = Vector2.RIGHT.rotated(i/720.0 * TAU)
-		var ray = cast_ray(global_position, ray_direction, attack_dist, self)
+		var ray = cast_ray(global_position, ray_direction, laser_attack_dist, self)
 		if ray:
 			ray_distances.append((ray.position - global_position).length())
 		else:
-			ray_distances.append(attack_dist)
+			ray_distances.append(laser_attack_dist)
 	s_material.set_shader_parameter("collision_distances",ray_distances)
