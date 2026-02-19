@@ -205,7 +205,7 @@ func _process(delta):
 		change_direction()
 	if frozen:
 		return
-	if attack_type == "laser":
+	if attack_type == "laser" or attack_type == "scifi_laser":
 		if has_method("get_overlapping_bodies"):
 			for body in get_overlapping_bodies():
 				intersection(body)
@@ -274,7 +274,7 @@ func intersection(body):
 		match apply_damage(body,c_owner,damage,direction):
 			1:
 				pierce -= 1
-				if attack_type!= "laser" and attack_type!= "binary_melee":
+				if attack_type!= "laser" and attack_type!= "scifi_laser" and attack_type!= "binary_melee":
 					hit_nodes[body] = null
 			0:
 				pass
@@ -352,13 +352,11 @@ func _laser_process(delta):
 
 func _update_laser_collision_shapes():
 
-	if laser_shapes.is_empty():
-		return
+	if laser_shapes.is_empty(): return
 
 	var elapsed = Time.get_ticks_msec() / 1000.0 - laser_impact_time
 
-	if elapsed <= 0.0:
-		return
+	if elapsed <= 0.0: return
 
 	var beam_spacing = 360.0 / float(num_lasers)
 
@@ -371,13 +369,36 @@ func _update_laser_collision_shapes():
 		var wrapped = wrapf(beam_angle, 0.0, 360.0)
 		var index = int(wrapped * 2.0)
 		index = clamp(index, 0, 719)
+		
 		var max_dist = ray_distances[index]
-		rect.size.x = max_dist
-		rect.size.y = 16
-		# Position rectangle so it grows outward
-		shape.position = Vector2.RIGHT.rotated(deg_to_rad(beam_angle)) * max_dist * 0.5
-		shape.rotation = deg_to_rad(beam_angle)
+		
+		# --- longitudinal growth like shader ---
+		var beam_head = elapsed * laser_speed        # distance to front of wave
 
+		# clamp total beam length to max collision
+		var total_length = min(beam_head-32, max_dist)
+		
+		var visible_tail = max(beam_head - laser_wave_width,0)
+		
+
+		# set rectangle: width = total_length along X, height = laser_width
+		if(total_length - visible_tail) <= 0:
+			shape.disabled = true
+		else:
+			shape.disabled = false
+			rect.size.x = max(total_length - visible_tail,0)
+			rect.size.y = 12
+
+		# offset = half of solid + half of tail behind
+		var offset_x = rect.size.x * 0.5
+		var offset = Vector2(offset_x, 0).rotated(deg_to_rad(beam_angle))
+		if beam_head-150 > max_dist:
+			shape.position = Vector2(max_dist,0).rotated(deg_to_rad(beam_angle))-offset
+		else:
+			shape.position = offset
+
+		# rotate
+		shape.rotation = deg_to_rad(beam_angle)
 func _wave_process():
 	$CollisionShape2D.shape.radius = life/lifespan * wave_attack_dist
 	var s_material = LayerManager.get_node("game_container").material
@@ -436,28 +457,29 @@ func _wave_attack_setup():
 
 var laser_shapes : Array = []
 var l_rotation = 0
-var num_lasers = 64
-var rotation_speed : float = 60
+var num_lasers = 16
+var rotation_speed : float = 20
 var laser_rotation : bool = false
 var ray_distances = []
 var laser_attack_dist = 600.0
 var laser_impact_time = 0.0
+var laser_wave_width = 1024
+var laser_speed = 2*laser_attack_dist/5
 func _laser_attack_setup():
 	var s_material = LayerManager.get_node("game_container").material
 	laser_shapes.clear()
 	ray_distances.clear()
 	
-	var attack_duration = 5.0
-	
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
 	s_material.set_shader_parameter("laser_impact_world_pos", global_position)
 	s_material.set_shader_parameter("laser_impact_time", Time.get_ticks_msec() / 1000.0)
 	laser_impact_time = Time.get_ticks_msec() / 1000.0
-	s_material.set_shader_parameter("laser_speed",2*laser_attack_dist/attack_duration)
+	s_material.set_shader_parameter("laser_speed",2*laser_attack_dist/5)
 	s_material.set_shader_parameter("laser_count",num_lasers)
 	
 	l_rotation = rad_to_deg(direction.angle())
 	s_material.set_shader_parameter("laser_rotation",l_rotation)
+	s_material.set_shader_parameter("laser_wave_width",laser_wave_width)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	s_material.set_shader_parameter("visible_world_size", visible_size)
 	s_material.set_shader_parameter("laser_pause_time", -1)
@@ -487,3 +509,5 @@ func _laser_attack_setup():
 		shape.shape = rect
 		add_child(shape)
 		laser_shapes.append(shape)
+	if !laser_rotation:
+		_update_laser_collision_shapes()
