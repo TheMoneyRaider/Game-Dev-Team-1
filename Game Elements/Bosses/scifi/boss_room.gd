@@ -26,6 +26,14 @@ var phase = 0
 
 func _ready() -> void:
 	is_multiplayer = Globals.is_multiplayer
+	boss.boss_phase_change.connect(_on_boss_phase_change)
+	
+func _on_boss_phase_change(boss : Node):
+	phase=boss.phase
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])
+	Hud.update_bossbar(1.0)
+	
+	pass
 	
 
 var lifetime = 0.0
@@ -65,9 +73,6 @@ func finish_animation():
 	LayerManager.BossIntro.get_node("Transition").modulate = Color(0.0,0.0,0.0,1.0)
 	return
 
-func phase_change():
-	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])
-	
 
 
 func boss_death():

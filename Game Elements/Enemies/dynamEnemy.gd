@@ -27,6 +27,10 @@ var look_direction : Vector2 = Vector2(0,1)
 @export var weapon_cooldowns : Array[float] = []
 @export var hitable : bool = true
 @export var is_boss : bool = false
+@export var boss_phases : int = 0
+@export var boss_healthpools : Array[float] = []
+
+var phase = 0
 @onready var i_frames : int = 0
 var weapon = null
 var effects : Array[Effect] = []
@@ -39,6 +43,7 @@ var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 
 signal enemy_took_damage(damage : int,current_health : int,c_node : Node, direction : Vector2)
+signal boss_phase_change(boss : Node)
 
 
 func handle_attack(target_position: Vector2):
@@ -65,6 +70,9 @@ func load_settings():
 	
 
 func _ready():
+	if is_boss:
+		current_health = boss_healthpools[phase]
+		max_health = boss_healthpools[phase]
 	LayerManager = get_tree().get_root().get_node("LayerManager")
 	if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("idle"):
 		$AnimationPlayer.play("idle")
@@ -199,6 +207,12 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	current_health -= damage
 	if is_boss:
 		LayerManager.hud.update_bossbar(clamp(float(current_health)/max_health,0.0,1.0))
+	if current_health < 0 and is_boss:
+			phase+=1
+			if phase < boss_phases:
+				current_health = boss_healthpools[phase]
+				max_health = boss_healthpools[phase]
+				emit_signal("boss_phase_change",self)
 	if current_health < 0:
 		
 			
