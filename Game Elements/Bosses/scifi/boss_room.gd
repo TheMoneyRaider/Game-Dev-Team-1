@@ -8,14 +8,20 @@ var camera : Node = null
 var player1 : Node = null
 var player2 : Node = null
 var LayerManager : Node = null
+var Hud : Node = null
 var screen : Node = null
 var active : bool = false
 var is_multiplayer : bool = false
+var phase = 0
 
 @export var boss_splash_art : Texture2D
+@export var healthbar_underlays : Array[Texture2D]
+@export var healthbar_overlays : Array[Texture2D]
 @export var boss : Node
 @export var boss_name : String
 @export var boss_font : Font
+#This is what values the bossbar shader is looking for
+@export var phase_overlay_index : Array[int]
 
 
 func _ready() -> void:
@@ -58,7 +64,15 @@ func finish_animation():
 	LayerManager.BossIntro.visible = false
 	LayerManager.BossIntro.get_node("Transition").modulate = Color(0.0,0.0,0.0,1.0)
 	return
+
+func phase_change():
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])
 	
+
+
+func boss_death():
+	Hud.hide_boss_bar()
+
 	
 
 
@@ -75,6 +89,7 @@ func activate(layermanager : Node, camera_in : Node, player1_in : Node, player2_
 		player2 = player2_in
 		player2.disabled = true
 	LayerManager =layermanager
+	Hud =layermanager.hud
 	LayerManager.BossIntro.get_node("BossName").text = boss_name
 	LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
 	LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)
@@ -95,3 +110,4 @@ func activate(layermanager : Node, camera_in : Node, player1_in : Node, player2_
 	transition1.modulate.a = 0.0
 	LayerManager.BossIntro.get_node("AnimationPlayer").play("main")
 	camera.global_position = ((player1.global_position + player2.global_position) / 2)
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])

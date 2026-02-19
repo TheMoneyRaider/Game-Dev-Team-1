@@ -26,11 +26,13 @@ var debug_mode = false
 var look_direction : Vector2 = Vector2(0,1)
 @export var weapon_cooldowns : Array[float] = []
 @export var hitable : bool = true
+@export var is_boss : bool = false
 @onready var i_frames : int = 0
 var weapon = null
 var effects : Array[Effect] = []
 var knockback_velocity : Vector2 = Vector2.ZERO
 @export var knockback_decay : float = .90
+var LayerManager : Node
 
 
 var attacks = [preload("res://Game Elements/Attacks/bad_bolt.tscn"),preload("res://Game Elements/Attacks/robot_melee.tscn")]
@@ -63,6 +65,7 @@ func load_settings():
 	
 
 func _ready():
+	LayerManager = get_tree().get_root().get_node("LayerManager")
 	if get_node_or_null("AnimationPlayer") and get_node("AnimationPlayer").has_animation("idle"):
 		$AnimationPlayer.play("idle")
 	if enemy_type=="robot":
@@ -110,7 +113,7 @@ func sprint(start : bool):
 			move_speed *=sprint_multiplier
 			sprint_timer = randf_range(min_sprint_time,max_sprint_time)
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	
 	if knockback_velocity != Vector2.ZERO: 
 		var temp_velocity = velocity
@@ -175,7 +178,7 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	if enemy_type=="binary_bot":
 		$Core.damage_glyphs()
 	if current_health >= 0 and display_damage and creates_indicators:
-		get_tree().get_root().get_node("LayerManager")._damage_indicator(damage, dmg_owner,direction, attack_body,self)
+		LayerManager._damage_indicator(damage, dmg_owner,direction, attack_body,self)
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
 		if attack_body and !attack_body.combod:
 			attack_body.combod = true
@@ -194,6 +197,8 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 			_:
 				knockback_velocity = attack_body.direction * attack_body.knockback_force
 	current_health -= damage
+	if is_boss:
+		LayerManager.hud.update_bossbar(clamp(float(current_health)/max_health,0.0,1.0))
 	if current_health < 0:
 		
 			
@@ -233,8 +238,8 @@ func check_agro(dmg_owner : Node):
 
 func check_traps(delta):
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").trap_cells:
-		var tile_data = get_tree().get_root().get_node("LayerManager").return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in LayerManager.trap_cells:
+		var tile_data = LayerManager.return_trap_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var dmg = tile_data.get_custom_data("trap_instant")
 			#Instant trap
@@ -262,8 +267,8 @@ func check_liquids(delta):
 	if enemy_type == "laser_e":
 		return
 	var tile_pos = Vector2i(int(floor(global_position.x / 16)),int(floor(global_position.y / 16)))
-	if tile_pos in get_tree().get_root().get_node("LayerManager").liquid_cells[0]:
-		var tile_data = get_tree().get_root().get_node("LayerManager").return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
+	if tile_pos in LayerManager.liquid_cells[0]:
+		var tile_data = LayerManager.return_liquid_layer(tile_pos).get_cell_tile_data(tile_pos)
 		if tile_data:
 			var type = tile_data.get_custom_data("liquid")
 			match type:
@@ -279,7 +284,7 @@ func check_liquids(delta):
 					_glitch_move()
 
 func _glitch_move() -> void:
-	var ground_cells = get_tree().get_root().get_node("LayerManager").room_instance.get_node("Ground").get_used_cells()
+	var ground_cells = LayerManager.room_instance.get_node("Ground").get_used_cells()
 	var move_dir_l = velocity.normalized() *16
 	var move_dir_r = velocity.normalized() *16
 	var check_pos_r = Vector2i(((position + move_dir_r)/16).floor())
@@ -305,13 +310,13 @@ func _glitch_move() -> void:
 	var color1 = shift_hue(Color(0.0, 0.867, 0.318, 1.0),randf_range(-hue_variance,hue_variance))
 	var color2 = shift_hue(Color(0.0, 0.116, 0.014, 1.0),randf_range(-hue_variance,hue_variance))
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
+	Spawner.spawn_after_image(self,LayerManager,color1,color1,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	velocity=move_dir/2.0
 	move_and_slide()
 	saved_position = position
 	position+= Vector2(randf_range(-position_variance,position_variance),randf_range(-position_variance,position_variance))
-	Spawner.spawn_after_image(self,get_tree().get_root().get_node("LayerManager"),color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
+	Spawner.spawn_after_image(self,LayerManager,color2,color2,0.5,1.0,1+randf_range(-.1,.1),.75)
 	position = saved_position
 	move_and_slide()
 	velocity = saved_velocity

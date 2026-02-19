@@ -3,7 +3,7 @@ extends CanvasLayer
 var is_multiplayer : bool = true
 @onready var health_bar_1 = $RootControl/Left_Bottom_Corner/HealthBar
 @onready var health_bar_2 = $RootControl/Right_Bottom_Corner/HealthBar
-@onready var TimeFabric = $RootControl/TimeFabric
+@onready var TimeFabric = $RootControl/VBoxContainer/HorizontalSlice/TimeFabric
 @onready var LeftCooldownBar = $RootControl/Left_Bottom_Corner/CooldownBar
 @onready var RightCooldownBar = $RootControl/Right_Bottom_Corner/CooldownBar
 @onready var IconSlotScene = preload("res://Game Elements/ui/remnant_icon.tscn")
@@ -25,29 +25,29 @@ var player2_combo_inc = 1.0
 var player2_combo_max = 1.0
 
 func _ready():
-	$RootControl/Notification.modulate.a = 0.0
+	$RootControl/VBoxContainer/Noti.modulate.a = 0.0
 	combo1.visible = false
 	combo2.visible = false
 	LeftCooldownBar.get_node("CooldownBar").material =LeftCooldownBar.get_node("CooldownBar").material.duplicate(true)
 	RightCooldownBar.get_node("CooldownBar").material =RightCooldownBar.get_node("CooldownBar").material.duplicate(true)
 
 func set_timefabric_amount(timefabric_collected : int):
-	$RootControl/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
+	$RootControl/VBoxContainer/HorizontalSlice/TimeFabric/HBoxContainer/Label.text = str(timefabric_collected)
 
 func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_up1: Array[String] = [], ranked_up2: Array[String] = []):
-	for child in $RootControl/RemnantIcons/LeftRemnants.get_children():
+	for child in $RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/LeftRemnants.get_children():
 		child.queue_free()
-	for child in $RootControl/RemnantIcons/RightRemnants.get_children():
+	for child in $RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/RightRemnants.get_children():
 		child.queue_free()
 	await get_tree().process_frame
 	for remnant in player1_remnants:
 		if ranked_up1.has(remnant.remnant_name):
-			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,true,true)
+			_add_slot($RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/LeftRemnants, remnant,true,true)
 		else:
-			_add_slot($RootControl/RemnantIcons/LeftRemnants, remnant,false,true)
+			_add_slot($RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/LeftRemnants, remnant,false,true)
 			
 	# --- Populate RIGHT (R->L per row with padding) ---
-	var right_grid = $RootControl/RemnantIcons/RightRemnants
+	var right_grid = $RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/RightRemnants
 	var columns = right_grid.columns
 	var total_icons = player2_remnants.size()
 
@@ -79,8 +79,8 @@ func set_remnant_icons(player1_remnants: Array, player2_remnants: Array, ranked_
 	if !pause_menu:
 		pause_menu = get_node_or_null("../PauseMenu")
 	if pause_menu:
-		pause_menu.setup($RootControl/RemnantIcons/LeftRemnants.get_children())
-		pause_menu.setup($RootControl/RemnantIcons/RightRemnants.get_children())
+		pause_menu.setup($RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/LeftRemnants.get_children())
+		pause_menu.setup($RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/RightRemnants.get_children())
 	await get_tree().process_frame
 	if pause_menu:
 		_setup_focus_connections()
@@ -103,8 +103,8 @@ func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purp
 		label.text = _num_to_roman(remnant.rank)
 
 func _setup_focus_connections():
-	var left_grid = $RootControl/RemnantIcons/LeftRemnants
-	var right_grid = $RootControl/RemnantIcons/RightRemnants
+	var left_grid = $RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/LeftRemnants
+	var right_grid = $RootControl/VBoxContainer/HorizontalSlice/RemnantIcons/RightRemnants
 	var pause_button = pause_menu.get_node("Control/VBoxContainer/Return")
 
 	_setup_grid_focus(left_grid, left_grid.columns, false)
@@ -400,3 +400,25 @@ func display_notification(text : String, fade_in : float = 1.0, hold : float= 1.
 	tween.tween_property(hud_notification, "modulate:a", 1.0, fade_in)
 	tween.tween_interval(hold)
 	tween.tween_property(hud_notification, "modulate:a", 0.0, fade_out)
+
+func hide_boss_bar():
+	var bossbar = $RootControl/VBoxContainer/BossBar
+	var tween = create_tween()
+	tween.tween_property(bossbar,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
+	await tween.finished
+	bossbar.modulate.a = 1.0
+	bossbar.visible = false
+	
+
+func update_bossbar(prog : float):
+	$RootControl/VBoxContainer/BossBar/Overlay.material.set_shader_parameter("progress",prog)
+
+func show_boss_bar(underlay : Texture2D = null,overlay : Texture2D = null, index : int = -1,prog : float = 1.0):
+	var bossbar = $RootControl/VBoxContainer/BossBar
+	bossbar.visible = true
+	var overlay_node = bossbar.get_node("Overlay")
+	bossbar.get_node("Underlay").texture = underlay
+	overlay_node.texture = overlay
+	overlay_node.material.set_shader_parameter("effect_index",index)
+	overlay_node.material.set_shader_parameter("progress",prog)
+	overlay_node.material.set_shader_parameter("image_size",overlay.get_size())
