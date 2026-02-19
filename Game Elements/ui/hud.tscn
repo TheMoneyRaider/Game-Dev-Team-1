@@ -1,7 +1,8 @@
-[gd_scene load_steps=20 format=3 uid="uid://0hahdiffjt61"]
+[gd_scene load_steps=21 format=3 uid="uid://0hahdiffjt61"]
 
 [ext_resource type="Script" uid="uid://ttvprfi61vn4" path="res://Game Elements/ui/hud.gd" id="1_6fbih"]
 [ext_resource type="Script" uid="uid://bs428146shl5s" path="res://Game Elements/ui/time_fabric_animation.gd" id="2_bjfho"]
+[ext_resource type="Texture2D" uid="uid://bw4uqdt1s2rcv" path="res://Game Elements/Bosses/scifi/healthbar_phase1_underlay.png" id="2_gferk"]
 [ext_resource type="Texture2D" uid="uid://bxmiq87nvpvj8" path="res://art/notification.png" id="2_gp50j"]
 [ext_resource type="Texture2D" uid="uid://ch4g2j4jycixb" path="res://art/time_fabric.png" id="3_6fbih"]
 [ext_resource type="Shader" uid="uid://cweesrh2cbhg6" path="res://Game Elements/ui/boss_healthbar.gdshader" id="3_8prbk"]
@@ -97,8 +98,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="BossBar" type="Control" parent="RootControl/VBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(0, 100)
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 
 [node name="Underlay" type="TextureRect" parent="RootControl/VBoxContainer/BossBar"]
@@ -112,6 +112,7 @@ offset_bottom = 41.0
 grow_horizontal = 2
 scale = Vector2(2, 2)
 pivot_offset = Vector2(357.5, -10)
+texture = ExtResource("2_gferk")
 
 [node name="Overlay" type="TextureRect" parent="RootControl/VBoxContainer/BossBar"]
 material = SubResource("ShaderMaterial_5ho0i")
@@ -125,6 +126,16 @@ offset_bottom = 41.0
 grow_horizontal = 2
 scale = Vector2(2, 2)
 pivot_offset = Vector2(357.5, -10)
+
+[node name="Label" type="Label" parent="RootControl/VBoxContainer/BossBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 2
 
 [node name="HorizontalSlice" type="Control" parent="RootControl/VBoxContainer"]
 layout_mode = 2
@@ -190,16 +201,25 @@ mouse_filter = 2
 
 [node name="Background Texture" type="TextureRect" parent="RootControl/VBoxContainer/Noti"]
 layout_mode = 1
-offset_right = 500.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_right = 250.0
 offset_bottom = 200.0
+grow_horizontal = 2
 mouse_filter = 2
 texture = ExtResource("2_gp50j")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="RootControl/VBoxContainer/Noti"]
-layout_mode = 0
-offset_top = 68.0
-offset_right = 484.0
-offset_bottom = 228.0
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -242.0
+offset_right = 242.0
+offset_bottom = 187.0
+grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2
@@ -210,6 +230,7 @@ text = "Wave 1 / 10"
 fit_content = true
 scroll_active = false
 horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Left_Bottom_Corner" type="VBoxContainer" parent="RootControl"]
 layout_mode = 1

@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=4 uid="uid://ciut2jg3urwer"]
+[gd_scene load_steps=33 format=4 uid="uid://ciut2jg3urwer"]
 
 [ext_resource type="Script" uid="uid://bqbfmcnnhox8b" path="res://Game Elements/Bosses/scifi/boss_room.gd" id="1_r7kch"]
 [ext_resource type="Texture2D" uid="uid://1po7p0hcmfk" path="res://Game Elements/Bosses/scifi/scifi_splash.png" id="2_ar3fp"]
@@ -7,16 +7,48 @@
 [ext_resource type="Texture2D" uid="uid://bw4uqdt1s2rcv" path="res://Game Elements/Bosses/scifi/healthbar_phase1_underlay.png" id="3_k3f2u"]
 [ext_resource type="Texture2D" uid="uid://hylgngjg7to0" path="res://Game Elements/Bosses/scifi/healthbar_phase2_underlay.png" id="4_at31b"]
 [ext_resource type="PackedScene" uid="uid://bhgu6yah6ehqe" path="res://Game Elements/Bosses/scifi/singul.tscn" id="4_bsvrm"]
+[ext_resource type="Texture2D" uid="uid://bbhhl7b5rm3ee" path="res://Game Elements/Bosses/scifi/healthbar_phase3_underlay.png" id="5_agmvj"]
 [ext_resource type="Texture2D" uid="uid://bgvhn45utxhhx" path="res://Game Elements/Bosses/scifi/healthbar_phase1_overlay.png" id="5_m16xs"]
 [ext_resource type="Material" uid="uid://dbtu31h02s2bg" path="res://Game Elements/Rooms/sci_fi/factory_ground_noise.tres" id="6_2ubnj"]
 [ext_resource type="Texture2D" uid="uid://bucknlstuq6um" path="res://Game Elements/Bosses/scifi/healthbar_phase2_overlay.png" id="6_k0ndm"]
 [ext_resource type="TileSet" uid="uid://cdo6cx4dxml7u" path="res://Game Elements/tilesets/sci_fi3.tres" id="7_bsvrm"]
+[ext_resource type="Texture2D" uid="uid://dmp7576hd1dqn" path="res://Game Elements/Bosses/scifi/healthbar_phase3_overlay.png" id="8_jgoy3"]
 [ext_resource type="FontFile" uid="uid://d366m5nnnpg1f" path="res://fonts/Orbitron-Bold.ttf" id="9_j205u"]
+[ext_resource type="FontFile" uid="uid://cjehx3k6f8c7d" path="res://fonts/Orbitron-Black.ttf" id="10_jgoy3"]
 [ext_resource type="Material" uid="uid://m8b3vc11xgri" path="res://Game Elements/Rooms/sci_fi/cyberspace_ground_noise.tres" id="11_k0ndm"]
 [ext_resource type="Script" uid="uid://b56ruwgbi1lqa" path="res://Game Elements/Rooms/sci_fi/cyber_background.gd" id="13_at31b"]
 [ext_resource type="TileSet" uid="uid://du2dmgjlmgair" path="res://Game Elements/tilesets/sci_fi2.tres" id="13_m16xs"]
 [ext_resource type="Shader" uid="uid://dybc3kq47jw4u" path="res://Game Elements/Bosses/scifi/forcefield_singul.gdshader" id="16_kww2i"]
 [ext_resource type="Texture2D" uid="uid://cggx60a5l71t7" path="res://art/white_square2.png" id="17_l4nvn"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_jgoy3"]
+font = ExtResource("9_j205u")
+font_size = 64
+font_color = Color(0, 0, 0, 1)
+outline_size = 6
+stacked_shadow_count = 4
+stacked_shadow_0/offset = Vector2(8, 8)
+stacked_shadow_0/color = Color(0, 0, 0, 0.5019608)
+stacked_shadow_1/offset = Vector2(-8, -8)
+stacked_shadow_1/color = Color(0, 0, 0, 0.43529412)
+stacked_shadow_2/offset = Vector2(-8, 8)
+stacked_shadow_2/color = Color(0, 0, 0, 0.4862745)
+stacked_shadow_3/offset = Vector2(8, -8)
+stacked_shadow_3/color = Color(0, 0, 0, 0.4862745)
+
+[sub_resource type="LabelSettings" id="LabelSettings_agmvj"]
+font = ExtResource("9_j205u")
+font_size = 64
+outline_size = 6
+shadow_color = Color(0, 0, 0, 0.6745098)
+shadow_offset = Vector2(8, 8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_7f0sb"]
+font = ExtResource("10_jgoy3")
+font_size = 64
+font_color = Color(0, 0.20290413, 0.30804342, 1)
+outline_size = 8
+outline_color = Color(0.6516773, 0.99999994, 0.9403343, 1)
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_agmvj"]
 
@@ -65,8 +97,10 @@ shader_parameter/cutoff_max = 0.88
 [node name="BossRoom" type="Node2D" node_paths=PackedStringArray("boss")]
 script = ExtResource("1_r7kch")
 boss_splash_art = ExtResource("2_ar3fp")
-healthbar_underlays = Array[Texture2D]([ExtResource("3_k3f2u"), ExtResource("4_at31b")])
-healthbar_overlays = Array[Texture2D]([ExtResource("5_m16xs"), ExtResource("6_k0ndm")])
+healthbar_underlays = Array[Texture2D]([ExtResource("3_k3f2u"), ExtResource("4_at31b"), ExtResource("5_agmvj")])
+healthbar_overlays = Array[Texture2D]([ExtResource("5_m16xs"), ExtResource("6_k0ndm"), ExtResource("8_jgoy3")])
+boss_names = Array[String](["Singul, Chained Intelligence", "Singul, Benevolent Ruler", "Singul, God of Cyberspace"])
+boss_name_settings = Array[LabelSettings]([SubResource("LabelSettings_jgoy3"), SubResource("LabelSettings_agmvj"), SubResource("LabelSettings_7f0sb")])
 boss = NodePath("Singul")
 boss_name = "Singul"
 boss_font = ExtResource("9_j205u")

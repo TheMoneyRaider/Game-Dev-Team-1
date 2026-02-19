@@ -17,6 +17,8 @@ var phase = 0
 @export var boss_splash_art : Texture2D
 @export var healthbar_underlays : Array[Texture2D]
 @export var healthbar_overlays : Array[Texture2D]
+@export var boss_names : Array[String]
+@export var boss_name_settings : Array[LabelSettings]
 @export var boss : Node
 @export var boss_name : String
 @export var boss_font : Font
@@ -54,7 +56,7 @@ func _on_boss_phase_change(boss_in : Node):
 	tween.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,0.0),3.0)
 	tween.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,0.0),3.0)
 	await get_tree().create_timer(6).timeout
-	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase],boss_names[phase],boss_name_settings[phase])
 	Hud.update_bossbar(1.0)
 	if boss_type == "scifi":
 		$Ground.visible = false
@@ -73,7 +75,7 @@ func _on_boss_phase_change(boss_in : Node):
 	tween2.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,1.0),3.0)
 	tween2.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,1.0),3.0)
 
-	boss_in.hitable = true
+	boss_in.hitable = hits
 	await get_tree().create_timer(3).timeout
 	s_material.set_shader_parameter("ultimate", false)
 	

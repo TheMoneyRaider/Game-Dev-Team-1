@@ -155,8 +155,8 @@ min_timefabric = 20
 max_timefabric = 30
 move_speed = 0.0
 is_boss = true
-boss_phases = 2
-boss_healthpools = Array[float]([30.0, 100.0])
+boss_phases = 3
+boss_healthpools = Array[float]([30.0, 30.0, 30.0])
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 y_sort_enabled = true

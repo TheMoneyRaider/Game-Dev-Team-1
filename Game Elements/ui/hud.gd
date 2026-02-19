@@ -117,9 +117,6 @@ func _setup_focus_connections():
 func _setup_grid_focus(grid: GridContainer, columns: int, is_reversed: bool):
 	var children = grid.get_children()
 
-	# Compute rows
-	var num_rows = ceil(children.size() / float(columns))
-
 	for i in range(children.size()):
 		if "remnant" not in children[i]:
 			continue
@@ -413,10 +410,13 @@ func hide_boss_bar():
 func update_bossbar(prog : float):
 	$RootControl/VBoxContainer/BossBar/Overlay.material.set_shader_parameter("progress",prog)
 
-func show_boss_bar(underlay : Texture2D = null,overlay : Texture2D = null, index : int = -1,prog : float = 1.0):
+func show_boss_bar(underlay : Texture2D = null,overlay : Texture2D = null, boss_string : String = "", settings : LabelSettings = null,index : int = -1, prog : float = 1.0):
 	var bossbar = $RootControl/VBoxContainer/BossBar
 	bossbar.visible = true
 	var overlay_node = bossbar.get_node("Overlay")
+	var boss_name = bossbar.get_node("Label")
+	boss_name.label_settings = settings
+	boss_name.text = boss_string
 	bossbar.get_node("Underlay").texture = underlay
 	overlay_node.texture = overlay
 	overlay_node.material.set_shader_parameter("effect_index",index)
