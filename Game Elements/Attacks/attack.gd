@@ -104,6 +104,8 @@ func _ready():
 		special_nodes[-1].setup(self)
 	if attack_type == "scifi_wave":
 		_wave_attack_setup()
+	if attack_type == "scifi_laser":
+		_laser_attack_setup()
 	
 
 
@@ -213,6 +215,8 @@ func _process(delta):
 		get_node("CollisionShape2D").shape.radius = lerp(8,16,life/lifespan)
 	if attack_type == "scifi_wave":
 		_wave_process()
+	if attack_type == "scifi_laser":
+		_laser_process(delta)
 	if life < lifespan:
 		return
 	if attack_type == "death mark":
@@ -333,7 +337,12 @@ func _on_body_exited(body: Node2D) -> void:
 	if repeat_hits:
 		hit_nodes.erase(body)
 
-
+func _laser_process(delta):
+	l_rotation+=rotation_speed*delta
+	var s_material = LayerManager.get_node("game_container").material
+	if laser_rotation:
+		s_material.set_shader_parameter("laser_rotation",l_rotation)
+	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 
 func _wave_process():
 	$CollisionShape2D.shape.radius = life/lifespan * 480
@@ -366,6 +375,7 @@ func _wave_attack_setup():
 	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0)
 	s_material.set_shader_parameter("impact_duration",attack_duration)
 	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
+	s_material.set_shader_parameter("wave_width",48)
 	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
 	s_material.set_shader_parameter("visible_world_size", visible_size)
 	s_material.set_shader_parameter("pause_time", -1)
@@ -380,5 +390,32 @@ func _wave_attack_setup():
 		else:
 			distances.append(attack_dist)
 	s_material.set_shader_parameter("collision_distances",distances)
-	
-	
+
+
+var l_rotation = 0
+var num_lasers = 8
+var rotation_speed : float = 60.0
+var laser_rotation : bool = false
+var ray_distances = []
+func _laser_attack_setup():
+	#$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate(true)
+	var s_material = LayerManager.get_node("game_container").material
+	var attack_duration = 5.0
+	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
+	s_material.set_shader_parameter("impact_world_pos", global_position)
+	s_material.set_shader_parameter("impact_time", Time.get_ticks_msec() / 1000.0)
+	s_material.set_shader_parameter("wave_speed",attack_dist/attack_duration)
+	s_material.set_shader_parameter("laser_count",num_lasers)
+	l_rotation = rad_to_deg(direction.angle())
+	s_material.set_shader_parameter("laser_rotation",l_rotation)
+	s_material.set_shader_parameter("camera_center", LayerManager.camera.get_screen_center_position())
+	s_material.set_shader_parameter("visible_world_size", visible_size)
+	var ray_direction : Vector2
+	for i in range(0,720):
+		ray_direction = Vector2.RIGHT.rotated(i/720.0 * TAU)
+		var ray = cast_ray(global_position, ray_direction, attack_dist, self)
+		if ray:
+			ray_distances.append((ray.position - global_position).length())
+		else:
+			ray_distances.append(attack_dist)
+	s_material.set_shader_parameter("collision_distances",ray_distances)

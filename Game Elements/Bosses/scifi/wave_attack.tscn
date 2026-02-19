@@ -18,7 +18,6 @@ cooldown = 0.0
 pierce = -2.0
 wall_collision = false
 attack_type = "scifi_wave"
-hits_owner = true
 hits_all = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
