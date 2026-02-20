@@ -150,21 +150,21 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
-			if is_purple:
-				var inst = load("res://Game Elements/Bosses/scifi/singul_laser_attack.tscn").instantiate()
-				inst.global_position = global_position
-				inst.c_owner= self
-				inst.laser_rotation = true
-				inst.direction = (crosshair.position).normalized()
-				LayerManager.room_instance.add_child(inst)
-			else:
-				pass
-				#var inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+			#if is_purple:
+				#var inst = load("res://Game Elements/Bosses/scifi/singul_laser_attack.tscn").instantiate()
 				#inst.global_position = global_position
 				#inst.c_owner= self
 				#inst.laser_rotation = true
 				#inst.direction = (crosshair.position).normalized()
 				#LayerManager.room_instance.add_child(inst)
+			#else:
+				#pass
+				##var inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+				##inst.global_position = global_position
+				##inst.c_owner= self
+				##inst.laser_rotation = true
+				##inst.direction = (crosshair.position).normalized()
+				##LayerManager.room_instance.add_child(inst)
 			swap_color()
 	else:
 		tether(delta)
@@ -552,12 +552,13 @@ func player_special_reset():
 	emit_signal("special_reset", is_purple)
 
 func hit_enemy(attack_body : Node, enemy : Node):
-	if !attack_body:
-		return
+	var temp_purple = is_purple
+	if attack_body:
+		temp_purple=attack_body.is_purple
 	var remnants : Array[Remnant] = []
 	var effect : Effect
-	if attack_body.attack_type == "emp":
-		if attack_body.is_purple:
+	if attack_body and attack_body.attack_type == "emp":
+		if temp_purple:
 			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
 		else:
 			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
@@ -570,19 +571,19 @@ func hit_enemy(attack_body : Node, enemy : Node):
 				enemy.effects.append(effect)
 		
 		return
-	var cur_weapon = weapons[attack_body.is_purple as int]
-	print("Hit: "+str(enemy))
+	var cur_weapon = weapons[temp_purple as int]
 	cur_weapon.current_special_hits +=1
 	if cur_weapon.current_special_hits > cur_weapon.special_hits:
 		cur_weapon.current_special_hits = cur_weapon.special_hits
 	else:
-		emit_signal("special_changed",attack_body.is_purple,cur_weapon.current_special_hits/float(cur_weapon.special_hits))
+		emit_signal("special_changed",temp_purple,cur_weapon.current_special_hits/float(cur_weapon.special_hits))
 		
 	
-	if attack_body.is_purple:
+	if temp_purple:
 		remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
 	else:
 		remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+		
 	var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
 	for rem in remnants:
 		if rem.remnant_name == winter.remnant_name:

@@ -73,10 +73,12 @@ max_timefabric = 30
 move_speed = 0.0
 is_boss = true
 boss_phases = 3
-boss_healthpools = Array[float]([600.0, 30.0, 30.0])
+boss_healthpools = Array[float]([450.0, 30.0, 30.0])
+knockback_decay = 0.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_76eou")
+disabled = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

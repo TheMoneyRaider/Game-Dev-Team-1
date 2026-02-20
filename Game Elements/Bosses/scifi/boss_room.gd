@@ -129,7 +129,28 @@ func boss_signal(sig :String, value1, value2):
 				Spawner.spawn_enemies([player1,player2], self, LayerManager.placable_cells.duplicate(),LayerManager.room_instance_data,LayerManager,true,value1,value2)
 			else:
 				Spawner.spawn_enemies([player1], self, LayerManager.placable_cells.duplicate(),LayerManager.room_instance_data,LayerManager,true,value1,value2)
-
+			var enemies : Array[Node]= []
+			var positions : Array[Vector2] = []
+			positions.append(player1.global_position)
+			if is_multiplayer:
+				positions.append(player2.global_position)
+			for child in get_children():
+				if child.is_in_group("enemy"):
+					enemies.append(child)
+				
+					var board = child.get_node("BTPlayer").blackboard
+					if board.get_var("state") == "spawning":
+						return
+					var distances_squared = []
+					for pos in positions: 
+						distances_squared.append(child.global_position.distance_squared_to(pos))
+					var i = 0
+					if distances_squared.size()>1 and distances_squared[1]<distances_squared[0]:
+						i= 1
+					board.set_var("target_pos", positions[i])
+					board.set_var("player_idx", i)
+					board.set_var("state", "agro")
+			LayerManager.awareness_display.enemies = enemies.duplicate()
 
 
 func finish_animation():
@@ -159,9 +180,11 @@ func _on_enemy_take_damage(_damage : int,current_health : int,_enemy : Node, dir
 		pass
 	var boss_health2 = boss.current_health
 	if boss_type == "scifi":
-		if int(( boss_health1 / boss.max_health ) * 3) >  int(( boss_health2 / boss.max_health ) * 3):
-			if !phase_changing:
-				scifi_phase1_middles()
+		var mini_phase1 = int(( boss_health1 / float(boss.max_health) ) * 3)
+		var mini_phase2 = int(( boss_health2 / float(boss.max_health) ) * 3)
+		#print("P1: "+str(mini_phase1)+"P2: "+str(mini_phase2))
+		if  mini_phase1 != 3 and mini_phase1 >  mini_phase2:
+			scifi_phase1_middles()
 		
 
 func scifi_phase1_middles():
@@ -174,12 +197,18 @@ func scifi_phase1_middles():
 	var board = bt_player.blackboard
 	if board:
 		board.set_var("attack_mode", "DISABLED")
-	$Forcefield/CollisionShape2D.call_deferred("disabled",true)
+	# Disable the forcefield collision
+	$Forcefield/CollisionShape2D.set_deferred("disabled", true)
+	# Enable the boss collision
+	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
 	var tween = create_tween()
 	tween.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
-	await get_tree().create_timer(8.0).timeout
+	await get_tree().create_timer(14.0).timeout
 	
-	$Forcefield/CollisionShape2D.call_deferred("disabled",false)
+	# Disable the boss collision
+	boss.get_node("CollisionShape2D").set_deferred("disabled", true)
+	# Enable the forcefield collision
+	$Forcefield/CollisionShape2D.set_deferred("disabled", false)
 	var tween2 = create_tween()
 	tween2.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,1.0),1.0)
 	if board:
