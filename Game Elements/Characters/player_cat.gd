@@ -150,6 +150,7 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
+			LayerManager.room_instance.boss.take_damage(50,self)
 			#if is_purple:
 				#var inst = load("res://Game Elements/Bosses/scifi/singul_laser_attack.tscn").instantiate()
 				#inst.global_position = global_position

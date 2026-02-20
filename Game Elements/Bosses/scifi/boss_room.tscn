@@ -108,7 +108,7 @@ phase_overlay_index = Array[int]([0, 1, 2])
 boss_type = "scifi"
 
 [node name="Singul" parent="." instance=ExtResource("4_bsvrm")]
-position = Vector2(-13, -121)
+position = Vector2(-16, -132)
 
 [node name="PathwayU1_Detect" parent="." instance=ExtResource("3_6uq0m")]
 position = Vector2(-16, 16)

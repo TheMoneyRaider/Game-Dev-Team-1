@@ -48,13 +48,36 @@ func _on_boss_phase_change(boss_in : Node):
 			
 	
 func scifi_phase1_to_2():
-	pass
-	
-func scifi_phase2_to_3():
-	boss.hitable = false
-	Hud.update_bossbar(0.0)
 	if phase_changing:
 		return
+	phase_changing = true
+	phase = boss.phase
+	$Forcefield/CollisionShape2D.set_deferred("disabled", true)
+	var tween = create_tween()
+	tween.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
+	await tween.finished
+	boss.get_node("AnimationTree").set("parameters/conditions/idle",true)
+	print(boss.get_node("AnimationTree").get("parameters/conditions/idle"))
+	await get_tree().create_timer(3.0).timeout
+	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
+	animation = "idle"
+	$Forcefield.queue_free()
+	boss.current_health = boss.boss_healthpools[phase]
+	boss.max_health = boss.boss_healthpools[phase]
+	phase_changing = false
+	
+func _get_track_index_for_path(anim: Animation, path: NodePath) -> int:
+	for i in anim.get_track_count():
+		if anim.track_get_path(i) == path:
+			return i
+	return -1
+	
+	
+func scifi_phase2_to_3():
+	if phase_changing:
+		return
+	boss.hitable = false
+	Hud.update_bossbar(0.0)
 	phase_changing = true
 	phase=boss.phase
 	#Wave Attack
@@ -199,7 +222,7 @@ func _on_enemy_take_damage(_damage : int,current_health : int,_enemy : Node, dir
 	if boss_type == "scifi":
 		var mini_phase1 = int(( boss_health1 / float(boss.max_health) ) * 3)
 		var mini_phase2 = int(( boss_health2 / float(boss.max_health) ) * 3)
-		#print("P1: "+str(mini_phase1)+"P2: "+str(mini_phase2))
+		print("P1: "+str(mini_phase1)+"P2: "+str(mini_phase2))
 		if  mini_phase1 != 3 and mini_phase1 >  mini_phase2:
 			scifi_phase1_middles()
 		
@@ -234,6 +257,7 @@ func scifi_phase1_middles():
 
 
 
+
 func boss_animation():
 	if boss_type=="scifi":
 		var eye = boss.get_node("Segments/Eye/3")
@@ -243,12 +267,18 @@ func boss_animation():
 		eye.position = (track_position-eye.global_position).normalized()*6
 		match animation:
 			"idle":
+				boss.get_node("Segments").z_index=0
 				var count = 0
 				for child in boss.get_node("Segments/Rims").get_children():
 					count+=1
 					var angle = 45 *count+lifetime*20
-					child.position = Vector2.UP.rotated(deg_to_rad(angle)) * (32 +sin(lifetime*count/3)*2)
-					child.rotation = deg_to_rad(angle - 224)
+					var new_position =Vector2.UP.rotated(deg_to_rad(angle)) * (32 +sin(lifetime*count/3)*2)
+					child.get_node("RimVis").global_position = new_position + boss.global_position
+					child.get_node("RimVis").global_rotation = deg_to_rad(angle - 224)
+			_:
+				for child in boss.get_node("Segments/Rims").get_children():
+					child.get_node("RimVis").position =Vector2.ZERO
+					child.get_node("RimVis").rotation = 0
 				
 				
 
@@ -259,33 +289,34 @@ func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	camera = camera_in
 	player1 = player1_in
 	player2 = player1_in
-	animation = "idle"
+	if boss_type=="scifi":
+		animation = "dead"
 	return
-	player1.disabled = true
-	print(player1.disabled)
-	print(player1)
-	if is_multiplayer:
-		player2 = player2_in
-		player2.disabled = true
-	Hud =LayerManager.hud
-	LayerManager.BossIntro.get_node("BossName").text = boss_name
-	LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
-	LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)
-	screen = LayerManager.get_node("game_container/game_viewport")
-	for node in get_children():
-		if node.is_in_group("pathway"):
-			node.disable_pathway(true)
-	LayerManager.camera_override = true
-	screen.render_target_update_mode = SubViewport.UPDATE_DISABLED
-	var transition1 = LayerManager.get_node("Transition/Transition")
-	transition1.visible = true
-	var tween = create_tween()
-	tween.tween_property(transition1,"modulate:a",1.0,1.0)
-	await tween.finished
-	LayerManager.BossIntro.visible = true
-	screen.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	transition1.visible = false
-	transition1.modulate.a = 0.0
-	LayerManager.BossIntro.get_node("AnimationPlayer").play("main")
-	camera.global_position = ((player1.global_position + player2.global_position) / 2)
-	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
+	#player1.disabled = true
+	#print(player1.disabled)
+	#print(player1)
+	#if is_multiplayer:
+		#player2 = player2_in
+		#player2.disabled = true
+	#Hud =LayerManager.hud
+	#LayerManager.BossIntro.get_node("BossName").text = boss_name
+	#LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
+	#LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)
+	#screen = LayerManager.get_node("game_container/game_viewport")
+	#for node in get_children():
+		#if node.is_in_group("pathway"):
+			#node.disable_pathway(true)
+	#LayerManager.camera_override = true
+	#screen.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	#var transition1 = LayerManager.get_node("Transition/Transition")
+	#transition1.visible = true
+	#var tween = create_tween()
+	#tween.tween_property(transition1,"modulate:a",1.0,1.0)
+	#await tween.finished
+	#LayerManager.BossIntro.visible = true
+	#screen.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	#transition1.visible = false
+	#transition1.modulate.a = 0.0
+	#LayerManager.BossIntro.get_node("AnimationPlayer").play("main")
+	#camera.global_position = ((player1.global_position + player2.global_position) / 2)
+	#Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])

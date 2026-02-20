@@ -15,7 +15,7 @@ void vertex() {
 void fragment() {
 	if(UV.y > cutoff_min && UV.y < cutoff_max)
 		discard;
-	COLOR = vec4(color,UV.y*UV.y*sqrt((.5-abs(UV.x-.5))));
+	COLOR = vec4(color,modulate_color.a*UV.y*UV.y*sqrt((.5-abs(UV.x-.5))));
 }
 
 //void light() {
