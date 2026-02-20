@@ -248,7 +248,6 @@ false,																															#Is a shop room?
 
 var sci_fi_shops : Array[Room]= []
 
-
 #var testing_room : Room = room.Create_Room(
 #"res://Game Elements/Rooms/western/canyon1.tscn", 																				#Scene Location                      
 #0,																																#Num Liquids
@@ -269,10 +268,10 @@ var sci_fi_shops : Array[Room]= []
 #3,																																#Enemy Num Goal                               
 #0,																																#NPC Spawnpoints   
 #false,																															#Is a shop room?
-#["res://Game Elements/Characters/robot.tscn"],																				#Enemies That can spawn in this room
+#["res://Game Elements/Characters/robot.tscn"],																					#Enemies That can spawn in this room
 #[1.0],																															#Weights for those enemies to spawn
 #.25)																															#Chance for waves to be segmented
-
+#
 
 
 var testing_room : Room = room.Create_Room(
