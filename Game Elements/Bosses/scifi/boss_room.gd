@@ -73,6 +73,7 @@ func scifi_phase1_to_2():
 
 	
 func scifi_phase2_to_3():
+	phase=boss.phase
 	animation_change("dead")
 	#Cleanup attacks and enemies
 	for child in get_children():
@@ -88,6 +89,15 @@ func scifi_phase2_to_3():
 	boss.get_node("AnimationTree").active = false
 	boss.get_node("BTPlayer").active = false
 	#Explode boss
+	for child in boss.get_node("Segments").get_children():
+		if child.name != "GunParts" and child.name != "Rims":
+			child.activate((child.global_position - boss.global_position).normalized()*clamp((64.0-(child.global_position - boss.global_position).length())/64.0,1.0,4.0),Vector2(-1.5,1.5))
+	for child in boss.get_node("Segments/GunParts").get_children():
+			child.activate((child.global_position - boss.global_position).normalized()*clamp((64.0-(child.global_position - boss.global_position).length())/64.0,1.0,4.0),Vector2(-1.5,1.5))
+	for child in boss.get_node("Segments/Rims").get_children():
+			child.activate((child.global_position - boss.global_position).normalized()*clamp((64.0-(child.global_position - boss.global_position).length())/64.0,1.0,4.0),Vector2(-1.5,1.5))
+			
+	await get_tree().create_timer(3, false).timeout
 	
 	
 	#
@@ -98,7 +108,6 @@ func scifi_phase2_to_3():
 	boss.hitable = false
 	Hud.update_bossbar(0.0)
 	phase_changing = true
-	phase=boss.phase
 	#Wave Attack
 	var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
 	attack_inst.damage = 10
@@ -120,10 +129,18 @@ func scifi_phase2_to_3():
 	$Filling_Cyber.visible = true
 	await get_tree().create_timer(3, false).timeout
 	var tween2 = create_tween()
+	#Disable boss part physics
+	for child in boss.get_node("Segments").get_children():
+		if child.name != "GunParts" and child.name != "Rims":
+			child.deactivate()
+	for child in boss.get_node("Segments/GunParts").get_children():
+			child.deactivate()
+	for child in boss.get_node("Segments/Rims").get_children():
+			child.deactivate()
+			
 	#Animate towards idle
 	
-	
-	
+	#####
 	
 	
 	
@@ -139,6 +156,8 @@ func scifi_phase2_to_3():
 
 	boss.hitable = true
 	
+	var playback = boss.get_node("AnimationTree").get("parameters/playback")
+	playback.travel("idle")
 	await get_tree().create_timer(1, false).timeout
 	s_material.set_shader_parameter("ultimate", false)
 	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
