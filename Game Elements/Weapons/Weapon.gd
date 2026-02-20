@@ -93,33 +93,15 @@ func request_attacks(direction : Vector2, char_position : Vector2, node_attackin
 		var attack_position = attack_direction * spawn_distance + char_position
 		spawn_attack(attack_direction,attack_position,node_attacking,"",flip)
 
-func check_for_intelligence(node_attacking: Node) -> Remnant:
-	if !node_attacking.is_in_group("player"):
-		return null
-	
-	var remnants : Array[Remnant]
-	if node_attacking.is_purple:
-		remnants = node_attacking.LayerManager.player_1_remnants
-	else:
-		remnants = node_attacking.LayerManager.player_2_remnants
-	var intelligence = load("res://Game Elements/Remnants/intelligence.tres")
-	for rem in remnants:
-		if rem.remnant_name == intelligence.remnant_name:
-			return rem.duplicate(true)
-	return null
-
 func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_attacking : Node = null,particle_effect : String = "", flip : int = 1, variant : bool = false):
-	var intelligence = check_for_intelligence(node_attacking)
-	
 	if !c_owner:
 		return
 	var instance
 	if variant:
 		instance = load(special_attack_scene).instantiate()
-    apply_remnants(instance)
+		apply_remnants(instance)
 		if instance.attack_type=="crowbar_melee":
 			instance.scale.x *= flip *-1
-		instance.intelligence = intelligence
 		instance.direction = attack_direction
 		instance.global_position = attack_position
 		instance.c_owner = c_owner
@@ -127,9 +109,9 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 			instance.damage *= c_owner.damage_boost()
 	else:
 		instance = load(attack_scene).instantiate()
+		apply_remnants(instance)
 		if instance.attack_type=="crowbar_melee":
 			instance.scale.x *= flip *-1
-		instance.intelligence = intelligence
 		instance.direction = attack_direction
 		instance.global_position = attack_position
 		instance.c_owner = c_owner
@@ -155,10 +137,12 @@ func apply_remnants(attack_instance):
 		var terramancer = load("res://Game Elements/Remnants/terramancer.tres")
 		var aeromancer = load("res://Game Elements/Remnants/aeromancer.tres")
 		var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
+		var intelligence = load("res://Game Elements/Remnants/intelligence.tres")
 		if c_owner.is_purple:
 			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_1_remnants
 		else:
 			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_2_remnants
+		attack_instance.intelligence = null
 		for rem in remnants:
 			match rem.remnant_name:
 				terramancer.remnant_name:
@@ -179,6 +163,8 @@ func apply_remnants(attack_instance):
 				hydromancer.remnant_name:
 					attack_instance.last_liquid = c_owner.last_liquid
 					c_owner.last_liquid = Globals.Liquid.Buffer
+				intelligence.remnant_name:
+					attack_instance.intelligence = rem.duplicate(true)
 				_:
 					pass
 

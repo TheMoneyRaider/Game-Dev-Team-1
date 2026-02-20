@@ -322,7 +322,8 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false,																															#Is a shop room?
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedOut,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 0),
@@ -345,7 +346,8 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false,																															#Is a shop room?
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedOut,																																#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 0),
@@ -368,7 +370,8 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [Globals.Direction.Up,Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false,																															#Is a shop room?
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedOut,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 0),
@@ -391,7 +394,8 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false,																															#Is a shop room?
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedIn,																																	#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 0),
@@ -414,12 +418,11 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 12,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false,																															#Is a shop room?
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedIn,																																#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
-0)]																															#Chance for waves to be segmented
-[],																																#Weights for those enemies to spawn
-0.0),
+0),																															#Chance for waves to be segmented
 room.Create_Room(
 "res://Game Elements/Rooms/medieval/cave3.tscn", 																		#Scene Location                       
 5,																																#Num Liquids
@@ -439,7 +442,8 @@ FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type
 [Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
 20,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-false,																															#Is a shop room?
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedIn,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
 0)]																															#Chance for waves to be segmented
