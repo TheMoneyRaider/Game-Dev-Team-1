@@ -240,11 +240,14 @@ func check_agro(dmg_owner : Node):
 
 func _check_on_hit_remnants(dmg_owner: Node, attack_body: Node):
 	if dmg_owner != null and dmg_owner.is_in_group("player"):
+		var mancer_value = 0
 		var remnants : Array[Remnant] = []
 		if dmg_owner.is_purple:
 			remnants = get_tree().get_root().get_node("LayerManager").player_1_remnants
+			mancer_value = dmg_owner.mancermancer_values[0]
 		else:
 			remnants = get_tree().get_root().get_node("LayerManager").player_2_remnants
+			mancer_value = dmg_owner.mancermancer_values[1]
 		var pyromancer = load("res://Game Elements/Remnants/pyromancer.tres")
 		var winter = load("res://Game Elements/Remnants/winters_embrace.tres")
 		var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
@@ -259,24 +262,26 @@ func _check_on_hit_remnants(dmg_owner: Node, attack_body: Node):
 					effect.gained(self)
 					effects.append(effect)
 				pyromancer.remnant_name:
-					exploded = rem.variable_2_values[rem.rank-1]
+					exploded = rem.variable_2_values[rem.rank-1] + mancer_value
 				hydromancer.remnant_name:
-					apply_hydromancer(rem, attack_body)
+					apply_hydromancer(rem, attack_body, mancer_value)
 				_:
 					pass
 
-func apply_hydromancer(rem : Remnant, attack_body : Node):
+func apply_hydromancer(rem : Remnant, attack_body : Node, mancer_value : int):
 	var effect : Effect
 	match attack_body.last_liquid:
 		Globals.Liquid.Water:
-			for i in range(rem.rank * 8):
+			@warning_ignore("integer_division")
+			for i in range((rem.rank + (mancer_value / 2)) * 8):
 				effect = load("res://Game Elements/Effects/slow_down.tres").duplicate()
 				effect.cooldown = rem.rank
 				effect.value1 = 0.023
 				effect.gained(self)
 				effects.append(effect)
 		Globals.Liquid.Lava:
-			for i in range(1, rem.rank + 1):
+			@warning_ignore("integer_division")
+			for i in range(1, rem.rank + (mancer_value / 2) + 1):
 				effect = load("res://Game Elements/Effects/burn.tres").duplicate()
 				effect.cooldown = i
 				effect.value1 = 2
@@ -287,7 +292,8 @@ func apply_hydromancer(rem : Remnant, attack_body : Node):
 			glitch_dir.rotated(randf_range(-15,15))
 			_glitch_move(glitch_dir.normalized() * 160)
 			effect = load("res://Game Elements/Effects/stun.tres").duplicate()
-			effect.cooldown = rem.rank / 2.5
+			@warning_ignore("integer_division")
+			effect.cooldown = rem.rank + (mancer_value / 2) / 2.5
 			effect.gained(self)
 			effects.append(effect)
 		_:

@@ -99,17 +99,16 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 	var instance
 	if variant:
 		instance = load(special_attack_scene).instantiate()
-		apply_remnants(instance)
 		if instance.attack_type=="crowbar_melee":
 			instance.scale.x *= flip *-1
 		instance.direction = attack_direction
 		instance.global_position = attack_position
 		instance.c_owner = c_owner
+		apply_remnants(instance)
 		if c_owner.is_in_group("player"):
 			instance.damage *= c_owner.damage_boost()
 	else:
 		instance = load(attack_scene).instantiate()
-		apply_remnants(instance)
 		if instance.attack_type=="crowbar_melee":
 			instance.scale.x *= flip *-1
 		instance.direction = attack_direction
@@ -125,6 +124,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 		instance.start_lag = start_lag
 		instance.cooldown = cooldown
 		instance.pierce = pierce
+		apply_remnants(instance)
 	instance.is_purple = c_owner.is_purple if c_owner.is_in_group("player") else false
 	if(particle_effect != ""):
 		var effect = load("res://Game Elements/particles/" + particle_effect + ".tscn").instantiate()
@@ -134,32 +134,35 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 func apply_remnants(attack_instance):
 	var remnants : Array[Remnant]
 	if c_owner != null && c_owner.is_in_group("player"):
+		var mancer_value = 0
 		var terramancer = load("res://Game Elements/Remnants/terramancer.tres")
 		var aeromancer = load("res://Game Elements/Remnants/aeromancer.tres")
 		var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
 		var intelligence = load("res://Game Elements/Remnants/intelligence.tres")
 		if c_owner.is_purple:
 			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_1_remnants
+			mancer_value = c_owner.mancermancer_values[0]
 		else:
 			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_2_remnants
+			mancer_value = c_owner.mancermancer_values[1]
 		attack_instance.intelligence = null
 		for rem in remnants:
 			match rem.remnant_name:
 				terramancer.remnant_name:
 					if c_owner.velocity.length() <= .1:
 						attack_instance.scale = attack_instance.scale * (1 + rem.variable_2_values[rem.rank-1] / 4)
-						attack_instance.hit_force = attack_instance.hit_force * (1 + rem.variable_2_values[rem.rank-1] / 4)
+						attack_instance.hit_force = attack_instance.hit_force * (1 + mancer_value + rem.variable_2_values[rem.rank-1] / 4)
+						attack_instance.knockback_force = attack_instance.knockback_force * (1 + (mancer_value / 2) + rem.variable_2_values[rem.rank-1] / 4)
 				aeromancer.remnant_name:
 					var similarity = attack_instance.direction.normalized().dot(c_owner.velocity.normalized())
 					if(attack_instance.speed != 0):
 						#Possibly add a min so it can't go lower than base damage? 
 						#Nah thats lame
-						attack_instance.damage = abs(attack_instance.damage * (((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed) /  attack_instance.speed))
-						attack_instance.speed = ((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed)
+						attack_instance.damage = abs(attack_instance.damage * (((similarity * c_owner.velocity.length() * ((mancer_value * 50) + rem.variable_1_values[rem.rank-1]) / 100) + attack_instance.speed) /  attack_instance.speed))
+						attack_instance.speed = ((similarity * c_owner.velocity.length() * ((mancer_value * 50) + rem.variable_1_values[rem.rank-1]) / 100) + attack_instance.speed)
 					else:
-						print(abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)))
-						attack_instance.damage = abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1))
-						attack_instance.speed = (.5 * similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100)
+						attack_instance.damage = abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * ((mancer_value * 50) + rem.variable_1_values[rem.rank-1]) / 100) + 1))
+						attack_instance.speed = (.5 * similarity * c_owner.velocity.length() * ((mancer_value * 50) + rem.variable_1_values[rem.rank-1]) / 100)
 				hydromancer.remnant_name:
 					attack_instance.last_liquid = c_owner.last_liquid
 					c_owner.last_liquid = Globals.Liquid.Buffer

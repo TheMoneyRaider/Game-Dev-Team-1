@@ -95,12 +95,29 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/hydromancer.tres")
+	var rem = load("res://Game Elements/Remnants/pyromancer.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem.duplicate(true))
-	rem = load("res://Game Elements/Remnants/cleric.tres")
+	rem = load("res://Game Elements/Remnants/mancermancer.tres")
 	rem.rank = 5
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	player1.mancermancer_values[0] = rem.rank 
+	if(is_multiplayer):
+		player2.mancermancer_values[1] = rem.rank 
+	else:
+		player1.mancermancer_values[1] = rem.rank 
+	rem = load("res://Game Elements/Remnants/hydromancer.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/aeromancer.tres")
+	rem.rank = 4
+	player_1_remnants.append(rem.duplicate(true))
+	player_2_remnants.append(rem.duplicate(true))
+	rem = load("res://Game Elements/Remnants/terramancer.tres")
+	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem.duplicate(true))
 	"""
@@ -1460,8 +1477,16 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 		layer_ai[7]+=1
 
 func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
+	var mancermancer = load("res://Game Elements/Remnants/mancermancer.tres")
 	player_1_remnants.append(remnant1.duplicate(true))
 	player_2_remnants.append(remnant2.duplicate(true))
+	if(remnant1.remnant_name == mancermancer.remnant_name):
+		player1.mancermancer_values[0] = remnant1.rank
+	elif(remnant2.remnant_name == mancermancer.remnant_name):
+		if(is_multiplayer):
+			player2.mancermancer_values[1] = remnant2.rank
+		else:
+			player1.mancermancer_values[1] = remnant2.rank
 	remnant_offer_popup.queue_free()
 	player1.get_node("Crosshair").visible = true
 	if is_multiplayer:
@@ -1473,12 +1498,20 @@ func _on_remnant_chosen(remnant1 : Resource, remnant2 : Resource):
 		player2.display_combo()
 
 func _on_remnant_upgraded(remnant1 : Resource, remnant2 : Resource):
+	var mancermancer = load("res://Game Elements/Remnants/mancermancer.tres")
 	for i in range(player_1_remnants.size()):
 		if player_1_remnants[i] == remnant1:
 			player_1_remnants[i].rank +=1
 	for i in range(player_2_remnants.size()):
 		if player_2_remnants[i] == remnant2:
 			player_2_remnants[i].rank +=1
+	if(remnant1.remnant_name == mancermancer.remnant_name):
+		player1.mancermancer_values[0] = remnant1.rank
+	elif(remnant2.remnant_name == mancermancer.remnant_name):
+		if(is_multiplayer):
+			player2.mancermancer_values[1] = remnant2.rank
+		else:
+			player1.mancermancer_values[1] = remnant2.rank
 	remnant_upgrade_popup.queue_free()
 	player1.get_node("Crosshair").visible = true
 	if is_multiplayer:

@@ -58,6 +58,7 @@ var attacks = [preload("res://Game Elements/Attacks/bolt.tscn"),preload("res://G
 var revive = preload("res://Game Elements/Attacks/death_mark.tscn")
 var cooldowns = [0,0]
 var is_purple = true
+var mancermancer_values = [0,0]
 
 signal attack_requested(new_attack : PackedScene, t_position : Vector2, t_direction : Vector2, damage_boost : float)
 signal player_took_damage(damage : int, c_health : int, c_node : Node)
