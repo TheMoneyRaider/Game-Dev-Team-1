@@ -116,6 +116,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 	var instance
 	if variant:
 		instance = load(special_attack_scene).instantiate()
+    apply_remnants(instance)
 		if instance.attack_type=="crowbar_melee":
 			instance.scale.x *= flip *-1
 		instance.intelligence = intelligence
@@ -147,6 +148,39 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
 		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
+
+func apply_remnants(attack_instance):
+	var remnants : Array[Remnant]
+	if c_owner != null && c_owner.is_in_group("player"):
+		var terramancer = load("res://Game Elements/Remnants/terramancer.tres")
+		var aeromancer = load("res://Game Elements/Remnants/aeromancer.tres")
+		var hydromancer = load("res://Game Elements/Remnants/hydromancer.tres")
+		if c_owner.is_purple:
+			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_1_remnants
+		else:
+			remnants = c_owner.get_tree().get_root().get_node("LayerManager").player_2_remnants
+		for rem in remnants:
+			match rem.remnant_name:
+				terramancer.remnant_name:
+					if c_owner.velocity.length() <= .1:
+						attack_instance.scale = attack_instance.scale * (1 + rem.variable_2_values[rem.rank-1] / 4)
+						attack_instance.hit_force = attack_instance.hit_force * (1 + rem.variable_2_values[rem.rank-1] / 4)
+				aeromancer.remnant_name:
+					var similarity = attack_instance.direction.normalized().dot(c_owner.velocity.normalized())
+					if(attack_instance.speed != 0):
+						#Possibly add a min so it can't go lower than base damage? 
+						#Nah thats lame
+						attack_instance.damage = abs(attack_instance.damage * (((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed) /  attack_instance.speed))
+						attack_instance.speed = ((similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + attack_instance.speed)
+					else:
+						print(abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1)))
+						attack_instance.damage = abs(attack_instance.damage * ((similarity * (.005) * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100) + 1))
+						attack_instance.speed = (.5 * similarity * c_owner.velocity.length() * rem.variable_1_values[rem.rank-1] / 100)
+				hydromancer.remnant_name:
+					attack_instance.last_liquid = c_owner.last_liquid
+					c_owner.last_liquid = Globals.Liquid.Buffer
+				_:
+					pass
 
 
 var laser_camera_distancex = 240
