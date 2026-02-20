@@ -86,6 +86,7 @@ var layer_ai := [
 	]
 
 func _ready() -> void:
+	$game_container.material = $game_container.material.duplicate(true)
 	var conflict_cells : Array[Vector2i] = []
 	_setup_players()
 	hud.set_players(player1,player2)

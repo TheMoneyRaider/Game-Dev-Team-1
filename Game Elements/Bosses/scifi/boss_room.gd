@@ -62,6 +62,7 @@ func scifi_phase1_to_2():
 	print(boss.get_node("AnimationTree").get("parameters/conditions/idle"))
 	await get_tree().create_timer(3.0, false).timeout
 	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
 	animation_change("idle")
 	$Forcefield.queue_free()
 	boss.current_health = boss.boss_healthpools[phase]
@@ -72,6 +73,26 @@ func scifi_phase1_to_2():
 
 	
 func scifi_phase2_to_3():
+	animation_change("dead")
+	#Cleanup attacks and enemies
+	for child in get_children():
+		if child.is_in_group("enemy") and !child.is_boss:
+			child.current_health = -1
+			child.emit_signal("enemy_took_damage",100,child.current_health,child,Vector2(0,-1))
+		if child.is_in_group("attack"):
+			child.queue_free()
+	#Cleanup possible laser
+	var s_material = LayerManager.get_node("game_container").material
+	s_material.set_shader_parameter("laser_impact_time", -2)
+	#Disable animation system
+	boss.get_node("AnimationTree").active = false
+	boss.get_node("BTPlayer").active = false
+	#Explode boss
+	
+	
+	#
+	
+	
 	if phase_changing:
 		return
 	boss.hitable = false
@@ -85,33 +106,40 @@ func scifi_phase2_to_3():
 	attack_inst.c_owner = boss
 	attack_inst.direction = Vector2.UP
 	call_deferred("add_child",attack_inst)
-	var s_material = LayerManager.get_node("game_container").material
 	s_material.set_shader_parameter("ultimate", true)
 	var tween = create_tween()
 	tween.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,0.0),3.0)
 	tween.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,0.0),3.0)
-	await get_tree().create_timer(6, false).timeout
+	await get_tree().create_timer(8, false).timeout
 	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
 	Hud.update_bossbar(1.0)
-	if boss_type == "scifi":
-		$Ground.visible = false
-		$Filling.visible = false
-		$Ground_Cyber.visible = true
-		$ColorRect.visible = true
-		$Filling_Cyber.visible = true
+	$Ground.visible = false
+	$Filling.visible = false
+	$Ground_Cyber.visible = true
+	$ColorRect.visible = true
+	$Filling_Cyber.visible = true
+	await get_tree().create_timer(3, false).timeout
+	var tween2 = create_tween()
+	#Animate towards idle
 	
 	
 	
+	
+	
+	
+	boss.get_node("AnimationTree").active = true
+	boss.get_node("BTPlayer").active = true
+	
+	#Fully bring back boss
 	phase_changing = false
 	boss.current_health = boss.boss_healthpools[phase]
 	boss.max_health = boss.boss_healthpools[phase]
-	await get_tree().create_timer(3, false).timeout
-	var tween2 = create_tween()
-	tween2.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,1.0),3.0)
-	tween2.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,1.0),3.0)
+	tween2.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,1.0),1.0)
+	tween2.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,1.0),1.0)
 
 	boss.hitable = true
-	await get_tree().create_timer(3, false).timeout
+	
+	await get_tree().create_timer(1, false).timeout
 	s_material.set_shader_parameter("ultimate", false)
 	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 	
@@ -283,9 +311,14 @@ func animation_reset() -> void:
 		rimvis.rotation = 0
 
 func scifi_laser_attack(num_lasers):
+	if phase_changing:
+		return
+	print("LASEEERRRRRRR")
 	animation_change("basic_laser")
 	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",true)
 	await get_tree().create_timer(3.0, false).timeout
+	if phase_changing:
+		return
 	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",false)
 	
 	var gun = boss.get_node("Segments/GunParts")
@@ -313,18 +346,18 @@ func scifi_laser_attack(num_lasers):
 	idle_timer.start()
 	while idle_timer.time_left > 0:
 		track_position = player1.global_position if is_purple else player2.global_position
-		
-		# Update laser direction
-		inst.direction = Vector2.RIGHT.rotated(gun.rotation)
-		inst.global_position = boss.global_position
-		inst.l_rotation = rad_to_deg(gun.rotation)
-		inst._update_laser_collision_shapes()
-		#Update shader
-		var s_material = LayerManager.get_node("game_container").material
-		s_material.set_shader_parameter("laser_rotation",inst.l_rotation)
-		s_material.set_shader_parameter("laser_impact_world_pos",inst.global_position)
-		if get_tree():
-			await get_tree().process_frame
+		if inst:
+			# Update laser direction
+			inst.direction = Vector2.RIGHT.rotated(gun.rotation)
+			inst.global_position = boss.global_position
+			inst.l_rotation = rad_to_deg(gun.rotation)
+			inst._update_laser_collision_shapes()
+			#Update shader
+			var s_material = LayerManager.get_node("game_container").material
+			s_material.set_shader_parameter("laser_rotation",inst.l_rotation)
+			s_material.set_shader_parameter("laser_impact_world_pos",inst.global_position)
+			if get_tree():
+				await get_tree().process_frame
 	animation_change("idle")
 	
 

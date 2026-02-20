@@ -224,13 +224,13 @@ float wave_fraction(sampler2D text, vec2 uv){
 	}
 	float wave_width2=wave_width;
 	if (ultimate)
-		wave_width2*=2.0;
+		wave_width2*=.5;
 
 	// Wave radius
 	float wave_radius = elapsed * wave_speed;
 	float edge_dist = dist - wave_radius;
 	
-	if (ultimate && edge_dist < 0.0 && edge_dist > -wave_speed*6.1) {
+	if (ultimate && edge_dist < 0.0 && edge_dist > -wave_speed*8.0) {
 
 		float t = clamp(-edge_dist / wave_width2, 0.0, 2.0);
 
