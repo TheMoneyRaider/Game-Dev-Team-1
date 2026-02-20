@@ -354,6 +354,11 @@ func boss_signal(sig :String, value1, value2):
 	if is_boss:
 		get_parent().boss_signal(sig,value1,value2)
 
+func clear_effects():
+	for effect in effects:
+		effect.lost(self)
+
+
 func _draw():
 	if !debug_mode:
 		return

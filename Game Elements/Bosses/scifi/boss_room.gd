@@ -60,11 +60,12 @@ func scifi_phase1_to_2():
 	print(boss.get_node("AnimationTree").get("parameters/conditions/idle"))
 	await get_tree().create_timer(3.0).timeout
 	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
-	animation = "idle"
+	animation_change("idle")
 	$Forcefield.queue_free()
 	boss.current_health = boss.boss_healthpools[phase]
 	boss.max_health = boss.boss_healthpools[phase]
 	phase_changing = false
+	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 	
 func _get_track_index_for_path(anim: Animation, path: NodePath) -> int:
 	for i in anim.get_track_count():
@@ -115,6 +116,7 @@ func scifi_phase2_to_3():
 	boss.hitable = true
 	await get_tree().create_timer(3).timeout
 	s_material.set_shader_parameter("ultimate", false)
+	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 	
 
 var lifetime = 0.0
@@ -146,10 +148,7 @@ func finish_intro():
 	if is_multiplayer:
 		player2.disabled = false
 	LayerManager.camera_override = false
-	var bt_player = boss.get_node("BTPlayer")
-	var board = bt_player.blackboard
-	if board:
-		board.set_var("attack_mode", "NONE")
+	boss.get_node("BTPlayer").blackboard.set_var("attack_mode", "NONE")
 	return
 
 func get_enemy_count()-> int:
@@ -275,12 +274,68 @@ func boss_animation():
 					var new_position =Vector2.UP.rotated(deg_to_rad(angle)) * (32 +sin(lifetime*count/3)*2)
 					child.get_node("RimVis").global_position = new_position + boss.global_position
 					child.get_node("RimVis").global_rotation = deg_to_rad(angle - 224)
-			_:
-				for child in boss.get_node("Segments/Rims").get_children():
-					child.get_node("RimVis").position =Vector2.ZERO
-					child.get_node("RimVis").rotation = 0
-				
-				
+			"basic_laser":
+				var gun = boss.get_node("Segments/GunParts")
+				gun.rotation = lerp_angle(gun.rotation, (track_position - boss.global_position).angle(), 0.03)
+var resetting = 0
+
+func animation_change(new_anim: String) -> void:
+	animation_reset()
+	animation = new_anim
+
+func animation_reset() -> void:
+	var rims = boss.get_node("Segments/Rims")
+	for rim in rims.get_children():
+		var rimvis = rim.get_node("RimVis")
+		rimvis.position = Vector2.ZERO
+		rimvis.rotation = 0
+
+func scifi_laser_attack(num_lasers):
+	animation_change("basic_laser")
+	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",true)
+	await get_tree().create_timer(3.0).timeout
+	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",false)
+	
+	var gun = boss.get_node("Segments/GunParts")
+	var board = boss.get_node("BTPlayer").blackboard
+	var is_purple = board.get_var("player_idx") as bool
+	var track_position = player1.global_position if is_purple else player2.global_position
+	var inst = load("res://Game Elements/Bosses/scifi/singul_laser_attack.tscn").instantiate()
+	
+	inst.direction = Vector2.RIGHT.rotated(lerp_angle(gun.rotation, (track_position - boss.global_position).angle(), 0.03))
+	
+	inst.global_position = boss.global_position
+	inst.c_owner= boss
+	inst.laser_rotation = false
+	inst.num_lasers = num_lasers
+	inst.laser_wave_width = 2048
+	inst.lifespan = 12.1
+	add_child(inst)
+	
+	
+	# Optional longer idle wait, also using frame loop
+	var idle_timer = Timer.new()
+	idle_timer.wait_time = 12.0
+	idle_timer.one_shot = true
+	add_child(idle_timer)
+	idle_timer.start()
+	while idle_timer.time_left > 0:
+		track_position = player1.global_position if is_purple else player2.global_position
+		
+		# Update laser direction
+		inst.direction = Vector2.RIGHT.rotated(gun.rotation)
+		inst.global_position = boss.global_position
+		#Update shader
+		var s_material = LayerManager.get_node("game_container").material
+		s_material.set_shader_parameter("laser_rotation",rad_to_deg(gun.rotation))
+		s_material.set_shader_parameter("laser_impact_world_pos",inst.global_position)
+		
+		await get_tree().process_frame
+	animation_change("idle")
+	
+
+
+
 
 
 func activate(camera_in : Node, player1_in : Node, player2_in : Node):
@@ -290,7 +345,9 @@ func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	player1 = player1_in
 	player2 = player1_in
 	if boss_type=="scifi":
-		animation = "dead"
+		animation_change("dead")
+		var bt_player = boss.get_node("BTPlayer")
+		bt_player.blackboard.set_var("attack_mode", "NONE")
 	return
 	#player1.disabled = true
 	#print(player1.disabled)

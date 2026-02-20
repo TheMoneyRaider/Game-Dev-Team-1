@@ -1,7 +1,14 @@
-[gd_resource type="BehaviorTree" load_steps=16 format=3 uid="uid://b7lkxmyacbk8i"]
+[gd_resource type="BehaviorTree" load_steps=49 format=3 uid="uid://b7lkxmyacbk8i"]
 
 [ext_resource type="Script" uid="uid://dr4vkyorjqaqn" path="res://ai/tasks/getPlayerPos.gd" id="1_3ncdb"]
 [ext_resource type="Script" uid="uid://dgy3vj6nno8qj" path="res://ai/tasks/signul_phase1_spawn.gd" id="2_g4v1g"]
+[ext_resource type="Script" uid="uid://c7b86gm25q0p3" path="res://ai/tasks/player_in_range.gd" id="3_3ncdb"]
+[ext_resource type="Script" uid="uid://c0bvdm1o3wjaq" path="res://ai/tasks/random_cooldown.gd" id="3_halj7"]
+[ext_resource type="Script" uid="uid://bxroggxsr4oc8" path="res://ai/tasks/singul_laser_attack.gd" id="4_halj7"]
+[ext_resource type="Script" uid="uid://ravfjih580jj" path="res://ai/tasks/moveToPlayer.gd" id="4_ofden"]
+[ext_resource type="Script" uid="uid://cmb8joe4lefgx" path="res://ai/tasks/binary_melee_attack.gd" id="5_halj7"]
+[ext_resource type="Script" uid="uid://yu3fkdlxtfbv" path="res://ai/tasks/calcPath.gd" id="6_qh4k4"]
+[ext_resource type="Script" uid="uid://dko7uh5a2dm00" path="res://ai/tasks/moveToPos.gd" id="7_d73ak"]
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_ak6g3"]
 var/state/name = &"state"
@@ -89,9 +96,111 @@ children = [SubResource("BTAction_kb6oh")]
 custom_name = "Phase1"
 children = [SubResource("BTCheckVar_3ncdb"), SubResource("BTCooldown_f1oat")]
 
+[sub_resource type="BBVariant" id="BBVariant_3ncdb"]
+type = 2
+saved_value = 1
+resource_name = "1"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_ofden"]
+variable = &"phase"
+value = SubResource("BBVariant_3ncdb")
+
+[sub_resource type="BTAction" id="BTAction_igv7k"]
+script = ExtResource("3_halj7")
+min_time = 3.0
+max_time = 10.0
+
+[sub_resource type="BTAction" id="BTAction_21cce"]
+custom_name = "InnerRange"
+script = ExtResource("3_3ncdb")
+hit_range = 128
+
+[sub_resource type="BTAction" id="BTAction_jjyxl"]
+script = ExtResource("4_halj7")
+num_lasers = 1
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_halj7"]
+
+[sub_resource type="BTDelay" id="BTDelay_halj7"]
+seconds = 15.0
+children = [SubResource("BTAlwaysSucceed_halj7")]
+
+[sub_resource type="BTSequence" id="BTSequence_bhc8s"]
+custom_name = "Attack if in Range"
+children = [SubResource("BTAction_igv7k"), SubResource("BTAction_21cce"), SubResource("BTAction_jjyxl"), SubResource("BTDelay_halj7")]
+
+[sub_resource type="BTCooldown" id="BTCooldown_halj7"]
+children = [SubResource("BTSequence_bhc8s")]
+
+[sub_resource type="BTAction" id="BTAction_qh4k4"]
+script = ExtResource("6_qh4k4")
+
+[sub_resource type="BTAction" id="BTAction_d73ak"]
+script = ExtResource("7_d73ak")
+
+[sub_resource type="BTSequence" id="BTSequence_jjyxl"]
+custom_name = "Follow"
+children = [SubResource("BTAction_qh4k4"), SubResource("BTAction_d73ak")]
+
+[sub_resource type="BTSelector" id="BTSelector_ykgfq"]
+custom_name = "Tree"
+children = [SubResource("BTCooldown_halj7"), SubResource("BTSequence_jjyxl")]
+
+[sub_resource type="BTSequence" id="BTSequence_swuqo"]
+custom_name = "Phase2"
+children = [SubResource("BTCheckVar_ofden"), SubResource("BTSelector_ykgfq")]
+
+[sub_resource type="BBVariant" id="BBVariant_igv7k"]
+type = 2
+saved_value = 2
+resource_name = "2"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_21cce"]
+variable = &"phase"
+value = SubResource("BBVariant_igv7k")
+
+[sub_resource type="BTAction" id="BTAction_bhc8s"]
+custom_name = "OuterRange"
+script = ExtResource("3_3ncdb")
+hit_range = 64
+
+[sub_resource type="BTAction" id="BTAction_jnv2x"]
+custom_name = "MoveToPlayer"
+script = ExtResource("4_ofden")
+
+[sub_resource type="BTAction" id="BTAction_vpiw0"]
+custom_name = "InnerRange"
+script = ExtResource("3_3ncdb")
+hit_range = 48
+
+[sub_resource type="BTAction" id="BTAction_eeyes"]
+script = ExtResource("5_halj7")
+
+[sub_resource type="BTSequence" id="BTSequence_ykgfq"]
+custom_name = "Attack if in Range"
+children = [SubResource("BTAction_bhc8s"), SubResource("BTAction_jnv2x"), SubResource("BTAction_vpiw0"), SubResource("BTAction_eeyes")]
+
+[sub_resource type="BTAction" id="BTAction_swuqo"]
+script = ExtResource("6_qh4k4")
+
+[sub_resource type="BTAction" id="BTAction_53541"]
+script = ExtResource("7_d73ak")
+
+[sub_resource type="BTSequence" id="BTSequence_xh1cj"]
+custom_name = "Follow"
+children = [SubResource("BTAction_swuqo"), SubResource("BTAction_53541")]
+
+[sub_resource type="BTSelector" id="BTSelector_14tjq"]
+custom_name = "Tree"
+children = [SubResource("BTSequence_ykgfq"), SubResource("BTSequence_xh1cj")]
+
+[sub_resource type="BTSequence" id="BTSequence_6u0pp"]
+custom_name = "Phase3"
+children = [SubResource("BTCheckVar_21cce"), SubResource("BTSelector_14tjq")]
+
 [sub_resource type="BTSelector" id="BTSelector_mrfvi"]
 custom_name = "Phases"
-children = [SubResource("BTSequence_ygkkq"), SubResource("BTSequence_ofden")]
+children = [SubResource("BTSequence_ygkkq"), SubResource("BTSequence_ofden"), SubResource("BTSequence_swuqo"), SubResource("BTSequence_6u0pp")]
 
 [sub_resource type="BTSequence" id="BTSequence_7l6ws"]
 custom_name = "Constant and Behavior"

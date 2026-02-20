@@ -1433,6 +1433,8 @@ func _on_enemy_take_damage(damage : int,current_health : int,enemy : Node, direc
 	if current_health <= 0:
 		for node in get_tree().get_nodes_in_group("attack"):
 			if node.c_owner == enemy:
+				if node.has_method("clear_effects"):
+					node.clear_effects()
 				node.queue_free()
 		_enemy_to_timefabric(enemy,direction,Vector2(enemy.min_timefabric,enemy.max_timefabric))
 		enemy.visible=false
