@@ -80,7 +80,7 @@ func _ready():
 	ready_hacks()
 	frozen = true
 	if start_lag > 0.0:
-		await get_tree().create_timer(start_lag).timeout
+		await get_tree().create_timer(start_lag, false).timeout
 	frozen = false
 	if spawn_particle:
 		var inst = spawn_particle.instantiate()

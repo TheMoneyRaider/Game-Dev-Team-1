@@ -99,7 +99,7 @@ func _add_slot(grid: Node, remnant: Resource, has_ranked : bool = false, is_purp
 		mat.shader = HIGHLIGHT_SHADER
 		mat.set_shader_parameter("start_time", Time.get_ticks_msec() / 1000.0)
 		slot.get_node("TextureRect").material = mat
-		await get_tree().create_timer(.5).timeout
+		await get_tree().create_timer(.5, false).timeout
 		label.text = _num_to_roman(remnant.rank)
 
 func _setup_focus_connections():

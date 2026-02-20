@@ -60,7 +60,7 @@ func scifi_phase1_to_2():
 	await tween.finished
 	boss.get_node("AnimationTree").set("parameters/conditions/idle",true)
 	print(boss.get_node("AnimationTree").get("parameters/conditions/idle"))
-	await get_tree().create_timer(3.0).timeout
+	await get_tree().create_timer(3.0, false).timeout
 	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
 	animation_change("idle")
 	$Forcefield.queue_free()
@@ -90,7 +90,7 @@ func scifi_phase2_to_3():
 	var tween = create_tween()
 	tween.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,0.0),3.0)
 	tween.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,0.0),3.0)
-	await get_tree().create_timer(6).timeout
+	await get_tree().create_timer(6, false).timeout
 	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
 	Hud.update_bossbar(1.0)
 	if boss_type == "scifi":
@@ -105,13 +105,13 @@ func scifi_phase2_to_3():
 	phase_changing = false
 	boss.current_health = boss.boss_healthpools[phase]
 	boss.max_health = boss.boss_healthpools[phase]
-	await get_tree().create_timer(3).timeout
+	await get_tree().create_timer(3, false).timeout
 	var tween2 = create_tween()
 	tween2.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,1.0),3.0)
 	tween2.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,1.0),3.0)
 
 	boss.hitable = true
-	await get_tree().create_timer(3).timeout
+	await get_tree().create_timer(3, false).timeout
 	s_material.set_shader_parameter("ultimate", false)
 	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 	
@@ -233,7 +233,7 @@ func scifi_phase1_middles():
 	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
 	var tween = create_tween()
 	tween.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
-	await get_tree().create_timer(8.0).timeout
+	await get_tree().create_timer(8.0, false).timeout
 	if middle_active <= 1:
 		# Disable the boss collision
 		boss.get_node("CollisionShape2D").set_deferred("disabled", true)
@@ -285,7 +285,7 @@ func animation_reset() -> void:
 func scifi_laser_attack(num_lasers):
 	animation_change("basic_laser")
 	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",true)
-	await get_tree().create_timer(3.0).timeout
+	await get_tree().create_timer(3.0, false).timeout
 	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",false)
 	
 	var gun = boss.get_node("Segments/GunParts")
