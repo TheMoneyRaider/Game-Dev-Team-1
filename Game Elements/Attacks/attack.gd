@@ -432,7 +432,7 @@ func resume_shaders():
 		
 var wave_attack_dist = 1000.0
 func _wave_attack_setup():
-	$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate(true)
+	$CollisionShape2D.call_deferred("set", "shape", $CollisionShape2D.shape.duplicate(true))
 	var s_material = LayerManager.get_node("game_container").material
 	var visible_size = Vector2(get_viewport().size) / LayerManager.camera.zoom
 	s_material.set_shader_parameter("wave_impact_world_pos", global_position)

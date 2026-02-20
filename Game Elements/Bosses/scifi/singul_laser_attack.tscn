@@ -16,7 +16,6 @@ cooldown = 0.0
 pierce = -2.0
 wall_collision = false
 attack_type = "scifi_laser"
-i_frames = 5
 repeat_hits = true
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]

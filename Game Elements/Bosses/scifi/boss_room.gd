@@ -52,6 +52,8 @@ func scifi_phase1_to_2():
 		return
 	phase_changing = true
 	phase = boss.phase
+	
+	boss.hitable = false
 	$Forcefield/CollisionShape2D.set_deferred("disabled", true)
 	var tween = create_tween()
 	tween.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
@@ -65,14 +67,9 @@ func scifi_phase1_to_2():
 	boss.current_health = boss.boss_healthpools[phase]
 	boss.max_health = boss.boss_healthpools[phase]
 	phase_changing = false
+	boss.hitable = true
 	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
-	
-func _get_track_index_for_path(anim: Animation, path: NodePath) -> int:
-	for i in anim.get_track_count():
-		if anim.track_get_path(i) == path:
-			return i
-	return -1
-	
+
 	
 func scifi_phase2_to_3():
 	if phase_changing:
@@ -151,19 +148,10 @@ func finish_intro():
 	boss.get_node("BTPlayer").blackboard.set_var("attack_mode", "NONE")
 	return
 
-func get_enemy_count()-> int:
-	var count = 0
-	for enemy in get_tree().get_nodes_in_group("enemy"):
-		if "is_boss" in enemy and !enemy.is_boss:
-			count+=1
-	return count
-
 
 func boss_signal(sig :String, value1, value2):
 	match sig:
 		"spawn_enemies":
-			if get_enemy_count() > 8:
-				return
 			if is_multiplayer:
 				Spawner.spawn_enemies([player1,player2], self, LayerManager.placable_cells.duplicate(),LayerManager.room_instance_data,LayerManager,true,value1,value2)
 			else:
@@ -179,7 +167,9 @@ func boss_signal(sig :String, value1, value2):
 				
 					var board = child.get_node("BTPlayer").blackboard
 					if board.get_var("state") == "spawning":
-						return
+						continue
+					if phase < 2 and !child.is_boss:
+						child.global_position.y = max(child.global_position.y,-80)
 					var distances_squared = []
 					for pos in positions: 
 						distances_squared.append(child.global_position.distance_squared_to(pos))
@@ -312,7 +302,7 @@ func scifi_laser_attack(num_lasers):
 	inst.num_lasers = num_lasers
 	inst.laser_wave_width = 2048
 	inst.lifespan = 12.1
-	add_child(inst)
+	call_deferred("add_child",inst)
 	
 	
 	# Optional longer idle wait, also using frame loop
