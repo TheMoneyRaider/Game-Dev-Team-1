@@ -225,7 +225,7 @@ func _on_enemy_take_damage(_damage : int,current_health : int,_enemy : Node, dir
 		if  mini_phase1 != 3 and mini_phase1 >  mini_phase2:
 			scifi_phase1_middles()
 		
-
+var middle_active : int = 0
 func scifi_phase1_middles():
 	var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
 	attack_inst.global_position = boss.global_position
@@ -236,22 +236,24 @@ func scifi_phase1_middles():
 	var board = bt_player.blackboard
 	if board:
 		board.set_var("attack_mode", "DISABLED")
+	middle_active +=1
 	# Disable the forcefield collision
 	$Forcefield/CollisionShape2D.set_deferred("disabled", true)
 	# Enable the boss collision
 	boss.get_node("CollisionShape2D").set_deferred("disabled", false)
 	var tween = create_tween()
 	tween.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
-	await get_tree().create_timer(14.0).timeout
-	
-	# Disable the boss collision
-	boss.get_node("CollisionShape2D").set_deferred("disabled", true)
-	# Enable the forcefield collision
-	$Forcefield/CollisionShape2D.set_deferred("disabled", false)
+	await get_tree().create_timer(8.0).timeout
+	if middle_active <= 1:
+		# Disable the boss collision
+		boss.get_node("CollisionShape2D").set_deferred("disabled", true)
+		# Enable the forcefield collision
+		$Forcefield/CollisionShape2D.set_deferred("disabled", false)
 	var tween2 = create_tween()
 	tween2.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,1.0),1.0)
 	if board:
 		board.set_var("attack_mode", "NONE")
+	middle_active -=1
 	
 
 
@@ -337,9 +339,6 @@ func scifi_laser_attack(num_lasers):
 	
 
 
-
-
-
 func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	print("boss room activate")
 	active = true
@@ -349,7 +348,7 @@ func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	if boss_type=="scifi":
 		animation_change("dead")
 		var bt_player = boss.get_node("BTPlayer")
-		bt_player.blackboard.set_var("attack_mode", "NONE")
+		bt_player.blackboard.set_var("attack_mode", "DISABLED")
 	#return
 	player1.disabled = true
 	print(player1.disabled)
