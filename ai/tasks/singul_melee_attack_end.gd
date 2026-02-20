@@ -1,19 +1,19 @@
 extends BTAction
 
 var num_attacks = 5
-var attack_spread : float = 30
+var attack_spread : float = 80
 var split_attacks = true
 var random_spread = true
-var spawn_distance = 16
+var spawn_distance = 0
 
 
 func _tick(_delta: float) -> Status:
 	
 	agent.get_node("Segments").modulate =Color(1.0, 1.0, 1.0, 1.0)
 	var board = agent.get_node("BTPlayer").blackboard
-	var is_purple = board.get_var("player_idx")
-	var positions = board.get_var("player_positions")
-	var direction = (positions[is_purple] - agent.global_position).normalized()
+	var is_purple = board.get_var("player_idx") as bool
+	var track_position = agent.get_parent().player1.global_position if is_purple else agent.get_parent().player2.global_position
+	var direction = (track_position - agent.global_position).normalized()
 	request_attacks(direction,agent.global_position)
 	return SUCCESS
 
@@ -39,10 +39,8 @@ func request_attacks(direction : Vector2, char_position : Vector2):
 			
 
 func spawn_attack(attack_direction : Vector2, attack_position : Vector2):
-	var instance = load("res://Game Elements/Attacks/robot_melee.tscn").instantiate()
+	var instance = load("res://Game Elements/Bosses/scifi/signul_melee.tscn").instantiate()
 	instance.direction = attack_direction
 	instance.global_position = attack_position
 	instance.c_owner = agent
-	instance.speed *= 2.0
-	instance.scale *= 2.0
 	agent.get_parent().add_child(instance)

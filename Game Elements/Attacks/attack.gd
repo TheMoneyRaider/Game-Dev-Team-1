@@ -227,15 +227,16 @@ func _process(delta):
 	queue_free()
 	
 func apply_damage(body : Node, n_owner : Node, damage_dealt : int, a_direction: Vector2) -> int:
-	#Computer Hack Remnant
-	var hack_chance1 = 0.0 if !hack1 else hack1.variable_1_values[hack1.rank-1]/100.0
-	var hack_chance2 = 0.0 if !hack2 else hack2.variable_1_values[hack2.rank-1]/100.0
-	if hack_chance1 > randf():
-		n_owner = LayerManager.player1
-	if hack_chance2 > randf():
-		n_owner = LayerManager.player1
-		if Globals.is_multiplayer:
-			n_owner = LayerManager.player2
+	if attack_type != "scifi_laser":
+		#Computer Hack Remnant
+		var hack_chance1 = 0.0 if !hack1 else hack1.variable_1_values[hack1.rank-1]/100.0
+		var hack_chance2 = 0.0 if !hack2 else hack2.variable_1_values[hack2.rank-1]/100.0
+		if hack_chance1 > randf():
+			n_owner = LayerManager.player1
+		if hack_chance2 > randf():
+			n_owner = LayerManager.player1
+			if Globals.is_multiplayer:
+				n_owner = LayerManager.player2
 	if body == n_owner and !hits_owner:
 		return 0
 	if n_owner.is_in_group("player") and body.is_in_group("player") and !hits_all:

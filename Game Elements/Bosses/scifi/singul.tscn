@@ -2486,6 +2486,7 @@ collision_layer = 4
 collision_mask = 15
 script = ExtResource("1_lfybw")
 max_health = 2000
+enemy_type = "signul"
 displays = Array[NodePath]([NodePath("")])
 min_timefabric = 20
 max_timefabric = 30
