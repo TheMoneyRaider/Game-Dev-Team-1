@@ -26,6 +26,7 @@ var phase = 0
 @export var phase_overlay_index : Array[int]
 @export var boss_type : String =""
 var phase_changing : bool = false
+var animation : String = ""
 
 
 func _ready() -> void:
@@ -97,23 +98,25 @@ var lifetime = 0.0
 var animation_time = 7.0
 var fade_time = .75
 var camera_move_time = 3.0
-
 func _process(delta: float) -> void:
 	if !active:
 		return
 	lifetime+=delta
-	if lifetime >= animation_time and lifetime < animation_time+fade_time:
-		finish_animation()
-	if lifetime >= animation_time+fade_time and lifetime < animation_time+fade_time+camera_move_time:
-		var linear_t = (lifetime-(animation_time+fade_time))/camera_move_time
-		var t = ease(linear_t, -2.0) # smooth ease in/out
-		camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,t) +camera.get_cam_offset(delta)
-	elif lifetime >= animation_time+fade_time+camera_move_time and lifetime < animation_time+fade_time+camera_move_time+camera_move_time:
-		var linear_t = (lifetime-(animation_time+fade_time+camera_move_time))/camera_move_time
-		var t = ease(linear_t, -2.0) # smooth ease in/out
-		camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,1-t) +camera.get_cam_offset(delta)
-	elif lifetime>= animation_time+fade_time+camera_move_time+camera_move_time:
-		finish_intro()		
+	
+	#if lifetime >= animation_time and lifetime < animation_time+fade_time:
+		#finish_animation()
+	#if lifetime >= animation_time+fade_time and lifetime < animation_time+fade_time+camera_move_time:
+		#var linear_t = (lifetime-(animation_time+fade_time))/camera_move_time
+		#var t = ease(linear_t, -2.0) # smooth ease in/out
+		#camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,t) +camera.get_cam_offset(delta)
+	#elif lifetime >= animation_time+fade_time+camera_move_time and lifetime < animation_time+fade_time+camera_move_time+camera_move_time:
+		#var linear_t = (lifetime-(animation_time+fade_time+camera_move_time))/camera_move_time
+		#var t = ease(linear_t, -2.0) # smooth ease in/out
+		#camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,1-t) +camera.get_cam_offset(delta)
+	#elif lifetime>= animation_time+fade_time+camera_move_time+camera_move_time:
+		#finish_intro()		
+	if animation!= "":
+		boss_animation()
 
 func finish_intro():
 	player1.disabled = false
@@ -231,12 +234,33 @@ func scifi_phase1_middles():
 
 
 
+func boss_animation():
+	if boss_type=="scifi":
+		var eye = boss.get_node("Segments/Eye/3")
+		var board = boss.get_node("BTPlayer").blackboard
+		var is_purple = board.get_var("player_idx") as bool
+		var track_position = player1.global_position if is_purple else player2.global_position
+		eye.position = (track_position-eye.global_position).normalized()*6
+		match animation:
+			"idle":
+				var count = 0
+				for child in boss.get_node("Segments/Rims").get_children():
+					count+=1
+					var angle = 45 *count+lifetime*20
+					child.position = Vector2.UP.rotated(deg_to_rad(angle)) * (32 +sin(lifetime*count/3)*2)
+					child.rotation = deg_to_rad(angle - 224)
+				
+				
+
+
 func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	print("boss room activate")
 	active = true
 	camera = camera_in
 	player1 = player1_in
 	player2 = player1_in
+	animation = "idle"
+	return
 	player1.disabled = true
 	print(player1.disabled)
 	print(player1)
