@@ -1,129 +1,46 @@
-[gd_scene load_steps=14 format=3 uid="uid://bhgu6yah6ehqe"]
+[gd_scene load_steps=13 format=3 uid="uid://bhgu6yah6ehqe"]
 
 [ext_resource type="Script" uid="uid://ca8f4ewe6614y" path="res://Game Elements/Enemies/dynamEnemy.gd" id="1_lfybw"]
-[ext_resource type="Texture2D" uid="uid://bulthemulnjtu" path="res://art/characters/goblin_spritesheet.png" id="2_bcu2b"]
 [ext_resource type="BehaviorTree" uid="uid://b7lkxmyacbk8i" path="res://ai/trees/singul.tres" id="3_lhrfr"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_p62ex"]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_76eou"]
+radius = 16.0
+height = 48.0
 
 [sub_resource type="Animation" id="Animation_j4hvv"]
 length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [16]
-}
 
 [sub_resource type="Animation" id="Animation_5lq71"]
 resource_name = "death"
 length = 1.4
 step = 0.2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0.033333335, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [24, 25, 26, 27, 28, 29, 30, 31]
-}
 
 [sub_resource type="Animation" id="Animation_qpolu"]
 resource_name = "idle"
 length = 0.8
 loop_mode = 1
 step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3, 4, 5, 6, 7]
-}
 
 [sub_resource type="Animation" id="Animation_fbxky"]
 resource_name = "run"
 length = 0.8
 loop_mode = 1
 step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [16, 17, 18, 19, 20, 21, 22, 23]
-}
 
 [sub_resource type="Animation" id="Animation_b6e1t"]
 resource_name = "swing"
 length = 0.3
 step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 1,
-"values": [40, 41, 42]
-}
 
 [sub_resource type="Animation" id="Animation_n5i5c"]
 resource_name = "walk"
 length = 0.8
 step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [8, 9, 10, 11, 12, 13, 14, 15]
-}
 
 [sub_resource type="Animation" id="Animation_ivcad"]
 resource_name = "youtch"
 length = 0.3
 step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 1,
-"values": [32, 33, 34]
-}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wg1fj"]
 _data = {
@@ -150,23 +67,16 @@ collision_layer = 4
 collision_mask = 15
 script = ExtResource("1_lfybw")
 max_health = 2000
-displays = Array[NodePath]([NodePath("Sprite2D")])
+displays = Array[NodePath]([NodePath("")])
 min_timefabric = 20
 max_timefabric = 30
 move_speed = 0.0
 is_boss = true
 boss_phases = 3
-boss_healthpools = Array[float]([30.0, 30.0, 30.0])
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-y_sort_enabled = true
-texture = ExtResource("2_bcu2b")
-hframes = 8
-vframes = 6
-frame = 16
+boss_healthpools = Array[float]([600.0, 30.0, 30.0])
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_p62ex")
+shape = SubResource("CapsuleShape2D_76eou")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

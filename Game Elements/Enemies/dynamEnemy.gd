@@ -344,6 +344,12 @@ func shift_hue(color: Color, amount: float) -> Color:
 	h = fposmod(h, 1.0) # wrap hue to 0–1
 	return Color.from_hsv(h, color.s, color.v, color.a)
 
+
+
+func boss_signal(sig :String, value1, value2):
+	if is_boss:
+		get_parent().boss_signal(sig,value1,value2)
+
 func _draw():
 	if !debug_mode:
 		return

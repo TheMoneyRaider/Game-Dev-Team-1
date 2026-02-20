@@ -33,8 +33,6 @@ func _ready() -> void:
 	is_multiplayer = Globals.is_multiplayer
 	boss.boss_phase_change.connect(_on_boss_phase_change)
 	boss.enemy_took_damage.connect(LayerManager._on_enemy_take_damage)
-	if boss_type=="scifi":
-		boss.hitable = false
 	
 func _on_boss_phase_change(boss_in : Node):
 	var hits = boss_in.hitable
@@ -46,6 +44,7 @@ func _on_boss_phase_change(boss_in : Node):
 	phase=boss_in.phase
 	#Wave Attack
 	var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+	attack_inst.damage = 10
 	attack_inst.global_position = boss.global_position
 	attack_inst.c_owner = boss
 	attack_inst.direction = Vector2.UP
@@ -56,7 +55,7 @@ func _on_boss_phase_change(boss_in : Node):
 	tween.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,0.0),3.0)
 	tween.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,0.0),3.0)
 	await get_tree().create_timer(6).timeout
-	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase],boss_names[phase],boss_name_settings[phase])
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
 	Hud.update_bossbar(1.0)
 	if boss_type == "scifi":
 		$Ground.visible = false
@@ -107,7 +106,30 @@ func finish_intro():
 	if is_multiplayer:
 		player2.disabled = false
 	LayerManager.camera_override = false
+	var bt_player = boss.get_node("BTPlayer")
+	var board = bt_player.blackboard
+	if board:
+		board.set_var("attack_mode", "NONE")
 	return
+
+func get_enemy_count()-> int:
+	var count = 0
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if "is_boss" in enemy and !enemy.is_boss:
+			count+=1
+	return count
+
+
+func boss_signal(sig :String, value1, value2):
+	match sig:
+		"spawn_enemies":
+			if get_enemy_count() > 8:
+				return
+			if is_multiplayer:
+				Spawner.spawn_enemies([player1,player2], self, LayerManager.placable_cells.duplicate(),LayerManager.room_instance_data,LayerManager,true,value1,value2)
+			else:
+				Spawner.spawn_enemies([player1], self, LayerManager.placable_cells.duplicate(),LayerManager.room_instance_data,LayerManager,true,value1,value2)
+
 
 
 func finish_animation():
@@ -123,7 +145,47 @@ func finish_animation():
 func boss_death():
 	Hud.hide_boss_bar()
 
+
+func _on_enemy_take_damage(_damage : int,current_health : int,_enemy : Node, direction = Vector2(0,-1)) -> void:
+	var boss_health1 = boss.current_health
+	if boss_type =="scifi" and current_health <= 0 and phase == 0:
+		if is_multiplayer:
+			if .5 < randf():
+				boss.take_damage(10,player1,direction)
+			else:
+				boss.take_damage(10,player2,direction)
+		else:
+			boss.take_damage(10,player1,direction)
+		pass
+	var boss_health2 = boss.current_health
+	if boss_type == "scifi":
+		if int(( boss_health1 / boss.max_health ) * 3) >  int(( boss_health2 / boss.max_health ) * 3):
+			if !phase_changing:
+				scifi_phase1_middles()
+		
+
+func scifi_phase1_middles():
+	var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
+	attack_inst.global_position = boss.global_position
+	attack_inst.c_owner = boss
+	attack_inst.direction = Vector2.UP
+	call_deferred("add_child",attack_inst)
+	var bt_player = boss.get_node("BTPlayer")
+	var board = bt_player.blackboard
+	if board:
+		board.set_var("attack_mode", "DISABLED")
+	$Forcefield/CollisionShape2D.call_deferred("disabled",true)
+	var tween = create_tween()
+	tween.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,0.0),1.0)
+	await get_tree().create_timer(8.0).timeout
 	
+	$Forcefield/CollisionShape2D.call_deferred("disabled",false)
+	var tween2 = create_tween()
+	tween2.tween_property($Forcefield,"modulate",Color(1.0,1.0,1.0,1.0),1.0)
+	if board:
+		board.set_var("attack_mode", "NONE")
+	
+
 
 
 func activate(camera_in : Node, player1_in : Node, player2_in : Node):
@@ -159,4 +221,4 @@ func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 	transition1.modulate.a = 0.0
 	LayerManager.BossIntro.get_node("AnimationPlayer").play("main")
 	camera.global_position = ((player1.global_position + player2.global_position) / 2)
-	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],phase_overlay_index[phase])
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])

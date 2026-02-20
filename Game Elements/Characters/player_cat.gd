@@ -571,6 +571,7 @@ func hit_enemy(attack_body : Node, enemy : Node):
 		
 		return
 	var cur_weapon = weapons[attack_body.is_purple as int]
+	print("Hit: "+str(enemy))
 	cur_weapon.current_special_hits +=1
 	if cur_weapon.current_special_hits > cur_weapon.special_hits:
 		cur_weapon.current_special_hits = cur_weapon.special_hits
