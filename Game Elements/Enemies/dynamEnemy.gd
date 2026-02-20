@@ -130,8 +130,11 @@ func _physics_process(_delta: float) -> void:
 		velocity = temp_velocity
 		# Gradually reduce knockback over time
 		knockback_velocity = knockback_velocity * knockback_decay
-
+var last_phase
 func _process(delta):
+	#Boss stuff
+	last_phase = phase
+	#
 	if sprint_timer!=0.0 and max(0.0,sprint_timer-delta)==0.0:
 		sprint(false)
 	sprint_timer = max(0.0,sprint_timer-delta)
@@ -209,12 +212,12 @@ func take_damage(damage : int, dmg_owner : Node, direction = Vector2(0,-1), atta
 	current_health -= damage
 	if is_boss:
 		LayerManager.hud.update_bossbar(clamp(float(current_health)/max_health,0.0,1.0))
-	if current_health < 0 and is_boss:
-			phase+=1
-			if phase < boss_phases:
-				emit_signal("boss_phase_change",self)
-				return
-			#else:
+		if current_health < 0 and phase == last_phase:
+				phase+=1
+				if phase < boss_phases:
+					emit_signal("boss_phase_change",self)
+					return
+				#else:
 				
 	if current_health < 0:
 		

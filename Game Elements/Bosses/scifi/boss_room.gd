@@ -35,13 +35,27 @@ func _ready() -> void:
 	boss.enemy_took_damage.connect(LayerManager._on_enemy_take_damage)
 	
 func _on_boss_phase_change(boss_in : Node):
-	var hits = boss_in.hitable
-	boss_in.hitable = false
+	match boss_in.phase:
+		0:
+			pass
+		1:
+			if boss_type=="scifi":
+				scifi_phase1_to_2()
+		2:
+			if boss_type=="scifi":
+				scifi_phase2_to_3()
+			
+	
+func scifi_phase1_to_2():
+	pass
+	
+func scifi_phase2_to_3():
+	boss.hitable = false
 	Hud.update_bossbar(0.0)
 	if phase_changing:
 		return
 	phase_changing = true
-	phase=boss_in.phase
+	phase=boss.phase
 	#Wave Attack
 	var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
 	attack_inst.damage = 10
@@ -67,14 +81,14 @@ func _on_boss_phase_change(boss_in : Node):
 	
 	
 	phase_changing = false
-	boss_in.current_health = boss_in.boss_healthpools[phase]
-	boss_in.max_health = boss_in.boss_healthpools[phase]
+	boss.current_health = boss.boss_healthpools[phase]
+	boss.max_health = boss.boss_healthpools[phase]
 	await get_tree().create_timer(3).timeout
 	var tween2 = create_tween()
 	tween2.parallel().tween_property(LayerManager.hud.get_node("RootControl"),"modulate",Color(1.0,1.0,1.0,1.0),3.0)
 	tween2.parallel().tween_property(LayerManager.awareness_display,"modulate",Color(1.0,1.0,1.0,1.0),3.0)
 
-	boss_in.hitable = hits
+	boss.hitable = true
 	await get_tree().create_timer(3).timeout
 	s_material.set_shader_parameter("ultimate", false)
 	

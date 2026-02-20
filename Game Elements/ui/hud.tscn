@@ -25,9 +25,14 @@ shader_parameter/P1_u_color_high = Color(0, 0.9019, 0.73, 1)
 shader_parameter/P1_scale = 96.0
 shader_parameter/P2_u_speed = 0.125
 shader_parameter/P2_u_color_low = Color(0, 0, 0, 1)
-shader_parameter/P2_u_color_mid = Color(0, 0.443, 0.2078, 1)
-shader_parameter/P2_u_color_high = Color(0.329, 0.917, 0, 1)
-shader_parameter/P2_scale = 8.0
+shader_parameter/P2_u_color_mid = Color(0.58, 0.58, 0.58, 1)
+shader_parameter/P2_u_color_high = Color(0.9, 0.9, 0.9, 1)
+shader_parameter/P2_scale = 32.0
+shader_parameter/P3_u_speed = 1.0
+shader_parameter/P3_u_color_low = Color(0, 0, 0, 1)
+shader_parameter/P3_u_color_mid = Color(0, 0.443, 0.2078, 1)
+shader_parameter/P3_u_color_high = Color(0.329, 0.917, 0, 1)
+shader_parameter/P3_scale = 8.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_t1xeu"]
 font_size = 35
@@ -98,7 +103,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="BossBar" type="Control" parent="RootControl/VBoxContainer"]
-visible = false
 custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 
