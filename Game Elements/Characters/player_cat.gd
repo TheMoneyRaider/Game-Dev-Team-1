@@ -150,22 +150,17 @@ func _physics_process(delta):
 	
 	if !is_multiplayer:
 		if Input.is_action_just_pressed("swap_" + input_device):
-			LayerManager.room_instance.boss.take_damage(50,self)
-			#if is_purple:
-				#var inst = load("res://Game Elements/Bosses/scifi/singul_laser_attack.tscn").instantiate()
-				#inst.global_position = global_position
-				#inst.c_owner= self
-				#inst.laser_rotation = true
-				#inst.direction = (crosshair.position).normalized()
-				#LayerManager.room_instance.add_child(inst)
-			#else:
-				#pass
-				##var inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
-				##inst.global_position = global_position
-				##inst.c_owner= self
-				##inst.laser_rotation = true
-				##inst.direction = (crosshair.position).normalized()
-				##LayerManager.room_instance.add_child(inst)
+			#LayerManager.room_instance.boss.take_damage(50,self)
+			var inst = load("res://Game Elements/Bosses/scifi/singul_laser_attack.tscn").instantiate()
+				
+			inst.direction = (crosshair.position).normalized()
+			inst.global_position = global_position
+			inst.c_owner= self
+			inst.laser_rotation = false
+			inst.num_lasers = 1
+			inst.laser_wave_width = 2048
+			inst.lifespan = 12.1
+			LayerManager.room_instance.add_child(inst)
 			swap_color()
 	else:
 		tether(delta)

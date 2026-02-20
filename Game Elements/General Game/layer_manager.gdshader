@@ -82,6 +82,19 @@ float laser_fraction(sampler2D text, vec2 uv) {
 	float dist = length(delta);
 
 	if (dist <= 0.001) return 1.0;
+	
+	
+	// =====================================
+	// GLOBAL RADIAL LIGHT FALLOFF
+	// =====================================
+
+	// controls how far full intensity reaches
+	float light_falloff_distance = 64.0;
+
+	// 1.0 at origin → 0.0 at falloff distance
+	float radial_falloff = clamp(dist / light_falloff_distance, 0.0, 1.0);
+	
+	
 
 	float best_beam_weight = 0.0;
 
@@ -144,7 +157,7 @@ float laser_fraction(sampler2D text, vec2 uv) {
 	}
 
 
-	return best_beam_weight;
+	return best_beam_weight*radial_falloff;
 }
 
 float wave_fraction(sampler2D text, vec2 uv){
