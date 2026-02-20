@@ -5,6 +5,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 @onready var room_d = room_data.new()
 @onready var sci_fi_layer : Array[Room] = room_d.sci_fi_rooms
 @onready var sci_fi_layer_shops : Array[Room] = room_d.sci_fi_shops
+@onready var medieval_lyaer : Array[Room] = room_d.medieval_rooms
 @onready var bosses : Array[Room] = room_d.boss_rooms
 @onready var testing_room : Room = room_d.testing_room
 @onready var reward_num : Array = [1.0,1.0,1.0,1.0,1.0,1.0]
@@ -12,7 +13,7 @@ const room_data = preload("res://Game Elements/Rooms/room_data.gd")
 var player1 = null
 var player2 = null
 var weapon1 = "res://Game Elements/Weapons/Crowbar.tres"
-var weapon2 = "res://Game Elements/Weapons/Railgun.tres"
+var weapon2 = "res://Game Elements/Weapons/Crossbow.tres"
 var undiscovered_weapons = []
 var possible_weapon = ""#undiscovered_weapons.pick_random()
 ###
@@ -94,14 +95,15 @@ func _ready() -> void:
 	
 	####Remnant Testing
 	
-	var rem = load("res://Game Elements/Remnants/hack.tres")
+	var rem = load("res://Game Elements/Remnants/hydromancer.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem.duplicate(true))
-	rem = load("res://Game Elements/Remnants/ninja.tres")
+	rem = load("res://Game Elements/Remnants/cleric.tres")
 	rem.rank = 5
 	player_1_remnants.append(rem.duplicate(true))
 	player_2_remnants.append(rem.duplicate(true))
+	"""
 	rem = load("res://Game Elements/Remnants/emp.tres")
 	rem.rank = 4
 	player_1_remnants.append(rem.duplicate(true))
@@ -150,7 +152,7 @@ func _ready() -> void:
 	#rem.rank = 4
 	#player_1_remnants.append(rem.duplicate(true))
 	#player_2_remnants.append(rem.duplicate(true))
-	
+	"""
 	
 	player1.display_combo()
 	
@@ -291,7 +293,7 @@ func create_new_rooms() -> void:
 	# Start async generation thread
 	thread_running = true
 	room_gen_thread = Thread.new()
-	room_gen_thread.start(_thread_generate_rooms.bind(bosses, room_instance_data)) #TODO change this to be based on layer ish
+	room_gen_thread.start(_thread_generate_rooms.bind(sci_fi_layer, room_instance_data)) #TODO change this to be based on layer ish
 
 func update_ai_array(generated_room : Node2D, generated_room_data : Room) -> void:
 	#Rooms cleared

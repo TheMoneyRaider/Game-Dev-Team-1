@@ -282,6 +282,14 @@ func apply_hydromancer(rem : Remnant, attack_body : Node):
 				effect.value1 = 2
 				effect.gained(self)
 				effects.append(effect)
+		Globals.Liquid.Glitch:
+			var glitch_dir = attack_body.direction
+			glitch_dir.rotated(randf_range(-15,15))
+			_glitch_move(glitch_dir.normalized() * 160)
+			effect = load("res://Game Elements/Effects/stun.tres").duplicate()
+			effect.cooldown = rem.rank / 2.5
+			effect.gained(self)
+			effects.append(effect)
 		_:
 			pass
 		
@@ -333,10 +341,16 @@ func check_liquids(delta):
 				Globals.Liquid.Glitch:
 					_glitch_move()
 
-func _glitch_move() -> void:
+func _glitch_move(input_move_dir : Vector2 = Vector2(-1234,-1234)) -> void:
+	var move_dir_l
+	var move_dir_r
+	if(input_move_dir == Vector2(-1234,-1234)):
+		move_dir_l = velocity.normalized() *16
+		move_dir_r = velocity.normalized() *16
+	else:
+		move_dir_l = input_move_dir
+		move_dir_r = input_move_dir
 	var ground_cells = get_tree().get_root().get_node("LayerManager").room_instance.get_node("Ground").get_used_cells()
-	var move_dir_l = velocity.normalized() *16
-	var move_dir_r = velocity.normalized() *16
 	var check_pos_r = Vector2i(((position + move_dir_r)/16).floor())
 	var check_pos_l = Vector2i(((position + move_dir_l)/16).floor())
 	var attempts = 0

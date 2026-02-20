@@ -470,7 +470,7 @@ func _crafter_chance() -> bool:
 	for rem in remnants:
 		if rem.remnant_name == crafter.remnant_name:
 			if rem.variable_1_values[rem.rank-1] > randf()*100:
-				var particle =  load("res://Game Elements/Effects/crafter_particles.tscn").instantiate()
+				var particle =  load("res://Game Elements/particles/crafter_particles.tscn").instantiate()
 				particle.position = self.position
 				get_parent().add_child(particle)
 				return false
@@ -488,7 +488,7 @@ func _cleric_chance():
 	for rem in remnants:
 		if rem.remnant_name == cleric.remnant_name:
 			if rem.variable_1_values[rem.rank-1] > randf()*100:
-				var particle =  load("res://Game Elements/Effects/heal_particles.tscn").instantiate()
+				var particle =  load("res://Game Elements/particles/heal_particles.tscn").instantiate()
 				particle.position = self.position
 				get_parent().add_child(particle)
 				change_health(rem.variable_2_values[rem.rank-1])

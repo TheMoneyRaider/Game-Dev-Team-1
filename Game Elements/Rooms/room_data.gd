@@ -302,8 +302,9 @@ Globals.RoomType.Shop,																											#RoomType
 Globals.RoomVariant.SciFiFactory,																								#RoomVariant
 [],																																#Enemies That can spawn in this room
 [],																															#Weights for those enemies to spawn
-0),
-room.Create_Room(
+0)]																															#Chance for waves to be segmented
+
+var medieval_rooms : Array[Room] = [room.Create_Room(
 "res://Game Elements/Rooms/medieval/outside1.tscn", 																		#Scene Location                       
 0,																																#Num Liquids
 [],																										#Liquid Types 
@@ -446,8 +447,31 @@ Globals.RoomType.Combat,
 Globals.RoomVariant.MedIn,																															#Is a shop room?
 ["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
 [1.0],																															#Weights for those enemies to spawn
-0)]																															#Chance for waves to be segmented
-
+0),
+room.Create_Room(
+"res://Game Elements/Rooms/medieval/outside4.tscn", 																		#Scene Location                       
+0,																																#Num Liquids
+[],																										#Liquid Types 
+[],																										#Liquid Chances                     
+0,																																#Num Fillings              
+[],																																#Terrain Set                                      
+[],																																#Terrain ID                       
+[],																																#Threshold            
+randi(),																														#Noise Seed           
+FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
+.1,																																#Noise Frequency                        
+1,																																#Num Traps              
+[1],																																#Trap Chances                                
+[Globals.Trap.Snare],																																#Trap Types                         
+5,																																#Num Pathways                   
+[Globals.Direction.Up,Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
+15,																																#Enemy Num Goal                               
+0,																																#NPC Spawnpoints   
+Globals.RoomType.Combat,
+Globals.RoomVariant.MedOut,																															#Is a shop room?
+["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
+[1.0],																															#Weights for those enemies to spawn
+0)]
 
 var boss_rooms : Array[Room] = [room.Create_Room(
 "res://Game Elements/Bosses/scifi/boss_room.tscn", 																			#Scene Location                       
@@ -476,10 +500,10 @@ Globals.RoomVariant.SciFiFactory,																								#RoomVariant
 
 
 var testing_room : Room = room.Create_Room(
-"res://Game Elements/Rooms/medieval/outside4.tscn", 																		#Scene Location                       
-0,																																#Num Liquids
-[],																										#Liquid Types 
-[],																										#Liquid Chances                     
+"res://Game Elements/Rooms/sci_fi/cyberspace1.tscn", 																			#Scene Location                       
+4,																																#Num Liquids
+[Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch,Globals.Liquid.Glitch],										#Liquid Types 
+[.5,.5,.5,.5],																																#Liquid Chances                     
 0,																																#Num Fillings              
 [],																																#Terrain Set                                      
 [],																																#Terrain ID                       
@@ -487,15 +511,15 @@ var testing_room : Room = room.Create_Room(
 randi(),																														#Noise Seed           
 FastNoiseLite.TYPE_SIMPLEX_SMOOTH,																								#Noise Type       
 .1,																																#Noise Frequency                        
-1,																																#Num Traps              
-[1],																																#Trap Chances                                
-[Globals.Trap.Snare],																																#Trap Types                         
-5,																																#Num Pathways                   
-[Globals.Direction.Up,Globals.Direction.Up,Globals.Direction.Down,Globals.Direction.Left,Globals.Direction.Right],									#Pathway Directions                     
-15,																																#Enemy Num Goal                               
+0,																																#Num Traps              
+[],																																#Trap Chances                                
+[],																																#Trap Types                         
+4,																																#Num Pathways                   
+[Globals.Direction.Up,Globals.Direction.Right,Globals.Direction.Left,Globals.Direction.Down],									#Pathway Directions                       
+10,																																#Enemy Num Goal                               
 0,																																#NPC Spawnpoints   
-Globals.RoomType.Combat,
-Globals.RoomVariant.MedOut,																															#Is a shop room?
-["res://Game Elements/Characters/dynamEnemy.tscn"],																				#Enemies That can spawn in this room
-[1.0],																															#Weights for those enemies to spawn
-0)
+Globals.RoomType.Combat,																										#RoomType
+Globals.RoomVariant.SciFiCyberspace,																							#RoomVariant
+["res://Game Elements/Characters/robot.tscn","res://Game Elements/Characters/binary_bot.tscn"],									#Enemies That can spawn in this room
+[.33,.66],																														#Weights for those enemies to spawn
+.75)

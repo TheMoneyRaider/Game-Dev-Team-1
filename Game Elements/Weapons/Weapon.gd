@@ -127,7 +127,7 @@ func spawn_attack(attack_direction : Vector2, attack_position : Vector2, node_at
 		instance.pierce = pierce
 	instance.is_purple = c_owner.is_purple if c_owner.is_in_group("player") else false
 	if(particle_effect != ""):
-		var effect = load("res://Game Elements/Effects/" + particle_effect + ".tscn").instantiate()
+		var effect = load("res://Game Elements/particles/" + particle_effect + ".tscn").instantiate()
 		instance.add_child(effect)
 	c_owner.get_tree().get_root().get_node("LayerManager").room_instance.add_child(instance)
 
