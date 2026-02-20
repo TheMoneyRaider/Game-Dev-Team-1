@@ -95,6 +95,7 @@ shader_parameter/cutoff_min = 0.0
 shader_parameter/cutoff_max = 0.88
 
 [node name="BossRoom" type="Node2D" node_paths=PackedStringArray("boss")]
+process_mode = 1
 script = ExtResource("1_r7kch")
 boss_splash_art = ExtResource("2_ar3fp")
 healthbar_underlays = Array[Texture2D]([ExtResource("3_k3f2u"), ExtResource("4_at31b"), ExtResource("5_agmvj")])

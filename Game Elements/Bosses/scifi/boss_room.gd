@@ -128,18 +128,18 @@ func _process(delta: float) -> void:
 		return
 	lifetime+=delta
 	
-	#if lifetime >= animation_time and lifetime < animation_time+fade_time:
-		#finish_animation()
-	#if lifetime >= animation_time+fade_time and lifetime < animation_time+fade_time+camera_move_time:
-		#var linear_t = (lifetime-(animation_time+fade_time))/camera_move_time
-		#var t = ease(linear_t, -2.0) # smooth ease in/out
-		#camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,t) +camera.get_cam_offset(delta)
-	#elif lifetime >= animation_time+fade_time+camera_move_time and lifetime < animation_time+fade_time+camera_move_time+camera_move_time:
-		#var linear_t = (lifetime-(animation_time+fade_time+camera_move_time))/camera_move_time
-		#var t = ease(linear_t, -2.0) # smooth ease in/out
-		#camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,1-t) +camera.get_cam_offset(delta)
-	#elif lifetime>= animation_time+fade_time+camera_move_time+camera_move_time:
-		#finish_intro()		
+	if lifetime >= animation_time and lifetime < animation_time+fade_time:
+		finish_animation()
+	if lifetime >= animation_time+fade_time and lifetime < animation_time+fade_time+camera_move_time:
+		var linear_t = (lifetime-(animation_time+fade_time))/camera_move_time
+		var t = ease(linear_t, -2.0) # smooth ease in/out
+		camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,t) +camera.get_cam_offset(delta)
+	elif lifetime >= animation_time+fade_time+camera_move_time and lifetime < animation_time+fade_time+camera_move_time+camera_move_time:
+		var linear_t = (lifetime-(animation_time+fade_time+camera_move_time))/camera_move_time
+		var t = ease(linear_t, -2.0) # smooth ease in/out
+		camera.global_position = ((player1.global_position + player2.global_position) / 2).lerp(boss.global_position,1-t) +camera.get_cam_offset(delta)
+	elif lifetime>= animation_time+fade_time+camera_move_time+camera_move_time:
+		finish_intro()		
 	if animation!= "":
 		boss_animation()
 
@@ -325,12 +325,14 @@ func scifi_laser_attack(num_lasers):
 		# Update laser direction
 		inst.direction = Vector2.RIGHT.rotated(gun.rotation)
 		inst.global_position = boss.global_position
+		inst.l_rotation = rad_to_deg(gun.rotation)
+		inst._update_laser_collision_shapes()
 		#Update shader
 		var s_material = LayerManager.get_node("game_container").material
-		s_material.set_shader_parameter("laser_rotation",rad_to_deg(gun.rotation))
+		s_material.set_shader_parameter("laser_rotation",inst.l_rotation)
 		s_material.set_shader_parameter("laser_impact_world_pos",inst.global_position)
-		
-		await get_tree().process_frame
+		if get_tree():
+			await get_tree().process_frame
 	animation_change("idle")
 	
 
@@ -348,32 +350,32 @@ func activate(camera_in : Node, player1_in : Node, player2_in : Node):
 		animation_change("dead")
 		var bt_player = boss.get_node("BTPlayer")
 		bt_player.blackboard.set_var("attack_mode", "NONE")
-	return
-	#player1.disabled = true
-	#print(player1.disabled)
-	#print(player1)
-	#if is_multiplayer:
-		#player2 = player2_in
-		#player2.disabled = true
-	#Hud =LayerManager.hud
-	#LayerManager.BossIntro.get_node("BossName").text = boss_name
-	#LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
-	#LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)
-	#screen = LayerManager.get_node("game_container/game_viewport")
-	#for node in get_children():
-		#if node.is_in_group("pathway"):
-			#node.disable_pathway(true)
-	#LayerManager.camera_override = true
-	#screen.render_target_update_mode = SubViewport.UPDATE_DISABLED
-	#var transition1 = LayerManager.get_node("Transition/Transition")
-	#transition1.visible = true
-	#var tween = create_tween()
-	#tween.tween_property(transition1,"modulate:a",1.0,1.0)
-	#await tween.finished
-	#LayerManager.BossIntro.visible = true
-	#screen.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	#transition1.visible = false
-	#transition1.modulate.a = 0.0
-	#LayerManager.BossIntro.get_node("AnimationPlayer").play("main")
-	#camera.global_position = ((player1.global_position + player2.global_position) / 2)
-	#Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
+	#return
+	player1.disabled = true
+	print(player1.disabled)
+	print(player1)
+	if is_multiplayer:
+		player2 = player2_in
+		player2.disabled = true
+	Hud =LayerManager.hud
+	LayerManager.BossIntro.get_node("BossName").text = boss_name
+	LayerManager.BossIntro.get_node("Boss").texture = boss_splash_art
+	LayerManager.BossIntro.get_node("BossName").add_theme_font_override("font", boss_font)
+	screen = LayerManager.get_node("game_container/game_viewport")
+	for node in get_children():
+		if node.is_in_group("pathway"):
+			node.disable_pathway(true)
+	LayerManager.camera_override = true
+	screen.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	var transition1 = LayerManager.get_node("Transition/Transition")
+	transition1.visible = true
+	var tween = create_tween()
+	tween.tween_property(transition1,"modulate:a",1.0,1.0)
+	await tween.finished
+	LayerManager.BossIntro.visible = true
+	screen.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	transition1.visible = false
+	transition1.modulate.a = 0.0
+	LayerManager.BossIntro.get_node("AnimationPlayer").play("main")
+	camera.global_position = ((player1.global_position + player2.global_position) / 2)
+	Hud.show_boss_bar(healthbar_underlays[phase],healthbar_overlays[phase],boss_names[phase],boss_name_settings[phase],phase_overlay_index[phase])
