@@ -8,9 +8,9 @@ var time : float = 0.0
 var opening_time : float =1.0
 var closing_time : float =1.0
 var min_time : float =4.0
-var max_time : float =8.0
-var min_cool : float =3.0
-var max_cool : float =5.0
+var max_time : float =6.0
+var min_cool : float =1
+var max_cool : float =1.6
 var total_time : float =5.0
 var y_axis : bool = false
 var killed : bool = false
@@ -139,14 +139,6 @@ func _tick(delta: float) -> Status:
 		return proc_finish(SUCCESS)
 		
 	
-	
-	
-	#var p_index = blackboard.get_var("player_idx")
-	#var players = agent.get_tree().get_nodes_in_group("player")
-	#var current_player_pos: Vector2 = players[p_index].global_position if players else Vector2.ZERO
-	#var target_pos = blackboard.get_var("target_pos")
-	#
-	#agent.handle_attack(current_player_pos)
 	
 	return RUNNING
 

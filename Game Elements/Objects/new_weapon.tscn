@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ckyj44hgpi6oe" path="res://Game Elements/Objects/new_weapon.gd" id="1_l1nho"]
 [ext_resource type="Shader" uid="uid://b6t7bv08io6o3" path="res://Game Elements/Objects/pathway.gdshader" id="2_avgrg"]
-[ext_resource type="Texture2D" uid="uid://oxtr1mmj4hr5" path="res://art/Mace.png" id="3_p100u"]
+[ext_resource type="Texture2D" uid="uid://oxtr1mmj4hr5" path="res://art/weapons/mace/Mace.png" id="3_p100u"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8365d"]
 radius = 36.138622

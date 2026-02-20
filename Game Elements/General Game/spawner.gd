@@ -1,117 +1,251 @@
 class_name Spawner
 
-static var cell_world_size: float = 16.0 # size of each grid cell in world units
-static var player_penalty_weight : float = 1.0
-static var player_threshold : float =4*16.0
-static var enemy_penalty_weight : float = .75
-static var enemy_threshold : float = 4*16.0
-static var edge_penalty_weight : float = 0.25
-static var edge_threshold : float = 2*16.0
+###CONSTANTS
+static var cell_world_size := 16.0
 
-static func spawn_enemies(players: Array[Node],scene : Node, available_cells : Array[Vector2i],room_data: Room,layer_manager : Node, is_wave : bool):
+static var player_penalty_weight := 1.0
+static var player_threshold := 4.0 * 16.0
+static var enemy_penalty_weight := 0.75
+static var enemy_threshold := 4.0 * 16.0
+static var edge_penalty_weight := 0.25
+static var edge_threshold := 2.0 * 16.0
+
+static var _player_threshold_sq := player_threshold * player_threshold
+static var _enemy_threshold_sq := enemy_threshold * enemy_threshold
+static var _edge_threshold_sq := edge_threshold * edge_threshold
+
+###CACHES
+static var _enemy_extents_cache := {}      # scene_path -> Vector2
+static var _enemy_scene_cache := {}        # scene_path -> PackedScene
+static var player_penalty_field := {}
+static var edge_penalty_field := {}
+static var enemy_penalty_field := {}
+
+###PUBLIC API
+static func spawn_enemies(
+	players: Array[Node],
+	scene: Node,
+	available_cells: Array[Vector2i],
+	room_data: Room,
+	layer_manager: Node,
+	is_wave: bool
+) -> void:
 	if room_data.num_enemy_goal <= 0:
 		return
-	var edges = _get_edges(available_cells)
+
+	#Convert to hash set for O(1) lookup
+	var cell_set := {}
+	for c in available_cells:
+		cell_set[c] = true
+
+	var edges := _get_edges(cell_set)
+
+	var rechoose_enemy := not is_wave or room_data.wave_segment < randf()
+	# === PRECOMPUTE STATIC FIELDS ===
+	player_penalty_field = _build_player_field(cell_set, players)
+	edge_penalty_field = _build_edge_field(cell_set, edges)
+
+	enemy_penalty_field.clear()
+
 	var chosen_positions: Array[Vector2i] = []
-	var weights: Array[float] = []
-	var rechoose_enemy = true if !is_wave or room_data.wave_segment < randf() else false
-	var enemy = choose_enemy(room_data)
-	for i in room_data.num_enemy_goal:
-		var cells_needed := _cells_needed(_enemy_half_extents(load(enemy)))
-		var best = _choose_best_cell(
-			available_cells,
-			chosen_positions,
-			players,
-			edges,
-			scene,
-			cells_needed)
-		
-		if best[0] == null:
+
+	var enemy_path := choose_enemy(room_data)
+	var enemy_scene := _get_enemy_scene(enemy_path)
+	var cells_needed := _cells_needed(_get_enemy_half_extents(enemy_path))
+
+	for _i in room_data.num_enemy_goal:
+		var best := _choose_best_cell(
+			cell_set,
+			cells_needed
+		)
+
+		if best == null:
 			push_warning("No valid cell left to place enemy")
 			return
 
-		available_cells.erase(best[0])
-		chosen_positions.append(best[0])
-		weights.append(best[1])
-	
-		_spawn_enemy(best[0],scene,load(enemy),layer_manager)
+		cell_set.erase(best)
+		chosen_positions.append(best)
+		_spawn_enemy(best, scene, enemy_scene, layer_manager)
+
 		if rechoose_enemy:
-			enemy = choose_enemy(room_data)
-			
-	#if Globals.config_safe:
-		#if Globals.config.get_value("debug", "enabled", false):
-			#_choose_best_cell(available_cells, chosen_positions, players,edges,scene, Vector2i.ZERO, true)
+			enemy_path = choose_enemy(room_data)
+			enemy_scene = _get_enemy_scene(enemy_path)
+			cells_needed = _cells_needed(_get_enemy_half_extents(enemy_path))
+		_apply_enemy_influence(best)
 
+###ENEMY SELECTION
+static func choose_enemy(room_data: Room) -> String:
+	var total := 0.0
+	for w in room_data.enemy_chances:
+		total += w
 
-static func choose_enemy(room_data: Room)-> String:
-	var total_weight = 0.0
-	for weight in room_data.enemy_chances:
-		total_weight+=weight
-	var value = randf()*total_weight
-	var current_place = 0.0
-	var itr = 0
-	for weight in room_data.enemy_chances:
-		current_place+=weight
-		if current_place >= value:
-			return room_data.enemy_pool[itr]
-		itr+=1
+	var roll := randf() * total
+	var acc := 0.0
+
+	for i in room_data.enemy_chances.size():
+		acc += room_data.enemy_chances[i]
+		if acc >= roll:
+			return room_data.enemy_pool[i]
+
 	return room_data.enemy_pool[0]
-	
 
-static func _choose_best_cell(available_cells : Array[Vector2i], chosen_positions : Array[Vector2i], players : Array[Node],edges : Array[Vector2i],scene : Node, cells_needed : Vector2i, is_debug : bool = false) -> Array:
-	var best_weight := -INF
-	var best_cell = null
-	var weights = []
-	var total_weight = 0.0
+###CELL SELECTION
+static func _choose_best_cell(
+	cell_set: Dictionary,
+	cells_needed: Vector2i
+) -> Vector2i:
+	var total_weight := 0.0
+	var chosen: Vector2i
 
-	for cell in available_cells:
-		if not _can_fit(cell, cells_needed, available_cells):
-			weights.append(0.0)
+	for cell in cell_set.keys():
+		if not _can_fit(cell, cells_needed, cell_set):
 			continue
-		var score := _score_cell(cell, chosen_positions, players,edges)
-		total_weight+=score
-		weights.append(score)
-	var placement = randf() * total_weight
-	var running_weight = 0.0
-	var i = 0
-	while i < available_cells.size():
-		if ( running_weight+weights[i]) > placement:
-			best_cell = available_cells[i]
-			best_weight = weights[i]
-			break
-		running_weight+=weights[i]
-		i+=1
-		
-	
-	if Globals.config_safe:
-		if Globals.config.get_value("debug", "enabled", false) and is_debug:
-			_debug_tiles(available_cells,scene,weights)
-	return [best_cell,best_weight]
+
+		var score := 1.0
+		score -= player_penalty_field.get(cell, 0.0)
+		score -= edge_penalty_field.get(cell, 0.0)
+		score -= enemy_penalty_field.get(cell, 0.0)
+		score = clamp(score, 0.0, 1.0)
+
+		if score <= 0.0:
+			continue
+
+		total_weight += score
+		if randf() * total_weight < score:
+			chosen = cell
+
+	return chosen
+
+static func _build_player_field(cell_set: Dictionary, players: Array[Node]) -> Dictionary:
+	var field := {}
+	var thresh_sq := player_threshold * player_threshold
+
+	for cell in cell_set.keys():
+		var world_pos :Vector2 = cell * cell_world_size
+		var penalty := 0.0
+
+		for p in players:
+			var d2 := world_pos.distance_squared_to(p.global_position)
+			if d2 < thresh_sq:
+				penalty += player_penalty_weight * (1.0 - d2 / thresh_sq)
+
+		field[cell] = clamp(penalty, 0.0, 1.0)
+
+	return field
+
+static func _build_edge_field(cell_set: Dictionary, edges: Array[Vector2i]) -> Dictionary:
+	var field := {}
+	var thresh_sq := edge_threshold * edge_threshold
+
+	for cell in cell_set.keys():
+		var world_pos :Vector2 = cell * cell_world_size
+		var penalty := 0.0
+
+		for e in edges:
+			var d2 := world_pos.distance_squared_to(e * cell_world_size)
+			if d2 < thresh_sq:
+				penalty += edge_penalty_weight * (1.0 - d2 / thresh_sq)
+
+		field[cell] = clamp(penalty, 0.0, 1.0)
+
+	return field
+
+static func _apply_enemy_influence(center: Vector2i):
+	var radius := int(ceil(enemy_threshold / cell_world_size))
+	var thresh_sq := enemy_threshold * enemy_threshold
+
+	for x in range(-radius, radius + 1):
+		for y in range(-radius, radius + 1):
+			var cell := center + Vector2i(x, y)
+			var d2 := (cell * cell_world_size).distance_squared_to(center * cell_world_size)
+
+			if d2 >= thresh_sq:
+				continue
+
+			var penalty := enemy_penalty_weight * (1.0 - d2 / thresh_sq)
+			enemy_penalty_field[cell] = clamp(
+				enemy_penalty_field.get(cell, 0.0) + penalty,
+				0.0,
+				1.0
+			)
 
 
-static func _enemy_half_extents(enemy_scene: PackedScene) -> Vector2:
-	var inst = enemy_scene.instantiate()
+####SCORING
+static func _score_cell(
+	cell: Vector2i,
+	chosen_positions: Array[Vector2i],
+	players: Array[Node],
+	edges: Array[Vector2i]
+) -> float:
+	var world_pos := cell * cell_world_size
+	var score := 1.0
 
+	for p in players:
+		var d2 := world_pos.distance_squared_to(p.global_position)
+		if d2 < _player_threshold_sq:
+			score -= player_penalty_weight * (1.0 - d2 / _player_threshold_sq)
+
+	for c in chosen_positions:
+		var d2 := world_pos.distance_squared_to(c * cell_world_size)
+		if d2 < _enemy_threshold_sq:
+			score -= enemy_penalty_weight * (1.0 - d2 / _enemy_threshold_sq)
+
+	for e in edges:
+		var d2 := world_pos.distance_squared_to(e * cell_world_size)
+		if d2 < _edge_threshold_sq:
+			score -= edge_penalty_weight * (1.0 - d2 / _edge_threshold_sq)
+
+	return clamp(score, 0.0, 1.0)
+
+####FIT / EDGE LOGIC
+static func _can_fit(cell: Vector2i, needed: Vector2i, cell_set: Dictionary) -> bool:
+	for x in range(-needed.x, needed.x + 1):
+		for y in range(-needed.y, needed.y + 1):
+			if not cell_set.has(cell + Vector2i(x, y)):
+				return false
+	return true
+
+static func _get_edges(cell_set: Dictionary) -> Array[Vector2i]:
+	var edges: Array[Vector2i] = []
+	for cell in cell_set.keys():
+		for d in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]:
+			var n : Vector2i= cell + d
+			if not cell_set.has(n):
+				edges.append(n)
+	return edges
+
+####ENEMY SIZE CACHE
+static func _get_enemy_scene(path: String) -> PackedScene:
+	if not _enemy_scene_cache.has(path):
+		_enemy_scene_cache[path] = load(path)
+	return _enemy_scene_cache[path]
+
+static func _get_enemy_half_extents(path: String) -> Vector2:
+	if _enemy_extents_cache.has(path):
+		return _enemy_extents_cache[path]
+
+	var scene := _get_enemy_scene(path)
+	var inst := scene.instantiate()
 	var shape_node := inst.get_node_or_null("CollisionShape2D")
+
 	if shape_node == null:
 		inst.queue_free()
 		push_error("Enemy has no CollisionShape2D")
 		return Vector2.ZERO
 
-	var shape = shape_node.shape
-	var half_extents := Vector2.ZERO
+	var shape : Shape2D = shape_node.shape
+	var extents := Vector2.ZERO
 
 	if shape is RectangleShape2D:
-		half_extents = shape.extents
+		extents = shape.extents
 	elif shape is CapsuleShape2D:
-		half_extents = Vector2(shape.radius, shape.height * 0.5)
+		extents = Vector2(shape.radius, shape.height * 0.5)
 	elif shape is CircleShape2D:
-		half_extents = Vector2.ONE * shape.radius
-	else:
-		push_error("Unsupported collision shape")
+		extents = Vector2.ONE * shape.radius
 
 	inst.queue_free()
-	return half_extents
+	_enemy_extents_cache[path] = extents
+	return extents
 
 static func _cells_needed(half_extents: Vector2) -> Vector2i:
 	return Vector2i(
@@ -119,78 +253,23 @@ static func _cells_needed(half_extents: Vector2) -> Vector2i:
 		ceil(half_extents.y / cell_world_size)
 	)
 
-static func _can_fit(
-	cell: Vector2i,
-	cells_needed: Vector2i,
-	available_cells: Array[Vector2i]
-) -> bool:
-	for x in range(-cells_needed.x, cells_needed.x + 1):
-		for y in range(-cells_needed.y, cells_needed.y + 1):
-			if Vector2i(cell.x + x, cell.y + y) not in available_cells:
-				return false
-	return true
-
-
-static func _score_cell(cell: Vector2, chosen_positions : Array[Vector2i], players : Array[Node],edges : Array[Vector2i]) -> float:
-	var world_pos := cell * cell_world_size
-
-	var distance_score := 1.0
-#
-	#Distance from players
-	for p in players:
-		var d =float(world_pos.distance_to(p.global_position+Vector2(-8,-8)))
-		if d < player_threshold:
-			distance_score -= player_penalty_weight * (1-(d/player_threshold))
-	##Distance from already-chosen spawn points (keeps enemies apart)
-	for c in chosen_positions:
-		var d =float(world_pos.distance_to(c * cell_world_size))
-		if d < enemy_threshold:
-			distance_score -= enemy_penalty_weight * (1-(d/enemy_threshold))
-	##Distance from edges (keeps enemies away from edges)
-	for e in edges:
-		var d =float(world_pos.distance_to(e * cell_world_size))
-		if d < edge_threshold:
-			distance_score -= edge_penalty_weight * (1-(d/edge_threshold))
-
-	return clamp(distance_score,0,1)
-
-
-static func _spawn_enemy(cell: Vector2i, scene : Node,enemy: PackedScene, layer_manager : Node):
-	var inst_enemy = enemy.instantiate()
-
-	# Convert cell coordinate to world space
-	inst_enemy.global_position = cell * cell_world_size
-	scene.add_child(inst_enemy)
-	inst_enemy.enemy_took_damage.connect(layer_manager._on_enemy_take_damage)
+###SPAWNING
+static func _spawn_enemy(cell: Vector2i, scene: Node, enemy: PackedScene, layer_manager: Node) -> void:
+	var inst := enemy.instantiate()
+	inst.global_position = cell * cell_world_size
+	scene.add_child(inst)
+	inst.enemy_took_damage.connect(layer_manager._on_enemy_take_damage)
 	
-static func _get_edges(available_cells : Array[Vector2i]) -> Array[Vector2i]:
-	var edges : Array[Vector2i]
-	for cell in available_cells:
-		var neighbors = [Vector2i(cell.x+1,cell.y),Vector2i(cell.x,cell.y+1),Vector2i(cell.x-1,cell.y),Vector2i(cell.x,cell.y-1)]
-		for neigh in neighbors:
-			if neigh not in available_cells and neigh not in edges:
-				edges.append(neigh)
-	return edges
-	
-static func _debug_tiles(array_of_tiles,scene, weights) -> void:
-	var debug
-	var idx =0
-	for tile in array_of_tiles:
-		debug = load("res://Game Elements/General Game/debug_scene.tscn").instantiate()
-		debug.position = tile*16
-		debug.get_node("TestScene2").modulate.a = weights[idx]
-		scene.add_child(debug)
-		idx+=1
-
-
-
-static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0):
+static func spawn_after_image(entity : Node, layer_manager : Node, start_color : Color = Color(1,1,1,1), end_color : Color = Color(1,1,1,1),start_color_strength : float = 1.0, end_color_strength : float = 1.0, lifetime : float = 2.0, start_alpha : float  = 1, mono : bool = false, position_override : Vector2 = Vector2(-999,-999)):
 	
 	# Instance the after image
 	var after_image = load("res://Game Elements/Objects/after_image.tscn").instantiate()
 
 	# Match position and rotation
-	after_image.global_position = entity.global_position
+	if position_override != Vector2(-999,-999):
+		after_image.global_position = position_override
+	else:
+		after_image.global_position = entity.global_position
 	after_image.global_rotation = entity.global_rotation
 	after_image.scale = entity.scale
 
@@ -207,8 +286,10 @@ static func spawn_after_image(entity : Node, layer_manager : Node, start_color :
 	
 
 	after_image.start_color = start_color
+	after_image.mono = mono
 	after_image.start_color_strength = start_color_strength
 	after_image.end_color = end_color
 	after_image.end_color_strength = end_color_strength
 	after_image.lifetime = lifetime
+	after_image.start_alpha = start_alpha
 	layer_manager.room_instance.add_child(after_image)
