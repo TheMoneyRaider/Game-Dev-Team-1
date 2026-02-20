@@ -1184,6 +1184,10 @@ func _add_trap(generated_room: Node2D, generated_room_data: Room, trap_num: int)
 				var fire = load("res://Game Elements/Objects/fire_trap.tscn").instantiate()
 				fire.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
 				generated_room.add_child(fire)
+			Globals.Trap.Snare:
+				var snare = load("res://Game Elements/Objects/snare_trap.tscn").instantiate()
+				snare.position = generated_room.get_node("Trap"+str(trap_num)).map_to_local(cell)
+				generated_room.add_child(snare)
 
 func return_trap_layer(tile_pos : Vector2i) -> TileMapLayer:
 	for trap_num in range(1,room_instance_data.num_trap+1):
