@@ -71,6 +71,17 @@ func scifi_phase1_to_2():
 	boss.hitable = true
 	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 
+func explode_segment(child: Node2D):
+	var offset = child.global_position - boss.global_position
+	var distance = offset.length()
+
+	var max_radius = 128.0
+	var strength = clamp(1.0 - (distance / max_radius), 0.2, 1.0)
+
+	var force = offset.normalized() * strength * 200.0
+
+	child.activate(force, Vector2(-.05, .05))
+
 	
 func scifi_phase2_to_3():
 	phase=boss.phase
@@ -91,13 +102,14 @@ func scifi_phase2_to_3():
 	#Explode boss
 	for child in boss.get_node("Segments").get_children():
 		if child.name != "GunParts" and child.name != "Rims":
-			child.activate((child.global_position - boss.global_position).normalized()*clamp((64.0-(child.global_position - boss.global_position).length())/64.0,1.0,4.0),Vector2(-1.5,1.5))
+			explode_segment(child)
+
 	for child in boss.get_node("Segments/GunParts").get_children():
-			child.activate((child.global_position - boss.global_position).normalized()*clamp((64.0-(child.global_position - boss.global_position).length())/64.0,1.0,4.0),Vector2(-1.5,1.5))
+		explode_segment(child)
+
 	for child in boss.get_node("Segments/Rims").get_children():
-			child.activate((child.global_position - boss.global_position).normalized()*clamp((64.0-(child.global_position - boss.global_position).length())/64.0,1.0,4.0),Vector2(-1.5,1.5))
-			
-	await get_tree().create_timer(3, false).timeout
+		explode_segment(child)
+	await get_tree().create_timer(7, false).timeout
 	
 	
 	#
@@ -146,6 +158,7 @@ func scifi_phase2_to_3():
 	
 	boss.get_node("AnimationTree").active = true
 	boss.get_node("BTPlayer").active = true
+	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 	
 	#Fully bring back boss
 	phase_changing = false
@@ -160,7 +173,6 @@ func scifi_phase2_to_3():
 	playback.travel("idle")
 	await get_tree().create_timer(1, false).timeout
 	s_material.set_shader_parameter("ultimate", false)
-	boss.get_node("BTPlayer").blackboard.set_var("phase", phase)
 	
 
 var lifetime = 0.0
@@ -330,15 +342,15 @@ func animation_reset() -> void:
 		rimvis.rotation = 0
 
 func scifi_laser_attack(num_lasers):
-	if phase_changing:
+	if !basic_laser_legal():
 		return
 	print("LASEEERRRRRRR")
 	animation_change("basic_laser")
 	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",true)
 	await get_tree().create_timer(3.0, false).timeout
-	if phase_changing:
-		return
 	boss.get_node("AnimationTree").set("parameters/conditions/laser_basic",false)
+	if !basic_laser_legal():
+		return
 	
 	var gun = boss.get_node("Segments/GunParts")
 	var board = boss.get_node("BTPlayer").blackboard
@@ -363,7 +375,7 @@ func scifi_laser_attack(num_lasers):
 	idle_timer.one_shot = true
 	add_child(idle_timer)
 	idle_timer.start()
-	while idle_timer.time_left > 0:
+	while idle_timer.time_left > 0 and basic_laser_legal():
 		track_position = player1.global_position if is_purple else player2.global_position
 		if inst:
 			# Update laser direction
@@ -377,7 +389,15 @@ func scifi_laser_attack(num_lasers):
 			s_material.set_shader_parameter("laser_impact_world_pos",inst.global_position)
 			if get_tree():
 				await get_tree().process_frame
+	if inst and is_instance_valid(inst):
+		inst.queue_free()
 	animation_change("idle")
+	
+	
+func basic_laser_legal():
+	if phase != 1 or phase_changing:
+		return false
+	return true
 	
 
 

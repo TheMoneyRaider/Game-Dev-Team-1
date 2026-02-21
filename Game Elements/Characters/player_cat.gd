@@ -152,14 +152,6 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("swap_" + input_device):
 			LayerManager.room_instance.boss.take_damage(50,self)
 			swap_color()
-			#var attack_inst = load("res://Game Elements/Bosses/scifi/wave_attack.tscn").instantiate()
-			#attack_inst.damage = 10
-			#attack_inst.global_position = global_position
-			#attack_inst.c_owner = self
-			#attack_inst.direction = Vector2.UP
-			#LayerManager.room_instance.call_deferred("add_child",attack_inst)
-			#var s_material = LayerManager.get_node("game_container").material
-			#s_material.set_shader_parameter("ultimate", true)
 	else:
 		tether(delta)
 	input_direction += (tether_momentum / move_speed)
