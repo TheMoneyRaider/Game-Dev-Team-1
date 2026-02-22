@@ -1252,7 +1252,9 @@ func _finalize_room_creation(next_room_instance: Node2D, next_room_data: Room, d
 	generated_room_conflict[pathway_detect.name] = conflict_cells.duplicate()
 	
 	_choose_reward(pathway_detect.name)
-	
+
+
+
 func _move_to_pathway_room(pathway_id: String) -> void:
 	var shido1 = 0.0
 	var shido2 = 0.0
@@ -1269,11 +1271,18 @@ func _move_to_pathway_room(pathway_id: String) -> void:
 	if shido1!=0.0:
 		for rem in player_1_remnants:
 			if randf() < shido1 and rem.rank <= 4:
+				if(rem.remnant_name == "Remnant of the Mancermancer"):
+					player1.mancermancer_values[0] = rem.rank
 				rem.rank +=1
 				player1_ranked_up.append(rem.remnant_name)
 	if shido2!=0.0:
 		for rem in player_2_remnants:
 			if randf() < shido2 and rem.rank <= 4:
+				if(rem.remnant_name == "Remnant of the Mancermancer"):
+					if(is_multiplayer):
+						player2.mancermancer_values[1] = rem.rank
+					else:
+						player1.mancermancer_values[1] = rem.rank
 				rem.rank +=1
 				player2_ranked_up.append(rem.remnant_name)
 	hud.set_remnant_icons(player_1_remnants,player_2_remnants,player1_ranked_up,player2_ranked_up)
